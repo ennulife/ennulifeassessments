@@ -1,8 +1,8 @@
 # ENNU Life Plugin - Comprehensive User Experience Documentation
 
 **Version:** 24.1.0  
-**Author:** Manus - World's Greatest WordPress Developer  
-**Date:** January 7, 2025
+**Author:** Luis Escobar 
+**Date:** July 11, 2025
 
 ---
 
