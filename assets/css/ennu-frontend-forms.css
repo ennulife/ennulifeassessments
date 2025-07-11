@@ -1,0 +1,403 @@
+/**
+ * ENNU Life Frontend Assessment Forms CSS
+ * Modern Neutral Grey Color Scheme
+ * Version: 24.0.0-ENHANCED
+ */
+
+/* Assessment Form Container */
+.ennu-assessment-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Progress Bar */
+.progress-container {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6c757d 0%, #495057 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin-top: 10px;
+}
+
+/* Question Slides */
+.question-slide {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.question-slide.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Question Styling */
+.question-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.question-subtitle {
+    font-size: 18px;
+    color: #6c757d;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Answer Options */
+.answer-options {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.answer-option {
+    position: relative;
+}
+
+.answer-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.answer-option label {
+    display: block;
+    padding: 20px 25px;
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: #495057;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.answer-option label:hover {
+    border-color: #6c757d;
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.answer-option input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    border-color: #495057;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(73, 80, 87, 0.3);
+}
+
+.answer-option input[type="radio"]:checked + label::before {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Contact Information Form */
+.contact-fields {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.contact-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-field label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.contact-field input,
+.contact-field select {
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #ffffff;
+    transition: border-color 0.3s ease;
+}
+
+.contact-field input:focus,
+.contact-field select:focus {
+    outline: none;
+    border-color: #6c757d;
+    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+}
+
+/* Date of Birth Fields */
+.dob-container {
+    margin-bottom: 30px;
+}
+
+.dob-container label {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.dob-dropdowns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.dob-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.dob-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.dob-field select {
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #ffffff;
+    transition: border-color 0.3s ease;
+}
+
+.dob-field select:focus {
+    outline: none;
+    border-color: #6c757d;
+    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    gap: 20px;
+}
+
+.nav-button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-button.prev {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.nav-button.prev:hover {
+    background: #dee2e6;
+    transform: translateY(-2px);
+}
+
+.nav-button.next,
+.nav-button.submit {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    color: #ffffff;
+    margin-left: auto;
+}
+
+.nav-button.next:hover,
+.nav-button.submit:hover {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(73, 80, 87, 0.3);
+}
+
+.nav-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Success Message */
+.assessment-success {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #d1e7dd 0%, #a3cfbb 100%);
+    border-radius: 12px;
+    margin-top: 30px;
+}
+
+.assessment-success h3 {
+    color: #0f5132;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.assessment-success p {
+    color: #146c43;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Error States */
+.error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading .nav-button {
+    position: relative;
+}
+
+.loading .nav-button::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .ennu-assessment-form {
+        padding: 30px 15px;
+        margin: 10px;
+    }
+    
+    .question-title {
+        font-size: 24px;
+    }
+    
+    .question-subtitle {
+        font-size: 16px;
+    }
+    
+    .dob-dropdowns {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .navigation-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .nav-button.next,
+    .nav-button.submit {
+        margin-left: 0;
+        order: -1;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .answer-option label {
+        border-width: 3px;
+    }
+    
+    .answer-option input[type="radio"]:checked + label {
+        border-width: 3px;
+    }
+}
+
+/* Focus Visible for Keyboard Navigation */
+.answer-option label:focus-visible,
+.nav-button:focus-visible,
+.contact-field input:focus-visible,
+.contact-field select:focus-visible {
+    outline: 3px solid #495057;
+    outline-offset: 2px;
+}
+

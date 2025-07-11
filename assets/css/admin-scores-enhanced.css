@@ -1,0 +1,1111 @@
+/**
+ * ENNU Life Enhanced Admin Styles - Bulletproof Edition
+ * 
+ * Conflict-free CSS with high specificity selectors and namespace isolation.
+ * Eliminates all potential CSS conflicts with themes and other plugins.
+ * 
+ * @package ENNU_Life
+ * @version 23.1.0
+ * @author Manus - World's Greatest WordPress Developer
+ */
+
+/* CSS Custom Properties for Easy Theming */
+.wp-admin .ennu-enhanced-admin-container {
+    --ennu-primary-color: #2271b1;
+    --ennu-success-color: #00a32a;
+    --ennu-warning-color: #dba617;
+    --ennu-danger-color: #d63638;
+    --ennu-info-color: #72aee6;
+    --ennu-border-radius: 4px;
+    --ennu-box-shadow: 0 1px 3px rgba(0,0,0,0.13);
+    --ennu-transition: all 0.3s ease;
+    --ennu-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Namespace Container - Prevents All Conflicts */
+.wp-admin .ennu-enhanced-admin-container {
+    font-family: var(--ennu-font-family);
+    line-height: 1.5;
+    color: #1d2327;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: var(--ennu-border-radius);
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: var(--ennu-box-shadow);
+}
+
+.wp-admin .ennu-enhanced-admin-container * {
+    box-sizing: border-box;
+}
+
+/* Enhanced Score Dashboard */
+.wp-admin .ennu-enhanced-admin-container .ennu-scores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--ennu-border-radius);
+    padding: 20px;
+    box-shadow: var(--ennu-box-shadow);
+    transition: var(--ennu-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-card.has-score {
+    border-left: 4px solid var(--ennu-success-color);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-card.no-score {
+    border-left: 4px solid #c3c4c7;
+    opacity: 0.7;
+}
+
+/* Score Header */
+.wp-admin .ennu-enhanced-admin-container .ennu-score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-cache-badge {
+    background: var(--ennu-info-color);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Score Display */
+.wp-admin .ennu-enhanced-admin-container .ennu-score-display {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-score-interpretation {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Score Color Classes */
+.wp-admin .ennu-enhanced-admin-container .excellent {
+    color: var(--ennu-success-color);
+}
+
+.wp-admin .ennu-enhanced-admin-container .good {
+    color: #46b450;
+}
+
+.wp-admin .ennu-enhanced-admin-container .fair {
+    color: var(--ennu-warning-color);
+}
+
+.wp-admin .ennu-enhanced-admin-container .needs-attention {
+    color: #ff8c00;
+}
+
+.wp-admin .ennu-enhanced-admin-container .critical {
+    color: var(--ennu-danger-color);
+}
+
+/* Progress Bar */
+.wp-admin .ennu-enhanced-admin-container .ennu-score-progress {
+    width: 100%;
+    height: 8px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease-in-out;
+    position: relative;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar.excellent {
+    background: linear-gradient(90deg, var(--ennu-success-color), #46b450);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar.good {
+    background: linear-gradient(90deg, #46b450, #68de7c);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar.fair {
+    background: linear-gradient(90deg, var(--ennu-warning-color), #ffb900);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar.needs-attention {
+    background: linear-gradient(90deg, #ff8c00, #ffb900);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-progress-bar.critical {
+    background: linear-gradient(90deg, var(--ennu-danger-color), #ff6b6b);
+}
+
+/* No Score State */
+.wp-admin .ennu-enhanced-admin-container .ennu-no-score {
+    text-align: center;
+    padding: 20px;
+    color: #646970;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-no-score .dashicons {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-no-score p {
+    margin: 0;
+    font-style: italic;
+}
+
+/* Overall Score */
+.wp-admin .ennu-enhanced-admin-container .ennu-overall-score {
+    background: linear-gradient(135deg, var(--ennu-primary-color), #135e96);
+    color: #fff;
+    padding: 25px;
+    border-radius: var(--ennu-border-radius);
+    text-align: center;
+    margin: 30px 0;
+    box-shadow: 0 4px 15px rgba(34, 113, 177, 0.3);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-overall-score h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-overall-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-overall-number {
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-overall-interpretation {
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cache Status */
+.wp-admin .ennu-enhanced-admin-container .ennu-cache-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background: #f6f7f7;
+    border-radius: var(--ennu-border-radius);
+    font-size: 14px;
+    color: #646970;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-cache-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-cache-indicator.active {
+    background: var(--ennu-success-color);
+    box-shadow: 0 0 0 2px rgba(0, 163, 42, 0.3);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-cache-indicator.inactive {
+    background: #c3c4c7;
+}
+
+/* Dashboard Actions */
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f6f7f7;
+    border-radius: var(--ennu-border-radius);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--ennu-border-radius);
+    transition: var(--ennu-transition);
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button:active {
+    transform: translateY(0);
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button .dashicons {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Status Display */
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: var(--ennu-border-radius);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display.show {
+    display: flex;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display.loading {
+    background: #e7f3ff;
+    border: 1px solid var(--ennu-info-color);
+    color: #0073aa;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display.success {
+    background: #edfaef;
+    border: 1px solid var(--ennu-success-color);
+    color: #00a32a;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display.error {
+    background: #fcf0f1;
+    border: 1px solid var(--ennu-danger-color);
+    color: #d63638;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-status-display .dashicons {
+    font-size: 18px;
+}
+
+/* Performance Dashboard */
+.wp-admin .ennu-enhanced-admin-container .ennu-performance-dashboard {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--ennu-border-radius);
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-performance-dashboard h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-perf-metric {
+    background: #fff;
+    padding: 15px;
+    border-radius: var(--ennu-border-radius);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-perf-label {
+    display: block;
+    font-size: 12px;
+    color: #646970;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-perf-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ennu-primary-color);
+}
+
+/* Security Dashboard */
+.wp-admin .ennu-enhanced-admin-container .ennu-security-dashboard {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--ennu-border-radius);
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-security-dashboard h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-security-metric {
+    background: #fff;
+    padding: 15px;
+    border-radius: var(--ennu-border-radius);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-security-label {
+    display: block;
+    font-size: 12px;
+    color: #646970;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-security-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ennu-primary-color);
+}
+
+/* WP Fusion Panel */
+.wp-admin .ennu-enhanced-admin-container .ennu-wp-fusion-panel {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: var(--ennu-border-radius);
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-wp-fusion-panel h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-integration-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: var(--ennu-border-radius);
+    font-weight: 500;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-integration-status.active {
+    background: #edfaef;
+    border: 1px solid var(--ennu-success-color);
+    color: #00a32a;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-integration-status.inactive {
+    background: #fcf0f1;
+    border: 1px solid var(--ennu-danger-color);
+    color: #d63638;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-integration-status .dashicons {
+    font-size: 18px;
+}
+
+/* Loading Animations */
+.wp-admin .ennu-enhanced-admin-container .ennu-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.wp-admin .ennu-enhanced-admin-container .ennu-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    animation: ennu-shimmer 1.5s infinite;
+}
+
+@keyframes ennu-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wp-admin .ennu-enhanced-admin-container .ennu-scores-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions {
+        flex-direction: column;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button {
+        justify-content: center;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-overall-display {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-performance-grid,
+    .wp-admin .ennu-enhanced-admin-container .ennu-security-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .wp-admin .ennu-enhanced-admin-container {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-score-card {
+        padding: 15px;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-performance-grid,
+    .wp-admin .ennu-enhanced-admin-container .ennu-security-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions {
+        display: none;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-status-display {
+        display: none;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-score-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .wp-admin .ennu-enhanced-admin-container {
+        border: 2px solid #000;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-score-card {
+        border: 2px solid #000;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-progress-bar {
+        border: 1px solid #000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .wp-admin .ennu-enhanced-admin-container * {
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+        transition-duration: 0.01ms;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-score-card:hover {
+        transform: none;
+    }
+    
+    .wp-admin .ennu-enhanced-admin-container .ennu-dashboard-actions .button:hover {
+        transform: none;
+    }
+}
+
+
+/* Medical-Grade Assessment Results */
+.ennu-medical-grade-results {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+}
+
+.ennu-medical-grade-results h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.ennu-score-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.score-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    background: #ffffff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 2px solid #3498db;
+}
+
+.score-range {
+    font-size: 14px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.clinical-interpretation {
+    background: #e8f4fd;
+    border-left: 4px solid #3498db;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.safety-indicator {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.safety-safe {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.safety-low-risk {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.safety-moderate-risk {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.safety-high-risk {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    font-weight: bold;
+}
+
+.risk-flags {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin: 10px 0;
+}
+
+.risk-flags ul {
+    margin: 5px 0 0 20px;
+    padding: 0;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin: 10px 0;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin: 10px 0;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin: 10px 0;
+}
+
+.contraindications ul,
+.warnings ul,
+.recommendations ul {
+    margin: 5px 0 0 20px;
+    padding: 0;
+}
+
+.contraindications li,
+.warnings li,
+.recommendations li {
+    margin: 5px 0;
+}
+
+
+/* ========================================
+   COMPREHENSIVE FIELD DISPLAY STYLES
+   ======================================== */
+
+/* Comprehensive Section Container */
+.wp-admin .ennu-comprehensive-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 6px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.wp-admin .ennu-comprehensive-section h3 {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    color: #fff;
+    margin: 0;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.wp-admin .ennu-comprehensive-section .ennu-section-description {
+    background: #f8f9fa;
+    padding: 12px 20px;
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+    font-style: italic;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Field Categories */
+.wp-admin .ennu-field-category {
+    border-bottom: 1px solid #e9ecef;
+    padding: 20px;
+}
+
+.wp-admin .ennu-field-category:last-child {
+    border-bottom: none;
+}
+
+.wp-admin .ennu-category-title {
+    color: #495057;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    padding: 8px 12px;
+    background: #e9ecef;
+    border-radius: 4px;
+    border-left: 4px solid #6c757d;
+}
+
+.wp-admin .ennu-system-category .ennu-category-title {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+    color: #856404;
+}
+
+/* Field Rows */
+.wp-admin .ennu-field-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+    min-height: 40px;
+}
+
+.wp-admin .ennu-field-row:last-child {
+    border-bottom: none;
+}
+
+.wp-admin .ennu-field-row:hover {
+    background: #f8f9fa;
+}
+
+/* Field Labels */
+.wp-admin .ennu-field-label {
+    font-weight: 600;
+    color: #495057;
+    width: 220px;
+    flex-shrink: 0;
+    padding-right: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Field IDs */
+.wp-admin .ennu-field-id {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #f1f3f4;
+    color: #5f6368;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    width: 280px;
+    flex-shrink: 0;
+    margin-right: 15px;
+    border: 1px solid #dadce0;
+    word-break: break-all;
+}
+
+/* Field Values */
+.wp-admin .ennu-field-value {
+    flex: 1;
+    color: #202124;
+    font-size: 13px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.wp-admin .ennu-empty-value {
+    color: #9aa0a6;
+    font-style: italic;
+}
+
+/* Field Type Specific Styling */
+.wp-admin .ennu-global-field {
+    background: rgba(209, 236, 241, 0.3);
+}
+
+.wp-admin .ennu-global-field .ennu-field-id {
+    background: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.wp-admin .ennu-system-field {
+    background: rgba(255, 243, 205, 0.3);
+}
+
+.wp-admin .ennu-system-field .ennu-field-id {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.wp-admin .ennu-question-field {
+    background: rgba(248, 249, 250, 0.5);
+}
+
+.wp-admin .ennu-metadata-field {
+    background: rgba(232, 245, 233, 0.3);
+}
+
+.wp-admin .ennu-metadata-field .ennu-field-id {
+    background: #e8f5e8;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.wp-admin .ennu-contact-field {
+    background: rgba(255, 248, 225, 0.3);
+}
+
+.wp-admin .ennu-dob-field {
+    background: rgba(230, 244, 255, 0.3);
+}
+
+.wp-admin .ennu-multiselect-field {
+    background: rgba(248, 215, 218, 0.3);
+}
+
+/* Field Descriptions */
+.wp-admin .ennu-field-description {
+    background: rgba(248, 249, 250, 0.8);
+    font-size: 12px;
+    padding: 6px 0;
+}
+
+.wp-admin .ennu-field-description .ennu-field-value {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Question Options Display */
+.wp-admin .ennu-question-options .ennu-field-value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.wp-admin .ennu-option-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    border: 1px solid #ced4da;
+    white-space: nowrap;
+}
+
+.wp-admin .ennu-selected-badge {
+    background: #d4edda;
+    color: #155724;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    border: 1px solid #c3e6cb;
+    white-space: nowrap;
+}
+
+/* Metadata Section */
+.wp-admin .ennu-metadata-section {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.wp-admin .ennu-metadata-section h4 {
+    color: #495057;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+/* Questions Section */
+.wp-admin .ennu-questions-section {
+    padding: 15px 0;
+}
+
+.wp-admin .ennu-questions-section h4 {
+    color: #495057;
+    font-size: 14px;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* System Fields Section */
+.wp-admin .ennu-system-fields-section {
+    background: #fffbf0;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+}
+
+.wp-admin .ennu-system-fields-section h4 {
+    color: #856404;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+/* No Questions Message */
+.wp-admin .ennu-no-questions {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .wp-admin .ennu-field-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .wp-admin .ennu-field-label,
+    .wp-admin .ennu-field-id {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .wp-admin .ennu-field-id {
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .wp-admin .ennu-comprehensive-section {
+        margin: 10px 0;
+    }
+    
+    .wp-admin .ennu-field-category {
+        padding: 15px;
+    }
+    
+    .wp-admin .ennu-field-label {
+        width: 180px;
+    }
+    
+    .wp-admin .ennu-field-id {
+        width: 220px;
+        font-size: 10px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .wp-admin .ennu-comprehensive-section {
+        box-shadow: none;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+    
+    .wp-admin .ennu-field-row {
+        border-bottom: 1px solid #ccc;
+    }
+    
+    .wp-admin .ennu-field-id {
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+    }
+}
+
+/* Dark Mode Support (if WordPress admin has dark mode) */
+@media (prefers-color-scheme: dark) {
+    .wp-admin.dark-mode .ennu-comprehensive-section {
+        background: #1e1e1e;
+        border-color: #3c3c3c;
+        color: #e0e0e0;
+    }
+    
+    .wp-admin.dark-mode .ennu-comprehensive-section h3 {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    }
+    
+    .wp-admin.dark-mode .ennu-field-id {
+        background: #2d3748;
+        color: #a0aec0;
+        border-color: #4a5568;
+    }
+    
+    .wp-admin.dark-mode .ennu-field-value {
+        color: #e2e8f0;
+    }
+    
+    .wp-admin.dark-mode .ennu-empty-value {
+        color: #718096;
+    }
+}
+
+/* Accessibility Enhancements */
+.wp-admin .ennu-field-row:focus-within {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.wp-admin .ennu-field-id:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 1px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .wp-admin .ennu-field-id {
+        border-width: 2px;
+        font-weight: 600;
+    }
+    
+    .wp-admin .ennu-field-row {
+        border-bottom-width: 2px;
+    }
+}
+
+/* Animation for Loading States */
+.wp-admin .ennu-field-loading {
+    opacity: 0.6;
+    position: relative;
+}
+
+.wp-admin .ennu-field-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: ennu-loading-shimmer 1.5s infinite;
+}
+
+@keyframes ennu-loading-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
