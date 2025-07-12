@@ -44,7 +44,6 @@ class ENNU_Enhanced_Admin {
         // Enhanced AJAX handlers with bulletproof security
         add_action('wp_ajax_ennu_recalculate_scores', array($this, 'ajax_recalculate_scores'));
         add_action('wp_ajax_ennu_export_user_data', array($this, 'ajax_export_user_data'));
-        add_action('wp_ajax_ennu_sync_hubspot', array($this, 'ajax_sync_hubspot'));
         add_action('wp_ajax_ennu_clear_cache', array($this, 'ajax_clear_cache'));
         add_action('wp_ajax_ennu_security_stats', array($this, 'ajax_security_stats'));
         
@@ -56,6 +55,43 @@ class ENNU_Enhanced_Admin {
 
         // New AJAX handler for clearing data
         add_action('wp_ajax_ennu_clear_user_data', array($this, 'ajax_clear_user_data'));
+
+        // WP Fusion Integration
+        add_filter('wpf_meta_fields', array($this, 'add_fields_to_wpfusion'));
+    }
+
+    /**
+     * Register all custom assessment fields with WP Fusion.
+     */
+    public function add_fields_to_wpfusion( $meta_fields ) {
+        $assessments = [
+            'hair_assessment' => 'Hair Assessment',
+            'skin_assessment' => 'Skin Assessment',
+            'health_assessment' => 'Health Assessment',
+            'weight_loss_assessment' => 'Weight Loss Assessment',
+            'ed_treatment_assessment' => 'ED Treatment Assessment'
+        ];
+
+        foreach ($assessments as $type => $label) {
+            // Add the overall score and interpretation
+            $meta_fields['ennu_' . $type . '_calculated_score'] = array(
+                'label' => $label . ' - Score',
+                'type'  => 'text',
+                'group' => 'ENNU Assessments'
+            );
+            $meta_fields['ennu_' . $type . '_score_interpretation'] = array(
+                'label' => $label . ' - Interpretation',
+                'type'  => 'text',
+                'group' => 'ENNU Assessments'
+            );
+            $meta_fields['ennu_' . $type . '_category_scores'] = array(
+                'label' => $label . ' - Category Scores',
+                'type'  => 'text',
+                'group' => 'ENNU Assessments'
+            );
+        }
+
+        return $meta_fields;
     }
 
     public function ajax_clear_user_data() {
@@ -445,10 +481,6 @@ class ENNU_Enhanced_Admin {
             echo '<span class="dashicons dashicons-download"></span> ' . __('Export Data', 'ennulifeassessments');
             echo '</button>';
             
-            echo '<button type="button" id="ennu-sync-hubspot" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-cloud"></span> ' . __('Sync HubSpot', 'ennulifeassessments');
-            echo '</button>';
-            
             echo '<button type="button" id="ennu-clear-cache" class="button button-secondary">';
             echo '<span class="dashicons dashicons-trash"></span> ' . __('Clear Cache', 'ennulifeassessments');
             echo '</button>';
@@ -723,45 +755,6 @@ class ENNU_Enhanced_Admin {
             error_log('ENNU AJAX Export Error: ' . $e->getMessage());
             wp_send_json_error(array(
                 'message' => __('Failed to export data. Please try again.', 'ennulifeassessments'),
-                'error' => $e->getMessage()
-            ));
-        }
-    }
-    
-    /**
-     * Enhanced HubSpot sync
-     */
-    public function ajax_sync_hubspot() {
-        $start_time = microtime(true);
-        
-        try {
-            $user_id = intval($_POST['user_id'] ?? 0);
-            $validation_result = ENNU_AJAX_Security::validate_ajax_request('sync_hubspot', $user_id);
-            
-            if (is_wp_error($validation_result)) {
-                wp_send_json_error(array(
-                    'message' => $validation_result->get_error_message(),
-                    'code' => $validation_result->get_error_code()
-                ));
-                return;
-            }
-            
-            // Placeholder for HubSpot sync logic
-            // This would integrate with HubSpot API
-            
-            // Log performance
-            $execution_time = microtime(true) - $start_time;
-            $this->log_performance('ajax_hubspot_sync', $execution_time, $user_id);
-            
-            wp_send_json_success(array(
-                'message' => __('HubSpot sync completed!', 'ennulifeassessments'),
-                'execution_time' => $execution_time
-            ));
-            
-        } catch (Exception $e) {
-            error_log('ENNU AJAX HubSpot Sync Error: ' . $e->getMessage());
-            wp_send_json_error(array(
-                'message' => __('Failed to sync with HubSpot. Please try again.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -1454,12 +1447,16 @@ class ENNU_Enhanced_Admin {
      * Get plugin settings
      */
     private function get_plugin_settings() {
-        return array(
-            'admin_email' => get_option('ennu_admin_email', get_option('admin_email')),
-            'email_notifications' => get_option('ennu_email_notifications', 1),
-            'cache_results' => get_option('ennu_cache_results', 1),
-            'wp_fusion_enabled' => get_option('ennu_wp_fusion_enabled', 0),
-            'hubspot_api_key' => get_option('ennu_hubspot_api_key', '')
+        $saved_settings = get_option('ennu_plugin_settings', array());
+        return array_merge(
+            array(
+                'admin_email' => get_option('ennu_admin_email', get_option('admin_email')),
+                'email_notifications' => get_option('ennu_email_notifications', 1),
+                'cache_results' => get_option('ennu_cache_results', 1),
+                'wp_fusion_enabled' => get_option('ennu_wp_fusion_enabled', 0),
+                'hubspot_api_key' => get_option('ennu_hubspot_api_key', '')
+            ),
+            $saved_settings // Merge with any settings that might have been saved previously
         );
     }
     
@@ -1467,17 +1464,15 @@ class ENNU_Enhanced_Admin {
      * Save plugin settings
      */
     private function save_settings() {
-        if (isset($_POST['admin_email'])) {
-            update_option('ennu_admin_email', sanitize_email($_POST['admin_email']));
-        }
-        
-        update_option('ennu_email_notifications', isset($_POST['email_notifications']) ? 1 : 0);
-        update_option('ennu_cache_results', isset($_POST['cache_results']) ? 1 : 0);
-        update_option('ennu_wp_fusion_enabled', isset($_POST['wp_fusion_enabled']) ? 1 : 0);
-        
-        if (isset($_POST['hubspot_api_key'])) {
-            update_option('ennu_hubspot_api_key', sanitize_text_field($_POST['hubspot_api_key']));
-        }
+        $settings = $this->get_plugin_settings();
+
+        $settings['admin_email'] = isset($_POST['admin_email']) ? sanitize_email($_POST['admin_email']) : $settings['admin_email'];
+        $settings['email_notifications'] = isset($_POST['email_notifications']) ? 1 : 0;
+        $settings['cache_results'] = isset($_POST['cache_results']) ? 1 : 0;
+        $settings['wp_fusion_enabled'] = isset($_POST['wp_fusion_enabled']) ? 1 : 0;
+        $settings['hubspot_api_key'] = isset($_POST['hubspot_api_key']) ? sanitize_text_field($_POST['hubspot_api_key']) : $settings['hubspot_api_key'];
+
+        update_option('ennu_plugin_settings', $settings);
     }
     
     /**

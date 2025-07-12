@@ -109,7 +109,7 @@ class ENNU_Assessment_Scoring {
 
         return null;
     }
-
+    
     /**
      * Get category definitions for assessment type
      */

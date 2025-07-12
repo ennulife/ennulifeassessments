@@ -1,5 +1,29 @@
 # ENNU Life Assessment Plugin Changelog
 
+## Version 25.0.0 - Core Feature Complete & Documentation Release
+*Date: July 12, 2025*
+
+This major version marks the completion of the plugin's core feature set and a full documentation overhaul. The plugin is now stable, fully functional, and ready for production use.
+
+### ✨ New Features
+- **User-Facing Results Page**: Implemented a dynamic, personalized results page that displays the user's overall score, a detailed interpretation of their results, and a breakdown of scores by category.
+- **Comprehensive Scoring Documentation**: Created a full suite of documentation for the scoring system, including a deep-dive guide and individual verification reports for each assessment.
+
+### 🐛 Bug Fixes & Enhancements
+- **Completed Scoring Logic**: Fully implemented the category scoring calculations and data flow, ensuring the new results page has the data it needs.
+- **Final Documentation Polish**: Updated all documentation files to be consistent with the final `25.0.0` version.
+
+## Version 24.13.0 - Comprehensive Documentation Release
+*Date: July 12, 2025*
+
+This release introduces a full suite of comprehensive documentation, including detailed scoring guides and audits for every assessment, providing complete transparency into the system's logic.
+
+### 📝 Documentation
+- **Scoring System Deep Dive**: Created a central document explaining the architecture, data flow, and logic of the scoring engine.
+- **Individual Scoring Guides**: Created separate, detailed scoring guides for all five core assessments, each with a full breakdown of questions, categories, weights, and point values.
+- **Scoring Audits**: Created separate, formal audit and verification documents for each assessment, confirming the correctness and clinical soundness of the scoring logic.
+- **General Cleanup**: Updated version numbers and dates across all documentation to ensure consistency.
+
 ## Version 24.12.4 - Admin UX Enhancement
 *Date: July 12, 2025*
 

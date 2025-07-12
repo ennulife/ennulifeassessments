@@ -71,7 +71,7 @@ class ENNU_Comprehensive_Assessment_Display {
             echo '</div>';
         }
     }
-
+    
     /**
      * Display assessment metadata (completion status, dates, etc.)
      */
@@ -331,7 +331,7 @@ class ENNU_Comprehensive_Assessment_Display {
             return $all_questions[ $assessment_type ] ?? array();
         }
 
-        return array();
+                return array();
     }
     
     /**

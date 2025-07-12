@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin
 
-**Version:** 24.12.4
+**Version:** 25.0.0
 **Author:** ENNU Life Development Team
 **License:** Proprietary
 

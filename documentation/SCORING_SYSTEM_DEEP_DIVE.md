@@ -1,6 +1,6 @@
 # ENNU Life: Scoring System Deep Dive
 
-**Version**: 24.12.4
+**Version**: 25.0.0
 **Date**: July 12, 2025
 
 ---
@@ -107,53 +107,53 @@ The following tables provide a full, human-readable breakdown of every scorable 
 | | | | | Sensitive | `sensitive` | 5 |
 | skin_q4 | primary_concern | Primary Skin Issue | 3 | Acne & Blemishes | `acne` | 3 |
 | | | | | Fine Lines & Wrinkles | `aging` | 4 |
-| | | | | Dark Spots | `pigmentation` | 5 |
+| | | | | Dark Spots & Hyperpigmentation | `pigmentation` | 5 |
 | | | | | Redness & Rosacea | `redness` | 4 |
 | | | | | Dryness & Dehydration | `dullness` | 6 |
-| skin_q5 | sun_exposure | Environmental Factors | 2.5 | Rarely | `minimal` | 9 |
-| | | | | Sometimes | `moderate` | 6 |
-| | | | | Daily | `high` | 3 |
-| skin_q6 | skincare_routine | Current Regimen | 1 | Minimal | `none` | 4 |
-| | | | | Basic | `basic` | 6 |
-| | | | | Advanced | `advanced` | 8 |
-| skin_q8 | lifestyle_factors | Lifestyle & Diet | 2 | Healthy | `healthy` | 9 |
-| | | | | Average | `average` | 6 |
-| | | | | Unhealthy | `unhealthy` | 3 |
+| skin_q5 | sun_exposure | Environmental Factors | 2.5 | Rarely, I'm mostly indoors | `minimal` | 9 |
+| | | | | Sometimes, on weekends | `moderate` | 6 |
+| | | | | Daily, but I use sunscreen | `high` | 3 |
+| skin_q6 | skincare_routine | Current Regimen | 1 | Minimal (cleanse, maybe moisturize) | `none` | 4 |
+| | | | | Basic (cleanse, moisturize, SPF) | `basic` | 6 |
+| | | | | Advanced (serums, exfoliants, etc.) | `advanced` | 8 |
+| skin_q8 | lifestyle_factors | Lifestyle & Diet | 2 | I smoke | `smoker` | 3 |
+| | | | | I have high stress levels | `high_stress` | 4 |
+| | | | | I have poor sleep quality | `poor_sleep` | 4 |
+| | | | | My diet is high in sugar/processed foods | `high_sugar_diet` | 3 |
 
-*(Note: Not all questions are scorable. Contact forms and date of birth fields do not contribute to the score.)*
+### General Health Assessment
 
----
-
-## 5. How to Modify Scoring
-
-Modifying the scoring is now simple and safe.
-
-### To Change a Point Value:
-
-1.  Open `includes/config/assessment-scoring.php`.
-2.  Navigate to the assessment and `scoring_key` you want to modify.
-3.  Find the answer ID (`value`) you want to change.
-4.  Change its point value.
-5.  Save the file. The changes are instant.
-
-**Example**: To make "Thinning Hair" worth 3 points instead of 4:
-```php
-// In includes/config/assessment-scoring.php
-'hair_concerns' => array(
-    'category' => 'Hair Health Status',
-    'weight' => 3,
-    'answers' => array(
-        'thinning' => 3, // Changed from 4 to 3
-        'receding' => 3,
-        // ...
-    )
-),
-```
-
-### To Add a New Scorable Question:
-
-1.  **Add the question** to `includes/config/assessment-questions.php`. Make sure to give it a unique `scoring_key`.
-2.  **Add a new entry** to `includes/config/assessment-scoring.php`. The key for this entry must be the **exact same `scoring_key`** you just created.
-3.  Define the `category`, `weight`, and all possible `answers` with their point values.
-
-That's it. The system will automatically pick up the new question and include it in the calculations. There is no need to modify any PHP code. 
+| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| health_q2 | gender | Demographics | 0.5 | Male | `male` | 5 |
+| | | | | Female | `female` | 5 |
+| health_q3 | overall_health | Current Health Status | 3 | Poor | `poor` | 2 |
+| | | | | Fair | `fair` | 5 |
+| | | | | Good | `good` | 7 |
+| | | | | Excellent | `excellent` | 9 |
+| health_q4 | energy_levels | Vitality & Energy | 2 | Consistently Low | `low` | 2 |
+| | | | | I crash in the afternoon | `crash` | 4 |
+| | | | | Generally Okay | `moderate` | 7 |
+| | | | | High and Stable | `high` | 9 |
+| health_q5 | exercise_frequency| Physical Activity | 2.5 | Rarely or Never | `rarely` | 1 |
+| | | | | 1-2 times a week | `sometimes` | 5 |
+| | | | | 3-5 times a week | `often` | 8 |
+| | | | | Almost every day | `daily` | 9 |
+| health_q6 | diet_quality | Nutrition | 2.5 | High in processed foods | `processed` | 2 |
+| | | | | A typical Western diet | `average` | 5 |
+| | | | | Mostly whole foods | `healthy` | 7 |
+| | | | | Very clean, whole foods diet | `very_healthy` | 9 |
+| health_q7 | sleep_quality | Sleep & Recovery | 2 | Poor, I wake up tired| `poor` | 3 |
+| | | | | Fair, could be better | `fair` | 5 |
+| | | | | Good, usually restful| `good` | 7 |
+| | | | | Excellent, I wake up refreshed | `excellent` | 9 |
+| health_q8 | stress_management | Stress & Mental Health | 2 | I don't manage it well | `poorly` | 3 |
+| | | | | I have some coping methods | `somewhat` | 5 |
+| | | | | I manage it well | `well` | 7 |
+| | | | | I have a proactive routine | `proactively`| 9 |
+| health_q9 | preventive_care | Preventive Health | 1.5 | Never or rarely | `never` | 2 |
+| | | | | Only when I have a problem| `sometimes` | 6 |
+| | | | | I have regular annual check-ups | `regularly` | 9 |
+| health_q10 | health_goals | Health Motivation | 1 | Improve Longevity | `longevity`| 9 |
+| | | | | Increase Energy | `energy` | 8 |
+| | | | | Manage Weight | `weight`
