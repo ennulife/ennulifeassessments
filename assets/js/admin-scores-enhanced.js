@@ -118,6 +118,9 @@
                 // Clear cache button
                 $(document).on('click', '#ennu-clear-cache', this.handleClearCache.bind(this));
                 
+                // Clear user data button
+                $(document).on('click', '#ennu-clear-data', this.handleClearUserData.bind(this));
+
                 // Global error handler for unhandled promise rejections
                 window.addEventListener('unhandledrejection', this.handleUnhandledRejection.bind(this));
                 
@@ -261,6 +264,34 @@
             }
         },
         
+        // Handle clear user data
+        handleClearUserData: function(e) {
+            e.preventDefault();
+
+            if (!confirm(this.strings.confirm_clear || 'Are you sure you want to permanently delete all data?')) {
+                return;
+            }
+
+            try {
+                const $button = $(e.currentTarget);
+                const userId = $button.data('user-id');
+
+                if (!userId) {
+                    this.showNotification(this.strings.error || 'User ID not found', 'error');
+                    return;
+                }
+
+                this.performAjaxOperation('clear_user_data', {
+                    user_id: userId
+                }, $button, 'Clearing data...', function() {
+                    location.reload();
+                });
+
+            } catch (error) {
+                this.handleError('Clear user data failed: ' + error.message, 'CLEAR_DATA_ERROR', error);
+            }
+        },
+
         // Bulletproof AJAX operation with retry mechanism
         performAjaxOperation: function(action, data, $button, loadingMessage, successCallback) {
             if (this.state.isProcessing) {

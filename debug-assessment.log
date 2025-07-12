@@ -1,0 +1,92 @@
+2025-07-12 06:36:05 - Assessment submission received
+POST data: Array
+(
+    [assessment_nonce] => b24c99d65c
+    [_wp_http_referer] => /weight/
+    [action] => ennu_submit_assessment
+    [assessment_type] => weight_loss_assessment
+    [nonce] => b24c99d65c
+    [weight_loss_q1_month] => 09
+    [weight_loss_q1_day] => 11
+    [weight_loss_q1_year] => 1990
+    [weight_loss_q1] => 1990-09-11
+    [user_age] => 34
+    [first_name] => Luis
+    [last_name] => Escobar
+    [email] => admin@ennulife.com
+    [billing_phone] => 305 901 9599
+    [weight_loss_q2] => male
+    [weight_loss_q3] => lose_10
+    [weight_loss_q4] => health
+    [weight_loss_q5] => 6_months
+    [weight_loss_q6] => average
+    [weight_loss_q7] => light
+    [weight_loss_q8] => time
+    [weight_loss_q9] => diets
+    [weight_loss_q10] => thyroid
+    [weight_loss_q11] => minimal
+    [weight_loss_q12] => medical
+)
+
+User logged in: YES
+Current user ID: 2
+---
+2025-07-12 06:36:05 - Save Log for weight_loss_assessment:
+Full input data: {"assessment_type":"weight_loss_assessment","contact_name":"Luis Escobar","contact_email":"admin@ennulife.com","contact_phone":"305 901 9599","answers":{"weight_loss_q1_month":"09","weight_loss_q1_day":"11","weight_loss_q1_year":"1990","weight_loss_q1":"1990-09-11","user_age":"34","first_name":"Luis","last_name":"Escobar","email":"admin@ennulife.com","billing_phone":"305 901 9599","weight_loss_q2":"male","weight_loss_q3":"lose_10","weight_loss_q4":"health","weight_loss_q5":"6_months","weight_loss_q6":"average","weight_loss_q7":"light","weight_loss_q8":"time","weight_loss_q9":"diets","weight_loss_q10":"thyroid","weight_loss_q11":"minimal","weight_loss_q12":"medical"}}
+INFO: Starting save process for user_id: 2.
+ATTEMPT: Calling wp_update_user with: {"ID":2,"first_name":"Luis","last_name":"Escobar"}
+SUCCESS: wp_update_user completed.
+INFO: Starting user meta update process.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q1_month] = [09]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q1_month]: "01"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q1_month] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q1_day] = [11]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q1_day]: "02"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q1_day] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q1_year] = [1990]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q1_year]: "2010"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q1_year] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q1] = [1990-09-11]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q1]: "2010-01-02"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q1] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_user_age] = [34]
+Existing value for [ennu_weight_loss_assessment_user_age]: "15"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_user_age] - new ID: 1
+ATTEMPT: Updating global meta: [billing_phone] = [305 901 9599]
+Existing value for [billing_phone]: "305 901 9599"
+No change for [billing_phone] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q2] = [male]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q2]: "male"
+No change for [ennu_weight_loss_assessment_weight_loss_q2] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q3] = [lose_10]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q3]: "maintain"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q3] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q4] = [health]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q4]: "confidence"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q4] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q5] = [6_months]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q5]: "6_months"
+No change for [ennu_weight_loss_assessment_weight_loss_q5] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q6] = [average]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q6]: "average"
+No change for [ennu_weight_loss_assessment_weight_loss_q6] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q7] = [light]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q7]: "moderate"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q7] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q8] = [time]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q8]: "time"
+No change for [ennu_weight_loss_assessment_weight_loss_q8] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q9] = [diets]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q9]: "diets"
+No change for [ennu_weight_loss_assessment_weight_loss_q9] - values match.
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q10] = [thyroid]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q10]: "diabetes"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q10] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q11] = [minimal]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q11]: "moderate"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q11] - new ID: 1
+ATTEMPT: Updating assessment meta: [ennu_weight_loss_assessment_weight_loss_q12] = [medical]
+Existing value for [ennu_weight_loss_assessment_weight_loss_q12]: "group"
+SUCCESS: update_user_meta for [ennu_weight_loss_assessment_weight_loss_q12] - new ID: 1
+INFO: Final assessment metadata saved.
+---

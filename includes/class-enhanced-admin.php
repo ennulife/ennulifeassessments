@@ -53,6 +53,36 @@ class ENNU_Enhanced_Admin {
         
         // Performance monitoring
         add_action('admin_footer', array($this, 'output_performance_stats'));
+
+        // New AJAX handler for clearing data
+        add_action('wp_ajax_ennu_clear_user_data', array($this, 'ajax_clear_user_data'));
+    }
+
+    public function ajax_clear_user_data() {
+        if ( !isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'ennu_admin_nonce') ) {
+            wp_send_json_error('Security check failed.');
+        }
+
+        $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        if ( !$user_id || !current_user_can('edit_user', $user_id) ) {
+            wp_send_json_error('Permission denied.');
+        }
+
+        global $wpdb;
+        $meta_keys_to_delete = $wpdb->get_col($wpdb->prepare(
+            "SELECT meta_key FROM $wpdb->usermeta WHERE user_id = %d AND meta_key LIKE %s",
+            $user_id,
+            'ennu_%'
+        ));
+
+        if (!empty($meta_keys_to_delete)) {
+            foreach ($meta_keys_to_delete as $meta_key) {
+                delete_user_meta($user_id, $meta_key);
+            }
+            wp_send_json_success('User assessment data cleared successfully. ' . count($meta_keys_to_delete) . ' entries deleted.');
+        } else {
+            wp_send_json_success('No ENNU assessment data found for this user.');
+        }
     }
 
     /**
@@ -94,15 +124,16 @@ class ENNU_Enhanced_Admin {
                     'retry_delay' => 1000
                 ),
                 'strings' => array(
-                    'recalculating' => __('Recalculating scores...', 'ennu-life'),
-                    'exporting' => __('Exporting data...', 'ennu-life'),
-                    'syncing' => __('Syncing with HubSpot...', 'ennu-life'),
-                    'clearing_cache' => __('Clearing cache...', 'ennu-life'),
-                    'success' => __('Operation completed successfully!', 'ennu-life'),
-                    'error' => __('An error occurred. Please try again.', 'ennu-life'),
-                    'rate_limit' => __('Too many requests. Please wait a moment.', 'ennu-life'),
-                    'network_error' => __('Network error. Please check your connection.', 'ennu-life'),
-                    'permission_denied' => __('Permission denied. Please refresh the page.', 'ennu-life')
+                    'recalculating' => __('Recalculating scores...', 'ennulifeassessments'),
+                    'exporting' => __('Exporting data...', 'ennulifeassessments'),
+                    'syncing' => __('Syncing with HubSpot...', 'ennulifeassessments'),
+                    'clearing_cache' => __('Clearing cache...', 'ennulifeassessments'),
+                    'success' => __('Operation completed successfully!', 'ennulifeassessments'),
+                    'error' => __('An error occurred. Please try again.', 'ennulifeassessments'),
+                    'rate_limit' => __('Too many requests. Please wait a moment.', 'ennulifeassessments'),
+                    'network_error' => __('Network error. Please check your connection.', 'ennulifeassessments'),
+                    'permission_denied' => __('Permission denied. Please refresh the page.', 'ennulifeassessments'),
+                    'confirm_clear' => __('Are you sure you want to permanently delete all ENNU assessment data for this user? This cannot be undone.', 'ennulifeassessments')
                 ),
                 'cache_stats' => ENNU_Score_Cache::get_cache_stats(),
                 'security_stats' => ENNU_AJAX_Security::get_security_stats()
@@ -130,6 +161,11 @@ class ENNU_Enhanced_Admin {
         try {
             wp_nonce_field('ennu_user_profile_update', 'ennu_assessment_nonce');
             
+            // New: Clear All Button
+            echo '<h2>' . __('ENNU Life Data Management', 'ennulifeassessments') . '</h2>';
+            echo '<button type="button" id="ennu-clear-data" class="button button-danger" data-user-id="' . esc_attr($user->ID) . '">' . __('Clear All ENNU Data', 'ennulifeassessments') . '</button>';
+            echo '<p><em>' . __('This will delete all assessment data for this user. Cannot be undone.', 'ennulifeassessments') . '</em></p>';
+            
             // Enhanced Score Dashboard Section (NEW)
             $this->display_enhanced_score_dashboard($user->ID);
             
@@ -140,16 +176,16 @@ class ENNU_Enhanced_Admin {
             $this->display_security_dashboard($user->ID);
             
             // Original sections (PRESERVED)
-            echo '<h2>' . __('ENNU Life Global Information', 'ennu-life') . '</h2>';
-            echo '<p><em>' . __('This information is shared across all assessments.', 'ennu-life') . '</em></p>';
+            echo '<h2>' . __('ENNU Life Global Information', 'ennulifeassessments') . '</h2>';
+            echo '<p><em>' . __('This information is shared across all assessments. Edit below.', 'ennulifeassessments') . '</em></p>';
             echo '<table class="form-table">';
-            $this->display_global_fields($user->ID);
+            $this->display_global_fields_editable($user->ID); // New editable version
             echo '</table>';
 
             // Enhanced WP Fusion Integration Panel
             $this->display_enhanced_wp_fusion_panel($user->ID);
 
-            echo '<h2>' . __( 'ENNU Life Assessment Data', 'ennu-life' ) . '</h2>';
+            echo '<h2>' . __( 'ENNU Life Assessment Data', 'ennulifeassessments' ) . '</h2>';
             echo '<style>
                 .ennu-profile-section { margin: 20px 0; border: 1px solid #ddd; padding: 15px; background: #f9f9f9; }
                 .ennu-field-row { display: flex; margin: 5px 0; padding: 5px; border-bottom: 1px solid #eee; }
@@ -164,18 +200,21 @@ class ENNU_Enhanced_Admin {
             // Global User Fields - Comprehensive Display
             ENNU_Comprehensive_Assessment_Display::display_global_fields_comprehensive( $user->ID );
             
-            // Assessment-Specific Fields - Comprehensive Display
+            // Assessment-Specific Fields - Editable Display
             $assessments = array(
-                'welcome' => 'Welcome Assessment',
-                'hair' => 'Hair Health Assessment', 
-                'weight_loss' => 'Weight Loss Assessment',
-                'health' => 'General Health Assessment',
-                'skin' => 'Skin Health Assessment',
-                'ed_treatment' => 'ED Treatment Assessment'
+                'welcome_assessment' => 'Welcome Assessment',
+                'hair_assessment' => 'Hair Health Assessment', 
+                'weight_loss_assessment' => 'Weight Loss Assessment',
+                'health_assessment' => 'General Health Assessment',
+                'skin_assessment' => 'Skin Health Assessment',
+                'ed_treatment_assessment' => 'ED Treatment Assessment'
             );
 
             foreach ( $assessments as $type => $title ) {
-                ENNU_Comprehensive_Assessment_Display::display_comprehensive_section( $user->ID, $type, $title );
+                echo '<h3>' . esc_html($title) . '</h3>';
+                echo '<table class="form-table">';
+                $this->display_assessment_fields_editable($user->ID, $type);
+                echo '</table>';
             }
 
             // Global System Fields - Comprehensive Display
@@ -187,6 +226,132 @@ class ENNU_Enhanced_Admin {
             
         } catch (Exception $e) {
             error_log('ENNU Enhanced Admin Asset Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display editable global fields
+     */
+    private function display_global_fields_editable($user_id) {
+        $global_fields = array(
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'user_email' => 'Email Address',
+            'billing_phone' => 'Phone Number',
+            'user_gender' => 'Gender'
+        );
+
+        foreach ($global_fields as $key => $label) {
+            $value = get_user_meta($user_id, $key, true);
+            if (in_array($key, ['first_name', 'last_name', 'user_email'])) {
+                $value = get_the_author_meta($key, $user_id); // From WP user object
+            }
+            echo '<tr>';
+            echo '<th><label for="' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
+            echo '<td><input type="text" name="' . esc_attr($key) . '" id="' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="regular-text" /></td>';
+            echo '</tr>';
+        }
+    }
+
+    /**
+     * Display editable assessment fields
+     */
+    private function display_assessment_fields_editable($user_id, $assessment_type) {
+        $questions = $this->get_direct_assessment_questions($assessment_type);
+        if (empty($questions)) {
+            // No need for an admin notice here if it's expected that some might not have questions.
+            // add_action('admin_notices', function() use ($assessment_type) {
+            //     echo '<div class="notice notice-error"><p>ENNU Error: No questions loaded for ' . esc_html($assessment_type) . '. Using fallback.</p></div>';
+            // });
+            return; // Simply exit if no questions are defined.
+        }
+
+        foreach ($questions as $index => $q_data) {
+            // Skip global fields as they are displayed in their own section.
+            if (isset($q_data['global_key'])) {
+                continue;
+            }
+
+            $assessment_prefix = str_replace('_assessment', '', $assessment_type);
+            $simple_question_id = $assessment_prefix . '_q' . ($index + 1);
+            $meta_key = 'ennu_' . $assessment_type . '_' . $simple_question_id;
+
+            $current_value = get_user_meta($user_id, $meta_key, true);
+            $label = $q_data['title'] ?? $simple_question_id;
+
+            echo '<tr>';
+            echo '<th><label for="' . esc_attr($meta_key) . '">' . esc_html($label) . '</label><br/><small><code>' . esc_html($simple_question_id) . '</code></small></th>';
+            echo '<td>';
+
+            // Use 'type' for text fields, and check for 'options' to determine radio/checkbox.
+            $question_type = $q_data['type'] ?? 'text';
+            $options = $q_data['options'] ?? array();
+
+            switch ($question_type) {
+                case 'multiselect':
+                    $this->render_checkbox_field($meta_key, $current_value, $options);
+                    break;
+                case 'single':
+                case 'radio':
+                case 'dob_dropdowns': // dob_dropdowns are treated as single choice on the frontend, text on backend
+                    $this->render_radio_field($meta_key, $current_value, $options);
+                    break;
+                default:
+                    // If options are present, it should be a radio button group.
+                    if (!empty($options)) {
+                        $this->render_radio_field($meta_key, $current_value, $options);
+                    } else {
+                        $this->render_text_field($meta_key, $current_value);
+                    }
+                    break;
+            }
+            
+            echo '</td></tr>';
+        }
+    }
+
+    private function get_direct_assessment_questions($assessment_type) {
+        // First, attempt to load questions dynamically from the Shortcodes helper
+        if (class_exists('ENNU_Assessment_Shortcodes')) {
+            try {
+                // Directly instantiate and call the public method.
+                // This removes the need for fragile Reflection and is more performant.
+                $shortcodes = new ENNU_Assessment_Shortcodes();
+                $questions   = $shortcodes->get_assessment_questions($assessment_type);
+                if (!empty($questions) && is_array($questions)) {
+                    return $questions; // Successfully retrieved questions
+                }
+            } catch (Exception $e) {
+                error_log('ENNU get_direct_assessment_questions error: ' . $e->getMessage());
+            }
+        }
+
+        // Fallback to hard-coded definitions (populate/extend as required)
+        switch ($assessment_type) {
+            case 'welcome_assessment':
+            case 'hair_assessment':
+            case 'ed_treatment_assessment':
+            case 'weight_loss_assessment':
+            case 'health_assessment':
+            case 'skin_assessment':
+                return array(); // No hard-coded set yet – keep empty to avoid fatal errors
+            default:
+                return array();
+        }
+    }
+
+    private function get_fallback_questions($assessment_type) {
+        // Basic fallback structures (minimal, expand as needed)
+        switch ($assessment_type) {
+            case 'hair_assessment':
+                return array(
+                    'hair_q1' => array('title' => 'Date of Birth', 'type' => 'text'),
+                    'hair_q2' => array('title' => 'Gender', 'type' => 'radio', 'options' => array(array('value' => 'male', 'label' => 'Male'), array('value' => 'female', 'label' => 'Female'))),
+                    // Add more as per shortcodes
+                );
+            // Add cases for other types
+            default:
+                return array();
         }
     }
 
@@ -227,107 +392,15 @@ class ENNU_Enhanced_Admin {
     }
 
     /**
-     * Display assessment-specific fields section
-     */
-    private function display_assessment_section( $user_id, $assessment_type, $title ) {
-        echo '<div class="ennu-profile-section">';
-        echo '<h3>' . esc_html($title) . '</h3>';
-        
-        // Get all possible questions for this assessment
-        $questions = $this->get_all_assessment_questions( $assessment_type );
-        
-        // Assessment completion status
-        $completion_status = get_user_meta( $user_id, "ennu_{$assessment_type}_completion_status", true );
-        $completion_date = get_user_meta( $user_id, "ennu_{$assessment_type}_completion_date", true );
-        
-        echo '<div class="ennu-field-row">';
-        echo '<div class="ennu-field-label">Completion Status:</div>';
-        echo '<div class="ennu-field-id">ennu_' . $assessment_type . '_completion_status</div>';
-        echo '<div class="ennu-field-value">' . (!empty($completion_status) ? $completion_status : '<span class="ennu-empty-value">Not completed</span>') . '</div>';
-        echo '</div>';
-        
-        echo '<div class="ennu-field-row">';
-        echo '<div class="ennu-field-label">Completion Date:</div>';
-        echo '<div class="ennu-field-id">ennu_' . $assessment_type . '_completion_date</div>';
-        echo '<div class="ennu-field-value">' . (!empty($completion_date) ? $completion_date : '<span class="ennu-empty-value">Not completed</span>') . '</div>';
-        echo '</div>';
-
-        // Display all questions and their answers
-        foreach ( $questions as $index => $question ) {
-            $question_num = $index + 1;
-            $field_id = "ennu_{$assessment_type}_question_{$question_num}";
-            $value = get_user_meta( $user_id, $field_id, true );
-            $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not answered</span>';
-            
-            echo '<div class="ennu-field-row">';
-            echo '<div class="ennu-field-label">Q' . $question_num . ': ' . esc_html(wp_trim_words($question['title'], 8)) . '</div>';
-            echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-            echo '<div class="ennu-field-value">' . $display_value . '</div>';
-            echo '</div>';
-        }
-        
-        echo '</div>';
-    }
-
-    /**
-     * Display hidden system fields section
-     */
-    private function display_system_fields_section( $user_id ) {
-        echo '<div class="ennu-profile-section">';
-        echo '<h3>Hidden System Fields (Admin Only)</h3>';
-        
-        $system_fields = array(
-            'ennu_system_ip_address' => 'IP Address',
-            'ennu_system_user_agent' => 'User Agent',
-            'ennu_system_session_id' => 'Session ID',
-            'ennu_system_referrer' => 'Referrer URL',
-            'ennu_system_utm_source' => 'UTM Source',
-            'ennu_system_utm_medium' => 'UTM Medium',
-            'ennu_system_utm_campaign' => 'UTM Campaign',
-            'ennu_system_form_version' => 'Form Version',
-            'ennu_system_ab_test_group' => 'A/B Test Group',
-            'ennu_system_device_type' => 'Device Type',
-            'ennu_system_browser' => 'Browser',
-            'ennu_system_os' => 'Operating System',
-            'ennu_system_screen_resolution' => 'Screen Resolution',
-            'ennu_system_timezone' => 'Timezone',
-            'ennu_system_language' => 'Language',
-            'ennu_system_total_time_spent' => 'Total Time Spent (seconds)',
-            'ennu_system_pages_visited' => 'Pages Visited Count',
-            'ennu_system_form_abandonment' => 'Form Abandonment Count',
-            'ennu_system_retry_attempts' => 'Retry Attempts',
-            'ennu_system_error_count' => 'Error Count',
-            'ennu_system_last_activity' => 'Last Activity Timestamp',
-            'ennu_system_conversion_funnel' => 'Conversion Funnel Stage',
-            'ennu_system_lead_score' => 'Lead Score',
-            'ennu_system_engagement_level' => 'Engagement Level',
-            'ennu_system_data_quality_score' => 'Data Quality Score'
-        );
-
-        foreach ( $system_fields as $field_id => $field_name ) {
-            $value = get_user_meta( $user_id, $field_id, true );
-            $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not tracked</span>';
-            
-            echo '<div class="ennu-field-row ennu-system-field">';
-            echo '<div class="ennu-field-label">' . esc_html($field_name) . ':</div>';
-            echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-            echo '<div class="ennu-field-value">' . $display_value . '</div>';
-            echo '</div>';
-        }
-        
-        echo '</div>';
-    }
-
-    /**
      * Get all possible questions for an assessment type
      */
     private function get_all_assessment_questions( $assessment_type ) {
         // Include the shortcodes class to get questions
         if ( class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
+            // Directly instantiate and call the public method.
+            // This is safer, more performant, and more reliable than Reflection.
             $shortcodes = new ENNU_Assessment_Shortcodes();
-            $method = new ReflectionMethod( $shortcodes, 'get_assessment_questions' );
-            $method->setAccessible( true );
-            return $method->invoke( $shortcodes, $assessment_type . '_assessment' );
+            return $shortcodes->get_assessment_questions( $assessment_type . '_assessment' );
         }
         
         return array(); // Fallback if class not available
@@ -350,13 +423,13 @@ class ENNU_Enhanced_Admin {
     private function display_enhanced_score_dashboard($user_id) {
         try {
             echo '<div class="ennu-enhanced-admin-container">';
-            echo '<h2>' . __('ENNU Health Intelligence Dashboard', 'ennu-life') . '</h2>';
+            echo '<h2>' . __('ENNU Health Intelligence Dashboard', 'ennulifeassessments') . '</h2>';
             
             // Cache status indicator
             $cache_stats = ENNU_Score_Cache::get_cache_stats();
             echo '<div class="ennu-cache-status">';
             echo '<span class="ennu-cache-indicator ' . ($cache_stats['cached_entries'] > 0 ? 'active' : 'inactive') . '"></span>';
-            echo sprintf(__('Cache: %d entries active', 'ennu-life'), $cache_stats['cached_entries']);
+            echo sprintf(__('Cache: %d entries active', 'ennulifeassessments'), $cache_stats['cached_entries']);
             echo '</div>';
             
             // Enhanced score display
@@ -365,19 +438,19 @@ class ENNU_Enhanced_Admin {
             // Action buttons with enhanced functionality
             echo '<div class="ennu-dashboard-actions">';
             echo '<button type="button" id="ennu-recalculate-scores" class="button button-primary">';
-            echo '<span class="dashicons dashicons-update"></span> ' . __('Recalculate Scores', 'ennu-life');
+            echo '<span class="dashicons dashicons-update"></span> ' . __('Recalculate Scores', 'ennulifeassessments');
             echo '</button>';
             
             echo '<button type="button" id="ennu-export-data" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-download"></span> ' . __('Export Data', 'ennu-life');
+            echo '<span class="dashicons dashicons-download"></span> ' . __('Export Data', 'ennulifeassessments');
             echo '</button>';
             
             echo '<button type="button" id="ennu-sync-hubspot" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-cloud"></span> ' . __('Sync HubSpot', 'ennu-life');
+            echo '<span class="dashicons dashicons-cloud"></span> ' . __('Sync HubSpot', 'ennulifeassessments');
             echo '</button>';
             
             echo '<button type="button" id="ennu-clear-cache" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-trash"></span> ' . __('Clear Cache', 'ennu-life');
+            echo '<span class="dashicons dashicons-trash"></span> ' . __('Clear Cache', 'ennulifeassessments');
             echo '</button>';
             echo '</div>';
             
@@ -396,11 +469,11 @@ class ENNU_Enhanced_Admin {
      */
     private function display_enhanced_assessment_scores($user_id) {
         $assessments = array(
-            'hair_assessment' => __('Hair Health', 'ennu-life'),
-            'weight_loss_assessment' => __('Weight Management', 'ennu-life'),
-            'health_assessment' => __('General Health', 'ennu-life'),
-            'ed_treatment_assessment' => __('ED Treatment', 'ennu-life'),
-            'skin_assessment' => __('Skin Health', 'ennu-life')
+            'hair_assessment' => __('Hair Health', 'ennulifeassessments'),
+            'weight_loss_assessment' => __('Weight Management', 'ennulifeassessments'),
+            'health_assessment' => __('General Health', 'ennulifeassessments'),
+            'ed_treatment_assessment' => __('ED Treatment', 'ennulifeassessments'),
+            'skin_assessment' => __('Skin Health', 'ennulifeassessments')
         );
         
         echo '<div class="ennu-scores-grid">';
@@ -413,9 +486,12 @@ class ENNU_Enhanced_Admin {
                 $score_data = $cached_score['score_data'];
                 $is_cached = true;
             } else {
-                // Fallback to database
-                $overall_score = get_user_meta($user_id, $assessment_type . '_calculated_score', true);
-                $interpretation = get_user_meta($user_id, $assessment_type . '_score_interpretation', true);
+                // Fallback to database, using the correct 'ennu_' prefixed meta key
+                $meta_key_score = 'ennu_' . $assessment_type . '_calculated_score';
+                $meta_key_interpretation = 'ennu_' . $assessment_type . '_score_interpretation';
+                
+                $overall_score = get_user_meta($user_id, $meta_key_score, true);
+                $interpretation = get_user_meta($user_id, $meta_key_interpretation, true);
                 
                 if ($overall_score) {
                     $score_data = array(
@@ -434,7 +510,7 @@ class ENNU_Enhanced_Admin {
             echo '<h3>' . esc_html($label) . '</h3>';
             
             if ($is_cached) {
-                echo '<span class="ennu-cache-badge" title="' . __('Loaded from cache', 'ennu-life') . '">⚡</span>';
+                echo '<span class="ennu-cache-badge" title="' . __('Loaded from cache', 'ennulifeassessments') . '">⚡</span>';
             }
             
             echo '</div>';
@@ -461,7 +537,7 @@ class ENNU_Enhanced_Admin {
             } else {
                 echo '<div class="ennu-no-score">';
                 echo '<span class="dashicons dashicons-minus"></span>';
-                echo '<p>' . __('No assessment data', 'ennu-life') . '</p>';
+                echo '<p>' . __('No assessment data', 'ennulifeassessments') . '</p>';
                 echo '</div>';
             }
             
@@ -474,7 +550,7 @@ class ENNU_Enhanced_Admin {
         $overall_score = get_user_meta($user_id, 'ennu_overall_health_score', true);
         if ($overall_score) {
             echo '<div class="ennu-overall-score">';
-            echo '<h3>' . __('Overall Health Score', 'ennu-life') . '</h3>';
+            echo '<h3>' . __('Overall Health Score', 'ennulifeassessments') . '</h3>';
             echo '<div class="ennu-overall-display">';
             echo '<span class="ennu-overall-number">' . number_format($overall_score, 1) . '/10</span>';
             echo '<span class="ennu-overall-interpretation">' . esc_html($this->get_score_interpretation($overall_score)) . '</span>';
@@ -487,57 +563,59 @@ class ENNU_Enhanced_Admin {
      * Performance dashboard
      */
     private function display_performance_dashboard($user_id) {
-        echo '<div class="ennu-performance-dashboard">';
-        echo '<h3>' . __('Performance Metrics', 'ennu-life') . '</h3>';
-        
-        // Get performance stats
-        $stats = $this->get_performance_stats();
-        
-        if (!empty($stats)) {
-            echo '<div class="ennu-performance-grid">';
-            echo '<div class="ennu-perf-metric">';
-            echo '<span class="ennu-perf-label">' . __('Total Operations', 'ennu-life') . '</span>';
-            echo '<span class="ennu-perf-value">' . $stats['total_operations'] . '</span>';
-            echo '</div>';
+        try {
+            echo '<div class="ennu-performance-dashboard">';
+            echo '<h3>' . __('Performance Metrics', 'ennulifeassessments') . '</h3>';
             
-            echo '<div class="ennu-perf-metric">';
-            echo '<span class="ennu-perf-label">' . __('Total Time', 'ennu-life') . '</span>';
-            echo '<span class="ennu-perf-value">' . number_format($stats['total_execution_time'], 3) . 's</span>';
-            echo '</div>';
+            // Get performance stats
+            $stats = $this->get_performance_stats();
             
-            if (isset($stats['operations']['show_user_fields'])) {
+            if (!empty($stats) && isset($stats['total_operations'])) {
+                echo '<div class="ennu-performance-grid">';
                 echo '<div class="ennu-perf-metric">';
-                echo '<span class="ennu-perf-label">' . __('Page Load Time', 'ennu-life') . '</span>';
-                echo '<span class="ennu-perf-value">' . number_format($stats['operations']['show_user_fields']['avg_time'], 3) . 's</span>';
+                echo '<span class="ennu-perf-label">' . __('Total Operations', 'ennulifeassessments') . '</span>';
+                echo '<span class="ennu-perf-value">' . $stats['total_operations'] . '</span>';
+                echo '</div>';
+                
+                echo '<div class="ennu-perf-metric">';
+                echo '<span class="ennu-perf-label">' . __('Total Time', 'ennulifeassessments') . '</span>';
+                echo '<span class="ennu-perf-value">' . number_format($stats['total_execution_time'], 3) . 's</span>';
+                echo '</div>';
+                
+                if (isset($stats['operations']['show_user_fields'])) {
+                    echo '<div class="ennu-perf-metric">';
+                    echo '<span class="ennu-perf-label">' . __('Page Load Time', 'ennulifeassessments') . '</span>';
+                    echo '<span class="ennu-perf-value">' . number_format($stats['operations']['show_user_fields']['avg_time'], 3) . 's</span>';
+                    echo '</div>';
+                }
                 echo '</div>';
             }
             echo '</div>';
+        } catch (Exception $e) {
+            error_log('ENNU Performance Dashboard Error: ' . $e->getMessage());
         }
-        
-        echo '</div>';
     }
     
     /**
-     * Security dashboard
+     * Display security dashboard
      */
     private function display_security_dashboard($user_id) {
         echo '<div class="ennu-security-dashboard">';
-        echo '<h3>' . __('Security Status', 'ennu-life') . '</h3>';
+        echo '<h3>' . __('Security Status', 'ennulifeassessments') . '</h3>';
         
         $security_stats = ENNU_AJAX_Security::get_security_stats();
         
         echo '<div class="ennu-security-grid">';
         echo '<div class="ennu-security-metric">';
-        echo '<span class="ennu-security-label">' . __('Security Events', 'ennu-life') . '</span>';
+        echo '<span class="ennu-security-label">' . __('Security Events', 'ennulifeassessments') . '</span>';
         echo '<span class="ennu-security-value">' . $security_stats['total_events'] . '</span>';
         echo '</div>';
         
         echo '<div class="ennu-security-metric">';
-        echo '<span class="ennu-security-label">' . __('Blocked IPs', 'ennu-life') . '</span>';
+        echo '<span class="ennu-security-label">' . __('Blocked IPs', 'ennulifeassessments') . '</span>';
         echo '<span class="ennu-security-value">' . $security_stats['blocked_ips'] . '</span>';
         echo '</div>';
         echo '</div>';
-        
         echo '</div>';
     }
 
@@ -579,7 +657,7 @@ class ENNU_Enhanced_Admin {
             $this->log_performance('ajax_recalculate', $execution_time, $user_id);
             
             wp_send_json_success(array(
-                'message' => __('Scores recalculated successfully!', 'ennu-life'),
+                'message' => __('Scores recalculated successfully!', 'ennulifeassessments'),
                 'results' => $results,
                 'execution_time' => $execution_time
             ));
@@ -587,7 +665,7 @@ class ENNU_Enhanced_Admin {
         } catch (Exception $e) {
             error_log('ENNU AJAX Recalculate Error: ' . $e->getMessage());
             wp_send_json_error(array(
-                'message' => __('Failed to recalculate scores. Please try again.', 'ennu-life'),
+                'message' => __('Failed to recalculate scores. Please try again.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -636,7 +714,7 @@ class ENNU_Enhanced_Admin {
             $this->log_performance('ajax_export', $execution_time, $user_id);
             
             wp_send_json_success(array(
-                'message' => __('Data exported successfully!', 'ennu-life'),
+                'message' => __('Data exported successfully!', 'ennulifeassessments'),
                 'data' => $export_data,
                 'execution_time' => $execution_time
             ));
@@ -644,7 +722,7 @@ class ENNU_Enhanced_Admin {
         } catch (Exception $e) {
             error_log('ENNU AJAX Export Error: ' . $e->getMessage());
             wp_send_json_error(array(
-                'message' => __('Failed to export data. Please try again.', 'ennu-life'),
+                'message' => __('Failed to export data. Please try again.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -676,14 +754,14 @@ class ENNU_Enhanced_Admin {
             $this->log_performance('ajax_hubspot_sync', $execution_time, $user_id);
             
             wp_send_json_success(array(
-                'message' => __('HubSpot sync completed!', 'ennu-life'),
+                'message' => __('HubSpot sync completed!', 'ennulifeassessments'),
                 'execution_time' => $execution_time
             ));
             
         } catch (Exception $e) {
             error_log('ENNU AJAX HubSpot Sync Error: ' . $e->getMessage());
             wp_send_json_error(array(
-                'message' => __('Failed to sync with HubSpot. Please try again.', 'ennu-life'),
+                'message' => __('Failed to sync with HubSpot. Please try again.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -707,10 +785,10 @@ class ENNU_Enhanced_Admin {
             
             if ($user_id) {
                 ENNU_Score_Cache::invalidate_cache($user_id);
-                $message = __('User cache cleared successfully!', 'ennu-life');
+                $message = __('User cache cleared successfully!', 'ennulifeassessments');
             } else {
                 $cleared = ENNU_Score_Cache::clear_all_cache();
-                $message = sprintf(__('Cleared %d cache entries!', 'ennu-life'), $cleared);
+                $message = sprintf(__('Cleared %d cache entries!', 'ennulifeassessments'), $cleared);
             }
             
             wp_send_json_success(array('message' => $message));
@@ -718,7 +796,7 @@ class ENNU_Enhanced_Admin {
         } catch (Exception $e) {
             error_log('ENNU AJAX Clear Cache Error: ' . $e->getMessage());
             wp_send_json_error(array(
-                'message' => __('Failed to clear cache. Please try again.', 'ennu-life'),
+                'message' => __('Failed to clear cache. Please try again.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -742,14 +820,14 @@ class ENNU_Enhanced_Admin {
             $stats = ENNU_AJAX_Security::get_security_stats();
             
             wp_send_json_success(array(
-                'message' => __('Security stats retrieved!', 'ennu-life'),
+                'message' => __('Security stats retrieved!', 'ennulifeassessments'),
                 'stats' => $stats
             ));
             
         } catch (Exception $e) {
             error_log('ENNU AJAX Security Stats Error: ' . $e->getMessage());
             wp_send_json_error(array(
-                'message' => __('Failed to get security stats.', 'ennu-life'),
+                'message' => __('Failed to get security stats.', 'ennulifeassessments'),
                 'error' => $e->getMessage()
             ));
         }
@@ -774,15 +852,15 @@ class ENNU_Enhanced_Admin {
     private function display_global_fields($user_id) {
         // Original implementation preserved
         $global_fields = array(
-            'user_dob_combined' => __('Date of Birth', 'ennu-life'),
-            'user_age' => __('Age', 'ennu-life'),
-            'ennu_contact_mobile' => __('Mobile Phone', 'ennu-life'),
-            'ennu_contact_phone' => __('Phone', 'ennu-life')
+            'user_dob_combined' => __('Date of Birth', 'ennulifeassessments'),
+            'user_age' => __('Age', 'ennulifeassessments'),
+            'ennu_contact_mobile' => __('Mobile Phone', 'ennulifeassessments'),
+            'ennu_contact_phone' => __('Phone', 'ennulifeassessments')
         );
         
         foreach ($global_fields as $meta_key => $label) {
             $current_value = get_user_meta($user_id, $meta_key, true);
-            $this->render_text_field($meta_key, $label, $current_value);
+            $this->render_text_field($meta_key, $current_value);
         }
     }
     
@@ -804,92 +882,130 @@ class ENNU_Enhanced_Admin {
                         switch ($question_data['type']) {
                             case 'radio':
                                 $options = $question_data['options'] ?? array();
-                                $this->render_radio_field($meta_key, $label, $current_value, $options);
+                                $this->render_radio_field($meta_key, $current_value, $options);
                                 break;
                             case 'checkbox':
                                 $options = $question_data['options'] ?? array();
-                                $this->render_checkbox_field($meta_key, $label, $current_value, $options);
+                                $this->render_checkbox_field($meta_key, $current_value, $options);
                                 break;
                             default:
-                                $this->render_text_field($meta_key, $label, $current_value);
+                                $this->render_text_field($meta_key, $current_value);
                                 break;
                         }
                     } else {
-                        $this->render_text_field($meta_key, $label, $current_value);
+                        $this->render_text_field($meta_key, $current_value);
                     }
                 }
             }
         } catch (Exception $e) {
-            echo '<tr><td colspan="2"><em>' . __('Error loading assessment questions.', 'ennu-life') . '</em></td></tr>';
+            echo '<tr><td colspan="2"><em>' . __('Error loading assessment questions.', 'ennulifeassessments') . '</em></td></tr>';
         }
         
         echo '</table>';
     }
     
-    private function render_text_field($meta_key, $label, $current_value) {
-        echo '<tr><th><label for="' . esc_attr($meta_key) . '">' . esc_html($label) . '</label></th>';
-        echo '<td><input type="text" id="' . esc_attr($meta_key) . '" name="' . esc_attr($meta_key) . '" value="' . esc_attr($current_value) . '" class="regular-text" /></td></tr>';
+    private function render_text_field($meta_key, $current_value) {
+        echo '<input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($current_value) . '" class="regular-text" />';
     }
-    
-    private function render_radio_field($meta_key, $label, $current_value, $options) {
-        echo '<tr><th>' . esc_html($label) . '</th><td>';
-        foreach ($options as $option_value => $option_label) {
-            $checked = checked($current_value, $option_value, false);
-            echo '<label><input type="radio" name="' . esc_attr($meta_key) . '" value="' . esc_attr($option_value) . '" ' . $checked . ' /> ' . esc_html($option_label) . '</label><br />';
+
+    private function render_radio_field($meta_key, $current_value, $options) {
+        echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
+        foreach ($options as $option) {
+            echo '<label style="display: block; margin-bottom: 5px;">';
+            echo '<input type="radio" name="' . esc_attr($meta_key) . '" value="' . esc_attr($option['value']) . '" ' . checked($current_value, $option['value'], false) . ' /> ';
+            echo esc_html($option['label']);
+            echo '</label>';
         }
-        echo '</td></tr>';
+        echo '</fieldset>';
     }
-    
-    private function render_checkbox_field($meta_key, $label, $current_values, $options) {
-        if (!is_array($current_values)) {
-            $current_values = array();
+
+    private function render_checkbox_field($meta_key, $current_values, $options) {
+        // Ensure current_values is an array for easy checking.
+        $saved_options = is_array($current_values) ? $current_values : array_map('trim', explode(',', $current_values));
+
+        echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
+        foreach ($options as $option) {
+            $is_checked = in_array($option['value'], $saved_options);
+            echo '<label style="display: block; margin-bottom: 5px;">';
+            echo '<input type="checkbox" name="' . esc_attr($meta_key) . '[]" value="' . esc_attr($option['value']) . '" ' . checked($is_checked, true, false) . ' /> ';
+            echo esc_html($option['label']);
+            echo '</label>';
         }
-        
-        echo '<tr><th>' . esc_html($label) . '</th><td>';
-        foreach ($options as $option_value => $option_label) {
-            $checked = in_array($option_value, $current_values) ? 'checked="checked"' : '';
-            echo '<label><input type="checkbox" name="' . esc_attr($meta_key) . '[]" value="' . esc_attr($option_value) . '" ' . $checked . ' /> ' . esc_html($option_label) . '</label><br />';
-        }
-        echo '</td></tr>';
+        echo '</fieldset>';
     }
     
     public function save_user_assessment_fields($user_id) {
         if (!current_user_can('edit_user', $user_id)) {
             return false;
         }
-        
-        if (!wp_verify_nonce($_POST['ennu_assessment_nonce'] ?? '', 'ennu_user_profile_update')) {
-            return false;
-        }
-        
-        // Save all posted fields
-        foreach ($_POST as $key => $value) {
-            if (strpos($key, 'ennu_') === 0 || strpos($key, '_assessment_') !== false || in_array($key, array('user_dob_combined', 'user_age'))) {
-                if (is_array($value)) {
-                    update_user_meta($user_id, $key, array_map('sanitize_text_field', $value));
-                } else {
-                    update_user_meta($user_id, $key, sanitize_text_field($value));
+
+        // 1. Save Global Fields (Text Inputs)
+        $global_text_fields = ['first_name', 'last_name', 'user_email', 'billing_phone', 'user_gender'];
+        foreach ($global_text_fields as $field_key) {
+            if (isset($_POST[$field_key])) {
+                $value = sanitize_text_field($_POST[$field_key]);
+                update_user_meta($user_id, $field_key, $value);
+                if (in_array($field_key, ['first_name', 'last_name', 'user_email'])) {
+                    wp_update_user(['ID' => $user_id, $field_key => $value]);
                 }
             }
         }
-        
+
+        // 2. Save Assessment-Specific Fields
+        $assessments = [
+            'welcome_assessment', 'hair_assessment', 'weight_loss_assessment',
+            'health_assessment', 'skin_assessment', 'ed_treatment_assessment'
+        ];
+
+        foreach ($assessments as $assessment_type) {
+            $questions = $this->get_direct_assessment_questions($assessment_type);
+            if (empty($questions)) {
+                continue;
+            }
+
+            foreach ($questions as $index => $q_data) {
+                if (isset($q_data['global_key'])) {
+                    continue; // Skip globals, they are handled above or not editable here
+                }
+                
+                $assessment_prefix = str_replace('_assessment', '', $assessment_type);
+                $simple_question_id = $assessment_prefix . '_q' . ($index + 1);
+                $meta_key = 'ennu_' . $assessment_type . '_' . $simple_question_id;
+                $question_type = $q_data['type'] ?? 'text';
+
+                // This logic correctly handles all cases, including empty checkboxes
+                if ($question_type === 'multiselect') {
+                    // For multiselect, default to an empty array if not present in POST
+                    $submitted_values = $_POST[$meta_key] ?? [];
+                    $sanitized_values = is_array($submitted_values) ? array_map('sanitize_text_field', $submitted_values) : [];
+                    $value_to_save = implode(', ', $sanitized_values);
+                    update_user_meta($user_id, $meta_key, $value_to_save);
+                } else {
+                    // For all other types, only update if the key exists in POST
+                    if (isset($_POST[$meta_key])) {
+                        $value_to_save = sanitize_text_field($_POST[$meta_key]);
+                        update_user_meta($user_id, $meta_key, $value_to_save);
+                    }
+                }
+            }
+        }
         return true;
     }
     
     private function display_enhanced_wp_fusion_panel($user_id) {
         echo '<div class="ennu-wp-fusion-panel">';
-        echo '<h3>' . __('Integration Status', 'ennu-life') . '</h3>';
+        echo '<h3>' . __('Integration Status', 'ennulifeassessments') . '</h3>';
         
         // WP Fusion status
         if (function_exists('wp_fusion') && wp_fusion()) {
             echo '<div class="ennu-integration-status active">';
             echo '<span class="dashicons dashicons-yes-alt"></span>';
-            echo __('WP Fusion: Connected', 'ennu-life');
+            echo __('WP Fusion: Connected', 'ennulifeassessments');
             echo '</div>';
         } else {
             echo '<div class="ennu-integration-status inactive">';
             echo '<span class="dashicons dashicons-warning"></span>';
-            echo __('WP Fusion: Not Available', 'ennu-life');
+            echo __('WP Fusion: Not Available', 'ennulifeassessments');
             echo '</div>';
         }
         
@@ -897,12 +1013,12 @@ class ENNU_Enhanced_Admin {
         if (defined('HUBSPOT_API_KEY')) {
             echo '<div class="ennu-integration-status active">';
             echo '<span class="dashicons dashicons-yes-alt"></span>';
-            echo __('HubSpot: Connected', 'ennu-life');
+            echo __('HubSpot: Connected', 'ennulifeassessments');
             echo '</div>';
         } else {
             echo '<div class="ennu-integration-status inactive">';
             echo '<span class="dashicons dashicons-warning"></span>';
-            echo __('HubSpot: Not Configured', 'ennu-life');
+            echo __('HubSpot: Not Configured', 'ennulifeassessments');
             echo '</div>';
         }
         
@@ -918,11 +1034,11 @@ class ENNU_Enhanced_Admin {
     }
     
     private function get_score_interpretation($score) {
-        if ($score >= 8.0) return __('Excellent', 'ennu-life');
-        if ($score >= 6.0) return __('Good', 'ennu-life');
-        if ($score >= 4.0) return __('Fair', 'ennu-life');
-        if ($score >= 2.0) return __('Needs Attention', 'ennu-life');
-        return __('Critical', 'ennu-life');
+        if ($score >= 8.0) return __('Excellent', 'ennulifeassessments');
+        if ($score >= 6.0) return __('Good', 'ennulifeassessments');
+        if ($score >= 4.0) return __('Fair', 'ennulifeassessments');
+        if ($score >= 2.0) return __('Needs Attention', 'ennulifeassessments');
+        return __('Critical', 'ennulifeassessments');
     }
     
     /**
@@ -997,8 +1113,8 @@ class ENNU_Enhanced_Admin {
     public function add_admin_menu() {
         // Add main ENNU Life menu
         add_menu_page(
-            __('ENNU Life', 'ennu-life'),
-            __('ENNU Life', 'ennu-life'),
+            __('ENNU Life', 'ennulifeassessments'),
+            __('ENNU Life', 'ennulifeassessments'),
             'manage_options',
             'ennu-life',
             array($this, 'admin_page'),
@@ -1009,8 +1125,8 @@ class ENNU_Enhanced_Admin {
         // Add submenu pages
         add_submenu_page(
             'ennu-life',
-            __('Dashboard', 'ennu-life'),
-            __('Dashboard', 'ennu-life'),
+            __('Dashboard', 'ennulifeassessments'),
+            __('Dashboard', 'ennulifeassessments'),
             'manage_options',
             'ennu-life',
             array($this, 'admin_page')
@@ -1018,8 +1134,8 @@ class ENNU_Enhanced_Admin {
         
         add_submenu_page(
             'ennu-life',
-            __('Assessments', 'ennu-life'),
-            __('Assessments', 'ennu-life'),
+            __('Assessments', 'ennulifeassessments'),
+            __('Assessments', 'ennulifeassessments'),
             'manage_options',
             'ennu-life-assessments',
             array($this, 'assessments_page')
@@ -1027,8 +1143,8 @@ class ENNU_Enhanced_Admin {
         
         add_submenu_page(
             'ennu-life',
-            __('Settings', 'ennu-life'),
-            __('Settings', 'ennu-life'),
+            __('Settings', 'ennulifeassessments'),
+            __('Settings', 'ennulifeassessments'),
             'manage_options',
             'ennu-life-settings',
             array($this, 'settings_page')
@@ -1039,9 +1155,14 @@ class ENNU_Enhanced_Admin {
      * Enqueue admin scripts (compatibility method)
      */
     public function enqueue_admin_scripts($hook) {
-        // This method exists for compatibility
-        // The actual script enqueuing is handled by enqueue_admin_assets
-        $this->enqueue_admin_assets($hook);
+        if ($hook === 'user-edit.php' || $hook === 'profile.php') {
+            wp_enqueue_script('ennu-admin-js', plugin_dir_url(__FILE__) . '../../assets/js/ennu-admin.js', array('jquery'), ENNU_LIFE_VERSION, true);
+            wp_localize_script('ennu-admin-js', 'ennu_admin', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('ennu_user_profile_update'),
+                'confirm_msg' => __('Are you sure? This will delete all ENNU data for this user permanently.', 'ennulifeassessments')
+            ));
+        }
     }
     
     /**
@@ -1049,30 +1170,30 @@ class ENNU_Enhanced_Admin {
      */
     public function admin_page() {
         echo '<div class="wrap">';
-        echo '<h1>' . __('ENNU Life Dashboard', 'ennu-life') . '</h1>';
+        echo '<h1>' . __('ENNU Life Dashboard', 'ennulifeassessments') . '</h1>';
         
         // Get assessment statistics
         $stats = $this->get_assessment_statistics();
         
         echo '<div class="ennu-dashboard-stats">';
         echo '<div class="ennu-stat-card">';
-        echo '<h3>' . __('Total Assessments', 'ennu-life') . '</h3>';
+        echo '<h3>' . __('Total Assessments', 'ennulifeassessments') . '</h3>';
         echo '<span class="ennu-stat-number">' . $stats['total_assessments'] . '</span>';
         echo '</div>';
         
         echo '<div class="ennu-stat-card">';
-        echo '<h3>' . __('This Month', 'ennu-life') . '</h3>';
+        echo '<h3>' . __('This Month', 'ennulifeassessments') . '</h3>';
         echo '<span class="ennu-stat-number">' . $stats['monthly_assessments'] . '</span>';
         echo '</div>';
         
         echo '<div class="ennu-stat-card">';
-        echo '<h3>' . __('Active Users', 'ennu-life') . '</h3>';
+        echo '<h3>' . __('Active Users', 'ennulifeassessments') . '</h3>';
         echo '<span class="ennu-stat-number">' . $stats['active_users'] . '</span>';
         echo '</div>';
         echo '</div>';
         
         // Recent assessments table
-        echo '<h2>' . __('Recent Assessments', 'ennu-life') . '</h2>';
+        echo '<h2>' . __('Recent Assessments', 'ennulifeassessments') . '</h2>';
         $this->display_recent_assessments_table();
         
         echo '</div>';
@@ -1083,15 +1204,15 @@ class ENNU_Enhanced_Admin {
      */
     public function assessments_page() {
         echo '<div class="wrap">';
-        echo '<h1>' . __('ENNU Life Assessments', 'ennu-life') . '</h1>';
+        echo '<h1>' . __('ENNU Life Assessments', 'ennulifeassessments') . '</h1>';
         
         // Assessment types overview
         $assessment_types = array(
-            'hair_assessment' => __('Hair Assessment', 'ennu-life'),
-            'weight_loss_assessment' => __('Weight Loss Assessment', 'ennu-life'),
-            'health_assessment' => __('Health Assessment', 'ennu-life'),
-            'ed_treatment_assessment' => __('ED Treatment Assessment', 'ennu-life'),
-            'skin_assessment' => __('Skin Assessment', 'ennu-life')
+            'hair_assessment' => __('Hair Assessment', 'ennulifeassessments'),
+            'weight_loss_assessment' => __('Weight Loss Assessment', 'ennulifeassessments'),
+            'health_assessment' => __('Health Assessment', 'ennulifeassessments'),
+            'ed_treatment_assessment' => __('ED Treatment Assessment', 'ennulifeassessments'),
+            'skin_assessment' => __('Skin Assessment', 'ennulifeassessments')
         );
         
         echo '<div class="ennu-assessments-grid">';
@@ -1099,14 +1220,14 @@ class ENNU_Enhanced_Admin {
             $count = $this->get_assessment_count($type);
             echo '<div class="ennu-assessment-card">';
             echo '<h3>' . esc_html($label) . '</h3>';
-            echo '<p class="ennu-assessment-count">' . sprintf(__('%d completed', 'ennu-life'), $count) . '</p>';
-            echo '<a href="' . admin_url('users.php?assessment_filter=' . $type) . '" class="button">' . __('View Results', 'ennu-life') . '</a>';
+            echo '<p class="ennu-assessment-count">' . sprintf(__('%d completed', 'ennulifeassessments'), $count) . '</p>';
+            echo '<a href="' . admin_url('users.php?assessment_filter=' . $type) . '" class="button">' . __('View Results', 'ennulifeassessments') . '</a>';
             echo '</div>';
         }
         echo '</div>';
         
         // Recent assessments table
-        echo '<h2>' . __('All Assessment Results', 'ennu-life') . '</h2>';
+        echo '<h2>' . __('All Assessment Results', 'ennulifeassessments') . '</h2>';
         $this->display_all_assessments_table();
         
         echo '</div>';
@@ -1117,12 +1238,12 @@ class ENNU_Enhanced_Admin {
      */
     public function settings_page() {
         echo '<div class="wrap">';
-        echo '<h1>' . __('ENNU Life Settings', 'ennu-life') . '</h1>';
+        echo '<h1>' . __('ENNU Life Settings', 'ennulifeassessments') . '</h1>';
         
         // Handle form submission
         if (isset($_POST['submit']) && wp_verify_nonce($_POST['ennu_settings_nonce'], 'ennu_settings_update')) {
             $this->save_settings();
-            echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'ennu-life') . '</p></div>';
+            echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'ennulifeassessments') . '</p></div>';
         }
         
         // Get current settings
@@ -1135,29 +1256,29 @@ class ENNU_Enhanced_Admin {
         
         // Email settings
         echo '<tr>';
-        echo '<th scope="row">' . __('Admin Email', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('Admin Email', 'ennulifeassessments') . '</th>';
         echo '<td><input type="email" name="admin_email" value="' . esc_attr($settings['admin_email']) . '" class="regular-text" /></td>';
         echo '</tr>';
         
         // Assessment settings
         echo '<tr>';
-        echo '<th scope="row">' . __('Enable Email Notifications', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('Enable Email Notifications', 'ennulifeassessments') . '</th>';
         echo '<td><input type="checkbox" name="email_notifications" value="1" ' . checked($settings['email_notifications'], 1, false) . ' /></td>';
         echo '</tr>';
         
         echo '<tr>';
-        echo '<th scope="row">' . __('Cache Assessment Results', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('Cache Assessment Results', 'ennulifeassessments') . '</th>';
         echo '<td><input type="checkbox" name="cache_results" value="1" ' . checked($settings['cache_results'], 1, false) . ' /></td>';
         echo '</tr>';
         
         // Integration settings
         echo '<tr>';
-        echo '<th scope="row">' . __('WP Fusion Integration', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('WP Fusion Integration', 'ennulifeassessments') . '</th>';
         echo '<td><input type="checkbox" name="wp_fusion_enabled" value="1" ' . checked($settings['wp_fusion_enabled'], 1, false) . ' /></td>';
         echo '</tr>';
         
         echo '<tr>';
-        echo '<th scope="row">' . __('HubSpot API Key', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('HubSpot API Key', 'ennulifeassessments') . '</th>';
         echo '<td><input type="text" name="hubspot_api_key" value="' . esc_attr($settings['hubspot_api_key']) . '" class="regular-text" /></td>';
         echo '</tr>';
         
@@ -1167,7 +1288,7 @@ class ENNU_Enhanced_Admin {
         echo '</form>';
         
         // System status
-        echo '<h2>' . __('System Status', 'ennu-life') . '</h2>';
+        echo '<h2>' . __('System Status', 'ennulifeassessments') . '</h2>';
         $this->display_system_status();
         
         echo '</div>';
@@ -1225,17 +1346,17 @@ class ENNU_Enhanced_Admin {
         ");
         
         if (empty($results)) {
-            echo '<p>' . __('No assessment data found.', 'ennu-life') . '</p>';
+            echo '<p>' . __('No assessment data found.', 'ennulifeassessments') . '</p>';
             return;
         }
         
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead><tr>';
-        echo '<th>' . __('User', 'ennu-life') . '</th>';
-        echo '<th>' . __('Email', 'ennu-life') . '</th>';
-        echo '<th>' . __('Assessment Type', 'ennu-life') . '</th>';
-        echo '<th>' . __('Score', 'ennu-life') . '</th>';
-        echo '<th>' . __('Date', 'ennu-life') . '</th>';
+        echo '<th>' . __('User', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Email', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Assessment Type', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Score', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Date', 'ennulifeassessments') . '</th>';
         echo '</tr></thead><tbody>';
         
         foreach ($results as $result) {
@@ -1287,17 +1408,17 @@ class ENNU_Enhanced_Admin {
         ");
         
         if (empty($results)) {
-            echo '<p>' . __('No assessment data found.', 'ennu-life') . '</p>';
+            echo '<p>' . __('No assessment data found.', 'ennulifeassessments') . '</p>';
             return;
         }
         
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead><tr>';
-        echo '<th>' . __('User', 'ennu-life') . '</th>';
-        echo '<th>' . __('Email', 'ennu-life') . '</th>';
-        echo '<th>' . __('Assessments Completed', 'ennu-life') . '</th>';
-        echo '<th>' . __('Date Registered', 'ennu-life') . '</th>';
-        echo '<th>' . __('Actions', 'ennu-life') . '</th>';
+        echo '<th>' . __('User', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Email', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Assessments Completed', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Date Registered', 'ennulifeassessments') . '</th>';
+        echo '<th>' . __('Actions', 'ennulifeassessments') . '</th>';
         echo '</tr></thead><tbody>';
         
         foreach ($results as $result) {
@@ -1316,7 +1437,7 @@ class ENNU_Enhanced_Admin {
             echo '<td>' . esc_html($result->user_email) . '</td>';
             echo '<td>' . implode('<br>', $assessment_list) . '</td>';
             echo '<td>' . date('M j, Y', strtotime($result->user_registered)) . '</td>';
-            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $result->ID) . '" class="button button-small">' . __('View Details', 'ennu-life') . '</a></td>';
+            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $result->ID) . '" class="button button-small">' . __('View Details', 'ennulifeassessments') . '</a></td>';
             echo '</tr>';
         }
         
@@ -1361,33 +1482,33 @@ class ENNU_Enhanced_Admin {
         
         // WordPress version
         echo '<tr>';
-        echo '<th scope="row">' . __('WordPress Version', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('WordPress Version', 'ennulifeassessments') . '</th>';
         echo '<td>' . get_bloginfo('version') . '</td>';
         echo '</tr>';
         
         // Plugin version
         echo '<tr>';
-        echo '<th scope="row">' . __('Plugin Version', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('Plugin Version', 'ennulifeassessments') . '</th>';
         echo '<td>' . ENNU_LIFE_VERSION . '</td>';
         echo '</tr>';
         
         // PHP version
         echo '<tr>';
-        echo '<th scope="row">' . __('PHP Version', 'ennu-life') . '</th>';
+        echo '<th scope="row">' . __('PHP Version', 'ennulifeassessments') . '</th>';
         echo '<td>' . PHP_VERSION . '</td>';
         echo '</tr>';
         
         // WP Fusion status
         echo '<tr>';
-        echo '<th scope="row">' . __('WP Fusion', 'ennu-life') . '</th>';
-        echo '<td>' . (function_exists('wp_fusion') ? __('Active', 'ennu-life') : __('Not Installed', 'ennu-life')) . '</td>';
+        echo '<th scope="row">' . __('WP Fusion', 'ennulifeassessments') . '</th>';
+        echo '<td>' . (function_exists('wp_fusion') ? __('Active', 'ennulifeassessments') : __('Not Installed', 'ennulifeassessments')) . '</td>';
         echo '</tr>';
         
         // Cache status
         $cache_stats = ENNU_Score_Cache::get_cache_stats();
         echo '<tr>';
-        echo '<th scope="row">' . __('Cache Status', 'ennu-life') . '</th>';
-        echo '<td>' . sprintf(__('%d entries cached', 'ennu-life'), $cache_stats['cached_entries']) . '</td>';
+        echo '<th scope="row">' . __('Cache Status', 'ennulifeassessments') . '</th>';
+        echo '<td>' . sprintf(__('%d entries cached', 'ennulifeassessments'), $cache_stats['cached_entries']) . '</td>';
         echo '</tr>';
         
         echo '</table>';

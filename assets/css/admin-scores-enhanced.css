@@ -834,6 +834,14 @@
     word-wrap: break-word;
 }
 
+.wp-admin .ennu-field-description {
+    display: block;
+    font-style: italic;
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
 .wp-admin .ennu-empty-value {
     color: #9aa0a6;
     font-style: italic;
@@ -1107,5 +1115,35 @@
 @keyframes ennu-loading-shimmer {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+}
+
+/* Score Block Display */
+.wp-admin .ennu-score-block {
+    background: #e7f5ff;
+    border: 2px solid #90caff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.wp-admin .ennu-score-block h4 {
+    margin: 0 0 10px 0;
+    color: #005a9c;
+    font-size: 16px;
+}
+
+.wp-admin .ennu-score-block .ennu-score-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #005a9c;
+    line-height: 1;
+}
+
+.wp-admin .ennu-score-block .ennu-score-interpretation {
+    font-size: 18px;
+    font-style: italic;
+    color: #005a9c;
+    margin-top: 5px;
 }
 

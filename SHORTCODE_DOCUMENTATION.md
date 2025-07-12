@@ -1,5 +1,7 @@
 # ENNU Life Assessment Plugin - Shortcode Documentation
 
+**Version**: 24.8.0
+
 This document provides comprehensive documentation for all shortcodes available in the ENNU Life Assessment Plugin v24.1.0.
 
 ## Table of Contents
@@ -411,12 +413,7 @@ define('WP_DEBUG_LOG', true);
 
 ## Version History
 
-### v24.1.0 (Current)
-- Complete shortcode system overhaul
-- Added neutral grey color scheme
-- Enhanced mobile responsiveness
-- Improved accessibility features
-- Fixed data logging issues
+- **v24.8.0**: Fixed assessment_type matching in admin display for accurate data rendering.
 
 ### v22.8 (Previous)
 - Basic shortcode functionality

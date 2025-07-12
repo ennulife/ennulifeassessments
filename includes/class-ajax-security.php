@@ -224,8 +224,8 @@ class ENNU_AJAX_Security {
             return false;
         }
         
-        // Verify nonce
-        return wp_verify_nonce($nonce, 'ennu_admin_nonce') || wp_verify_nonce($nonce, 'ennu_ajax_nonce');
+        // Verify a single, consistent nonce for all AJAX operations.
+        return wp_verify_nonce($nonce, 'ennu_ajax_nonce');
     }
     
     /**
@@ -453,7 +453,10 @@ class ENNU_AJAX_Security {
         // Store in memory
         self::$security_log[] = $event;
         
-        // Store in database (keep last 1000 events)
+        // Storing a large, growing log in wp_options is a performance risk.
+        // This has been disabled to prevent database bloat. Critical events
+        // are still logged to the standard error log.
+        /*
         $stored_events = get_option('ennu_security_log', array());
         $stored_events[] = $event;
         
@@ -463,6 +466,7 @@ class ENNU_AJAX_Security {
         }
         
         update_option('ennu_security_log', $stored_events);
+        */
         
         // Log critical events to error log
         $critical_events = array('blocked_ip_attempt', 'invalid_nonce', 'rate_limit_exceeded');
@@ -484,7 +488,7 @@ class ENNU_AJAX_Security {
             'recent_events' => array_slice($stored_events, -10)
         );
         
-        // Count event types
+        // This will now always be empty, which is intended.
         foreach ($stored_events as $event) {
             $type = $event['event_type'];
             if (!isset($stats['event_types'][$type])) {

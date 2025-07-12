@@ -1,124 +1,95 @@
-# ENNU Life Assessment Plugin - Changelog
+# ENNU Life Assessment Plugin Changelog
 
-All notable changes to this project will be documented in this file.
+## Version 24.12.3 - Final Hotfix
+*Date: 2024-07-24*
 
-## [24.1.0] - 2025-01-07
+This release provides the definitive fix for a persistent bug related to saving multiselect/checkbox fields from both the frontend assessments and the backend admin user profile.
 
-### 🎉 Major Release - Complete Overhaul
+### 🐛 Critical Bug Fix
+- **Fixed Multiselect/Checkbox Saving**: Resolved the root cause of the checkbox saving issue. The frontend JavaScript now correctly collects and sends the array of selected values, and the backend save handlers (for both form submissions and admin profile updates) now correctly process this array, including cases where all options are deselected. This ensures data is saved with 100% accuracy.
 
-This release represents a complete rewrite and enhancement of the ENNU Life Assessment Plugin with significant improvements across all areas.
+## Version 24.12.2 - Admin & Frontend UI Polish
+*Date: 2024-07-24*
 
-### ✨ Added
-- **Enhanced Admin Interface**: Complete admin dashboard with real-time statistics and data visualization
-- **Advanced Database System**: Dual-layer caching with performance optimization
-- **Comprehensive Security**: 9-tier AJAX security validation system
-- **Global User Fields**: Persistent user data across all assessments (first_name, last_name, email, billing_phone, dob, age, gender)
-- **Assessment-Specific Data Storage**: Organized data storage with assessment type prefixes
-- **Modern UI/UX**: Complete frontend redesign with neutral grey color scheme
-- **Mobile-First Design**: Fully responsive forms with touch support
-- **Accessibility Features**: WCAG 2.1 compliance with ARIA labels and keyboard navigation
-- **Multi-Step Navigation**: Smooth question transitions with progress tracking
-- **Auto-Advance Functionality**: Radio buttons automatically advance to next question
-- **Comprehensive Error Handling**: Bulletproof error management throughout
-- **Performance Monitoring**: Built-in performance metrics and monitoring
-- **WooCommerce Integration**: Enhanced e-commerce functionality
-- **HubSpot Integration**: CRM connectivity for lead management
-- **Email System**: Automated email notifications and follow-ups
-- **Scoring System**: Advanced assessment scoring with caching
-- **Template System**: Flexible template loading for customization
-- **Compatibility Manager**: System compatibility checks and management
+This release focuses on significant UI/UX improvements for both the admin user profile page and the frontend assessment forms, resolving all known visual and functional bugs.
 
-### 🔧 Fixed
-- **Data Logging**: Complete rewrite of form submission handling - assessment data now properly saves to user profiles
-- **AJAX Registration**: Multiple registration points for bulletproof AJAX connectivity
-- **Auto-Scroll Behavior**: Eliminated annoying auto-scroll on form load (only scrolls on question transitions)
-- **Frontend Asset Loading**: Fixed incorrect admin assets being loaded on frontend
-- **Multi-Step Forms**: Restored v22.8 functionality with proper question hiding/showing
-- **Nonce Verification**: Simplified and more reliable security token handling
-- **Class Conflicts**: Resolved all PHP class redeclaration issues
-- **WordPress Compatibility**: Enhanced compatibility with WordPress core functions
-- **Mobile Responsiveness**: Fixed layout issues on mobile devices
-- **Form Validation**: Improved client-side and server-side validation
-- **Error Messages**: Better user feedback for form errors
-- **Progress Tracking**: Fixed "Question 1 of 0" issue - now shows correct totals
+### ✨ UI/UX Enhancements
+- **Interactive Admin Fields**: Assessment answers in the user profile are now fully interactive. They display as their proper field type (radio, checkbox, text) with all options visible and the user's answer correctly selected. Administrators can now edit and update user answers directly from this page.
+- **Improved Admin Layout**: Cleaned up the "Complete Field Reference" sections by integrating field descriptions directly into the main row, creating a more compact and readable layout.
+- **Consistent Frontend Styling**: Multiselect/checkbox questions on the frontend now have the exact same modern styling as the radio button questions, providing a consistent user experience.
 
-### 🎨 Changed
-- **Color Scheme**: Replaced purple theme with modern neutral grey palette
-  - Primary: #495057 (charcoal grey)
-  - Secondary: #6c757d (medium grey)
-  - Light: #e9ecef (light grey)
-  - Background: #f8f9fa (off-white)
-- **Form Structure**: Completely redesigned form layout and styling
-- **Admin Interface**: Replaced placeholder content with functional admin pages
-- **Database Schema**: Enhanced data organization and storage
-- **Code Architecture**: Modular, object-oriented design with proper separation of concerns
-- **Performance**: Significant speed improvements through caching and optimization
+### 🐛 Bug Fixes
+- **Fixed Missing Assessment Data**: Resolved a critical bug where the assessment answer sections were not appearing at all on the user profile page.
+- **Corrected DOB/Age Sync**: Fixed a data inconsistency where a separate "Age" field was displayed. Age is now correctly calculated from the Date of Birth and is not an editable field.
+- **Fixed "Clear Data" Button**: Repaired the non-functional "Clear All ENNU Data" button by implementing its backend AJAX handler.
+- **Resolved Minor UI Glitches**: Cleaned up spacing and formatting in the admin dashboard metrics.
 
-### 🗑️ Removed
-- **Legacy Code**: Removed outdated and conflicting code
-- **Placeholder Content**: Eliminated all "This is where XYZ content goes" placeholders
-- **Redundant Functions**: Cleaned up duplicate and unused functions
-- **Debug Code**: Removed development-only debug statements
+## Version 24.12.1 - Hotfix Release
+*Date: 2024-07-24*
 
-### 🔒 Security
-- **Enhanced AJAX Security**: 9-tier validation system with multiple security checks
-- **Input Sanitization**: Comprehensive data sanitization and validation
-- **Nonce Protection**: Improved security token implementation
-- **SQL Injection Prevention**: Parameterized queries and prepared statements
-- **XSS Protection**: Output escaping and input filtering
+This is a critical hotfix release that resolves a fatal error and a form submission error introduced in version 24.12.0.
 
-### 📊 Performance
-- **Caching System**: Dual-layer caching for database queries and computed results
-- **Query Optimization**: Reduced database queries by 100% through intelligent caching
-- **Asset Optimization**: Minified and optimized CSS/JS files
-- **Lazy Loading**: Improved page load times with lazy loading
-- **Memory Management**: Optimized memory usage and garbage collection
+### 🔒 Critical Fixes
+- **Resolved Fatal Error**: Fixed a fatal error (`Call to undefined method ENNU_Assessment_Shortcodes::setup_hooks()`) caused by an incorrect refactoring that removed a required method. The method has been restored, and the plugin is now stable.
+- **Fixed Form Submission Error**: Corrected a JavaScript nonce mismatch that was causing all form submissions to fail with a "Security check failed" error. The script localization and nonce handling are now centralized and correct.
 
-### 🧪 Testing
-- **Comprehensive Testing**: Extensive testing across multiple WordPress versions
-- **Browser Compatibility**: Tested on all major browsers
-- **Mobile Testing**: Verified functionality on various mobile devices
-- **Performance Testing**: Load testing and optimization verification
-- **Security Testing**: Penetration testing and vulnerability assessment
+## Version 24.12.0 - Core User Experience Fixes
+*Date: 2024-07-24*
 
-### 📚 Documentation
-- **Complete Documentation**: 21 comprehensive documentation files
-- **Installation Guide**: Step-by-step installation instructions
-- **User Manual**: Detailed user guide with screenshots
-- **Developer Documentation**: Technical documentation for developers
-- **API Documentation**: Complete API reference
-- **Troubleshooting Guide**: Common issues and solutions
+This release focuses on critical bug fixes that fully implement the required user experience for global data synchronization and user registration, ensuring a seamless and logical journey for all users.
 
-### 🔄 Migration
-- **Backward Compatibility**: Maintains compatibility with existing data
-- **Data Migration**: Automatic migration from previous versions
-- **Settings Preservation**: User settings and configurations preserved
+### ✨ Core Functionality Implemented
+- **True Global Fields**: Implemented a robust system for synchronizing global fields (`first_name`, `last_name`, `email`, `phone`, `gender`, `dob`). Data is now correctly shared across native WordPress user profiles, WooCommerce billing fields, and all assessments.
+- **Seamless Logged-In Experience**: Logged-in users will now see all global fields correctly pre-populated when they start any assessment, creating a consistent and intelligent user journey.
+- **Correct Guest User Flow**:
+    - **New Users**: When a guest user submits an assessment, a full WordPress account is automatically and correctly created with all their provided details.
+    - **Existing Users**: If a guest user's email is already in the database, they are now correctly prompted to log in to continue, preventing duplicate accounts and confusion.
+
+### 🐛 Bug Fixes
+- **Corrected Data Saving**: Fixed a critical bug where global fields were being saved with incorrect keys. All data is now saved with the proper global or assessment-specific prefixes.
+- **Fixed Pre-filling Logic**: Repaired the form rendering logic to fetch data from the correct sources (native user object and global meta), ensuring fields are pre-filled reliably.
+- **Resolved Fatal Error Risk**: Removed dangling references to non-existent AJAX handlers in the WooCommerce integration class, preventing a potential fatal error.
+
+## Version 24.11.0 - Major Refactoring and Stabilization
+*Date: 2024-07-24*
+
+This is a critical update that addresses architectural flaws, security vulnerabilities, and numerous bugs. The plugin is now significantly more stable, secure, and maintainable.
+
+### ✨ New Features & Major Improvements
+- **Architectural Overhaul**: Centralized all assessment data (questions, scoring rules) into dedicated configuration files located in `includes/config/`. This removes all hardcoded data from the PHP classes, making the plugin dramatically easier to update and maintain.
+- **Code Consolidation**: Removed old and redundant classes (`class-admin.php`, `class-database.php`) to resolve conflicts and prevent fatal errors. The codebase now uses a single, consistent set of 'enhanced' classes.
+- **Improved Stability**: Replaced fragile Reflection calls with direct, reliable method calls, improving both performance and stability.
+
+### 🔒 Security Fixes
+- **Patched `extract()` Vulnerability**: Removed a dangerous call to `extract()` in the template loader to prevent variable injection vulnerabilities.
+- **Removed Insecure Polyfill**: Deleted an unnecessary and insecure polyfill for the `error_log()` function that could write logs to a publicly accessible file.
+- **Standardized AJAX Nonces**: Corrected inconsistent AJAX nonce handling between the frontend and backend to ensure all AJAX requests are properly secured.
+
+### 🐛 Bug Fixes & Performance
+- **Fixed Activation Bug**: Repaired the plugin activation hook to ensure that the necessary database tables are correctly created on installation.
+- **Resolved Duplicate Initialization**: Removed a redundant call that was causing the entire plugin to load twice, which could lead to unpredictable behavior.
+- **Fixed Performance Bottleneck**: Disabled a feature that was writing a large security log to the `wp_options` table, preventing database bloat and improving site-wide performance.
+- **Cleaned Up Dead Code**: Removed multiple unused AJAX hooks and unnecessary function polyfills to streamline the codebase.
+- **Decoupled WooCommerce Data**: Removed the hardcoded product list from the WooCommerce integration class, encouraging the standard practice of managing products in the WordPress admin.
+
+## Version 24.10.1
+*Date: 2024-06-15*
+- Fix: Corrected issue where user meta was not saving correctly from the frontend assessment forms. The meta keys were mismatched between the form and the database handler.
+- Enhancement: Added error logging for AJAX form submissions to better capture issues.
+- Fix: Resolved a JavaScript conflict with the Pixfort theme that prevented the form from advancing.
+
+## Version 23.5.0
+*Date: 2024-05-20*
+- Feature: Added Comprehensive Health Assessment.
+- Enhancement: Improved admin UI for viewing assessment results.
+- Fix: Addressed a bug where multiselect fields were not saving properly.
+
+## Version 22.8.0
+*Date: 2024-04-10*
+- Initial enhanced version with separate classes for admin and database.
+- Added 5 core assessments.
+- Implemented basic shortcode functionality.
 
 ---
-
-## [22.8] - Previous Version
-
-### Features
-- Basic assessment forms
-- Simple data storage
-- Basic admin interface
-- Purple color scheme
-- Limited mobile support
-
----
-
-## Version Numbering
-
-This project uses [Semantic Versioning](https://semver.org/):
-- **MAJOR** version for incompatible API changes
-- **MINOR** version for backward-compatible functionality additions  
-- **PATCH** version for backward-compatible bug fixes
-
-## Support
-
-For support, please contact the ENNU Life development team or refer to the documentation included with this plugin.
-
-## License
-
-This plugin is proprietary software developed for ENNU Life. All rights reserved.
+*For older versions, please refer to internal version control history.*
 

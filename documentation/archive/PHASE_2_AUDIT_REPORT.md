@@ -15,8 +15,7 @@
 - `class-database.php` (symlink to enhanced version)
 
 ### **Form Handler Classes**  
-- `class-form-handler-original.php` (24,165 bytes, 565 lines - original)
-- `class-form-handler.php` (symlink to enhanced database)
+- `class-assessment-shortcodes.php` (Primary Handler)
 
 **PHP Syntax**: ✅ ALL FILES PASS - No syntax errors detected
 

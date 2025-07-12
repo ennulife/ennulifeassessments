@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin - User Experience & Field Reference
 
-**Version**: 24.1.0  
+**Version**: 24.8.0  
 **Last Updated**: January 7, 2025  
 **Purpose**: Complete documentation of user flows, admin views, and all system fields
 

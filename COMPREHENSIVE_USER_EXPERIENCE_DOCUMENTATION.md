@@ -1,6 +1,6 @@
-# ENNU Life Plugin - Comprehensive User Experience Documentation
+# ENNU Life Assessment Plugin - Comprehensive User Experience Documentation
 
-**Version:** 24.1.0  
+**Version**: 24.8.0
 **Author:** Luis Escobar 
 **Date:** July 11, 2025
 
@@ -150,7 +150,7 @@ The following fields are automatically filled across ALL assessments:
 
 ### What Administrators See in WordPress User Profiles
 
-When administrators view user profiles in WordPress Admin (Users → Edit User), they see **comprehensive assessment data** organized in multiple sections.
+When administrators view user profiles in WordPress Admin (Users → Edit User), they see **comprehensive assessment data** organized in multiple sections, including all saved values, empty fields, metadata, system fields, and a new section for legacy/uncategorized data.
 
 #### Section 1: Global User Data
 **Display Format:**
@@ -177,7 +177,7 @@ Global User Data (Persistent Across All Assessments)
 **Assessment Metadata:**
 - Completion Status: `ennu_{type}_completion_status`
 - Completion Date: `ennu_{type}_completion_date`
-- Calculated Score: `ennu_{type}_calculated_score`
+- Calculated Score: `ennu_{type}_calculated_score` (shows 'Not calculated yet' if missing)
 - Score Interpretation: `ennu_{type}_score_interpretation`
 
 **All Questions & Responses:**
@@ -187,6 +187,9 @@ Global User Data (Persistent Across All Assessments)
 
 **Available Options Display:**
 For each question, admins see all possible answer choices with their values.
+
+**Fallback Raw Data (if questions not loaded):**
+Displays all matching meta keys (e.g., `health_q1: 1961-03-03`) directly from database.
 
 #### Section 3: Hidden System Fields
 **Assessment-Specific System Data:**
@@ -210,6 +213,9 @@ Hidden System Fields (Assessment-Specific)
     ├── Lead Score: [value] | ennu_{type}_lead_score
     └── Engagement Score: [value] | ennu_{type}_engagement_score
 ```
+
+#### Section 4: Legacy/Uncategorized Data (New)
+Displays any non-standard ENNU keys (e.g., `ennu_question_default_2: male`) not fitting standard sections, with raw key-value pairs.
 
 #### Section 4: Global System Fields
 **Cross-Assessment Analytics:**
@@ -399,14 +405,15 @@ Hidden system fields capture **behind-the-scenes data** that users never see but
 
 #### 2. Assessment-Specific Fields
 **Storage Location:** WordPress `wp_usermeta` table  
-**Prefix:** `ennu_{assessment_type}_`  
+**Prefix:** `ennu_{assessment_type}_` (e.g., `ennu_health_assessment_health_q1`)
 **Purpose:** Assessment-specific responses and metadata
 
 **Data Flow:**
 1. User completes assessment questions
-2. Each response saved with assessment-specific prefix
+2. Each response saved with consistent prefixed key
 3. Scores calculated and stored
 4. Metadata (completion date, time spent) recorded
+5. Legacy keys (e.g., `ennu_question_default_X`) remapped to 'general_assessment' prefix during saving
 
 #### 3. System Fields
 **Storage Location:** WordPress `wp_usermeta` table  

@@ -271,31 +271,15 @@
         }
 
         collectFormData() {
-            const formData = new FormData();
+            // The FormData constructor correctly handles all input types, including
+            // creating an array for checkboxes that share the same name with `[]`.
+            const formData = new FormData(this.form[0]);
             
-            // Add form fields
-            this.form.find('input, select, textarea').each((index, field) => {
-                const $field = $(field);
-                const name = $field.attr('name');
-                const value = $field.val();
-                
-                if (name && value && $field.attr('type') !== 'radio') {
-                    formData.append(name, value);
-                }
-            });
-            
-            // Add checked radio buttons
-            this.form.find('input[type="radio"]:checked').each((index, radio) => {
-                const $radio = $(radio);
-                formData.append($radio.attr('name'), $radio.val());
-            });
-            
-            // Add stored answers
-            Object.keys(this.answers).forEach(key => {
-                if (!formData.has(key)) {
-                    formData.append(key, this.answers[key]);
-                }
-            });
+            // Debug: Log all form data to verify
+            console.log('Form data collected:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
             
             return formData;
         }
@@ -317,22 +301,42 @@
             
             // Add AJAX action and nonce
             formData.append('action', 'ennu_submit_assessment');
-            formData.append('assessment_nonce', this.form.find('[name="assessment_nonce"]').val());
+            
+            // The 'ennu_ajax' object is now the single source of truth, localized correctly from the main plugin file.
+            if (typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
+                formData.append('nonce', ennu_ajax.nonce);
+            } else {
+                console.error('CRITICAL: Nonce object not found. Aborting submission.');
+                this.showSubmissionError('Security token missing. Please refresh the page.');
+                this.isSubmitting = false;
+                this.form.removeClass('loading');
+                return;
+            }
+            
+            const ajaxUrl = (typeof ennu_ajax !== 'undefined' && ennu_ajax.ajax_url) ? ennu_ajax.ajax_url : '/wp-admin/admin-ajax.php';
             
             console.log('Submitting assessment form...');
+            console.log('AJAX URL:', ajaxUrl);
             
             $.ajax({
-                url: ennuAssessment.ajaxUrl,
+                url: ajaxUrl,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: (response) => {
-                    console.log('Assessment submitted successfully:', response);
+                    console.log('AJAX success response received:', response);
+                    // Print the backend debug log if it exists
+                    if (response && response.success && response.data && response.data.debug_log) {
+                        console.group('Backend Execution Log');
+                        response.data.debug_log.forEach(log => console.log(log));
+                        console.groupEnd();
+                    }
                     this.showSuccess(response);
                 },
                 error: (xhr, status, error) => {
                     console.error('Assessment submission failed:', error);
+                    console.error('Response:', xhr.responseText);
                     this.showSubmissionError();
                 },
                 complete: () => {
@@ -343,33 +347,41 @@
         }
 
         showSuccess(response) {
-            // Hide form
-            this.form.find('.questions-container').hide();
-            
-            // Show success message
-            const successMessage = this.form.find('.assessment-success');
-            if (successMessage.length) {
-                successMessage.show();
+            // Check if the response is valid and contains a redirect URL
+            if (response && response.success && response.data && response.data.redirect_url) {
+                // Redirect the user to the specified "Thank You" page
+                window.location.href = response.data.redirect_url;
             } else {
-                // Create success message if it doesn't exist
-                const successHtml = `
-                    <div class="assessment-success">
-                        <div class="success-icon">✓</div>
-                        <h2>Assessment Complete!</h2>
-                        <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
-                    </div>
-                `;
-                this.form.append(successHtml);
+                // Fallback for unexpected responses: just show a generic success message
+                console.warn('Success response received, but no redirect URL found. Showing generic message.');
+                // Hide form
+                this.form.find('.questions-container').hide();
+                
+                // Show success message
+                const successMessage = this.form.find('.assessment-success');
+                if (successMessage.length) {
+                    successMessage.show();
+                } else {
+                    // Create success message if it doesn't exist
+                    const successHtml = `
+                        <div class="assessment-success">
+                            <div class="success-icon">✓</div>
+                            <h2>Assessment Complete!</h2>
+                            <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
+                        </div>
+                    `;
+                    this.form.append(successHtml);
+                }
+                
+                // Scroll to success message
+                this.form.find('.assessment-success')[0].scrollIntoView({ behavior: 'smooth' });
             }
-            
-            // Scroll to success message
-            this.form.find('.assessment-success')[0].scrollIntoView({ behavior: 'smooth' });
         }
 
-        showSubmissionError() {
+        showSubmissionError(message = 'There was a problem submitting your assessment. Please try again.') {
             const errorHtml = `
                 <div class="validation-message error">
-                    <strong>Submission Error:</strong> There was a problem submitting your assessment. Please try again.
+                    <strong>Submission Error:</strong> ${message}
                 </div>
             `;
             

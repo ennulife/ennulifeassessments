@@ -3,11 +3,11 @@
  * Plugin Name: ENNU Life Assessment Plugin
  * Plugin URI: https://ennulife.com
  * Description: Advanced health and wellness assessment system with enhanced features, modern UI, and comprehensive data management.
- * Version: 24.2.0
+ * Version: 24.12.3
  * Author: ENNU Life Development Team
  * Author URI: https://ennulife.com
  * License: Proprietary
- * Text Domain: ennu-life
+ * Text Domain: ennulifeassessments
  * Domain Path: /languages
  * Requires at least: 5.0
  * Tested up to: 6.8.1
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '24.2.0' );
+define( 'ENNU_LIFE_VERSION', '24.12.3' );
 // Plugin paths - with safety checks
 if (function_exists('plugin_dir_path')) {
     define('ENNU_LIFE_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -79,7 +79,8 @@ class ENNU_Life_Enhanced_Plugin {
         // Initialize plugin - with safety checks
         if (function_exists('add_action')) {
             add_action('plugins_loaded', array($this, 'init'));
-            add_action('init', array($this, 'load_textdomain'));
+            // Hook frontend scripts correctly
+            add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
         }
     }
     
@@ -87,8 +88,9 @@ class ENNU_Life_Enhanced_Plugin {
      * Initialize plugin
      */
     public function init() {
-        // Load dependencies
+        // Load dependencies and textdomain first
         $this->load_dependencies();
+        $this->load_textdomain();
         
         // Initialize components
         $this->init_components();
@@ -102,12 +104,9 @@ class ENNU_Life_Enhanced_Plugin {
      */
     private function load_dependencies() {
         $includes = array(
-            'class-database.php',
-            'class-admin.php', 
-            'class-form-handler.php',
+            'class-enhanced-database.php', // Only load the enhanced version
+            'class-enhanced-admin.php',    // Only load the enhanced version
             'class-assessment-shortcodes.php',
-            'class-enhanced-database.php',
-            'class-enhanced-admin.php',
             'class-comprehensive-assessment-display.php',
             'class-scoring-system.php',
             'class-score-cache.php',
@@ -131,20 +130,11 @@ class ENNU_Life_Enhanced_Plugin {
         // Initialize database - with class existence check
         if (class_exists('ENNU_Enhanced_Database')) {
             $this->database = new ENNU_Enhanced_Database();
-        } elseif (class_exists('ENNU_Database')) {
-            $this->database = new ENNU_Database();
         }
         
         // Initialize admin - with class existence check
         if (class_exists('ENNU_Enhanced_Admin')) {
             $this->admin = new ENNU_Enhanced_Admin();
-        } elseif (class_exists('ENNU_Admin')) {
-            $this->admin = new ENNU_Admin();
-        }
-        
-        // Initialize form handler - with class existence check
-        if (class_exists('ENNU_Form_Handler')) {
-            $this->form_handler = new ENNU_Form_Handler();
         }
         
         // Initialize shortcodes - with class existence check
@@ -163,32 +153,6 @@ class ENNU_Life_Enhanced_Plugin {
                 add_action('admin_menu', array($this->admin, 'add_admin_menu'));
                 add_action('admin_enqueue_scripts', array($this->admin, 'enqueue_admin_scripts'));
             }
-            
-            // Frontend hooks
-            add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
-            
-            // AJAX hooks - with multiple registration methods for reliability
-            add_action('init', array($this, 'register_ajax_handlers'));
-            add_action('wp_loaded', array($this, 'register_ajax_handlers'));
-        }
-    }
-    
-    /**
-     * Register AJAX handlers - called multiple times to ensure registration
-     */
-    public function register_ajax_handlers() {
-        if ($this->form_handler && method_exists($this->form_handler, 'handle_ajax_submission')) {
-            // Remove any existing handlers first
-            remove_action('wp_ajax_ennu_submit_assessment', array($this->form_handler, 'handle_ajax_submission'));
-            remove_action('wp_ajax_nopriv_ennu_submit_assessment', array($this->form_handler, 'handle_ajax_submission'));
-            
-            // Register handlers
-            add_action('wp_ajax_ennu_submit_assessment', array($this->form_handler, 'handle_ajax_submission'));
-            add_action('wp_ajax_nopriv_ennu_submit_assessment', array($this->form_handler, 'handle_ajax_submission'));
-            
-            error_log('ENNU: AJAX handlers registered successfully');
-        } else {
-            error_log('ENNU: Form handler not available for AJAX registration');
         }
     }
     
@@ -200,23 +164,25 @@ class ENNU_Life_Enhanced_Plugin {
             return;
         }
         
-        // Enqueue frontend styles (not admin styles!)
+        // Enqueue frontend styles
         $css_file = ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css';
         if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/css/ennu-frontend-forms.css')) {
-            wp_enqueue_style('ennu-life-frontend', $css_file, array(), ENNU_LIFE_VERSION);
+            wp_enqueue_style('ennu-assessment-frontend', $css_file, array(), ENNU_LIFE_VERSION);
         }
         
-        // Enqueue frontend scripts (not admin scripts!)
+        // Enqueue frontend scripts
         $js_file = ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js';
         if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/js/ennu-frontend-forms.js')) {
-            wp_enqueue_script('ennu-life-frontend', $js_file, array('jquery'), ENNU_LIFE_VERSION, true);
+            wp_enqueue_script('ennu-assessment-frontend', $js_file, array('jquery'), ENNU_LIFE_VERSION, true);
             
-            // Localize script - with safety check
+            // Localize script
             if (function_exists('wp_localize_script')) {
-                wp_localize_script('ennu-life-frontend', 'ennu_ajax', array(
+                wp_localize_script('ennu-assessment-frontend', 'ennu_ajax', array(
                     'ajax_url' => function_exists('admin_url') ? admin_url('admin-ajax.php') : '',
-                    'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ennu_nonce') : ''
+                    'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ennu_ajax_nonce') : ''
                 ));
+                // Add debug log
+                wp_add_inline_script('ennu-assessment-frontend', 'console.log("ENNU JS Loaded Successfully");');
             }
         }
     }
@@ -226,7 +192,7 @@ class ENNU_Life_Enhanced_Plugin {
      */
     public function load_textdomain() {
         if (function_exists('load_plugin_textdomain')) {
-            load_plugin_textdomain('ennu-life', false, dirname(plugin_basename(__FILE__)) . '/languages');
+            load_plugin_textdomain('ennulifeassessments', false, dirname(plugin_basename(__FILE__)) . '/languages');
         }
     }
     
@@ -234,8 +200,10 @@ class ENNU_Life_Enhanced_Plugin {
      * Plugin activation
      */
     public function activate() {
-        // Create database tables - with safety checks
-        if ($this->database && method_exists($this->database, 'create_tables')) {
+        // The main 'init' hook has already run at this point, so all dependencies
+        // are loaded and components are initialized. We can directly access the
+        // database object from the main plugin instance.
+        if ( $this->database && method_exists( $this->database, 'create_tables' ) ) {
             $this->database->create_tables();
         }
         
@@ -273,13 +241,6 @@ class ENNU_Life_Enhanced_Plugin {
      */
     public function get_admin() {
         return $this->admin;
-    }
-    
-    /**
-     * Get form handler instance
-     */
-    public function get_form_handler() {
-        return $this->form_handler;
     }
     
     /**
@@ -339,11 +300,5 @@ if (!function_exists('ennu_life')) {
         }
         return null;
     }
-}
-
-
-// Initialize the plugin
-if (class_exists('ENNU_Life_Enhanced_Plugin')) {
-    ENNU_Life_Enhanced_Plugin::get_instance();
 }
 

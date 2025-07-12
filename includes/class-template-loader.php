@@ -20,30 +20,8 @@ class ENNU_Life_Template_Loader {
     }
     
     private function __construct() {
-        add_filter("page_template", array($this, "load_page_template"));
         add_filter("template_include", array($this, "template_include"));
         add_action("wp_enqueue_scripts", array($this, "enqueue_template_assets"));
-    }
-    
-    public function load_page_template($template) {
-        global $post;
-        
-        if (!$post) {
-            return $template;
-        }
-        
-        // Check if this is an ENNU page
-        $ennu_template_key = get_post_meta($post->ID, "_ennu_template_key", true);
-        
-        if ($ennu_template_key) {
-            $plugin_template = $this->get_template_path($ennu_template_key);
-            
-            if ($plugin_template && file_exists($plugin_template)) {
-                return $plugin_template;
-            }
-        }
-        
-        return $template;
     }
     
     public function template_include($template) {
@@ -101,7 +79,7 @@ class ENNU_Life_Template_Loader {
             // Localize script for AJAX
             wp_localize_script("ennu-main-script", "ennuAjax", array(
                 "ajaxurl" => admin_url("admin-ajax.php"),
-                "nonce" => wp_create_nonce("ennu_nonce"),
+                "nonce" => wp_create_nonce("ennu_ajax_nonce"),
                 "templateKey" => $ennu_template_key
             ));
         }
@@ -111,10 +89,9 @@ class ENNU_Life_Template_Loader {
         $template_path = ENNU_LIFE_PLUGIN_PATH . "templates/" . $template_name . ".php";
         
         if (file_exists($template_path)) {
-            // Extract args to variables
-            if (!empty($args)) {
-                extract($args);
-            }
+            // Do not use extract(). It is a security risk.
+            // Instead, make the variables available to the template in a structured way.
+            $template_args = $args;
             
             ob_start();
             include $template_path;

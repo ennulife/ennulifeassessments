@@ -24,42 +24,65 @@ class ENNU_Comprehensive_Assessment_Display {
      * @param string $assessment_label Human-readable assessment name
      */
     public static function display_comprehensive_section($user_id, $assessment_type, $assessment_label) {
-        echo '<div class="ennu-comprehensive-section ennu-profile-section">';
-        echo '<h3>' . esc_html($assessment_label) . ' - Complete Field Reference</h3>';
-        
-        // Get all possible questions for this assessment
-        $questions = self::get_all_assessment_questions($assessment_type . '_assessment');
-        
-        if (empty($questions)) {
-            echo '<p class="ennu-no-questions">No questions defined for this assessment type.</p>';
+        try {
+            // Clear any transients for this assessment to ensure fresh data
+            delete_transient('ennu_questions_' . $assessment_type);
+            delete_transient('ennu_user_meta_' . $user_id);
+            
+            echo '<div class="ennu-comprehensive-section ennu-profile-section">';
+            echo '<h3>' . esc_html($assessment_label) . ' - Complete Field Reference</h3>';
+            
+            // Get all possible questions for this assessment
+            $questions = self::get_all_assessment_questions($assessment_type);
+            
+            if (empty($questions)) {
+                error_log('ENNU: No questions found for type: ' . $assessment_type);
+                echo '<p class="ennu-no-questions">No questions defined for this assessment type. Displaying raw data instead.</p>';
+                self::display_fallback_raw_data($user_id, $assessment_type);
+            } else {
+                // Normal display with score and questions
+                self::display_assessment_score($user_id, $assessment_type);
+                self::display_assessment_metadata($user_id, $assessment_type);
+                self::display_all_questions($user_id, $assessment_type, $questions);
+                self::display_assessment_system_fields($user_id, $assessment_type);
+            }
+
+            self::display_legacy_fields($user_id);
+            
             echo '</div>';
-            return;
+        } catch (Exception $e) {
+            error_log('ENNU Admin Display Error: ' . $e->getMessage() . ' for type: ' . $assessment_type);
+            echo '<div class="ennu-error-message">Error loading assessment data: ' . esc_html($e->getMessage()) . '</div>';
         }
-        
-        // Assessment completion status and metadata
-        self::display_assessment_metadata($user_id, $assessment_type);
-        
-        // Display all questions with their field IDs and values
-        self::display_all_questions($user_id, $assessment_type, $questions);
-        
-        // Display hidden system fields for this assessment
-        self::display_assessment_system_fields($user_id, $assessment_type);
-        
-        echo '</div>';
     }
     
+    /**
+     * Display assessment score in a prominent block.
+     */
+    private static function display_assessment_score($user_id, $assessment_type) {
+        $score = get_user_meta($user_id, 'ennu_' . $assessment_type . '_calculated_score', true);
+        $interpretation = get_user_meta($user_id, 'ennu_' . $assessment_type . '_score_interpretation', true);
+
+        if ($score) {
+            echo '<div class="ennu-score-block">';
+            echo '<h4>Assessment Score</h4>';
+            echo '<div class="ennu-score-value">' . esc_html($score) . '</div>';
+            echo '<div class="ennu-score-interpretation">' . esc_html($interpretation) . '</div>';
+            echo '</div>';
+        }
+    }
+
     /**
      * Display assessment metadata (completion status, dates, etc.)
      */
     private static function display_assessment_metadata($user_id, $assessment_type) {
+        $all_meta = get_user_meta($user_id);
         echo '<div class="ennu-metadata-section">';
         echo '<h4>Assessment Metadata</h4>';
         
         $metadata_fields = array(
             "ennu_{$assessment_type}_completion_status" => 'Completion Status',
             "ennu_{$assessment_type}_completion_date" => 'Completion Date',
-            "ennu_{$assessment_type}_calculated_score" => 'Calculated Score',
-            "ennu_{$assessment_type}_score_interpretation" => 'Score Interpretation',
             "ennu_{$assessment_type}_submission_timestamp" => 'Submission Timestamp',
             "ennu_{$assessment_type}_form_version" => 'Form Version Used',
             "ennu_{$assessment_type}_total_time_spent" => 'Total Time Spent (seconds)',
@@ -67,8 +90,8 @@ class ENNU_Comprehensive_Assessment_Display {
         );
         
         foreach ($metadata_fields as $field_id => $field_name) {
-            $value = get_user_meta($user_id, $field_id, true);
-            $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not set</span>';
+            $value = $all_meta[$field_id][0] ?? '';
+            $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">' . ($field_id === "ennu_{$assessment_type}_calculated_score" ? 'Not calculated yet' : 'Not set') . '</span>';
             
             echo '<div class="ennu-field-row ennu-metadata-field">';
             echo '<div class="ennu-field-label">' . esc_html($field_name) . ':</div>';
@@ -84,6 +107,7 @@ class ENNU_Comprehensive_Assessment_Display {
      * Display all questions with their field IDs and current values
      */
     private static function display_all_questions($user_id, $assessment_type, $questions) {
+        $all_meta = get_user_meta($user_id);
         echo '<div class="ennu-questions-section">';
         echo '<h4>All Assessment Questions & Responses</h4>';
         
@@ -93,8 +117,9 @@ class ENNU_Comprehensive_Assessment_Display {
             // Generate field ID based on question type
             $field_id = self::generate_field_id($assessment_type, $question_number, $question);
             
-            // Get current value
-            $value = get_user_meta($user_id, $field_id, true);
+            // Get value from batched meta
+            $value = $all_meta[$field_id][0] ?? '';
+            error_log('ENNU Display Debug: Fetching [' . $field_id . '] = ' . ($value ?: 'empty'));
             
             // Display question
             self::display_question_field($question_number, $question, $field_id, $value);
@@ -103,7 +128,7 @@ class ENNU_Comprehensive_Assessment_Display {
             if (isset($question['type'])) {
                 switch ($question['type']) {
                     case 'dob_dropdowns':
-                        self::display_dob_fields($user_id, $assessment_type, $question_number);
+                        self::display_dob_fields($user_id, $assessment_type, $question_number, $all_meta);
                         break;
                     case 'contact_info':
                         self::display_contact_info_fields($user_id, $question);
@@ -114,7 +139,6 @@ class ENNU_Comprehensive_Assessment_Display {
                 }
             }
         }
-        
         echo '</div>';
     }
     
@@ -126,19 +150,14 @@ class ENNU_Comprehensive_Assessment_Display {
         $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not answered</span>';
         
         echo '<div class="ennu-field-row ennu-question-field">';
-        echo '<div class="ennu-field-label">Q' . $question_number . ': ' . esc_html($question_title) . '</div>';
+        echo '<div class="ennu-field-label">' . esc_html($question_title) . '</div>';
         echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-        echo '<div class="ennu-field-value">' . $display_value . '</div>';
-        echo '</div>';
-        
-        // Show question description if available
+        echo '<div class="ennu-field-value">' . $display_value;
         if (!empty($question['description'])) {
-            echo '<div class="ennu-field-row ennu-question-description">';
-            echo '<div class="ennu-field-label">Description:</div>';
-            echo '<div class="ennu-field-id">--</div>';
-            echo '<div class="ennu-field-value"><em>' . esc_html($question['description']) . '</em></div>';
-            echo '</div>';
+            echo '<em class="ennu-field-description">' . esc_html($question['description']) . '</em>';
         }
+        echo '</div>';
+        echo '</div>';
         
         // Show available options if it's a choice question
         if (!empty($question['options'])) {
@@ -157,7 +176,7 @@ class ENNU_Comprehensive_Assessment_Display {
     /**
      * Display date of birth fields
      */
-    private static function display_dob_fields($user_id, $assessment_type, $question_number) {
+    private static function display_dob_fields($user_id, $assessment_type, $question_number, $all_meta) {
         $assessment_prefix = str_replace('_assessment', '', $assessment_type);
         $base_id = $assessment_prefix . '_q' . $question_number;
         
@@ -170,7 +189,7 @@ class ENNU_Comprehensive_Assessment_Display {
         );
         
         foreach ($dob_fields as $field_id => $field_name) {
-            $value = get_user_meta($user_id, $field_id, true);
+            $value = $all_meta[$field_id][0] ?? '';
             $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not provided</span>';
             
             echo '<div class="ennu-field-row ennu-dob-field">';
@@ -190,7 +209,8 @@ class ENNU_Comprehensive_Assessment_Display {
         }
         
         foreach ($question['fields'] as $field) {
-            $field_id = $field['name'];
+            // Use the global meta key for contact info
+            $field_id = 'ennu_global_' . $field['name'];
             $field_name = $field['label'];
             $value = get_user_meta($user_id, $field_id, true);
             $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not provided</span>';
@@ -272,7 +292,7 @@ class ENNU_Comprehensive_Assessment_Display {
             echo '<div class="ennu-field-row ennu-system-field">';
             echo '<div class="ennu-field-label">' . esc_html($field_name) . ':</div>';
             echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-            echo '<div class="ennu-field-value">' . $display_value . '</div>';
+            echo '<div class="ennu-field-value">' . $display_value . '<em class="ennu-field-description">' . esc_html($field_name) . ' Description</em></div>';
             echo '</div>';
         }
         
@@ -286,214 +306,96 @@ class ENNU_Comprehensive_Assessment_Display {
         // Remove '_assessment' suffix for cleaner IDs
         $assessment_prefix = str_replace('_assessment', '', $assessment_type);
         
-        // For special field types, use their specific field names
-        if (isset($question['field_name'])) {
-            return $question['field_name'];
-        }
-        
-        // For contact info, return the main field name
-        if (isset($question['type']) && $question['type'] === 'contact_info') {
-            return 'contact_info_q' . $question_number;
-        }
-        
         // Default: assessment_prefix + q + number (e.g., hair_q1, weight_q2)
-        return $assessment_prefix . '_q' . $question_number;
+        $question_key = $assessment_prefix . '_q' . $question_number;
+
+        // Construct the full meta key to match the saving logic
+        return 'ennu_' . $assessment_type . '_' . $question_key;
     }
     
     /**
      * Get all assessment questions for a given assessment type
      */
-    private static function get_all_assessment_questions($assessment_type) {
-        // Define questions directly instead of using reflection
-        switch ($assessment_type) {
-            case 'welcome_assessment':
-                return array(
-                    array('title' => 'What gender were you assigned at birth?', 'type' => 'radio'),
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What are your primary health goals?', 'type' => 'multiselect'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            case 'hair_assessment':
-                return array(
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What gender were you assigned at birth?', 'type' => 'radio'),
-                    array('title' => 'What hair concerns do you have?', 'type' => 'radio'),
-                    array('title' => 'How long have you been experiencing hair loss?', 'type' => 'radio'),
-                    array('title' => 'How quickly is your hair loss progressing?', 'type' => 'radio'),
-                    array('title' => 'Do you have a family history of hair loss?', 'type' => 'radio'),
-                    array('title' => 'How would you rate your stress level?', 'type' => 'radio'),
-                    array('title' => 'How would you describe your diet?', 'type' => 'radio'),
-                    array('title' => 'Have you tried any hair loss treatments?', 'type' => 'radio'),
-                    array('title' => 'What are your hair restoration goals?', 'type' => 'radio'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            case 'weight_loss_assessment':
-                return array(
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What gender were you assigned at birth?', 'type' => 'radio'),
-                    array('title' => 'What is your weight loss goal?', 'type' => 'radio'),
-                    array('title' => 'What motivates you to lose weight?', 'type' => 'radio'),
-                    array('title' => 'What is your timeline for reaching your goal?', 'type' => 'radio'),
-                    array('title' => 'How would you describe your eating habits?', 'type' => 'radio'),
-                    array('title' => 'How often do you exercise?', 'type' => 'radio'),
-                    array('title' => 'Have you tried weight loss programs before?', 'type' => 'radio'),
-                    array('title' => 'Do you have any health conditions?', 'type' => 'radio'),
-                    array('title' => 'Are you taking any medications?', 'type' => 'radio'),
-                    array('title' => 'Do you have a support system?', 'type' => 'radio'),
-                    array('title' => 'What is your biggest challenge with weight loss?', 'type' => 'radio'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            case 'health_assessment':
-                return array(
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What gender were you assigned at birth?', 'type' => 'radio'),
-                    array('title' => 'What are your primary health goals?', 'type' => 'multiselect'),
-                    array('title' => 'How would you rate your current health?', 'type' => 'radio'),
-                    array('title' => 'How is your energy level?', 'type' => 'radio'),
-                    array('title' => 'How is your sleep quality?', 'type' => 'radio'),
-                    array('title' => 'How would you rate your stress level?', 'type' => 'radio'),
-                    array('title' => 'How often do you exercise?', 'type' => 'radio'),
-                    array('title' => 'How would you describe your diet?', 'type' => 'radio'),
-                    array('title' => 'Do you have any health concerns?', 'type' => 'multiselect'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            case 'skin_assessment':
-                return array(
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What gender were you assigned at birth?', 'type' => 'radio'),
-                    array('title' => 'What is your skin type?', 'type' => 'radio'),
-                    array('title' => 'What are your main skin concerns?', 'type' => 'multiselect'),
-                    array('title' => 'What is your current skincare routine?', 'type' => 'radio'),
-                    array('title' => 'How often do you use skincare products?', 'type' => 'radio'),
-                    array('title' => 'How much sun exposure do you get?', 'type' => 'radio'),
-                    array('title' => 'What lifestyle factors affect your skin?', 'type' => 'multiselect'),
-                    array('title' => 'Have you tried professional treatments?', 'type' => 'radio'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            case 'ed_treatment_assessment':
-                return array(
-                    array('title' => 'Date of Birth', 'type' => 'dob_dropdowns'),
-                    array('title' => 'What is your relationship status?', 'type' => 'radio'),
-                    array('title' => 'How would you rate the severity?', 'type' => 'radio'),
-                    array('title' => 'How long have you experienced this?', 'type' => 'radio'),
-                    array('title' => 'Do you have any health conditions?', 'type' => 'multiselect'),
-                    array('title' => 'Have you tried treatments before?', 'type' => 'radio'),
-                    array('title' => 'Do you smoke?', 'type' => 'radio'),
-                    array('title' => 'How often do you exercise?', 'type' => 'radio'),
-                    array('title' => 'How would you rate your stress level?', 'type' => 'radio'),
-                    array('title' => 'What are your treatment goals?', 'type' => 'radio'),
-                    array('title' => 'Are you taking any medications?', 'type' => 'radio'),
-                    array('title' => 'Contact Information', 'type' => 'contact_info'),
-                );
-                
-            default:
-                return array();
+    private static function get_all_assessment_questions( $assessment_type ) {
+        // Robust normalization
+        $assessment_type = trim(strtolower($assessment_type));
+        if (strpos($assessment_type, '_assessment') === false) {
+            $assessment_type .= '_assessment';
         }
+        error_log('ENNU: Normalized type for questions: ' . $assessment_type);
+
+        // Load questions from the centralized configuration file.
+        $questions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php';
+        if ( file_exists( $questions_file ) ) {
+            $all_questions = require $questions_file;
+            return $all_questions[ $assessment_type ] ?? array();
+        }
+
+        return array();
     }
     
     /**
      * Display global user fields with comprehensive field reference
      */
     public static function display_global_fields_comprehensive($user_id) {
+        // Fetch the user data object
+        $user_data = get_userdata($user_id);
+        if (!$user_data) {
+            return;
+        }
+
         echo '<div class="ennu-comprehensive-section ennu-profile-section">';
         echo '<h3>Global User Data - Complete Field Reference</h3>';
         echo '<p class="ennu-section-description">These fields persist across all assessments and are automatically populated in future forms.</p>';
         
+        // Define the global fields, mapping them to the correct data source (user object or user meta)
         $global_fields = array(
-            // Core Identity Fields
-            'ennu_global_first_name' => array(
+            // Core Identity Fields from WP_User object
+            'first_name' => array(
                 'name' => 'First Name',
                 'category' => 'Core Identity',
-                'description' => 'User\'s first name, used across all assessments'
+                'description' => 'User\'s first name, stored in wp_users table.',
+                'source' => 'user_object'
             ),
-            'ennu_global_last_name' => array(
+            'last_name' => array(
                 'name' => 'Last Name', 
                 'category' => 'Core Identity',
-                'description' => 'User\'s last name, used across all assessments'
+                'description' => 'User\'s last name, stored in wp_users table.',
+                'source' => 'user_object'
             ),
-            'ennu_global_email' => array(
+            'user_email' => array(
                 'name' => 'Email Address',
                 'category' => 'Core Identity', 
-                'description' => 'Primary email for communications and account management'
+                'description' => 'Primary email for communications, stored in wp_users table.',
+                'source' => 'user_object'
             ),
-            'ennu_global_billing_phone' => array(
+            
+            // Global fields from usermeta
+            'billing_phone' => array(
                 'name' => 'Phone Number',
                 'category' => 'Core Identity',
-                'description' => 'Primary phone number for contact and billing'
+                'description' => 'Primary phone number for contact and billing.',
+                'source' => 'meta'
             ),
-            
-            // Date of Birth Fields
-            'ennu_global_dob_month' => array(
-                'name' => 'Birth Month',
+            'ennu_global_user_dob_combined' => array(
+                'name' => 'Date of Birth',
                 'category' => 'Date of Birth',
-                'description' => 'Month of birth (01-12 format)'
+                'description' => 'User\'s date of birth.',
+                'source' => 'meta'
             ),
-            'ennu_global_dob_day' => array(
-                'name' => 'Birth Day',
-                'category' => 'Date of Birth',
-                'description' => 'Day of birth (01-31 format)'
-            ),
-            'ennu_global_dob_year' => array(
-                'name' => 'Birth Year',
-                'category' => 'Date of Birth',
-                'description' => 'Year of birth (YYYY format)'
-            ),
-            'ennu_global_dob_combined' => array(
-                'name' => 'Combined Date of Birth',
-                'category' => 'Date of Birth',
-                'description' => 'Full date of birth in YYYY-MM-DD format'
-            ),
-            'ennu_global_calculated_age' => array(
-                'name' => 'Calculated Age',
-                'category' => 'Date of Birth',
-                'description' => 'Age calculated from date of birth'
-            ),
-            
-            // Demographics
             'ennu_global_gender' => array(
                 'name' => 'Gender',
                 'category' => 'Demographics',
-                'description' => 'Gender assigned at birth'
-            ),
-            
-            // System Metadata
-            'ennu_global_profile_created' => array(
-                'name' => 'Profile Created Date',
-                'category' => 'System Metadata',
-                'description' => 'Timestamp when global profile was first created'
-            ),
-            'ennu_global_last_updated' => array(
-                'name' => 'Last Updated',
-                'category' => 'System Metadata',
-                'description' => 'Timestamp of last profile update'
-            ),
-            'ennu_global_data_source' => array(
-                'name' => 'Data Source',
-                'category' => 'System Metadata',
-                'description' => 'Source of the profile data (e.g., welcome_assessment, manual_entry)'
-            ),
-            'ennu_global_profile_version' => array(
-                'name' => 'Profile Version',
-                'category' => 'System Metadata',
-                'description' => 'Version of the profile data structure'
-            ),
-            'ennu_global_data_quality_score' => array(
-                'name' => 'Data Quality Score',
-                'category' => 'System Metadata',
-                'description' => 'Calculated score for profile data completeness and accuracy'
+                'description' => 'User\'s gender.',
+                'source' => 'meta'
             )
         );
         
         // Group fields by category
         $categories = array();
-        foreach ($global_fields as $field_id => $field_data) {
+        foreach ($global_fields as $field_key => $field_data) {
             $categories[$field_data['category']][] = array(
-                'id' => $field_id,
+                'key' => $field_key,
                 'data' => $field_data
             );
         }
@@ -504,22 +406,23 @@ class ENNU_Comprehensive_Assessment_Display {
             echo '<h4 class="ennu-category-title">' . esc_html($category_name) . '</h4>';
             
             foreach ($fields as $field) {
-                $field_id = $field['id'];
+                $field_key = $field['key'];
                 $field_data = $field['data'];
-                $value = get_user_meta($user_id, $field_id, true);
+                $value = '';
+
+                // Get value from the correct source
+                if ($field_data['source'] === 'user_object') {
+                    $value = $user_data->$field_key;
+                } else { // source is 'meta'
+                    $value = get_user_meta($user_id, $field_key, true);
+                }
+                
                 $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not provided</span>';
                 
                 echo '<div class="ennu-field-row ennu-global-field">';
-                echo '<div class="ennu-field-label">' . esc_html($field_data['name']) . ':</div>';
-                echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-                echo '<div class="ennu-field-value">' . $display_value . '</div>';
-                echo '</div>';
-                
-                // Show field description
-                echo '<div class="ennu-field-row ennu-field-description">';
-                echo '<div class="ennu-field-label">Description:</div>';
-                echo '<div class="ennu-field-id">--</div>';
-                echo '<div class="ennu-field-value"><em>' . esc_html($field_data['description']) . '</em></div>';
+                echo '<div class="ennu-field-label">' . esc_html($field_data['name']) . '</div>';
+                echo '<div class="ennu-field-id">Source: ' . esc_html($field_data['source']) . ' | Key: ' . esc_html($field_key) . '</div>';
+                echo '<div class="ennu-field-value">' . $display_value . '<em class="ennu-field-description">' . esc_html($field_data['description']) . '</em></div>';
                 echo '</div>';
             }
             
@@ -672,22 +575,71 @@ class ENNU_Comprehensive_Assessment_Display {
                 $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not tracked</span>';
                 
                 echo '<div class="ennu-field-row ennu-system-field">';
-                echo '<div class="ennu-field-label">' . esc_html($field_data['name']) . ':</div>';
+                echo '<div class="ennu-field-label">' . esc_html($field_data['name']) . '</div>';
                 echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-                echo '<div class="ennu-field-value">' . $display_value . '</div>';
-                echo '</div>';
-                
-                // Show field description
-                echo '<div class="ennu-field-row ennu-field-description">';
-                echo '<div class="ennu-field-label">Description:</div>';
-                echo '<div class="ennu-field-id">--</div>';
-                echo '<div class="ennu-field-value"><em>' . esc_html($field_data['description']) . '</em></div>';
+                echo '<div class="ennu-field-value">' . $display_value . '<em class="ennu-field-description">' . esc_html($field_data['description']) . '</em></div>';
                 echo '</div>';
             }
             
             echo '</div>';
         }
         
+        echo '</div>';
+    }
+
+    /**
+     * Display legacy or uncategorized ENNU fields
+     */
+    private static function display_legacy_fields($user_id) {
+        $all_meta = get_user_meta($user_id);
+        $legacy_fields = array();
+
+        foreach ($all_meta as $key => $value) {
+            if (strpos($key, 'ennu_') === 0 && strpos($key, '_assessment_') === false && !in_array($key, ['ennu_global_', 'ennu_system_'])) { // Filter for unprefixed/legacy
+                $legacy_fields[$key] = $value[0] ?? '';
+            }
+        }
+
+        if (empty($legacy_fields)) {
+            return;
+        }
+
+        echo '<div class="ennu-legacy-section">';
+        echo '<h4>Legacy/Uncategorized Data</h4>';
+        foreach ($legacy_fields as $field_id => $value) {
+            $display_value = !empty($value) ? esc_html($value) : '<span class="ennu-empty-value">Not set</span>';
+            echo '<div class="ennu-field-row ennu-legacy-field">';
+            echo '<div class="ennu-field-label">' . esc_html($field_id) . ':</div>';
+            echo '<div class="ennu-field-value">' . $display_value . '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Fallback to display raw meta data if questions are empty
+     */
+    private static function display_fallback_raw_data($user_id, $assessment_type) {
+        $all_meta = get_user_meta($user_id);
+        $prefix = 'ennu_' . $assessment_type . '_';
+        echo '<div class="ennu-fallback-section">';
+        echo '<h4>Raw Saved Data (Fallback)</h4>';
+        $found = false;
+        foreach ($all_meta as $key => $value_arr) {
+            if (strpos($key, $prefix) === 0) {
+                $found = true;
+                $clean_key = str_replace($prefix, '', $key);
+                $value = $value_arr[0] ?? '';
+                $display_value = !empty($value) ? esc_html($value) : '<span class="ennu-empty-value">Not set</span>';
+                echo '<div class="ennu-field-row">';
+                echo '<div class="ennu-field-label">' . esc_html($clean_key) . ' (' . esc_html($key) . '):</div>';
+                echo '<div class="ennu-field-value">' . $display_value . '</div>';
+                echo '</div>';
+            }
+        }
+        if (!$found) {
+            echo '<p>No raw data found for this assessment.</p>';
+        }
         echo '</div>';
     }
 }

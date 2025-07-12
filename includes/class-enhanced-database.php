@@ -291,21 +291,13 @@ class ENNU_Life_Enhanced_Database {
 
         try {
             foreach ($form_data as $key => $value) {
-                // Handle special cases for DOB and age fields
-                if (strpos($key, ":") !== false) {
-                    list($field_name, $field_type) = explode(":", $key);
-                    if ($field_type === "dob_combined") {
-                        update_user_meta($user_id, "user_dob_combined", sanitize_text_field($value));
-                        continue;
-                    } else if ($field_type === "age") {
-                        update_user_meta($user_id, "user_age", sanitize_text_field($value));
-                        continue;
-                    }
+                // Use the 'ennu_global_' prefix for globally shared fields
+                if (in_array($key, ['user_dob_combined', 'age', 'gender'])) {
+                    $meta_key = 'ennu_global_' . $key;
+                } else {
+                    $meta_key = 'ennu_' . $assessment_type . '_' . $key;
                 }
 
-                // Determine the meta key based on the naming convention
-                $meta_key = sanitize_key($assessment_type . "_" . $key);
-                
                 // Sanitize value based on type
                 $sanitized_value = $this->sanitize_field_value($value);
                 
