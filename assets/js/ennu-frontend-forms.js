@@ -319,10 +319,17 @@
             formData.append('action', 'ennu_submit_assessment');
             formData.append('assessment_nonce', this.form.find('[name="assessment_nonce"]').val());
             
+            // Add fallback nonce if available
+            if (typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
+                formData.append('nonce', ennu_ajax.nonce);
+            }
+            
             console.log('Submitting assessment form...');
+            console.log('AJAX URL:', ennu_ajax.ajax_url);
+            console.log('Form data being sent:', Array.from(formData.entries()));
             
             $.ajax({
-                url: ennuAssessment.ajaxUrl,
+                url: ennu_ajax.ajax_url,
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -333,6 +340,7 @@
                 },
                 error: (xhr, status, error) => {
                     console.error('Assessment submission failed:', error);
+                    console.error('Response:', xhr.responseText);
                     this.showSubmissionError();
                 },
                 complete: () => {

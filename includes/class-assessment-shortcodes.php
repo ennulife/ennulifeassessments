@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERROR<?php
+<?php
 /**
  * ENNU Life Assessment Shortcodes Class - Fixed Version
  * 
@@ -1370,12 +1370,18 @@ final class ENNU_Assessment_Shortcodes {
      * Handle assessment submission - FINAL VERSION with corrected redirect flow
      */
     public function handle_assessment_submission() {
+        error_log('ENNU: handle_assessment_submission called');
+        error_log('ENNU: POST data received: ' . print_r($_POST, true));
+        
         // --- Step 1: Basic validation and security checks ---
         $assessment_type = isset( $_POST['assessment_type'] ) ? sanitize_key( $_POST['assessment_type'] ) : '';
         if ( empty( $assessment_type ) ) {
+            error_log('ENNU: Assessment type not specified');
             wp_send_json_error( array( 'message' => 'Assessment type not specified.' ) );
             return;
         }
+        
+        error_log('ENNU: Processing assessment type: ' . $assessment_type);
     
         $nonce_field = 'assessment_nonce';
         $nonce_action = 'ennu_assessment_' . $assessment_type;
@@ -1590,13 +1596,18 @@ private function save_user_assessment_meta( $data ) {
     // --- CORE LOGIC CHANGE ---
     // Save individual answers, handling global and multiselect fields
     if ( isset( $data['answers'] ) && is_array( $data['answers'] ) ) {
+        error_log('ENNU: Processing ' . count($data['answers']) . ' answers');
+        
         foreach ( $data['answers'] as $question_key => $answer_value ) {
+            error_log('ENNU: Processing question: ' . $question_key . ' = ' . (is_array($answer_value) ? implode(', ', $answer_value) : $answer_value));
 
             // If the current question is DOB or Gender, save it to a global meta key
             if ($question_key === $dob_key) {
-                update_user_meta( $user_id, 'user_dob', $answer_value );
+                $result = update_user_meta( $user_id, 'user_dob', $answer_value );
+                error_log('ENNU: Saved global DOB: ' . $answer_value . ' (result: ' . ($result ? 'SUCCESS' : 'FAILED') . ')');
             } elseif ($question_key === $gender_key) {
-                update_user_meta( $user_id, 'user_gender', $answer_value );
+                $result = update_user_meta( $user_id, 'user_gender', $answer_value );
+                error_log('ENNU: Saved global gender: ' . $answer_value . ' (result: ' . ($result ? 'SUCCESS' : 'FAILED') . ')');
             } else {
                 // Otherwise, save it as an assessment-specific meta key
                 $meta_key = 'ennu_' . $assessment_type . '_' . $question_key;
@@ -1604,9 +1615,12 @@ private function save_user_assessment_meta( $data ) {
                 // NEW: Convert array from multi-select into a comma-separated string for saving
                 $value_to_save = is_array($answer_value) ? implode(', ', $answer_value) : $answer_value;
                 
-                update_user_meta( $user_id, $meta_key, $value_to_save );
+                $result = update_user_meta( $user_id, $meta_key, $value_to_save );
+                error_log('ENNU: Saved ' . $meta_key . ': ' . $value_to_save . ' (result: ' . ($result ? 'SUCCESS' : 'FAILED') . ')');
             }
         }
+    } else {
+        error_log('ENNU: No answers found in data or answers is not an array');
     }
 
     // Save general assessment metadata
