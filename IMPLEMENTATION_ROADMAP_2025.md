@@ -1,6 +1,6 @@
-# ENNU Life Implementation Roadmap (Updated: July 2024)
+# ENNU Life Implementation Roadmap (Updated: July 2025)
 
-This document outlines the development roadmap for the ENNU Life Assessment Plugin, reflecting the current state of the project after the major refactoring and stabilization in version 24.12.0.
+This document outlines the development roadmap for the ENNU Life Assessment Plugin, reflecting the current state of the project after the major refactoring and stabilization in version 24.12.3.
 
 ---
 

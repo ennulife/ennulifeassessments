@@ -1,6 +1,6 @@
 # ENNU Life Plugin: Refactoring & Maintenance Guide
 **Version: 24.12.3**
-**Date: 2024-07-24**
+**Date: July 12, 2025**
 
 ---
 

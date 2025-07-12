@@ -1,7 +1,7 @@
 # ENNU Life Assessment Plugin Changelog
 
 ## Version 24.12.3 - Final Hotfix
-*Date: 2024-07-24*
+*Date: July 12, 2025*
 
 This release provides the definitive fix for a persistent bug related to saving multiselect/checkbox fields from both the frontend assessments and the backend admin user profile.
 
@@ -25,7 +25,7 @@ This release focuses on significant UI/UX improvements for both the admin user p
 - **Resolved Minor UI Glitches**: Cleaned up spacing and formatting in the admin dashboard metrics.
 
 ## Version 24.12.1 - Hotfix Release
-*Date: 2024-07-24*
+*Date: July 12, 2025*
 
 This is a critical hotfix release that resolves a fatal error and a form submission error introduced in version 24.12.0.
 
@@ -34,7 +34,7 @@ This is a critical hotfix release that resolves a fatal error and a form submiss
 - **Fixed Form Submission Error**: Corrected a JavaScript nonce mismatch that was causing all form submissions to fail with a "Security check failed" error. The script localization and nonce handling are now centralized and correct.
 
 ## Version 24.12.0 - Core User Experience Fixes
-*Date: 2024-07-24*
+*Date: July 12, 2025*
 
 This release focuses on critical bug fixes that fully implement the required user experience for global data synchronization and user registration, ensuring a seamless and logical journey for all users.
 
@@ -51,7 +51,7 @@ This release focuses on critical bug fixes that fully implement the required use
 - **Resolved Fatal Error Risk**: Removed dangling references to non-existent AJAX handlers in the WooCommerce integration class, preventing a potential fatal error.
 
 ## Version 24.11.0 - Major Refactoring and Stabilization
-*Date: 2024-07-24*
+*Date: July 12, 2025*
 
 This is a critical update that addresses architectural flaws, security vulnerabilities, and numerous bugs. The plugin is now significantly more stable, secure, and maintainable.
 
