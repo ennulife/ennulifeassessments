@@ -174,9 +174,13 @@ class ENNU_Life_Enhanced_Plugin {
     }
     
     /**
-     * Register AJAX handlers - called multiple times to ensure registration
+     * Register AJAX handlers - DISABLED to prevent conflicts
+     * The class-assessment-shortcodes.php handles AJAX submissions properly
      */
     public function register_ajax_handlers() {
+        // DISABLED: Conflicting with class-assessment-shortcodes.php handler
+        // The shortcodes handler is more comprehensive and handles user creation properly
+        /*
         if ($this->form_handler && method_exists($this->form_handler, 'handle_ajax_submission')) {
             // Remove any existing handlers first
             remove_action('wp_ajax_ennu_submit_assessment', array($this->form_handler, 'handle_ajax_submission'));
@@ -190,6 +194,8 @@ class ENNU_Life_Enhanced_Plugin {
         } else {
             error_log('ENNU: Form handler not available for AJAX registration');
         }
+        */
+        error_log('ENNU: AJAX handlers disabled to prevent conflicts with shortcodes handler');
     }
     
     /**

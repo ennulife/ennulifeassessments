@@ -1,4 +1,4 @@
-<?php
+THIS SHOULD BE A LINTER ERROR<?php
 /**
  * ENNU Life Assessment Shortcodes Class - Fixed Version
  * 
@@ -1379,11 +1379,27 @@ final class ENNU_Assessment_Shortcodes {
     
         $nonce_field = 'assessment_nonce';
         $nonce_action = 'ennu_assessment_' . $assessment_type;
-        if ( !isset($_POST[$nonce_field]) || !wp_verify_nonce($_POST[$nonce_field], $nonce_action) ) {
-             if (!isset($_POST["nonce"]) || !wp_verify_nonce($_POST["nonce"], "ennu_ajax_nonce")) {
-                wp_send_json_error( array( 'message' => 'Security check failed. Please refresh and try again.' ) );
-                return;
-             }
+        
+        // Check multiple nonce types for better compatibility
+        $nonce_valid = false;
+        
+        // Check assessment-specific nonce first
+        if (isset($_POST[$nonce_field]) && wp_verify_nonce($_POST[$nonce_field], $nonce_action)) {
+            $nonce_valid = true;
+        }
+        // Check fallback nonce types
+        elseif (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'ennu_ajax_nonce')) {
+            $nonce_valid = true;
+        }
+        elseif (isset($_POST['nonce']) && wp_verify_nonce($_POST['nonce'], 'ennu_nonce')) {
+            $nonce_valid = true;
+        }
+        
+        if (!$nonce_valid) {
+            error_log('ENNU: Nonce verification failed for assessment: ' . $assessment_type);
+            error_log('ENNU: Available nonces: ' . print_r(array_keys($_POST), true));
+            wp_send_json_error( array( 'message' => 'Security check failed. Please refresh and try again.' ) );
+            return;
         }
     
         $assessment_data = $this->sanitize_assessment_data( $_POST );
@@ -1552,8 +1568,12 @@ final class ENNU_Assessment_Shortcodes {
 private function save_user_assessment_meta( $data ) {
     $user_id = get_current_user_id();
     if ( ! $user_id ) {
+        error_log('ENNU: Cannot save assessment data - no user ID available');
         return;
     }
+
+    error_log('ENNU: Saving assessment data for user ID: ' . $user_id);
+    error_log('ENNU: Assessment data: ' . print_r($data, true));
 
     $timestamp = current_time( 'timestamp' );
     $assessment_type = $data['assessment_type'];

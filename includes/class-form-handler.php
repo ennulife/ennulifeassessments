@@ -11,11 +11,12 @@ if (!defined('ABSPATH')) {
 class ENNU_Form_Handler {
     
     public function __construct() {
-        // Register AJAX handlers immediately
-        add_action('wp_ajax_ennu_submit_assessment', array($this, 'handle_ajax_submission'));
-        add_action('wp_ajax_nopriv_ennu_submit_assessment', array($this, 'handle_ajax_submission'));
+        // DISABLED: Conflicting with class-assessment-shortcodes.php handler
+        // The shortcodes handler is more comprehensive and handles user creation properly
+        // add_action('wp_ajax_ennu_submit_assessment', array($this, 'handle_ajax_submission'));
+        // add_action('wp_ajax_nopriv_ennu_submit_assessment', array($this, 'handle_ajax_submission'));
         
-        error_log('ENNU: Form handler constructed and AJAX registered');
+        error_log('ENNU: Form handler constructed (AJAX handlers disabled to prevent conflicts)');
     }
     
     /**
