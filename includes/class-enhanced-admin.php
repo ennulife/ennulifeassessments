@@ -289,17 +289,17 @@ class ENNU_Enhanced_Admin {
 
             switch ($question_type) {
                 case 'multiselect':
-                    $this->render_checkbox_field($meta_key, $current_value, $options);
+                    $this->render_checkbox_field($meta_key, $current_value, $options, $assessment_type, $simple_question_id);
                     break;
                 case 'single':
                 case 'radio':
                 case 'dob_dropdowns': // dob_dropdowns are treated as single choice on the frontend, text on backend
-                    $this->render_radio_field($meta_key, $current_value, $options);
+                    $this->render_radio_field($meta_key, $current_value, $options, $assessment_type, $simple_question_id);
                     break;
                 default:
                     // If options are present, it should be a radio button group.
                     if (!empty($options)) {
-                        $this->render_radio_field($meta_key, $current_value, $options);
+                        $this->render_radio_field($meta_key, $current_value, $options, $assessment_type, $simple_question_id);
                     } else {
                         $this->render_text_field($meta_key, $current_value);
                     }
@@ -908,27 +908,33 @@ class ENNU_Enhanced_Admin {
         echo '<input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($current_value) . '" class="regular-text" />';
     }
 
-    private function render_radio_field($meta_key, $current_value, $options) {
+    private function render_radio_field($meta_key, $current_value, $options, $assessment_type, $question_key) {
         echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
         foreach ($options as $option) {
+            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $question_key, $option['value']);
+            $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
+
             echo '<label style="display: block; margin-bottom: 5px;">';
             echo '<input type="radio" name="' . esc_attr($meta_key) . '" value="' . esc_attr($option['value']) . '" ' . checked($current_value, $option['value'], false) . ' /> ';
-            echo esc_html($option['label']);
+            echo esc_html($option['label']) . ' ' . $score_display . ' <small><code>' . esc_html($option['value']) . '</code></small>';
             echo '</label>';
         }
         echo '</fieldset>';
     }
 
-    private function render_checkbox_field($meta_key, $current_values, $options) {
+    private function render_checkbox_field($meta_key, $current_values, $options, $assessment_type, $question_key) {
         // Ensure current_values is an array for easy checking.
         $saved_options = is_array($current_values) ? $current_values : array_map('trim', explode(',', $current_values));
 
         echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
         foreach ($options as $option) {
             $is_checked = in_array($option['value'], $saved_options);
+            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $question_key, $option['value']);
+            $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
+
             echo '<label style="display: block; margin-bottom: 5px;">';
             echo '<input type="checkbox" name="' . esc_attr($meta_key) . '[]" value="' . esc_attr($option['value']) . '" ' . checked($is_checked, true, false) . ' /> ';
-            echo esc_html($option['label']);
+            echo esc_html($option['label']) . ' ' . $score_display . ' <small><code>' . esc_html($option['value']) . '</code></small>';
             echo '</label>';
         }
         echo '</fieldset>';

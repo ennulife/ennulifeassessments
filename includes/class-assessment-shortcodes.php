@@ -762,6 +762,17 @@ final class ENNU_Assessment_Shortcodes {
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_calculated_score', $scores['overall_score'] );
                 $interpretation = ENNU_Assessment_Scoring::get_score_interpretation( $scores['overall_score'] );
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', $interpretation );
+                update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
+
+                // Store results in a transient for the results page to pick up.
+                $results_data = array(
+                    'type' => $form_data['assessment_type'],
+                    'score' => $scores['overall_score'],
+                    'interpretation' => $interpretation,
+                    'title' => $this->assessments[$form_data['assessment_type']]['title'] ?? 'Assessment',
+                    'category_scores' => $scores['category_scores']
+                );
+                set_transient( 'ennu_assessment_results_' . $user_id, $results_data, 60 * 5 ); // Expires in 5 minutes
             }
         }
 
@@ -1024,7 +1035,19 @@ final class ENNU_Assessment_Shortcodes {
         );
     
         // Return the correct URL for the assessment_type, or the general fallback if not found.
-        return isset( $thank_you_pages[$assessment_type] ) ? $thank_you_pages[$assessment_type] : $thank_you_pages['general'];
+        return $thank_you_pages[$assessment_type] ?? $thank_you_pages['general'];
+    }
+    
+    /**
+     * Render assessment results page
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function render_results_page( $atts = array() ) {
+        ob_start();
+        include ENNU_LIFE_PLUGIN_PATH . 'templates/assessment-results.php';
+        return ob_get_clean();
     }
     
     /**
@@ -1375,17 +1398,6 @@ final class ENNU_Assessment_Shortcodes {
         return isset($content_map[$assessment_type]) ? $content_map[$assessment_type] : $content_map['health_assessment'];
     }
 
-    /**
-     * Render assessment results page
-     * 
-     * @param array $atts Shortcode attributes
-     * @return string
-     */
-    public function render_results_page( $atts = array() ) {
-        // Check if results data exists (implementation depends on your storage method)
-        return '<div class="ennu-results">Results will be displayed here</div>';
-    }
-    
     /**
      * Adjust color brightness
      * 

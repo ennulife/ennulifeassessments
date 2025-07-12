@@ -1,5 +1,14 @@
 # ENNU Life Assessment Plugin Changelog
 
+## Version 24.12.4 - Admin UX Enhancement
+*Date: July 12, 2025*
+
+This release enhances the admin user profile page to provide greater clarity and control over assessment data.
+
+### ✨ Admin UI/UX Enhancements
+- **Score and ID Display**: The admin view for assessment answers now displays the point value and the answer ID next to each radio and checkbox option, providing immediate insight into the scoring system.
+- **Improved Field ID Visibility**: The unique field ID for each question (e.g., `health_q1`) is now clearly displayed under the question title for easy reference.
+
 ## Version 24.12.3 - Final Hotfix
 *Date: July 12, 2025*
 

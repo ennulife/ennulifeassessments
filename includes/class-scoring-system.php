@@ -34,42 +34,52 @@ class ENNU_Assessment_Scoring {
      * Calculate assessment scores
      */
     public static function calculate_scores( $assessment_type, $responses ) {
-        $scoring_config = self::get_scoring_config( $assessment_type );
+        self::load_all_scoring_configs();
+        $scoring_config = self::$all_scoring_configs[$assessment_type] ?? array();
+
+        if (empty($scoring_config)) {
+            return false;
+        }
+
         $category_scores = array();
         $total_score = 0;
         $total_weight = 0;
         
         foreach ( $responses as $question_key => $answer ) {
-            if ( isset( $scoring_config[$question_key] ) ) {
-                $question_config = $scoring_config[$question_key];
-                $score = isset( $question_config['answers'][$answer] ) ? $question_config['answers'][$answer] : 5;
-                $category = $question_config['category'];
-                $weight = isset( $question_config['weight'] ) ? $question_config['weight'] : 1;
+            // The question key from the form is simple, e.g., 'hair_q1'
+            // We need to map it to the semantic key used in scoring, e.g., 'gender'
+            $semantic_key = ENNU_Question_Mapper::get_semantic_key($assessment_type, $question_key);
+
+            if ( $semantic_key && isset( $scoring_config[$semantic_key] ) ) {
+                $question_config = $scoring_config[$semantic_key];
+                $score = $question_config['answers'][$answer] ?? 5; // Default score if answer not found
+                $category = $question_config['category'] ?? 'General';
+                $weight = $question_config['weight'] ?? 1;
                 
                 if ( ! isset( $category_scores[$category] ) ) {
-                    $category_scores[$category] = array( 'total' => 0, 'weight' => 0 );
+                    $category_scores[$category] = array( 'total' => 0, 'weight' => 0, 'count' => 0 );
                 }
                 
                 $category_scores[$category]['total'] += $score * $weight;
                 $category_scores[$category]['weight'] += $weight;
+                $category_scores[$category]['count']++;
+                
                 $total_score += $score * $weight;
                 $total_weight += $weight;
             }
         }
         
-        // Calculate averages
+        // Calculate category averages
         $final_category_scores = array();
         foreach ( $category_scores as $category => $data ) {
-            $final_category_scores[$category] = $data['weight'] > 0 ? $data['total'] / $data['weight'] : 5;
+            $final_category_scores[$category] = $data['weight'] > 0 ? round($data['total'] / $data['weight'], 1) : 0;
         }
         
-        $overall_score = $total_weight > 0 ? $total_score / $total_weight : 5;
+        $overall_score = $total_weight > 0 ? round($total_score / $total_weight, 1) : 0;
         
         return array(
-            'overall_score' => round( $overall_score, 1 ),
+            'overall_score' => $overall_score,
             'category_scores' => $final_category_scores,
-            'total_questions' => count( $responses ),
-            'assessment_type' => $assessment_type
         );
     }
     
@@ -81,6 +91,25 @@ class ENNU_Assessment_Scoring {
         return self::$all_scoring_configs[ $assessment_type ] ?? array();
     }
     
+    /**
+     * Get the point value for a specific answer.
+     */
+    public static function get_answer_score($assessment_type, $question_key, $answer_value) {
+        self::load_all_scoring_configs();
+        $scoring_config = self::$all_scoring_configs[$assessment_type] ?? array();
+
+        if (empty($scoring_config)) {
+            return null;
+        }
+
+        $semantic_key = ENNU_Question_Mapper::get_semantic_key($assessment_type, $question_key);
+        if ($semantic_key && isset($scoring_config[$semantic_key]['answers'][$answer_value])) {
+            return $scoring_config[$semantic_key]['answers'][$answer_value];
+        }
+
+        return null;
+    }
+
     /**
      * Get category definitions for assessment type
      */

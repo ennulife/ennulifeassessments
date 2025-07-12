@@ -38,6 +38,7 @@ return array(
             'title'       => __( 'What are your health goals?', 'ennulifeassessments' ),
             'description' => __( 'Select all that apply. This helps us personalize your journey.', 'ennulifeassessments' ),
             'type'        => 'multiselect',
+            'scoring_key' => 'health_goals',
             'options'     => array(
                 array( 'value' => 'live_longer', 'label' => __( 'Live longer', 'ennulifeassessments' ) ),
                 array( 'value' => 'boost_energy', 'label' => __( 'Boost energy', 'ennulifeassessments' ) ),
@@ -99,6 +100,7 @@ return array(
         array(
             'title' => __( 'What are your main hair concerns?', 'ennulifeassessments' ),
             'description' => __( 'Select your primary hair issue.', 'ennulifeassessments' ),
+            'scoring_key' => 'hair_concerns',
             'options' => array(
                 array( 'value' => 'thinning', 'label' => 'Thinning Hair' ),
                 array( 'value' => 'receding', 'label' => 'Receding Hairline' ),
@@ -109,6 +111,7 @@ return array(
         array(
             'title' => __( 'How long have you noticed hair changes?', 'ennulifeassessments' ),
             'description' => __( 'Duration helps determine treatment approach.', 'ennulifeassessments' ),
+            'scoring_key' => 'duration',
             'options' => array(
                 array( 'value' => 'recent', 'label' => 'Less than 6 months' ),
                 array( 'value' => 'moderate', 'label' => '6 months - 2 years' ),
@@ -119,6 +122,7 @@ return array(
         array(
             'title' => __( 'How would you rate the speed of hair loss?', 'ennulifeassessments' ),
             'description' => __( 'This helps determine urgency of treatment.', 'ennulifeassessments' ),
+            'scoring_key' => 'speed',
             'options' => array(
                 array( 'value' => 'slow', 'label' => 'Very Slow' ),
                 array( 'value' => 'moderate', 'label' => 'Moderate' ),
@@ -129,6 +133,7 @@ return array(
         array(
             'title' => __( 'Do you have a family history of hair loss?', 'ennulifeassessments' ),
             'description' => __( 'Genetics play a major role in hair loss.', 'ennulifeassessments' ),
+            'scoring_key' => 'family_history',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'No Family History' ),
                 array( 'value' => 'mother', 'label' => 'Mother\'s Side' ),
@@ -139,6 +144,7 @@ return array(
         array(
             'title' => __( 'What\'s your current stress level?', 'ennulifeassessments' ),
             'description' => __( 'Stress can significantly impact hair health.', 'ennulifeassessments' ),
+            'scoring_key' => 'stress_level',
             'options' => array(
                 array( 'value' => 'low', 'label' => 'Low Stress' ),
                 array( 'value' => 'moderate', 'label' => 'Moderate Stress' ),
@@ -149,6 +155,7 @@ return array(
         array(
             'title' => __( 'How would you describe your diet quality?', 'ennulifeassessments' ),
             'description' => __( 'Nutrition affects hair growth and strength.', 'ennulifeassessments' ),
+            'scoring_key' => 'diet_quality',
             'options' => array(
                 array( 'value' => 'excellent', 'label' => 'Excellent' ),
                 array( 'value' => 'good', 'label' => 'Good' ),
@@ -159,6 +166,7 @@ return array(
         array(
             'title' => __( 'Have you tried any hair loss treatments?', 'ennulifeassessments' ),
             'description' => __( 'Previous treatments help guide recommendations.', 'ennulifeassessments' ),
+            'scoring_key' => 'previous_treatments',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'No Treatments' ),
                 array( 'value' => 'otc', 'label' => 'Over-the-Counter' ),
@@ -169,6 +177,7 @@ return array(
         array(
             'title' => __( 'What are your hair restoration goals?', 'ennulifeassessments' ),
             'description' => __( 'Understanding your goals helps create the right plan.', 'ennulifeassessments' ),
+            'scoring_key' => 'goals',
             'options' => array(
                 array( 'value' => 'stop_loss', 'label' => 'Stop Hair Loss' ),
                 array( 'value' => 'regrow', 'label' => 'Regrow Hair' ),
@@ -204,6 +213,7 @@ return array(
         array(
             'title' => __( 'What\'s your relationship status?', 'ennulifeassessments' ),
             'description' => __( 'This helps us understand your treatment priorities.', 'ennulifeassessments' ),
+            'scoring_key' => 'relationship_status',
             'options' => array(
                 array( 'value' => 'single', 'label' => 'Single' ),
                 array( 'value' => 'dating', 'label' => 'Dating' ),
@@ -214,6 +224,7 @@ return array(
         array(
             'title' => __( 'How would you describe the severity of your ED?', 'ennulifeassessments' ),
             'description' => __( 'This helps determine the most effective treatment options.', 'ennulifeassessments' ),
+            'scoring_key' => 'severity',
             'options' => array(
                 array( 'value' => 'mild', 'label' => 'Mild' ),
                 array( 'value' => 'moderate', 'label' => 'Moderate' ),
@@ -224,6 +235,7 @@ return array(
         array(
             'title' => __( 'How long have you been experiencing symptoms?', 'ennulifeassessments' ),
             'description' => __( 'Duration affects treatment approach and expectations.', 'ennulifeassessments' ),
+            'scoring_key' => 'duration',
             'options' => array(
                 array( 'value' => 'recent', 'label' => 'Less than 6 months' ),
                 array( 'value' => 'moderate', 'label' => '6 months - 2 years' ),
@@ -234,6 +246,7 @@ return array(
         array(
             'title' => __( 'Do you have any of these health conditions?', 'ennulifeassessments' ),
             'description' => __( 'Certain conditions affect treatment options and safety.', 'ennulifeassessments' ),
+            'scoring_key' => 'health_conditions',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'None of these' ),
                 array( 'value' => 'diabetes', 'label' => 'Diabetes' ),
@@ -244,6 +257,7 @@ return array(
         array(
             'title' => __( 'Have you tried any ED treatments before?', 'ennulifeassessments' ),
             'description' => __( 'Previous treatments help guide our recommendations.', 'ennulifeassessments' ),
+            'scoring_key' => 'previous_treatments',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'No previous treatments' ),
                 array( 'value' => 'oral', 'label' => 'Oral medications' ),
@@ -264,6 +278,7 @@ return array(
         array(
             'title' => __( 'How often do you exercise?', 'ennulifeassessments' ),
             'description' => __( 'Physical fitness affects blood flow and overall sexual health.', 'ennulifeassessments' ),
+            'scoring_key' => 'exercise',
             'options' => array(
                 array( 'value' => 'never', 'label' => 'Never' ),
                 array( 'value' => 'rarely', 'label' => 'Rarely' ),
@@ -274,6 +289,7 @@ return array(
         array(
             'title' => __( 'What\'s your current stress level?', 'ennulifeassessments' ),
             'description' => __( 'Stress is a major factor in erectile dysfunction.', 'ennulifeassessments' ),
+            'scoring_key' => 'stress_level',
             'options' => array(
                 array( 'value' => 'low', 'label' => 'Low' ),
                 array( 'value' => 'moderate', 'label' => 'Moderate' ),
@@ -284,6 +300,7 @@ return array(
         array(
             'title' => __( 'What\'s your primary treatment goal?', 'ennulifeassessments' ),
             'description' => __( 'Understanding your goals helps create the right treatment plan.', 'ennulifeassessments' ),
+            'scoring_key' => 'goals',
             'options' => array(
                 array( 'value' => 'restore', 'label' => 'Restore function' ),
                 array( 'value' => 'confidence', 'label' => 'Boost confidence' ),
@@ -294,6 +311,7 @@ return array(
         array(
             'title' => __( 'Are you currently taking any medications?', 'ennulifeassessments' ),
             'description' => __( 'Some medications can affect ED treatment options.', 'ennulifeassessments' ),
+            'scoring_key' => 'medications',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'No medications' ),
                 array( 'value' => 'blood_pressure', 'label' => 'Blood pressure meds' ),
@@ -330,6 +348,7 @@ return array(
             'title' => __( 'What\'s your gender?', 'ennulifeassessments' ),
             'description' => __( 'Weight loss strategies can vary by gender.', 'ennulifeassessments' ),
             'global_key'  => 'gender', // Global Field
+            'scoring_key' => 'gender',
             'options' => array(
                 array( 'value' => 'male', 'label' => 'Male' ),
                 array( 'value' => 'female', 'label' => 'Female' )
@@ -338,6 +357,7 @@ return array(
         array(
             'title' => __( 'What\'s your primary weight loss goal?', 'ennulifeassessments' ),
             'description' => __( 'Understanding your goals helps create the right plan.', 'ennulifeassessments' ),
+            'scoring_key' => 'primary_goal',
             'options' => array(
                 array( 'value' => 'lose_10', 'label' => 'Lose 10-20 lbs' ),
                 array( 'value' => 'lose_30', 'label' => 'Lose 20-50 lbs' ),
@@ -358,6 +378,7 @@ return array(
         array(
             'title' => __( 'How often do you exercise?', 'ennulifeassessments' ),
             'description' => __( 'Physical activity is key to weight management.', 'ennulifeassessments' ),
+            'scoring_key' => 'exercise_frequency',
             'options' => array(
                 array( 'value' => 'never', 'label' => 'Never' ),
                 array( 'value' => 'rarely', 'label' => '1-2 times/week' ),
@@ -368,6 +389,7 @@ return array(
         array(
             'title' => __( 'How would you describe your diet?', 'ennulifeassessments' ),
             'description' => __( 'Your eating habits are crucial for weight loss.', 'ennulifeassessments' ),
+            'scoring_key' => 'diet_quality',
             'options' => array(
                 array( 'value' => 'unhealthy', 'label' => 'Mostly Unhealthy' ),
                 array( 'value' => 'balanced', 'label' => 'Generally Balanced' ),
@@ -378,6 +400,7 @@ return array(
         array(
             'title' => __( 'How much sleep do you get on average?', 'ennulifeassessments' ),
             'description' => __( 'Sleep quality affects hormones that regulate appetite.', 'ennulifeassessments' ),
+            'scoring_key' => 'sleep_quality',
             'options' => array(
                 array( 'value' => 'less_5', 'label' => 'Less than 5 hours' ),
                 array( 'value' => '5_6', 'label' => '5-6 hours' ),
@@ -388,6 +411,7 @@ return array(
         array(
             'title' => __( 'What\'s your current stress level?', 'ennulifeassessments' ),
             'description' => __( 'Stress can lead to weight gain.', 'ennulifeassessments' ),
+            'scoring_key' => 'stress_level',
             'options' => array(
                 array( 'value' => 'low', 'label' => 'Low' ),
                 array( 'value' => 'moderate', 'label' => 'Moderate' ),
@@ -398,6 +422,7 @@ return array(
         array(
             'title' => __( 'Have you had success with weight loss before?', 'ennulifeassessments' ),
             'description' => __( 'Past experiences can help shape your future plan.', 'ennulifeassessments' ),
+            'scoring_key' => 'previous_attempts',
             'options' => array(
                 array( 'value' => 'no_success', 'label' => 'Never had lasting success' ),
                 array( 'value' => 'some_success', 'label' => 'Some success, but gained it back' ),
@@ -428,6 +453,7 @@ return array(
         array(
             'title' => __( 'What kind of support do you have?', 'ennulifeassessments' ),
             'description' => __( 'A strong support system can make a big difference.', 'ennulifeassessments' ),
+            'scoring_key' => 'support_system',
             'options' => array(
                 array( 'value' => 'none', 'label' => 'I\'m on my own' ),
                 array( 'value' => 'partner', 'label' => 'Partner/Spouse' ),
@@ -464,6 +490,7 @@ return array(
             'title' => __( 'What\'s your gender?', 'ennulifeassessments' ),
             'description' => __( 'Health priorities can vary by gender.', 'ennulifeassessments' ),
             'global_key'  => 'gender', // Global Field
+            'scoring_key' => 'gender',
             'options' => array(
                 array( 'value' => 'male', 'label' => 'Male' ),
                 array( 'value' => 'female', 'label' => 'Female' ),
@@ -472,6 +499,7 @@ return array(
         array(
             'title' => __( 'How would you rate your overall health?', 'ennulifeassessments' ),
             'description' => __( 'Be honest about your current health status.', 'ennulifeassessments' ),
+            'scoring_key' => 'overall_health',
             'options' => array(
                 array( 'value' => 'poor', 'label' => 'Poor' ),
                 array( 'value' => 'fair', 'label' => 'Fair' ),
@@ -482,6 +510,7 @@ return array(
         array(
             'title' => __( 'How are your energy levels throughout the day?', 'ennulifeassessments' ),
             'description' => __( 'Energy can be an indicator of underlying health issues.', 'ennulifeassessments' ),
+            'scoring_key' => 'energy_levels',
             'options' => array(
                 array( 'value' => 'low', 'label' => 'Consistently Low' ),
                 array( 'value' => 'crash', 'label' => 'I crash in the afternoon' ),
@@ -492,6 +521,7 @@ return array(
         array(
             'title' => __( 'How frequently do you exercise?', 'ennulifeassessments' ),
             'description' => __( 'Physical activity is crucial for long-term health.', 'ennulifeassessments' ),
+            'scoring_key' => 'exercise_frequency',
             'options' => array(
                 array( 'value' => 'rarely', 'label' => 'Rarely or Never' ),
                 array( 'value' => 'sometimes', 'label' => '1-2 times a week' ),
@@ -502,6 +532,7 @@ return array(
         array(
             'title' => __( 'How would you describe your typical diet?', 'ennulifeassessments' ),
             'description' => __( 'Nutrition is a cornerstone of good health.', 'ennulifeassessments' ),
+            'scoring_key' => 'diet_quality',
             'options' => array(
                 array( 'value' => 'processed', 'label' => 'High in processed foods' ),
                 array( 'value' => 'average', 'label' => 'A typical Western diet' ),
@@ -512,6 +543,7 @@ return array(
         array(
             'title' => __( 'How is your sleep quality?', 'ennulifeassessments' ),
             'description' => __( 'Sleep is vital for recovery and overall health.', 'ennulifeassessments' ),
+            'scoring_key' => 'sleep_quality',
             'options' => array(
                 array( 'value' => 'poor', 'label' => 'Poor, I wake up tired' ),
                 array( 'value' => 'fair', 'label' => 'Fair, could be better' ),
@@ -522,6 +554,7 @@ return array(
         array(
             'title' => __( 'How do you manage stress?', 'ennulifeassessments' ),
             'description' => __( 'Chronic stress can negatively impact health.', 'ennulifeassessments' ),
+            'scoring_key' => 'stress_management',
             'options' => array(
                 array( 'value' => 'poorly', 'label' => 'I don\'t manage it well' ),
                 array( 'value' => 'somewhat', 'label' => 'I have some coping methods' ),
@@ -532,6 +565,7 @@ return array(
         array(
             'title' => __( 'Do you have regular check-ups with a doctor?', 'ennulifeassessments' ),
             'description' => __( 'Preventive care is important for long-term health.', 'ennulifeassessments' ),
+            'scoring_key' => 'preventive_care',
             'options' => array(
                 array( 'value' => 'never', 'label' => 'Never or rarely' ),
                 array( 'value' => 'sometimes', 'label' => 'Only when I have a problem' ),
@@ -542,6 +576,7 @@ return array(
             'title' => __( 'What are your main health goals?', 'ennulifeassessments' ),
             'description' => __( 'This helps us understand what you want to achieve.', 'ennulifeassessments' ),
             'type'        => 'multiselect',
+            'scoring_key' => 'health_goals',
             'options' => array(
                 array( 'value' => 'longevity', 'label' => 'Improve Longevity' ),
                 array( 'value' => 'energy', 'label' => 'Increase Energy' ),
@@ -578,7 +613,7 @@ return array(
         array(
             'title' => __( 'What is your primary skin concern?', 'ennulifeassessments' ),
             'description' => __( 'Select the issue that bothers you the most.', 'ennulifeassessments' ),
-            'global_key'  => 'gender', // Global Field
+            'scoring_key' => 'primary_concern',
             'options' => array(
                 array( 'value' => 'acne', 'label' => 'Acne & Blemishes' ),
                 array( 'value' => 'wrinkles', 'label' => 'Fine Lines & Wrinkles' ),
@@ -590,6 +625,7 @@ return array(
         array(
             'title' => __( 'How would you describe your skin type?', 'ennulifeassessments' ),
             'description' => __( 'This helps determine the best product formulations for you.', 'ennulifeassessments' ),
+            'scoring_key' => 'skin_type',
             'options' => array(
                 array( 'value' => 'oily', 'label' => 'Oily' ),
                 array( 'value' => 'dry', 'label' => 'Dry' ),
@@ -601,6 +637,7 @@ return array(
         array(
             'title' => __( 'How often are you exposed to the sun?', 'ennulifeassessments' ),
             'description' => __( 'Sun exposure is a major factor in skin aging.', 'ennulifeassessments' ),
+            'scoring_key' => 'sun_exposure',
             'options' => array(
                 array( 'value' => 'rarely', 'label' => 'Rarely, I\'m mostly indoors' ),
                 array( 'value' => 'sometimes', 'label' => 'Sometimes, on weekends' ),
@@ -611,6 +648,7 @@ return array(
         array(
             'title' => __( 'What does your current skincare routine look like?', 'ennulifeassessments' ),
             'description' => __( 'Understanding what you\'re currently doing is key.', 'ennulifeassessments' ),
+            'scoring_key' => 'skincare_routine',
             'options' => array(
                 array( 'value' => 'minimal', 'label' => 'Minimal (cleanse, maybe moisturize)' ),
                 array( 'value' => 'basic', 'label' => 'Basic (cleanse, moisturize, SPF)' ),
@@ -631,6 +669,7 @@ return array(
             'title' => __( 'Do any of these lifestyle factors apply to you?', 'ennulifeassessments' ),
             'description' => __( 'Select all that apply.', 'ennulifeassessments' ),
             'type'        => 'multiselect',
+            'scoring_key' => 'lifestyle_factors',
             'options' => array(
                 array( 'value' => 'smoker', 'label' => 'I smoke' ),
                 array( 'value' => 'high_stress', 'label' => 'I have high stress levels' ),
