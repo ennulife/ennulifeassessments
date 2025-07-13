@@ -1,7 +1,7 @@
 # ENNU Life: Scoring System Deep Dive
 
-**Version**: 25.0.0
-**Date**: July 12, 2025
+**Version**: 26.0.15
+**Date**: October 1, 2024
 
 ---
 

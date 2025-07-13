@@ -16,7 +16,14 @@
             this.answers = {};
             this.isSubmitting = false;
             
-            console.log('ENNU Assessment Form initializing...', this.form);
+            this.progressBar = this.form.querySelector('.ennu-progress-bar-inner');
+            this.progressText = this.form.querySelector('.ennu-progress-text');
+            this.nextButtons = this.form.querySelectorAll('.ennu-next-btn');
+            this.prevButtons = this.form.querySelectorAll('.ennu-prev-btn');
+            this.submitButton = this.form.querySelector('.ennu-submit-btn');
+            
+            this.totalSteps = this.form.querySelectorAll('.question-slide').length;
+            
             this.init();
         }
 
@@ -25,15 +32,12 @@
             this.questions = this.form.find('.question-slide');
             this.totalSteps = this.questions.length;
             
-            console.log('Total questions found:', this.totalSteps);
-            
             if (this.totalSteps === 0) {
-                console.error('No questions found! Looking for .question-slide elements');
                 return;
             }
 
             // Update progress display
-            this.updateProgress();
+            this.updateProgressBar();
             
             // Show first question
             this.showQuestion(1);
@@ -43,8 +47,6 @@
             
             // Bind events
             this.bindEvents();
-            
-            console.log('ENNU Assessment Form initialized successfully');
         }
 
         bindEvents() {
@@ -99,24 +101,16 @@
         }
 
         showQuestion(questionNumber) {
-            console.log(`Showing question ${questionNumber} of ${this.totalSteps}`);
+            const questions = this.form.querySelectorAll('.question-slide');
             
             // Hide all questions
-            this.questions.removeClass('active').hide();
+            questions.forEach(q => q.classList.remove('active'));
             
-            // Show current question
-            const currentQuestion = this.questions.eq(questionNumber - 1);
-            currentQuestion.addClass('active').show();
-            
-            this.currentStep = questionNumber;
-            this.updateProgress();
-            
-            // Only scroll on question transitions, not initial load
-            /*
-            if (questionNumber > 1) {
-                this.form[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (questions[questionNumber - 1]) {
+                questions[questionNumber - 1].classList.add('active');
+                this.updateProgressBar();
             }
-            */
+            this.updateButtonVisibility();
         }
 
         nextQuestion() {
@@ -259,33 +253,19 @@
             }
         }
 
-        updateProgress() {
-            // Update progress bar
-            const progressPercent = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
-            this.form.find('.progress-fill').css('width', progressPercent + '%');
-            
-            // Update progress text
-            this.form.find('.current-question').text(this.currentStep);
-            this.form.find('.total-questions').text(this.totalSteps);
-            
-            // Update page elements if they exist
-            this.form.closest('.ennu-assessment').find('.current-question').text(this.currentStep);
-            this.form.closest('.ennu-assessment').find('.total-questions').text(this.totalSteps);
-            this.form.closest('.ennu-assessment').find('.progress-fill').css('width', progressPercent + '%');
-            
-            console.log(`Progress updated: ${this.currentStep} of ${this.totalSteps} (${progressPercent}%)`);
+        updateProgressBar() {
+            if (!this.progressBar) return;
+            const progressPercent = (this.currentStep - 1) / this.totalSteps * 100;
+            this.progressBar.style.width = `${progressPercent}%`;
+            if (this.progressText) {
+                this.progressText.textContent = `Step ${this.currentStep} of ${this.totalSteps}`;
+            }
         }
 
         collectFormData() {
             // The FormData constructor correctly handles all input types, including
             // creating an array for checkboxes that share the same name with `[]`.
             const formData = new FormData(this.form[0]);
-            
-            // Debug: Log all form data to verify
-            console.log('Form data collected:');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
             
             return formData;
         }
@@ -312,7 +292,6 @@
             if (typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
                 formData.append('nonce', ennu_ajax.nonce);
             } else {
-                console.error('CRITICAL: Nonce object not found. Aborting submission.');
                 this.showSubmissionError('Security token missing. Please refresh the page.');
                 this.isSubmitting = false;
                 this.form.removeClass('loading');
@@ -321,9 +300,6 @@
             
             const ajaxUrl = (typeof ennu_ajax !== 'undefined' && ennu_ajax.ajax_url) ? ennu_ajax.ajax_url : '/wp-admin/admin-ajax.php';
             
-            console.log('Submitting assessment form...');
-            console.log('AJAX URL:', ajaxUrl);
-            
             $.ajax({
                 url: ajaxUrl,
                 type: 'POST',
@@ -331,18 +307,9 @@
                 processData: false,
                 contentType: false,
                 success: (response) => {
-                    console.log('AJAX success response received:', response);
-                    // Print the backend debug log if it exists
-                    if (response && response.success && response.data && response.data.debug_log) {
-                        console.group('Backend Execution Log');
-                        response.data.debug_log.forEach(log => console.log(log));
-                        console.groupEnd();
-                    }
                     this.showSuccess(response);
                 },
                 error: (xhr, status, error) => {
-                    console.error('Assessment submission failed:', error);
-                    console.error('Response:', xhr.responseText);
                     this.showSubmissionError();
                 },
                 complete: () => {
@@ -359,7 +326,6 @@
                 window.location.href = response.data.redirect_url;
             } else {
                 // Fallback for unexpected responses: just show a generic success message
-                console.warn('Success response received, but no redirect URL found. Showing generic message.');
                 // Hide form
                 this.form.find('.questions-container').hide();
                 
@@ -399,7 +365,6 @@
 
     // Initialize when DOM is ready
     $(document).ready(function() {
-        console.log('ENNU Assessment Forms: DOM ready, initializing...');
         
         // Initialize all assessment forms
         $('.assessment-form').each(function() {
@@ -408,11 +373,30 @@
         
         // Debug: Log total questions found on page
         const totalQuestions = $('.question-slide').length;
-        console.log(`Total question slides found on page: ${totalQuestions}`);
         
         if (totalQuestions === 0) {
-            console.warn('No .question-slide elements found. Check HTML structure.');
         }
+
+        // "Why" tooltip handler
+        $('.why-tooltip').on('mouseenter', function() {
+            // Create and show a custom tooltip div using the data-tooltip attribute
+        }).on('mouseleave', function() {
+            // Hide the tooltip
+        });
+
+        // Dynamic Follow-up Question Handler
+        $('input[type=radio]').on('change', function() {
+            const slide = $(this).closest('.question-slide');
+            const container = slide.find('.follow-up-question-container');
+            if (container.length) {
+                const trigger = container.data('trigger-answer');
+                if ($(this).val() === trigger) {
+                    container.slideDown(); // Show with animation
+                } else {
+                    container.slideUp(); // Hide if another option is chosen
+                }
+            }
+        });
     });
 
 })(jQuery);

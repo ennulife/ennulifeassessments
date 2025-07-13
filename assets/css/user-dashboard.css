@@ -1,0 +1,33 @@
+/* styles for user-dashboard.php */
+.ennu-user-dashboard { max-width: 1200px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.dashboard-header { text-align: center; margin-bottom: 40px; }
+.dashboard-header h2 { font-size: 2em; font-weight: 600; margin-bottom: 8px; color: #333; }
+.dashboard-header p { font-size: 1.1em; color: #666; margin-top: 0; }
+.progress-container { width: 100px; height: 100px; border-radius: 50%; background-color: #e9ecef; margin: 20px auto; position: relative; display: flex; align-items: center; justify-content: center; }
+.progress-bar { background: conic-gradient(#4caf50 var(--progress, 0%), #e9ecef 0); width: 100%; height: 100%; border-radius: 50%; }
+.progress-text { position: absolute; font-size: 1.2em; font-weight: 500; color: #333; }
+.assessment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+.assessment-card { background: #fff; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 25px; transition: all 0.3s ease; border-left: 5px solid; }
+.assessment-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+.assessment-card.card-hair_assessment { border-color: #667eea; }
+.assessment-card.card-ed_treatment_assessment { border-color: #f093fb; }
+.assessment-card.card-weight_loss_assessment { border-color: #4facfe; }
+.assessment-card.card-health_assessment { border-color: #fa709a; }
+.assessment-card.card-skin_assessment { border-color: #a8edea; }
+.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+.card-icon { font-size: 2em; }
+.card-header h3 { margin: 0; font-size: 1.4em; font-weight: 600; }
+.badge-completed { background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-left: auto; }
+.score-display { font-size: 2em; font-weight: 700; color: #333; }
+.completion-date { color: #777; font-size: 0.9em; }
+.card-actions { margin-top: 15px; display: flex; gap: 10px; }
+.expand-button, .retake-button, .button-primary { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; text-decoration: none; text-align: center; }
+.retake-button, .button-primary { background-color: #6c757d; }
+.expand-button:hover, .retake-button:hover, .button-primary:hover { background-color: #0056b3; }
+.retake-button:hover { background-color: #5a6268; }
+.expandable-content { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+.mini-chart-container { position: relative; min-height: 200px; }
+.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; position: absolute; top: 50%; left: 50%; margin-top: -20px; margin-left: -20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.motivational-footer { text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 12px; }
+@media (max-width: 768px) { .assessment-grid { grid-template-columns: 1fr; } } 

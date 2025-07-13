@@ -527,7 +527,6 @@
                 
             } catch (error) {
                 // Fallback to console if notification system fails
-                console.log('ENNU Notification: ' + message);
             }
         },
         

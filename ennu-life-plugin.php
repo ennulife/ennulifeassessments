@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessment Plugin
  * Plugin URI: https://ennulife.com
  * Description: Advanced health and wellness assessment system with enhanced features, modern UI, and comprehensive data management.
- * Version: 26.0.15
+ * Version: 26.0.54
  * Author: ENNU Life Development Team
  * Author URI: https://ennulife.com
  * License: Proprietary
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '26.0.15' );
+define( 'ENNU_LIFE_VERSION', '26.0.54' );
 // Plugin paths - with safety checks
 if (function_exists('plugin_dir_path')) {
     define('ENNU_LIFE_PLUGIN_PATH', plugin_dir_path(__FILE__));

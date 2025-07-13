@@ -1,6 +1,6 @@
 # ENNU Life Implementation Roadmap (Updated: July 2025)
 
-This document outlines the development roadmap for the ENNU Life Assessment Plugin, reflecting the current state of the project after the major refactoring and stabilization in version 24.13.0.
+This document reflects the current state of the plugin at **v26.0.54**, after the modular-config refactor, Health Dossier launch, and Admin Health Dashboard completion.
 
 ---
 
@@ -19,7 +19,7 @@ This document outlines the development roadmap for the ENNU Life Assessment Plug
 
 ---
 
-## Phase 2: User-Facing Results & Rich Content
+## ✅ Phase 2: User-Facing Results & Rich Content (Completed)
 
 **Objective:** To build a rich, dynamic, and personalized results page for the end-user. This is the most critical next step to deliver value and complete the core assessment loop.
 
@@ -81,4 +81,59 @@ This document outlines the development roadmap for the ENNU Life Assessment Plug
 -   **Email Automation**: Create a system to automatically send follow-up emails based on a user's score (e.g., a "check-in" email for users with low scores).
 -   **Advanced Integrations**: Deeper integration with CRM and marketing platforms, pushing not just contact info but detailed assessment scores and categories.
 -   **Full-Text Search**: Implement a search feature in the admin to find users based on specific answers to questions.
+
+---
+
+## ✅ Phase 5: User Dashboard & Health Dossier (Completed)
+_Status: delivered in v26.0.54. Mini-charts, pillar summary, and detailed “Health Dossier” are live._
+
+### Key Milestones Achieved
+
+* Historical score tracking saved to user meta and plotted on the dossier timeline.
+* Quad-Pillars visualization and AI narrative.
+* Deep-dive modals and detail pages for each assessment.
+
+---
+
+## Phase 6: The Interactive Health Engine (In Progress)
+
+### Initiatives & Granular Details (target v26.1.x):
+
+1.  **Implement the "What-If" Simulator**
+    *   **Task**: Create a new interactive module on the Health Dossier page that allows users to adjust their answers (via sliders/toggles) and see their scores update in real-time.
+    *   **Technical Details**:
+        *   This will require significant new JavaScript in `health-dossier.js` to manage state, handle user input, and re-render the Health Pillar charts without a page reload.
+        *   The scoring logic from `class-scoring-system.php` will need to be partially replicated in JavaScript to power the instant calculations.
+
+2.  **Introduce Gamification: Achievements & Goal Setting**
+    *   **Task**: Build an "Achievements" section to display unlocked badges and allow users to set personal score goals.
+    *   **Technical Details**:
+        *   Create a new `ennu_achievements` database table or use user meta to store unlocked badges.
+        *   Develop a new `ENNU_Achievements_Engine` class to check for triggers (e.g., `on_assessment_complete` hook) and award badges.
+        *   Update the `user-dashboard.php` and `assessment-details-page.php` templates to display the unlocked achievements and the goal-setting interface.
+
+---
+
+## Phase 7: The Proprietary Intelligence Platform (Planned 2026)
+
+### Initiatives & Granular Details:
+
+1.  **Develop the "ENNU Index"**
+    *   **Task**: Design and implement a new, proprietary top-level health score.
+    *   **Technical Details**:
+        *   Create a new, sophisticated algorithm that calculates the "ENNU Index" based on a weighted combination of pillar scores, historical trends, and user engagement.
+        *   This will likely require a new `ENNU_Index_Calculator` class and new user meta fields to store the index and its history.
+
+2.  **Build the "Digital Coach" - Proactive AI Interventions**
+    *   **Task**: Create an automated system that analyzes user results and sends personalized "missions" via email or push notification.
+    *   **Technical Details**:
+        *   This requires a new WP Cron job that runs daily to analyze recent user data.
+        *   It will integrate deeply with the `ENNU_Life_Email_System` to send the templated, personalized mission emails.
+        *   New UI will be needed for users to see their "active mission."
+
+3.  **Implement Anonymous Cohort Analysis & Data Monetization**
+    *   **Task**: Display anonymous social comparison data on the user's dossier and build the backend to support data aggregation.
+    *   **Technical Details**:
+        *   This is the most complex feature. It requires a second WP Cron job to periodically process all user data, calculate aggregate statistics (e.g., average scores by demographic), and store them in a new custom database table.
+        *   The Health Dossier template will then query this aggregate table to provide the comparison data. Great care must be taken to ensure all data is anonymized to protect user privacy.
 

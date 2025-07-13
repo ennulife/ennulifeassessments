@@ -1,8 +1,8 @@
 # ENNU Life Assessment Plugin - Comprehensive User Experience Documentation
 
-**Version**: 24.12.3
+**Version**: 26.0.54
 **Author:** ENNU Life Development Team
-**Date:** July 24, 2024
+**Date:** July 13, 2025
 
 ---
 
@@ -41,6 +41,7 @@ This describes the step-by-step experience of taking an assessment.
     *   **Multi-Select Questions**: Users can select multiple checkboxes.
     *   **Navigation**: "Next" and "Previous" buttons allow for manual navigation.
 *   **Phase 3: Submission & Redirect**: Upon completing the final question, the data is submitted via AJAX. On success, the user is redirected to the appropriate "Thank You" or "Results" page for that assessment.
+*   **Results Display**: After submission, users are redirected to a personalized results page showing scores, interpretations, and recommendations.
 
 ---
 

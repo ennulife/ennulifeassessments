@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin
 
-**Version:** 25.0.0
+**Version:** 26.0.54
 **Author:** ENNU Life Development Team
 **License:** Proprietary
 
@@ -10,16 +10,17 @@
 
 The ENNU Life Assessment Plugin is a powerful, enterprise-grade system for creating, managing, and scoring advanced health and wellness assessments. It is designed for high performance and stability, with a focus on providing a seamless user experience and actionable data for health professionals.
 
-This version represents a complete architectural overhaul, resulting in a stable, secure, and highly maintainable codebase.
+The current release (26.0.54) delivers the final modular-configuration refactor, the interactive "Health Dossier" results page, and the Admin Health Dashboard—bringing the plugin to production-ready maturity.
 
 ## Core Features
 
-- **Dynamic Assessment System**: Assessments are managed through centralized configuration files, allowing for easy updates without modifying core plugin logic.
-- **Advanced Scoring Engine**: A flexible scoring system with customizable weights and categories for nuanced and accurate results.
-- **Secure by Design**: Built with enterprise-grade security, including nonce-protected AJAX endpoints and a robust data validation pipeline.
-- **Admin Management Suite**: A comprehensive admin dashboard for viewing user submissions, managing data, and monitoring system health.
-- **WooCommerce Integration**: Seamlessly connects assessment results to WooCommerce for recommending and selling products.
-- **Developer-Friendly**: The new architecture is clean, well-documented, and easy to extend.
+* **Modular Configuration** – All questions and scoring rules now live in individual files under `includes/config/questions/` and `includes/config/scoring/` for instant, surgical edits.
+* **Health Dossier** – A stunning, interactive results page with Quad-Pillars, AI narrative, deep-dive modals, and historical timeline.
+* **Admin Health Dashboard** – Tabbed, editable view of every assessment plus pillar summary cards and mini-charts.
+* **Advanced Scoring Engine** – Per-answer weighting, category aggregation, and pillar mapping with instant caching.
+* **Secure by Design** – Nonce-protected AJAX, strict validation, and hardened database layer.
+* **WooCommerce Ready** – (Optional) surface personalized products based on assessment outcomes.
+* **Developer-Friendly** – Clean OOP architecture, detailed docs, and a full scoring deep-dive.
 
 ## Getting Started
 
@@ -42,11 +43,16 @@ The following shortcodes are available to display the assessments on the fronten
 -   `[ennu-weight-loss-assessment]`
 -   `[ennu-health-assessment]`
 -   `[ennu-skin-assessment]`
+-   `[ennu-assessment-results]`
+-   `[ennu-assessment-chart]`
+-   **Detail Pages**
+    * `[ennu-hair-assessment-details]`  (similar tags for ED, Weight-Loss, Health, Skin)
+-   **User Dashboard**  – `[ennu-user-dashboard]`
 
 ## Technical Details
 
 - **Minimum PHP Version:** 7.4
-- **Minimum WordPress Version:** 5.0
+- **Minimum WordPress Version:** 6.0
 - **Dependencies:** None (WooCommerce is recommended for full functionality but not required).
 
 ---

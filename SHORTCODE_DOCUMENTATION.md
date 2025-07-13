@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin - Shortcode Documentation
 
-**Version**: 24.12.3
+**Version**: 26.0.15
 
 This document provides documentation for all available shortcodes in the ENNU Life Assessment Plugin.
 
@@ -64,6 +64,18 @@ These are the primary shortcodes that display the assessment forms. At present, 
 [ennu-skin-assessment]
 ```
 **Purpose**: Skin health and skincare evaluation.
+
+### 7. Assessment Results
+```
+[ennu-assessment-results]
+```
+**Purpose**: Display the results of a completed assessment.
+
+### 8. Assessment Chart
+```
+[ennu-assessment-chart]
+```
+**Purpose**: Display a chart based on assessment results.
 
 ---
 

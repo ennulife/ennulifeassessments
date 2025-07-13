@@ -1,0 +1,57 @@
+/* CSS for Project Chimera - The Health Dossier */
+.health-dossier { background: #f9f9f9; padding: 40px; }
+.dossier-header { text-align: center; margin-bottom: 40px; }
+.ai-narrative { max-width: 800px; margin: 20px auto; font-size: 1.1em; line-height: 1.6; color: #555; }
+.pillar-container { display: flex; justify-content: space-around; margin-bottom: 50px; }
+.pillar-item { text-align: center; }
+.pillar-item h4 { /* styles for pillar titles */ }
+.pillar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    background: conic-gradient(var(--pillar-color, #ccc) calc(var(--score, 0) * 10%), #e9ecef 0);
+}
+.journey-timeline-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 40px; }
+.timeline-chart-container { height: 300px; }
+.deep-dive-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.category-card { background: #fff; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+.deep-dive-button { margin-top: 15px; } 
+
+/* CSS for the Deep-Dive Modal */
+.dossier-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 700px;
+    position: relative;
+    animation: slide-down 0.4s ease-out;
+}
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 2em;
+    font-weight: bold;
+    cursor: pointer;
+}
+@keyframes slide-down {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+} 

@@ -221,5 +221,42 @@ class ENNU_Assessment_Scoring {
             );
         }
     }
+
+    public static function get_health_pillar_map() {
+        return [
+            'mind' => [
+                'Psychological Factors',
+                'Treatment Motivation',
+                'Stress & Mental Health',
+                'Readiness for Change',
+            ],
+            'body' => [
+                'Condition Severity',
+                'Medical Factors',
+                'Drug Interactions',
+                'Genetic Factors',
+                'Nutritional Support',
+                'Internal Health',
+            ],
+            'lifestyle' => [
+                'Physical Health',
+                'Treatment History',
+                'Progression Timeline',
+                'Symptom Pattern',
+                'Sleep & Recovery',
+                'Preventive Health',
+                'Lifestyle Choices',
+                'Environmental Factors',
+                'Skincare Habits',
+            ],
+            'aesthetics' => [
+                'Hair Health Status',
+                'Primary Skin Issue',
+                'Skin Characteristics',
+                'Motivation & Goals',
+                'Current Status',
+            ]
+        ];
+    }
 }
 

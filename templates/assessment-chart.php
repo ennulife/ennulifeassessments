@@ -17,10 +17,24 @@ if (!$user_id) {
 }
 
 $results_data = get_transient('ennu_assessment_results_' . $user_id);
+if (is_user_logged_in()) {
+    // Always try meta first for logged-in users
+    $assessment_type = 'hair_assessment'; // TODO: Make dynamic (e.g., get latest from meta)
+    $score = get_user_meta($user_id, 'ennu_' . $assessment_type . '_calculated_score', true);
+    $category_scores = get_user_meta($user_id, 'ennu_' . $assessment_type . '_category_scores', true);
+    if ($score && $category_scores) {
+        $results_data = ['title' => 'Your ' . ucfirst(str_replace('_', ' ', $assessment_type)), 'category_scores' => $category_scores];
+    } elseif (!$results_data) {
+        // Fallback to transient if meta empty
+    }
+}
 if (!$results_data) {
     echo '<div class="ennu-chart-container"><p>No assessment results found. Please complete an assessment first.</p></div>';
     return;
 }
+
+// After getting $results_data
+delete_transient( 'ennu_assessment_results_' . $user_id );
 
 // Extract data for the chart
 $assessment_title = $results_data['title'] ?? 'Your Assessment';
@@ -40,9 +54,9 @@ $chart_data = array_values($category_scores);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure Chart.js is loaded
     if (typeof Chart === 'undefined') {
         console.error('Chart.js is not loaded. Cannot render chart.');
+        document.querySelector('.ennu-chart-container').innerHTML += '<p>Error loading chart. Please refresh or contact support.</p>';
         return;
     }
 

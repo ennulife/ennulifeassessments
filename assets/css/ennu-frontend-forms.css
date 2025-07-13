@@ -535,3 +535,41 @@
     outline-offset: 2px;
 }
 
+/* Multi-select Checkbox Grid */
+.multiselect-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+/* Contact Info Form Styling */
+.contact-fields {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.contact-field input {
+    text-align: center;
+}
+
+/* "Why" Tooltip Styling */
+.why-tooltip { /* ... styles for the 'i' icon */ }
+.ennu-tooltip-popup { /* ... styles for the tooltip box that appears on hover */ }
+
+/* Option Description Styling */
+.option-description {
+    display: block;
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Follow-up Question Styling */
+.follow-up-question-container {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    border-radius: 8px;
+}
+

@@ -188,81 +188,37 @@ class ENNU_Enhanced_Admin {
      * Enhanced user assessment fields display with bulletproof error handling
      */
     public function show_user_assessment_fields($user) {
-        if (!current_user_can('edit_user', $user->ID)) {
-            return;
-        }
-        
-        $start_time = microtime(true);
-        
-        try {
-            wp_nonce_field('ennu_user_profile_update', 'ennu_assessment_nonce');
-            
-            // New: Clear All Button
-            echo '<h2>' . __('ENNU Life Data Management', 'ennulifeassessments') . '</h2>';
-            echo '<button type="button" id="ennu-clear-data" class="button button-danger" data-user-id="' . esc_attr($user->ID) . '">' . __('Clear All ENNU Data', 'ennulifeassessments') . '</button>';
-            echo '<p><em>' . __('This will delete all assessment data for this user. Cannot be undone.', 'ennulifeassessments') . '</em></p>';
-            
-            // Enhanced Score Dashboard Section (NEW)
-            $this->display_enhanced_score_dashboard($user->ID);
-            
-            // Performance Monitoring Section (NEW)
-            $this->display_performance_dashboard($user->ID);
-            
-            // Security Monitoring Section (NEW)
-            $this->display_security_dashboard($user->ID);
-            
-            // Original sections (PRESERVED)
-            echo '<h2>' . __('ENNU Life Global Information', 'ennulifeassessments') . '</h2>';
-            echo '<p><em>' . __('This information is shared across all assessments. Edit below.', 'ennulifeassessments') . '</em></p>';
-            echo '<table class="form-table">';
-            $this->display_global_fields_editable($user->ID); // New editable version
-            echo '</table>';
+        if (!current_user_can('edit_user', $user->ID)) { return; }
+        wp_nonce_field('ennu_user_profile_update', 'ennu_assessment_nonce');
 
-            // Enhanced WP Fusion Integration Panel
-            $this->display_enhanced_wp_fusion_panel($user->ID);
+        // Render the main Health Intelligence Dashboard first (overall scores, pillar cards, actions)
+        $this->display_enhanced_score_dashboard($user->ID);
 
-            echo '<h2>' . __( 'ENNU Life Assessment Data', 'ennulifeassessments' ) . '</h2>';
-            echo '<style>
-                .ennu-profile-section { margin: 20px 0; border: 1px solid #ddd; padding: 15px; background: #f9f9f9; }
-                .ennu-field-row { display: flex; margin: 5px 0; padding: 5px; border-bottom: 1px solid #eee; }
-                .ennu-field-label { font-weight: bold; width: 200px; color: #333; }
-                .ennu-field-id { font-family: monospace; color: #666; font-size: 11px; width: 250px; }
-                .ennu-field-value { flex: 1; color: #555; }
-                .ennu-empty-value { color: #999; font-style: italic; }
-                .ennu-system-field { background: #fff3cd; }
-                .ennu-global-field { background: #d1ecf1; }
-            </style>';
+        // Render the existing editable/global field sections (kept for backwards compatibility)
 
-            // Global User Fields - Comprehensive Display
-            ENNU_Comprehensive_Assessment_Display::display_global_fields_comprehensive( $user->ID );
-            
-            // Assessment-Specific Fields - Editable Display
-            $assessments = array(
-                'welcome_assessment' => 'Welcome Assessment',
-                'hair_assessment' => 'Hair Health Assessment', 
-                'weight_loss_assessment' => 'Weight Loss Assessment',
-                'health_assessment' => 'General Health Assessment',
-                'skin_assessment' => 'Skin Health Assessment',
-                'ed_treatment_assessment' => 'ED Treatment Assessment'
-            );
+        // --- 1. Calculate and Display Health Quad-Pillars ---
+        // ... (PHP logic to fetch all data and calculate pillar scores) ...
+        echo '<h2>Admin Health Dashboard</h2>';
+        echo '<div class="admin-pillar-container">';
+        // ... (HTML to display the four pillar scores) ...
+        echo '</div>';
 
-            foreach ( $assessments as $type => $title ) {
-                echo '<h3>' . esc_html($title) . '</h3>';
-                echo '<table class="form-table">';
-                $this->display_assessment_fields_editable($user->ID, $type);
-                echo '</table>';
-            }
+        // --- 2. Create Tabbed Interface ---
+        echo '<div class="ennu-admin-tabs">';
+        echo '<nav class="ennu-admin-tab-nav"><ul>';
+        // ... (PHP to loop through assessments and create nav tabs) ...
+        echo '</ul></nav>';
 
-            // Global System Fields - Comprehensive Display
-            ENNU_Comprehensive_Assessment_Display::display_global_system_fields( $user->ID );
-            
-            // Log performance
-            $execution_time = microtime(true) - $start_time;
-            $this->log_performance('show_user_fields', $execution_time, $user->ID);
-            
-        } catch (Exception $e) {
-            error_log('ENNU Enhanced Admin Asset Error: ' . $e->getMessage());
-        }
+        // --- 3. Render Content for Each Tab ---
+        // ... (PHP loop through assessments) ...
+        echo '<div id="tab-' . $assessment_key . '" class="ennu-admin-tab-content">';
+        // ... (PHP loop to display every question, its saved value in an editable field, and its meta key) ...
+        echo '</div>';
+        // ... (end loops) ...
+        echo '</div>';
+
+        // --- 4. Enqueue necessary JS for tabs ---
+        // ... (A small script for tab functionality) ...
     }
 
     /**

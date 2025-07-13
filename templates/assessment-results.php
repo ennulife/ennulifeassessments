@@ -100,6 +100,39 @@ if (!empty($conditional_recs) && !empty($user_answers)) {
                 <p>Category score details are not available.</p>
             <?php endif; ?>
         </div>
+
+        <!-- Integrated Radar Chart -->
+        <div class="ennu-chart-container">
+            <h3>Visual Score Breakdown</h3>
+            <canvas id="ennuRadarChart"></canvas>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js not loaded.');
+                return;
+            }
+            const ctx = document.getElementById('ennuRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: <?php echo json_encode(array_keys($category_scores)); ?>,
+                    datasets: [{
+                        label: 'Your Scores',
+                        data: <?php echo json_encode(array_values($category_scores)); ?>,
+                        backgroundColor: 'rgba(79, 172, 254, 0.2)',
+                        borderColor: 'rgba(79, 172, 254, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: { r: { suggestedMin: 0, suggestedMax: 10 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+        </script>
     </div>
 </div>
 

@@ -192,7 +192,22 @@ final class ENNU_Assessment_Shortcodes {
             error_log( "ENNU: Registered thank you shortcode [{$shortcode_tag}] for {$assessment_type}" );
         }
         
-        error_log( "ENNU: Registered " . count( $core_assessments ) . " core assessment shortcodes + " . count( $thank_you_shortcodes ) . " thank you shortcodes + results page" );
+        // Register user dashboard shortcode
+        add_shortcode( 'ennu-user-dashboard', array( $this, 'render_user_dashboard' ) );
+        
+        error_log( "ENNU: Registered " . count( $core_assessments ) . " core assessment shortcodes + " . count( $thank_you_shortcodes ) . " thank you shortcodes + results page + user dashboard" );
+
+        // In register_shortcodes()
+        $details_shortcodes = [
+            'ennu-hair-assessment-details',
+            'ennu-ed-treatment-assessment-details',
+            'ennu-weight-loss-assessment-details',
+            'ennu-health-assessment-details',
+            'ennu-skin-assessment-details',
+        ];
+        foreach ($details_shortcodes as $shortcode) {
+            add_shortcode($shortcode, [$this, 'render_detailed_results_page']);
+        }
     }
     
     /**
@@ -436,6 +451,16 @@ final class ENNU_Assessment_Shortcodes {
      * @return string
      */
     private function render_question( $assessment_type, $question_number, $question, $config, $current_user_data = array() ) {
+        // Safeguard: ensure we always have a user object and a pre-selected value for global fields
+        $user = wp_get_current_user();
+        $user_id = ( $user && isset( $user->ID ) ) ? intval( $user->ID ) : 0;
+
+        // Determine pre-selected value for questions tied to a global key
+        $pre_selected_value = null;
+        if ( isset( $question['global_key'] ) && $user_id ) {
+            $pre_selected_value = get_user_meta( $user_id, 'ennu_global_' . $question['global_key'], true );
+        }
+
         $active_class = $question_number === 1 ? 'active' : '';
         
         // Generate simple IDs based on assessment type (e.g., hair_q1, skin_q2, etc.)
@@ -805,7 +830,15 @@ final class ENNU_Assessment_Shortcodes {
         if ( class_exists( 'ENNU_Assessment_Scoring' ) ) {
             $scores = ENNU_Assessment_Scoring::calculate_scores( $form_data['assessment_type'], $form_data );
             if ( $scores ) {
-                update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_calculated_score', $scores['overall_score'] );
+                // Save historical data
+                $historical_scores_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
+                $historical_scores = get_user_meta($user_id, $historical_scores_key, true);
+                if (!is_array($historical_scores)) { $historical_scores = []; }
+                $historical_scores[] = ['date' => current_time('timestamp'), 'score' => $scores['overall_score']];
+                update_user_meta($user_id, $historical_scores_key, $historical_scores);
+
+                // Update latest score for easy access
+                update_user_meta($user_id, 'ennu_' . $form_data['assessment_type'] . '_calculated_score', $scores['overall_score']);
                 $interpretation = ENNU_Assessment_Scoring::get_score_interpretation( $scores['overall_score'] );
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', $interpretation );
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
@@ -819,7 +852,7 @@ final class ENNU_Assessment_Shortcodes {
                     'category_scores' => $scores['category_scores'],
                     'answers' => $form_data // Pass the user's answers to the results page
                 );
-                set_transient( 'ennu_assessment_results_' . $user_id, $results_data, 60 * 5 ); // Expires in 5 minutes
+                set_transient( 'ennu_assessment_results_' . $user_id, $results_data, 3600 ); // 1 hour
             }
         }
 
@@ -1115,7 +1148,7 @@ final class ENNU_Assessment_Shortcodes {
      */
     public function enqueue_chart_scripts() {
         global $post;
-        if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ennu-assessment-chart' ) ) {
+        if ( is_a( $post, 'WP_Post' ) && ( has_shortcode( $post->post_content, 'ennu-assessment-chart' ) || has_shortcode( $post->post_content, 'ennu-user-dashboard' ) ) ) {
             wp_enqueue_script(
                 'chartjs',
                 ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js',
@@ -1123,6 +1156,9 @@ final class ENNU_Assessment_Shortcodes {
                 '4.4.0',
                 true
             );
+            error_log('ENNU: Chart.js enqueued for page with chart shortcode.');
+            // existing Chart.js
+            wp_enqueue_style( 'user-dashboard-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
         }
     }
     
@@ -1156,6 +1192,35 @@ final class ENNU_Assessment_Shortcodes {
                 array(),
                 ENNU_LIFE_VERSION
             );
+            wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.0', true );
+        }
+
+        // In enqueue_results_styles(), add check for details shortcodes to load styles
+        // if ( has_shortcode($post->post_content, 'ennu-hair-assessment-details') || ... )
+        // enqueue assessment-details-page.css and chart.js
+
+        // In enqueue_results_styles()
+        global $post;
+        $is_details_page = false;
+        $details_shortcodes = [
+            'ennu-hair-assessment-details',
+            'ennu-ed-treatment-assessment-details',
+            'ennu-weight-loss-assessment-details',
+            'ennu-health-assessment-details',
+            'ennu-skin-assessment-details',
+        ];
+        if (is_a($post, 'WP_Post')) {
+            foreach ($details_shortcodes as $shortcode) {
+                if (has_shortcode($post->post_content, $shortcode)) {
+                    $is_details_page = true;
+                    break;
+                }
+            }
+        }
+
+        if ($is_details_page) {
+            wp_enqueue_style('ennu-details-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-details-page.css', [], ENNU_LIFE_VERSION);
+            wp_enqueue_script('chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', [], '4.4.0', true);
         }
     }
     
@@ -1521,6 +1586,68 @@ final class ENNU_Assessment_Shortcodes {
             esc_html__( 'Assessment Unavailable', 'ennulifeassessments' ),
             esc_html( $message )
         );
+    }
+
+    // New method at end of class
+    public function render_user_dashboard( $atts = array() ) {
+        $user_id = get_current_user_id();
+        if ( !$user_id ) {
+            return '<p>You must be logged in to view your dashboard.</p>';
+        }
+        ob_start();
+        include ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php';
+        return ob_get_clean();
+    }
+
+    // New method at end of class
+    public function render_detailed_results_page($atts, $content = '', $tag = '') {
+        if (!is_user_logged_in()) {
+            return '<p>You must be logged in to view this page.</p>';
+        }
+        $assessment_type = str_replace(['ennu-', '-assessment-details'], '', $tag);
+        
+        // Pass assessment_type to the template
+        ob_start();
+        set_query_var('assessment_type', $assessment_type);
+        include ENNU_LIFE_PLUGIN_PATH . 'templates/assessment-details-page.php';
+        return ob_get_clean();
+    }
+
+    public static function get_trinity_pillar_map() {
+        return [
+            'mind' => [
+                'Psychological Factors',
+                'Treatment Motivation',
+                'Stress & Mental Health',
+                'Readiness for Change',
+            ],
+            'body' => [
+                'Condition Severity',
+                'Medical Factors',
+                'Drug Interactions',
+                'Genetic Factors',
+                'Nutritional Support',
+                'Internal Health',
+            ],
+            'lifestyle' => [
+                'Physical Health',
+                'Treatment History',
+                'Progression Timeline',
+                'Symptom Pattern',
+                'Sleep & Recovery',
+                'Preventive Health',
+                'Lifestyle Choices',
+                'Environmental Factors',
+                'Skincare Habits',
+            ],
+            'aesthetics' => [
+                'Hair Health Status',
+                'Primary Skin Issue',
+                'Skin Characteristics',
+                'Motivation & Goals', // e.g., weight loss goals
+                'Current Status', // e.g., current weight status
+            ]
+        ];
     }
 }
 
