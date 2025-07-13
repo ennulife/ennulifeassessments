@@ -1,6 +1,6 @@
 # ENNU Life Plugin: Refactoring & Maintenance Guide
-**Version: 26.0.54**
-**Date: July 13, 2025**
+**Version: 27.0.0**
+**Date: 2024-07-16**
 
 ---
 
@@ -60,4 +60,6 @@ This new architecture makes updating assessments dramatically simpler and safer.
 
 Beyond the configuration changes, several other key improvements were made:
 
--   **Consolidated Classes**: All "original" and "fixed" versions of classes have been removed. The plugin now uses a single, reliable set of "enhanced" classes (`
+-   **Consolidated Classes**: All "original" and "fixed" versions of classes have been removed. The plugin now uses a single, reliable set of "enhanced" classes.
+-   **Security and Performance**: The plugin has undergone a comprehensive security and performance audit. All AJAX actions are protected with nonces, all output is properly escaped, and all database queries are prepared to prevent SQL injection.
+-   **Uninstallation**: The plugin now includes an uninstallation hook that will remove all plugin data when it's deleted.

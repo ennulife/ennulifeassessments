@@ -198,7 +198,7 @@ class ENNU_Enhanced_Admin {
 
         // --- 1. Calculate and Display Health Quad-Pillars ---
         // ... (PHP logic to fetch all data and calculate pillar scores) ...
-        echo '<h2>Admin Health Dashboard</h2>';
+        echo '<h2>' . esc_html__( 'Admin Health Dashboard', 'ennulifeassessments' ) . '</h2>';
         echo '<div class="admin-pillar-container">';
         // ... (HTML to display the four pillar scores) ...
         echo '</div>';
@@ -211,7 +211,7 @@ class ENNU_Enhanced_Admin {
 
         // --- 3. Render Content for Each Tab ---
         // ... (PHP loop through assessments) ...
-        echo '<div id="tab-' . $assessment_key . '" class="ennu-admin-tab-content">';
+        echo '<div id="tab-' . esc_attr( $assessment_key ) . '" class="ennu-admin-tab-content">';
         // ... (PHP loop to display every question, its saved value in an editable field, and its meta key) ...
         echo '</div>';
         // ... (end loops) ...
@@ -240,7 +240,7 @@ class ENNU_Enhanced_Admin {
             }
             echo '<tr>';
             echo '<th><label for="' . esc_attr($key) . '">' . esc_html($label) . '</label></th>';
-            echo '<td><input type="text" name="' . esc_attr($key) . '" id="' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="regular-text" /></td>';
+            echo '<td><input type="text" name="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="regular-text" /></td>';
             echo '</tr>';
         }
     }
@@ -275,7 +275,7 @@ class ENNU_Enhanced_Admin {
             $label = $q_data['title'] ?? $simple_question_id;
 
             echo '<tr>';
-            echo '<th><label for="' . esc_attr($meta_key) . '">' . esc_html($label) . '</label><br/><small><code>' . esc_html($simple_question_id) . '</code></small></th>';
+            echo '<th><label for="' . esc_attr($meta_key) . '">' . esc_html($label) . '</label><br/><small><code>' . esc_html( $simple_question_id ) . '</code></small></th>';
             echo '<td>';
 
             // Use 'type' for text fields, and check for 'options' to determine radio/checkbox.
@@ -355,7 +355,7 @@ class ENNU_Enhanced_Admin {
      */
     private function display_global_fields_section( $user_id ) {
         echo '<div class="ennu-profile-section">';
-        echo '<h3>Global User Data (Persistent Across All Assessments)</h3>';
+        echo '<h3>' . esc_html__( 'Global User Data (Persistent Across All Assessments)', 'ennulifeassessments' ) . '</h3>';
         
         $global_fields = array(
             'ennu_global_first_name' => 'First Name',
@@ -374,12 +374,12 @@ class ENNU_Enhanced_Admin {
 
         foreach ( $global_fields as $field_id => $field_name ) {
             $value = get_user_meta( $user_id, $field_id, true );
-            $display_value = !empty($value) ? $value : '<span class="ennu-empty-value">Not provided</span>';
+            $display_value = !empty($value) ? esc_html( $value ) : '<span class="ennu-empty-value">Not provided</span>';
             
             echo '<div class="ennu-field-row ennu-global-field">';
             echo '<div class="ennu-field-label">' . esc_html($field_name) . ':</div>';
             echo '<div class="ennu-field-id">' . esc_html($field_id) . '</div>';
-            echo '<div class="ennu-field-value">' . $display_value . '</div>';
+            echo '<div class="ennu-field-value">' . wp_kses_post( $display_value ) . '</div>';
             echo '</div>';
         }
         
@@ -418,13 +418,13 @@ class ENNU_Enhanced_Admin {
     private function display_enhanced_score_dashboard($user_id) {
         try {
             echo '<div class="ennu-enhanced-admin-container">';
-            echo '<h2>' . __('ENNU Health Intelligence Dashboard', 'ennulifeassessments') . '</h2>';
+            echo '<h2>' . esc_html__( 'ENNU Health Intelligence Dashboard', 'ennulifeassessments' ) . '</h2>';
             
             // Cache status indicator
             $cache_stats = ENNU_Score_Cache::get_cache_stats();
             echo '<div class="ennu-cache-status">';
             echo '<span class="ennu-cache-indicator ' . ($cache_stats['cached_entries'] > 0 ? 'active' : 'inactive') . '"></span>';
-            echo sprintf(__('Cache: %d entries active', 'ennulifeassessments'), $cache_stats['cached_entries']);
+            echo sprintf( esc_html__( 'Cache: %d entries active', 'ennulifeassessments' ), esc_html( $cache_stats['cached_entries'] ) );
             echo '</div>';
             
             // Enhanced score display
@@ -433,15 +433,15 @@ class ENNU_Enhanced_Admin {
             // Action buttons with enhanced functionality
             echo '<div class="ennu-dashboard-actions">';
             echo '<button type="button" id="ennu-recalculate-scores" class="button button-primary">';
-            echo '<span class="dashicons dashicons-update"></span> ' . __('Recalculate Scores', 'ennulifeassessments');
+            echo '<span class="dashicons dashicons-update"></span> ' . esc_html__( 'Recalculate Scores', 'ennulifeassessments' );
             echo '</button>';
             
             echo '<button type="button" id="ennu-export-data" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-download"></span> ' . __('Export Data', 'ennulifeassessments');
+            echo '<span class="dashicons dashicons-download"></span> ' . esc_html__( 'Export Data', 'ennulifeassessments' );
             echo '</button>';
             
             echo '<button type="button" id="ennu-clear-cache" class="button button-secondary">';
-            echo '<span class="dashicons dashicons-trash"></span> ' . __('Clear Cache', 'ennulifeassessments');
+            echo '<span class="dashicons dashicons-trash"></span> ' . esc_html__( 'Clear Cache', 'ennulifeassessments' );
             echo '</button>';
             echo '</div>';
             
@@ -864,11 +864,11 @@ class ENNU_Enhanced_Admin {
         echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
         foreach ($options as $option) {
             $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $simple_question_id, $option['value']);
-            $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
+            $score_display = ($score !== null) ? '<strong>(' . esc_html( $score ) . ' pts)</strong>' : '';
 
             echo '<label style="display: block; margin-bottom: 5px;">';
             echo '<input type="radio" name="' . esc_attr($meta_key) . '" value="' . esc_attr($option['value']) . '" ' . checked($current_value, $option['value'], false) . ' /> ';
-            echo esc_html($option['label']) . ' ' . $score_display . ' <small><code>' . esc_html($option['value']) . '</code></small>';
+            echo esc_html($option['label']) . ' ' . wp_kses_post( $score_display ) . ' <small><code>' . esc_html($option['value']) . '</code></small>';
             echo '</label>';
         }
         echo '</fieldset>';
@@ -882,11 +882,11 @@ class ENNU_Enhanced_Admin {
         foreach ($options as $option) {
             $is_checked = in_array($option['value'], $saved_options);
             $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $simple_question_id, $option['value']);
-            $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
+            $score_display = ($score !== null) ? '<strong>(' . esc_html( $score ) . ' pts)</strong>' : '';
 
             echo '<label style="display: block; margin-bottom: 5px;">';
             echo '<input type="checkbox" name="' . esc_attr($meta_key) . '[]" value="' . esc_attr($option['value']) . '" ' . checked($is_checked, true, false) . ' /> ';
-            echo esc_html($option['label']) . ' ' . $score_display . ' <small><code>' . esc_html($option['value']) . '</code></small>';
+            echo esc_html($option['label']) . ' ' . wp_kses_post( $score_display ) . ' <small><code>' . esc_html($option['value']) . '</code></small>';
             echo '</label>';
         }
         echo '</fieldset>';
@@ -1254,12 +1254,12 @@ class ENNU_Enhanced_Admin {
         $assessment_types = array('hair_assessment', 'weight_loss_assessment', 'health_assessment', 'ed_treatment_assessment', 'skin_assessment');
         $meta_keys = array();
         foreach ($assessment_types as $type) {
-            $meta_keys[] = "'{$type}_calculated_score'";
+            $meta_keys[] = $type . '_calculated_score';
         }
         
         if (!empty($meta_keys)) {
-            $meta_keys_str = implode(',', $meta_keys);
-            $total = $wpdb->get_var("SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} WHERE meta_key IN ({$meta_keys_str}) AND meta_value != ''");
+            $placeholders = implode(', ', array_fill(0, count($meta_keys), '%s'));
+            $total = $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} WHERE meta_key IN ($placeholders) AND meta_value != ''", $meta_keys));
             $stats['total_assessments'] = intval($total);
         }
         
@@ -1340,18 +1340,15 @@ class ENNU_Enhanced_Admin {
         global $wpdb;
         
         // Get all assessment data
-        $results = $wpdb->get_results("
-            SELECT u.ID, u.user_login, u.user_email, u.user_registered, 
-                   GROUP_CONCAT(CONCAT(um.meta_key, ':', um.meta_value) SEPARATOR '|') as assessments
-            FROM {$wpdb->users} u
-            JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
-            WHERE um.meta_key LIKE '%_calculated_score'
-            GROUP BY u.ID
-            ORDER BY u.user_registered DESC
+        $user_ids = $wpdb->get_col("
+            SELECT DISTINCT user_id
+            FROM {$wpdb->usermeta}
+            WHERE meta_key LIKE '%_calculated_score'
+            ORDER BY user_id DESC
             LIMIT 50
         ");
         
-        if (empty($results)) {
+        if (empty($user_ids)) {
             echo '<p>' . __('No assessment data found.', 'ennulifeassessments') . '</p>';
             return;
         }
@@ -1365,23 +1362,33 @@ class ENNU_Enhanced_Admin {
         echo '<th>' . __('Actions', 'ennulifeassessments') . '</th>';
         echo '</tr></thead><tbody>';
         
-        foreach ($results as $result) {
-            $assessments = explode('|', $result->assessments);
+        foreach ($user_ids as $user_id) {
+            $user = get_userdata($user_id);
+            if (!$user) {
+                continue;
+            }
+
+            $assessments = $wpdb->get_results($wpdb->prepare("
+                SELECT meta_key, meta_value
+                FROM {$wpdb->usermeta}
+                WHERE user_id = %d AND meta_key LIKE %s
+            ", $user_id, '%_calculated_score'));
+
             $assessment_list = array();
-            
-            foreach ($assessments as $assessment) {
-                list($key, $value) = explode(':', $assessment);
-                $type = str_replace('_calculated_score', '', $key);
-                $label = ucwords(str_replace('_', ' ', $type));
-                $assessment_list[] = $label . ' (' . number_format(floatval($value), 1) . '/10)';
+            if (!empty($assessments)) {
+                foreach ($assessments as $assessment) {
+                    $type = str_replace('_calculated_score', '', $assessment->meta_key);
+                    $label = ucwords(str_replace('_', ' ', $type));
+                    $assessment_list[] = $label . ' (' . number_format(floatval($assessment->meta_value), 1) . '/10)';
+                }
             }
             
             echo '<tr>';
-            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $result->ID) . '">' . esc_html($result->user_login) . '</a></td>';
-            echo '<td>' . esc_html($result->user_email) . '</td>';
+            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $user_id) . '">' . esc_html($user->user_login) . '</a></td>';
+            echo '<td>' . esc_html($user->user_email) . '</td>';
             echo '<td>' . implode('<br>', $assessment_list) . '</td>';
-            echo '<td>' . date('M j, Y', strtotime($result->user_registered)) . '</td>';
-            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $result->ID) . '" class="button button-small">' . __('View Details', 'ennulifeassessments') . '</a></td>';
+            echo '<td>' . date('M j, Y', strtotime($user->user_registered)) . '</td>';
+            echo '<td><a href="' . admin_url('user-edit.php?user_id=' . $user_id) . '" class="button button-small">' . __('View Details', 'ennulifeassessments') . '</a></td>';
             echo '</tr>';
         }
         

@@ -1,7 +1,7 @@
 # Hair Health Assessment: Scoring Deep Dive
 
-**Version**: 24.12.4
-**Date**: July 12, 2025
+**Version**: 27.0.0
+**Date**: 2024-07-16
 
 ---
 

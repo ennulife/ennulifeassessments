@@ -111,24 +111,23 @@ class ENNU_Comprehensive_Assessment_Display {
         echo '<div class="ennu-questions-section">';
         echo '<h4>All Assessment Questions & Responses</h4>';
         
-        foreach ($questions as $index => $question) {
-            $question_number = $index + 1;
-            
-            // Generate field ID based on question type
-            $field_id = self::generate_field_id($assessment_type, $question_number, $question);
+        foreach ($questions as $question) {
+            if (!isset($question['id'])) continue;
+
+            $field_id = self::generate_field_id($assessment_type, $question['id']);
             
             // Get value from batched meta
             $value = $all_meta[$field_id][0] ?? '';
             error_log('ENNU Display Debug: Fetching [' . $field_id . '] = ' . ($value ?: 'empty'));
             
             // Display question
-            self::display_question_field($question_number, $question, $field_id, $value);
+            self::display_question_field($question['id'], $question, $field_id, $value);
             
             // For special question types, display additional fields
             if (isset($question['type'])) {
                 switch ($question['type']) {
                     case 'dob_dropdowns':
-                        self::display_dob_fields($user_id, $assessment_type, $question_number, $all_meta);
+                        self::display_dob_fields($user_id, $assessment_type, $question['id'], $all_meta);
                         break;
                     case 'contact_info':
                         self::display_contact_info_fields($user_id, $question);
@@ -176,9 +175,8 @@ class ENNU_Comprehensive_Assessment_Display {
     /**
      * Display date of birth fields
      */
-    private static function display_dob_fields($user_id, $assessment_type, $question_number, $all_meta) {
-        $assessment_prefix = str_replace('_assessment', '', $assessment_type);
-        $base_id = $assessment_prefix . '_q' . $question_number;
+    private static function display_dob_fields($user_id, $assessment_type, $question_id, $all_meta) {
+        $base_id = str_replace('_assessment', '', $assessment_type) . '_' . $question_id;
         
         $dob_fields = array(
             $base_id . '_month' => 'Birth Month',
@@ -302,15 +300,22 @@ class ENNU_Comprehensive_Assessment_Display {
     /**
      * Generate field ID based on assessment type and question
      */
-    private static function generate_field_id($assessment_type, $question_number, $question) {
-        // Remove '_assessment' suffix for cleaner IDs
-        $assessment_prefix = str_replace('_assessment', '', $assessment_type);
-        
-        // Default: assessment_prefix + q + number (e.g., hair_q1, weight_q2)
-        $question_key = $assessment_prefix . '_q' . $question_number;
-
+    private static function generate_field_id($assessment_type, $question_id) {
         // Construct the full meta key to match the saving logic
-        return 'ennu_' . $assessment_type . '_' . $question_key;
+        return 'ennu_' . $assessment_type . '_' . $question_id;
+    }
+
+    /**
+     * Get a specific question by its ID from the config file
+     */
+    private static function get_question_by_id($assessment_type, $question_id) {
+        $questions = self::get_all_assessment_questions($assessment_type);
+        foreach ($questions as $question) {
+            if (isset($question['id']) && $question['id'] === $question_id) {
+                return $question;
+            }
+        }
+        return null;
     }
     
     /**

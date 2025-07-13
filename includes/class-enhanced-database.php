@@ -207,22 +207,19 @@ class ENNU_Life_Enhanced_Database {
         $start_time = microtime(true);
         
         try {
-            global $wpdb;
-            
-            // Get all user meta for this assessment type
-            $meta_data = $wpdb->get_results($wpdb->prepare("
-                SELECT meta_key, meta_value 
-                FROM {$wpdb->usermeta} 
-                WHERE user_id = %d 
-                AND meta_key LIKE %s
-            ", $user_id, $assessment_type . '_%'));
-            
             $assessment_data = array();
-            
-            foreach ($meta_data as $meta) {
-                // Remove assessment type prefix from key
-                $clean_key = str_replace($assessment_type . '_', '', $meta->meta_key);
-                $assessment_data[$clean_key] = $meta->meta_value;
+            $questions = include(ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php');
+
+            if (isset($questions[$assessment_type])) {
+                foreach ($questions[$assessment_type] as $question) {
+                    if (isset($question['id'])) {
+                        $meta_key = 'ennu_' . $assessment_type . '_' . $question['id'];
+                        $value = get_user_meta($user_id, $meta_key, true);
+                        if ($value) {
+                            $assessment_data[$question['id']] = $value;
+                        }
+                    }
+                }
             }
             
             // Cache the result
@@ -290,12 +287,27 @@ class ENNU_Life_Enhanced_Database {
         }
 
         try {
+            // Get global keys dynamically from the question configuration
+            $all_questions = include(ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php');
+            $global_keys = [];
+            if (isset($all_questions[$assessment_type])) {
+                foreach ($all_questions[$assessment_type] as $question) {
+                    if (isset($question['global_key'])) {
+                        $global_keys[] = $question['global_key'];
+                    }
+                }
+            }
+
+
             foreach ($form_data as $key => $value) {
+                // The key from the form is the question ID (e.g., 'hair_q1')
+                $question_id = $key;
+
                 // Use the 'ennu_global_' prefix for globally shared fields
-                if (in_array($key, ['user_dob_combined', 'age', 'gender'])) {
-                    $meta_key = 'ennu_global_' . $key;
+                if (in_array($question_id, $global_keys)) {
+                    $meta_key = 'ennu_global_' . $question_id;
                 } else {
-                    $meta_key = 'ennu_' . $assessment_type . '_' . $key;
+                    $meta_key = 'ennu_' . $assessment_type . '_' . $question_id;
                 }
 
                 // Sanitize value based on type

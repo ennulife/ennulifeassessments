@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin - Shortcode Documentation
 
-**Version**: 26.0.15
+**Version**: 26.0.54
 
 This document provides documentation for all available shortcodes in the ENNU Life Assessment Plugin.
 
@@ -27,67 +27,52 @@ The ENNU Life Assessment Plugin uses shortcodes to display the various health an
 
 ## Available Shortcodes
 
-These are the primary shortcodes that display the assessment forms. At present, these shortcodes do not support any additional attributes.
+These are the primary shortcodes that display the assessment forms.
 
-### 1. Welcome Assessment
-```
-[ennu-welcome-assessment]
-```
-**Purpose**: Initial welcome assessment for new users.
+### Assessment Shortcodes
 
-### 2. Hair Health Assessment
-```
-[ennu-hair-assessment]
-```
-**Purpose**: Comprehensive hair health evaluation.
+The following shortcodes are used to display the assessment forms. They all support the same set of attributes.
 
-### 3. ED Treatment Assessment
-```
-[ennu-ed-treatment-assessment]
-```
-**Purpose**: Erectile dysfunction treatment evaluation.
+*   `[ennu-welcome-assessment]`
+*   `[ennu-hair-assessment]`
+*   `[ennu-ed-treatment-assessment]`
+*   `[ennu-weight-loss-assessment]`
+*   `[ennu-health-assessment]`
+*   `[ennu-skin-assessment]`
 
-### 4. Weight Loss Assessment
-```
-[ennu-weight-loss-assessment]
-```
-**Purpose**: Weight management and fitness evaluation.
+**Attributes:**
 
-### 5. Health Assessment
-```
-[ennu-health-assessment]
-```
-**Purpose**: General health and wellness evaluation.
+*   `theme`: (string) The theme to use for the assessment. Currently, only `default` is supported.
+*   `show_progress`: (string) Whether to show the progress bar. Can be `true` or `false`. Default is `true`.
+*   `auto_advance`: (string) Whether to automatically advance to the next question after a selection is made. Can be `true` or `false`. Default is `true`.
 
-### 6. Skin Assessment
-```
-[ennu-skin-assessment]
-```
-**Purpose**: Skin health and skincare evaluation.
+### Results and Dashboard Shortcodes
 
-### 7. Assessment Results
-```
-[ennu-assessment-results]
-```
-**Purpose**: Display the results of a completed assessment.
-
-### 8. Assessment Chart
-```
-[ennu-assessment-chart]
-```
-**Purpose**: Display a chart based on assessment results.
+*   `[ennu-assessment-results]`: Displays the results of the most recently completed assessment.
+*   `[ennu-assessment-chart]`: Displays a chart of the results for a specific assessment.
+*   `[ennu-user-dashboard]`: Displays the user's dashboard with an overview of their completed assessments.
+*   `[ennu-hair-assessment-details]`: Displays a detailed breakdown of the hair assessment results. Similar shortcodes exist for the other assessments (e.g., `[ennu-ed-treatment-assessment-details]`, etc.).
 
 ---
 
 ## Usage Examples
 
 ### Basic Usage
+
 Place any shortcode directly in a page or post using the WordPress editor.
 ```
 [ennu-health-assessment]
 ```
 
+### With Attributes
+
+You can use attributes to customize the behavior of the assessment shortcodes.
+```
+[ennu-hair-assessment show_progress="false" auto_advance="false"]
+```
+
 ### In PHP Templates
+
 You can also render shortcodes directly in your theme's template files.
 ```php
 echo do_shortcode('[ennu-hair-assessment]');

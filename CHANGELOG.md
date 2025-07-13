@@ -1,5 +1,24 @@
 # ENNU Life Assessment Plugin Changelog
 
+## Version 27.0.0 - 2024-07-16
+### Added
+- **Production-Ready Enhancements:** This version includes a comprehensive audit and a series of improvements to prepare the plugin for a production environment.
+- **Security:**
+    - Performed an in-depth security audit to identify and address potential vulnerabilities.
+    - Ensured all AJAX actions are protected with nonces.
+    - Added escaping to all unescaped output to prevent XSS vulnerabilities.
+    - Fixed a potentially insecure SQL query by using `$wpdb->prepare`.
+- **Performance:**
+    - Refactored a potentially slow database query to improve performance.
+- **Code Quality:**
+    - Added a missing uninstallation hook to ensure that all plugin data is removed when the plugin is deleted.
+    - Removed debugging code from the JavaScript files.
+- **User Experience:**
+    - Improved form validation and error handling to provide more specific and helpful messages to the user.
+    - Added a loading indicator to the form submission process to provide better feedback to the user.
+- **Documentation:**
+    - Updated all documentation files to reflect the current state of the plugin.
+
 ## Version 26.0.54 - 2025-07-13
 ### Changed
 - **Modular Configuration**: Split all assessment questions and scoring rules into individual files under `includes/config/questions/` and `includes/config/scoring/`. The master configuration files now dynamically load these modules, greatly improving maintainability and editability.

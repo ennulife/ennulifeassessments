@@ -1,6 +1,6 @@
 # ENNU Life Assessment Plugin
 
-**Version:** 26.0.54
+**Version:** 27.0.0
 **Author:** ENNU Life Development Team
 **License:** Proprietary
 
@@ -24,18 +24,24 @@ The current release (26.0.54) delivers the final modular-configuration refactor,
 
 ## Getting Started
 
-### Installation
-
-1.  Upload the `ennulifeassessments` folder to the `/wp-content/plugins/` directory.
-2.  Activate the plugin through the 'Plugins' menu in WordPress.
+See `INSTALLATION.md` for detailed installation instructions.
 
 ### Configuration
 
-All assessment questions and scoring rules are now managed in the `includes/config/` directory. For detailed instructions on how to modify or add assessments, please refer to the new `documentation/REFACTORING_AND_MAINTENANCE_GUIDE.md` file.
+All assessment questions and scoring rules are now managed in the `includes/config/` directory. For detailed instructions on how to modify or add assessments, please refer to the `documentation/REFACTORING_AND_MAINTENANCE_GUIDE.md` file.
+
+## Security
+
+The ENNU Life Assessment Plugin has been developed with security as a top priority. It includes the following features to protect against common vulnerabilities:
+
+*   **Nonce-Protected AJAX:** All AJAX requests are protected with WordPress nonces to prevent Cross-Site Request Forgery (CSRF) attacks.
+*   **Data Validation and Sanitization:** All user input is strictly validated and sanitized to prevent XSS and other injection attacks.
+*   **Prepared SQL Queries:** All database queries are prepared using the `$wpdb->prepare` method to prevent SQL injection vulnerabilities.
+*   **Capability Checks:** All administrative actions are protected with capability checks to prevent unauthorized access.
 
 ## Shortcodes
 
-The following shortcodes are available to display the assessments on the frontend:
+The following shortcodes are available to display the assessments on the frontend. See `SHORTCODE_DOCUMENTATION.md` for detailed usage instructions.
 
 -   `[ennu-welcome-assessment]`
 -   `[ennu-hair-assessment]`
@@ -52,7 +58,7 @@ The following shortcodes are available to display the assessments on the fronten
 ## Technical Details
 
 - **Minimum PHP Version:** 7.4
-- **Minimum WordPress Version:** 6.0
+- **Minimum WordPress Version:** 5.0
 - **Dependencies:** None (WooCommerce is recommended for full functionality but not required).
 
 ---

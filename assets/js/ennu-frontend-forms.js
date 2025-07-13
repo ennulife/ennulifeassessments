@@ -33,6 +33,7 @@
             this.totalSteps = this.questions.length;
             
             if (this.totalSteps === 0) {
+                this.form.html('<p class="ennu-error">' + 'No questions found for this assessment.' + '</p>');
                 return;
             }
 
@@ -105,6 +106,8 @@
             
             // Hide all questions
             questions.forEach(q => q.classList.remove('active'));
+
+            this.currentStep = questionNumber;
             
             if (questions[questionNumber - 1]) {
                 questions[questionNumber - 1].classList.add('active');
@@ -117,7 +120,8 @@
             if (this.currentStep < this.totalSteps) {
                 // Validate current question before advancing
                 if (this.validateCurrentQuestion()) {
-                    this.showQuestion(this.currentStep + 1);
+                    this.currentStep++;
+                    this.showQuestion(this.currentStep);
                 }
             } else {
                 // Last question - submit form
@@ -127,7 +131,25 @@
 
         prevQuestion() {
             if (this.currentStep > 1) {
-                this.showQuestion(this.currentStep - 1);
+                this.currentStep--;
+                this.showQuestion(this.currentStep);
+            }
+        }
+
+        updateButtonVisibility() {
+            const prevButton = this.form.find('.nav-button.prev');
+            const nextButton = this.form.find('.nav-button.next');
+
+            if (this.currentStep === 1) {
+                prevButton.hide();
+            } else {
+                prevButton.show();
+            }
+
+            if (this.currentStep === this.totalSteps) {
+                nextButton.text('Submit');
+            } else {
+                nextButton.text('Next →');
             }
         }
 
@@ -282,6 +304,7 @@
             
             this.isSubmitting = true;
             this.form.addClass('loading');
+            $('#ennu-operation-status').html('<span class="dashicons dashicons-update-alt"></span> ' + 'Submitting...').addClass('show loading');
             
             const formData = this.collectFormData();
             
@@ -310,11 +333,12 @@
                     this.showSuccess(response);
                 },
                 error: (xhr, status, error) => {
-                    this.showSubmissionError();
+                    this.showSubmissionError('An error occurred: ' + status + ' ' + error);
                 },
                 complete: () => {
                     this.isSubmitting = false;
                     this.form.removeClass('loading');
+                    $('#ennu-operation-status').removeClass('show loading');
                 }
             });
         }
@@ -357,6 +381,8 @@
                 </div>
             `;
             
+            $('#ennu-operation-status').html(message).addClass('show error');
+
             const currentQuestion = this.questions.eq(this.currentStep - 1);
             currentQuestion.find('.validation-message').remove();
             currentQuestion.append(errorHtml);

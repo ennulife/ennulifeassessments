@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessment Plugin
  * Plugin URI: https://ennulife.com
  * Description: Advanced health and wellness assessment system with enhanced features, modern UI, and comprehensive data management.
- * Version: 26.0.54
+ * Version: 27.0.0
  * Author: ENNU Life Development Team
  * Author URI: https://ennulife.com
  * License: Proprietary
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '26.0.54' );
+define( 'ENNU_LIFE_VERSION', '27.0.0' );
 // Plugin paths - with safety checks
 if (function_exists('plugin_dir_path')) {
     define('ENNU_LIFE_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -74,6 +74,10 @@ class ENNU_Life_Enhanced_Plugin {
         
         if (function_exists('register_deactivation_hook')) {
             register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+        }
+
+        if (function_exists('register_uninstall_hook')) {
+            register_uninstall_hook(__FILE__, array('ENNU_Life_Enhanced_Plugin', 'uninstall'));
         }
         
         // Initialize plugin - with safety checks
@@ -181,8 +185,6 @@ class ENNU_Life_Enhanced_Plugin {
                     'ajax_url' => function_exists('admin_url') ? admin_url('admin-ajax.php') : '',
                     'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ennu_ajax_nonce') : ''
                 ));
-                // Add debug log
-                wp_add_inline_script('ennu-assessment-frontend', 'console.log("ENNU JS Loaded Successfully");');
             }
         }
     }
@@ -224,6 +226,24 @@ class ENNU_Life_Enhanced_Plugin {
      */
     public function deactivate() {
         // Flush rewrite rules - with safety check
+        if (function_exists('flush_rewrite_rules')) {
+            flush_rewrite_rules();
+        }
+    }
+
+    /**
+     * Plugin uninstallation
+     */
+    public static function uninstall() {
+        global $wpdb;
+
+        // Delete options
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE 'ennu_%'");
+
+        // Delete user meta
+        $wpdb->query("DELETE FROM $wpdb->usermeta WHERE meta_key LIKE 'ennu_%'");
+
+        // Flush rewrite rules
         if (function_exists('flush_rewrite_rules')) {
             flush_rewrite_rules();
         }

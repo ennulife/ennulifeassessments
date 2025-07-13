@@ -1,4 +1,4 @@
-# ENNU Life Plugin v26.0.54 - Installation Guide
+# ENNU Life Plugin v27.0.0 - Installation Guide
 
 ## 🚀 **Quick Installation**
 
@@ -14,7 +14,7 @@
 ```bash
 # Method 1: WordPress Admin Upload
 1. Go to Plugins > Add New > Upload Plugin
-2. Choose ennu-life-v26.0.54.zip
+2. Choose ennu-life-v27.0.0.zip
 3. Click "Install Now"
 4. Click "Activate Plugin"
 
@@ -22,7 +22,7 @@
 1. Extract zip file to get ennulifeassessments folder
 2. Upload folder to /wp-content/plugins/
 3. Go to WordPress Admin > Plugins
-4. Activate "ENNU Life Assessments Enhanced"
+4. Activate "ENNU Life Assessments"
 ```
 
 ### **Step 3: Verify Installation**
@@ -55,7 +55,7 @@
 
 3. **Upload Plugin File**
    - Click `Choose File`
-   - Select `ennu-life-v26.0.54.zip`
+   - Select `ennu-life-v27.0.0.zip`
    - Click `Install Now`
 
 4. **Activate Plugin**
@@ -82,7 +82,7 @@
 
 4. **Activate in WordPress**
    - Go to WordPress Admin > Plugins
-   - Find "ENNU Life Assessments Enhanced"
+   - Find "ENNU Life Assessments"
    - Click "Activate"
 
 ### **Post-Installation Configuration**
@@ -132,6 +132,14 @@
    - Go to `ENNU Life > Assessments`
    - Verify assessment type cards
    - Check assessment data tables
+
+## Uninstallation
+
+To completely remove the ENNU Life Assessment Plugin and all of its data, simply deactivate and delete the plugin from the WordPress admin dashboard. The plugin includes an uninstallation hook that will automatically remove all of the following data:
+
+*   All plugin options from the `wp_options` table.
+*   All user meta data associated with the plugin from the `wp_usermeta` table.
+*   Any custom database tables created by the plugin.
 
 ## 🔍 **Troubleshooting Installation**
 

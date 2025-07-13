@@ -380,7 +380,7 @@ final class ENNU_Assessment_Shortcodes {
             </div>
             
             <!-- Assessment Form -->
-            <form class="assessment-form" data-assessment="<?php echo esc_attr( $assessment_type ); ?>">
+            <form id="ennu-assessment-form-<?php echo esc_attr( $assessment_type ); ?>" class="assessment-form" data-assessment="<?php echo esc_attr( $assessment_type ); ?>" data-nonce="<?php echo wp_create_nonce('ennu_ajax_nonce'); ?>">
                 <input type="hidden" name="action" value="ennu_submit_assessment">
                 <input type="hidden" name="assessment_type" value="<?php echo esc_attr( $assessment_type ); ?>">
                 
@@ -409,11 +409,6 @@ final class ENNU_Assessment_Shortcodes {
         
         <!-- Assessment JavaScript Debug Info -->
         <script>
-        console.log('ENNU Assessment Debug Info:');
-        console.log('Assessment Type:', '<?php echo esc_js( $assessment_type ); ?>');
-        console.log('Total Questions:', <?php echo intval( $total_questions ); ?>);
-        console.log('Questions Array:', <?php echo wp_json_encode( array_map( function( $q ) { return $q['title']; }, $questions ) ); ?>);
-        
         // Assessment will be automatically initialized by ennu-assessment-modern.js
         // when DOM is ready and .ennu-assessment container is found
         </script>
@@ -456,7 +451,7 @@ final class ENNU_Assessment_Shortcodes {
         $user_id = ( $user && isset( $user->ID ) ) ? intval( $user->ID ) : 0;
 
         // Determine pre-selected value for questions tied to a global key
-        $pre_selected_value = null;
+        $pre_selected_value = array();
         if ( isset( $question['global_key'] ) && $user_id ) {
             $pre_selected_value = get_user_meta( $user_id, 'ennu_global_' . $question['global_key'], true );
         }
@@ -473,7 +468,7 @@ final class ENNU_Assessment_Shortcodes {
              data-step="<?php echo esc_attr( $question_number ); ?>" 
              data-question="<?php echo esc_attr( $question_number ); ?>"
              data-question-key="<?php echo esc_attr( $simple_question_id ); ?>"
-             data-question-type="<?php echo esc_attr( $question['type'] ?? 'single' ); ?>">
+             data-question-type="<?php echo esc_attr( $question['type'] ); ?>">
             
             <div class="question-header">
                 <h2 class="question-title"><?php echo esc_html( $question['title'] ); ?></h2>
@@ -722,14 +717,14 @@ final class ENNU_Assessment_Shortcodes {
                 $is_last_question = $question_number >= $total_questions;
                 ?>
                 
-                <button type="button" class="nav-button next <?php echo $is_last_question ? 'submit' : ''; ?>">
+                <button type="button" class="nav-button next <?php echo esc_attr( $is_last_question ? 'submit' : '' ); ?>">
                     <?php 
                     if ( $is_last_question && isset( $question['type'] ) && $question['type'] === 'contact_info' && ! empty( $question['button_text'] ) ) {
                         echo esc_html( $question['button_text'] );
                     } elseif ( $is_last_question ) {
-                        echo 'Create My Account';
+                        echo esc_html__( 'Create My Account', 'ennulifeassessments' );
                     } else {
-                        echo 'Next →';
+                        echo esc_html__( 'Next →', 'ennulifeassessments' );
                     }
                     ?>
                 </button>
@@ -770,7 +765,7 @@ final class ENNU_Assessment_Shortcodes {
         // 3. Validate Data
         $validation_result = $this->validate_assessment_data( $form_data );
         if ( is_wp_error( $validation_result ) ) {
-            wp_send_json_error( array( 'message' => $validation_result->get_error_message() ), 400 );
+            wp_send_json_error( array( 'message' => $validation_result->get_error_message(), 'code' => $validation_result->get_error_code() ), 400 );
             return;
         }
 
@@ -892,10 +887,10 @@ final class ENNU_Assessment_Shortcodes {
      */
     private function validate_assessment_data( $data ) {
         if ( empty( $data['assessment_type'] ) ) {
-            return new WP_Error( 'validation_failed', 'Assessment type is missing.' );
+            return new WP_Error( 'validation_failed_assessment_type', 'Assessment type is missing.' );
         }
         if ( empty( $data['email'] ) || ! is_email( $data['email'] ) ) {
-            return new WP_Error( 'validation_failed', 'A valid email address is required.' );
+            return new WP_Error( 'validation_failed_email', 'A valid email address is required.' );
         }
         return true;
     }
@@ -1278,23 +1273,23 @@ final class ENNU_Assessment_Shortcodes {
                     
                     <?php if ($bmi) : ?>
                     <div class="ennu-bmi-card">
-                        <h2 class="ennu-bmi-card-title">Your Body Mass Index (BMI)</h2>
+                        <h2 class="ennu-bmi-card-title"><?php echo esc_html__( 'Your Body Mass Index (BMI)', 'ennulifeassessments' ); ?></h2>
                         <div class="ennu-bmi-value"><?php echo esc_html($bmi); ?></div>
-                        <p class="ennu-bmi-info">BMI is a measure of body fat based on height and weight. <a href="#">Learn more</a></p>
+                        <p class="ennu-bmi-info"><?php echo esc_html__( 'BMI is a measure of body fat based on height and weight.', 'ennulifeassessments' ); ?> <a href="#"><?php echo esc_html__( 'Learn more', 'ennulifeassessments' ); ?></a></p>
                     </div>
                     <?php endif; ?>
 
                     <div class="ennu-score-card">
                         <h2 class="ennu-score-card-title"><?php echo esc_html($result_content['title']); ?></h2>
                         <div class="ennu-overall-score-display">
-                            <div class="ennu-score-value"><?php echo number_format($score, 1); ?></div>
+                            <div class="ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
                             <div class="ennu-score-max">/ 10</div>
                         </div>
                         <p class="ennu-score-summary"><?php echo esc_html($result_content['summary']); ?></p>
                     </div>
                     
                     <div class="ennu-recommendations-card">
-                        <h3>Your Personalized Recommendations</h3>
+                        <h3><?php echo esc_html__( 'Your Personalized Recommendations', 'ennulifeassessments' ); ?></h3>
                         <ul>
                             <?php foreach ($result_content['recommendations'] as $rec) : ?>
                                 <li><?php echo esc_html($rec); ?></li>
@@ -1305,7 +1300,7 @@ final class ENNU_Assessment_Shortcodes {
 
                     <?php if (!empty($matched_recs)) : ?>
                     <div class="ennu-conditional-recs-card">
-                        <h3>Specific Observations</h3>
+                        <h3><?php echo esc_html__( 'Specific Observations', 'ennulifeassessments' ); ?></h3>
                         <ul>
                             <?php foreach ($matched_recs as $rec) : ?>
                                 <li><?php echo esc_html($rec); ?></li>
@@ -1317,21 +1312,21 @@ final class ENNU_Assessment_Shortcodes {
                 
                 <div class="ennu-results-sidebar">
                     <div class="ennu-category-scores-card">
-                        <h3>Score Breakdown</h3>
+                        <h3><?php echo esc_html__( 'Score Breakdown', 'ennulifeassessments' ); ?></h3>
                         <?php if (!empty($category_scores)) : ?>
                             <ul class="ennu-category-list">
                                 <?php foreach ($category_scores as $category => $cat_score) : ?>
                                     <li>
                                         <span class="ennu-category-label"><?php echo esc_html($category); ?></span>
                                         <div class="ennu-category-bar-bg">
-                                            <div class="ennu-category-bar-fill" style="width: <?php echo (float)$cat_score * 10; ?>%;"></div>
+                                            <div class="ennu-category-bar-fill" style="width: <?php echo esc_attr( (float)$cat_score * 10 ); ?>%;"></div>
                                         </div>
-                                        <span class="ennu-category-score"><?php echo number_format($cat_score, 1); ?></span>
+                                        <span class="ennu-category-score"><?php echo esc_html( number_format( $cat_score, 1 ) ); ?></span>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
                         <?php else: ?>
-                            <p>Category score details are not available.</p>
+                            <p><?php echo esc_html__( 'Category score details are not available.', 'ennulifeassessments' ); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1356,26 +1351,26 @@ final class ENNU_Assessment_Shortcodes {
         ?>
         <div class="ennu-results-empty-state">
             <div class="empty-state-icon">!</div>
-            <h2 class="empty-state-title">Your results have been processed.</h2>
+            <h2 class="empty-state-title"><?php echo esc_html__( 'Your results have been processed.', 'ennulifeassessments' ); ?></h2>
             
             <?php if ( is_user_logged_in() ): ?>
                 <p class="empty-state-message">
-                    Your assessment results are saved to your account. You can review your complete history and progress in your private dashboard at any time.
+                    <?php echo esc_html__( 'Your assessment results are saved to your account. You can review your complete history and progress in your private dashboard at any time.', 'ennulifeassessments' ); ?>
                 </p>
                 <div class="empty-state-actions">
-                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary">View My Dashboard</a>
+                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary"><?php echo esc_html__( 'View My Dashboard', 'ennulifeassessments' ); ?></a>
                     <?php if ($assessment_type): ?>
-                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary">Take Assessment Again</a>
+                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary"><?php echo esc_html__( 'Take Assessment Again', 'ennulifeassessments' ); ?></a>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
                 <p class="empty-state-message">
-                    To save your results and track your progress over time, please log in or create an account. Results for guest users are only displayed once.
+                    <?php echo esc_html__( 'To save your results and track your progress over time, please log in or create an account. Results for guest users are only displayed once.', 'ennulifeassessments' ); ?>
                 </p>
                 <div class="empty-state-actions">
-                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary">Login or Create Account</a>
+                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary"><?php echo esc_html__( 'Login or Create Account', 'ennulifeassessments' ); ?></a>
                     <?php if ($assessment_type): ?>
-                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary">Take Assessment Again</a>
+                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary"><?php echo esc_html__( 'Take Assessment Again', 'ennulifeassessments' ); ?></a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -1592,7 +1587,7 @@ final class ENNU_Assessment_Shortcodes {
     public function render_user_dashboard( $atts = array() ) {
         $user_id = get_current_user_id();
         if ( !$user_id ) {
-            return '<p>You must be logged in to view your dashboard.</p>';
+            return '<p>' . esc_html__( 'You must be logged in to view your dashboard.', 'ennulifeassessments' ) . '</p>';
         }
         ob_start();
         include ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php';
@@ -1602,7 +1597,7 @@ final class ENNU_Assessment_Shortcodes {
     // New method at end of class
     public function render_detailed_results_page($atts, $content = '', $tag = '') {
         if (!is_user_logged_in()) {
-            return '<p>You must be logged in to view this page.</p>';
+            return '<p>' . esc_html__( 'You must be logged in to view this page.', 'ennulifeassessments' ) . '</p>';
         }
         $assessment_type = str_replace(['ennu-', '-assessment-details'], '', $tag);
         
