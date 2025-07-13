@@ -51,7 +51,7 @@ final class ENNU_Assessment_Shortcodes {
     public function __construct() {
         $this->init_assessments();
         $this->load_all_questions(); // Load questions from the new config file
-        $this->register_shortcodes();
+        
         $this->setup_hooks();
     }
     
@@ -65,6 +65,7 @@ final class ENNU_Assessment_Shortcodes {
                 'description' => __( 'Let\'s get to know you and your health goals.', 'ennulifeassessments' ),
                 'questions' => 6,
                 'theme_color' => '#5A67D8', // Indigo color
+                'icon_set' => 'hormone'
             ),
             'hair_assessment' => array(
                 'title' => __( 'Hair Assessment', 'ennulifeassessments' ),
@@ -152,7 +153,7 @@ final class ENNU_Assessment_Shortcodes {
     /**
      * Register all assessment shortcodes
      */
-    private function register_shortcodes() {
+    public function register_shortcodes() {
         // Register only the 5 core PRD-compliant assessment shortcodes
         $core_assessments = array(
             'welcome_assessment' => 'ennu-welcome-assessment',
@@ -214,10 +215,7 @@ final class ENNU_Assessment_Shortcodes {
      * Setup WordPress hooks for AJAX and asset enqueuing.
      */
     private function setup_hooks() {
-        add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
-        add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
-        add_action( 'wp_enqueue_scripts', array($this, 'enqueue_chart_scripts' ) );
-        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_results_styles' ) );
+        // All hooks are now registered in the main plugin file for centralized control.
     }
     
     /**
@@ -437,39 +435,36 @@ final class ENNU_Assessment_Shortcodes {
     }
     
     /**
-     * Render individual question
-     * 
-     * @param string $assessment_type Assessment type
-     * @param int $question_number Question number
-     * @param array $question Question data
-     * @param array $config Assessment configuration
-     * @return string
+     * Render individual question by dispatching to a dedicated method based on type.
      */
     private function render_question( $assessment_type, $question_number, $question, $config, $current_user_data = array() ) {
-        // Safeguard: ensure we always have a user object and a pre-selected value for global fields
-        $user = wp_get_current_user();
-        $user_id = ( $user && isset( $user->ID ) ) ? intval( $user->ID ) : 0;
-
-        // Determine pre-selected value for questions tied to a global key
-        $pre_selected_value = array();
-        if ( isset( $question['global_key'] ) && $user_id ) {
-            $pre_selected_value = get_user_meta( $user_id, 'ennu_global_' . $question['global_key'], true );
-        }
-
+        $user_id = get_current_user_id();
+        $pre_selected_value = isset( $question['global_key'] ) && $user_id ? get_user_meta( $user_id, 'ennu_global_' . $question['global_key'], true ) : array();
         $active_class = $question_number === 1 ? 'active' : '';
+        $simple_question_id = str_replace('_assessment', '', $assessment_type) . '_q' . $question_number;
         
-        // Generate simple IDs based on assessment type (e.g., hair_q1, skin_q2, etc.)
-        $assessment_prefix = str_replace('_assessment', '', $assessment_type);
-        $simple_question_id = $assessment_prefix . '_q' . $question_number;
+        // Dispatch to the correct rendering method based on question type
+        switch ($question['type']) {
+            case 'dob_dropdowns':
+                $question_content = $this->_render_dob_dropdowns_question($question, $simple_question_id, $current_user_data);
+                break;
+            case 'multiselect':
+                $question_content = $this->_render_multiselect_question($question, $simple_question_id, $pre_selected_value);
+                break;
+            case 'height_weight':
+                $question_content = $this->_render_height_weight_question($question, $simple_question_id);
+                break;
+            case 'contact_info':
+                $question_content = $this->_render_contact_info_question($question, $simple_question_id, $current_user_data);
+                break;
+            default: // Default to 'radio'
+                $question_content = $this->_render_radio_question($question, $simple_question_id, $pre_selected_value);
+                break;
+        }
         
         ob_start();
         ?>
-        <div class="question-slide <?php echo esc_attr( $active_class ); ?>" 
-             data-step="<?php echo esc_attr( $question_number ); ?>" 
-             data-question="<?php echo esc_attr( $question_number ); ?>"
-             data-question-key="<?php echo esc_attr( $simple_question_id ); ?>"
-             data-question-type="<?php echo esc_attr( $question['type'] ); ?>">
-            
+        <div class="question-slide <?php echo esc_attr( $active_class ); ?>" data-step="<?php echo esc_attr( $question_number ); ?>" data-question-key="<?php echo esc_attr( $simple_question_id ); ?>" data-question-type="<?php echo esc_attr( $question['type'] ); ?>">
             <div class="question-header">
                 <h2 class="question-title"><?php echo esc_html( $question['title'] ); ?></h2>
                 <?php if ( ! empty( $question['description'] ) ) : ?>
@@ -477,261 +472,174 @@ final class ENNU_Assessment_Shortcodes {
                 <?php endif; ?>
             </div>
             
-            <?php if ( isset( $question['type'] ) && $question['type'] === 'dob_dropdowns' ) : ?>
-                <!-- DOB Dropdowns -->
-                <?php
-                $dob = $current_user_data['dob_combined'] ?? '';
-                $dob_parts = !empty($dob) ? explode('-', $dob) : array('', '', '');
-                $year_val = $dob_parts[0];
-                $month_val = $dob_parts[1];
-                $day_val = $dob_parts[2];
-                ?>
-                <div class="dob-container">
-                    <?php if ( ! empty( $question['show_age'] ) ) : ?>
-                        <div class="dob-age-display">
-                            Current Age: <span class="calculated-age">--</span> years old
-                        </div>
-                    <?php endif; ?>
-                
-                    <div class="dob-dropdowns">
-                        <div class="dob-field">
-                        <label for="<?php echo esc_attr( $simple_question_id ); ?>_month" style="display: block; margin-bottom: 5px; font-weight: 500;">Month</label>
-                        <select id="<?php echo esc_attr( $simple_question_id ); ?>_month" 
-                                name="<?php echo esc_attr( $simple_question_id ); ?>_month" 
-                                class="dob-dropdown dob-month" 
-                                <?php echo ! empty( $question['required'] ) ? 'required' : ''; ?>>
-                            <option value="">Select Month</option>
-                            <option value="01" <?php selected($month_val, '01'); ?>>January</option>
-                            <option value="02" <?php selected($month_val, '02'); ?>>February</option>
-                            <option value="03" <?php selected($month_val, '03'); ?>>March</option>
-                            <option value="04" <?php selected($month_val, '04'); ?>>April</option>
-                            <option value="05" <?php selected($month_val, '05'); ?>>May</option>
-                            <option value="06" <?php selected($month_val, '06'); ?>>June</option>
-                            <option value="07" <?php selected($month_val, '07'); ?>>July</option>
-                            <option value="08" <?php selected($month_val, '08'); ?>>August</option>
-                            <option value="09" <?php selected($month_val, '09'); ?>>September</option>
-                            <option value="10" <?php selected($month_val, '10'); ?>>October</option>
-                            <option value="11" <?php selected($month_val, '11'); ?>>November</option>
-                            <option value="12" <?php selected($month_val, '12'); ?>>December</option>
-                        </select>
-                    </div>
-                    
-                    <div class="dob-field">
-                        <label for="<?php echo esc_attr( $simple_question_id ); ?>_day" style="display: block; margin-bottom: 5px; font-weight: 500;">Day</label>
-                        <select id="<?php echo esc_attr( $simple_question_id ); ?>_day" 
-                                name="<?php echo esc_attr( $simple_question_id ); ?>_day" 
-                                class="dob-dropdown dob-day" 
-                                <?php echo ! empty( $question['required'] ) ? 'required' : ''; ?>>
-                            <option value="">Day</option>
-                            <?php for ( $day = 1; $day <= 31; $day++ ) : ?>
-                                <?php $day_str = sprintf( '%02d', $day ); ?>
-                                <option value="<?php echo $day_str; ?>" <?php selected($day_val, $day_str); ?>><?php echo $day; ?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="dob-field">
-                        <label for="<?php echo esc_attr( $simple_question_id ); ?>_year" style="display: block; margin-bottom: 5px; font-weight: 500;">Year</label>
-                        <select id="<?php echo esc_attr( $simple_question_id ); ?>_year" 
-                                name="<?php echo esc_attr( $simple_question_id ); ?>_year" 
-                                class="dob-dropdown dob-year" 
-                                <?php echo ! empty( $question['required'] ) ? 'required' : ''; ?>>
-                            <option value="">Year</option>
-                            <?php 
-                            $current_year = date( 'Y' );
-                            $start_year = $current_year - 100; // 100 years ago
-                            $end_year = $current_year - 13;   // Minimum age 13
-                            for ( $year = $end_year; $year >= $start_year; $year-- ) : 
-                            ?>
-                                <option value="<?php echo $year; ?>" <?php selected($year_val, $year); ?>><?php echo $year; ?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Hidden field to store the complete DOB with simple ID -->
-                <input type="hidden" 
-                       name="<?php echo esc_attr( $simple_question_id ); ?>" 
-                       class="dob-combined" 
-                       id="<?php echo esc_attr( $simple_question_id ); ?>" 
-                       value="<?php echo esc_attr($dob); ?>"
-                       data-question="<?php echo esc_attr( $question_number ); ?>">
-                
-                <!-- Hidden field to store calculated age -->
-                <input type="hidden" 
-                       name="user_age" 
-                       class="calculated-age-field" 
-                       id="user_age" 
-                       data-question="<?php echo esc_attr( $question_number ); ?>">
-                </div>
-                       
-            <?php elseif ( isset( $question['type'] ) && $question['type'] === 'multiselect' ) : ?>
-                <!-- Multiselect Checkboxes -->
-                <div class="answer-options multiselect-container">
-                    <?php if ( ! empty( $question['options'] ) ) : ?>
-                        <?php foreach ( $question['options'] as $option ) : ?>
-                            <div class="answer-option">
-                                <input type="checkbox" 
-                                       id="<?php echo esc_attr( $simple_question_id . "_" . $option['value'] ); ?>" 
-                                       name="<?php echo esc_attr( $simple_question_id ); ?>[]" 
-                                       value="<?php echo esc_attr( $option['value'] ); ?>"
-                                       class="ennu-checkbox-input"
-                                       <?php if (is_array($pre_selected_value) && in_array($option['value'], $pre_selected_value)) echo 'checked'; ?>>
-                                <label for="<?php echo esc_attr( $simple_question_id . "_" . $option['value'] ); ?>">
-                                    <?php echo esc_html( $option['label'] ); ?>
-                                </label>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-                       
-            <?php elseif ( isset( $question['type'] ) && $question['type'] === 'height_weight' ) : ?>
-                <div class="height-weight-container">
-                    <?php foreach ( $question['fields'] as $key => $field ) : ?>
-                        <div class="hw-field">
-                            <label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($field['label']); ?></label>
-                            <input type="<?php echo esc_attr($field['type']); ?>" 
-                                   id="<?php echo esc_attr($key); ?>" 
-                                   name="<?php echo esc_attr($key); ?>"
-                                   min="<?php echo esc_attr($field['min']); ?>"
-                                   max="<?php echo esc_attr($field['max']); ?>"
-                                   class="ennu-hw-input"
-                                   required>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                       
-            <?php elseif ( isset( $question['type'] ) && $question['type'] === 'contact_info' ) : ?>
-                <!-- Contact Information Form -->
-                <?php
-                // Get current user data for auto-population
-                $user = wp_get_current_user();
-                $user_logged_in = $user->ID > 0;
-                
-                // Pre-populate values for logged-in users
-                $first_name = $user_logged_in ? $user->first_name : '';
-                $last_name = $user_logged_in ? $user->last_name : '';
-                $email = $user_logged_in ? $user->user_email : '';
-                $billing_phone = $user_logged_in ? get_user_meta($user->ID, 'billing_phone', true) : '';
-                
-                if ( $user_logged_in ) {
-                    error_log( 'ENNU: Auto-populating contact fields for user ' . get_current_user_id() . ': ' . $first_name . ' ' . $last_name . ' (' . $email . ') - Phone: ' . $billing_phone );
-                }
-                ?>
-                <div class="contact-fields">
-                    <?php if ( $user_logged_in && ($first_name || $email) ) : ?>
-                        <div class="user-info-notice" style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border-radius: 8px; border-left: 4px solid #28a745; font-size: 0.95em;">
-                            <p style="margin: 0; color: #155724;">
-                                <strong>✓ Welcome back!</strong> We've pre-filled your information. Please review and update if needed.
-                            </p>
-                        </div>
-                    <?php endif; ?>
-                    <?php foreach ( $question['fields'] as $field ) : ?>
-                        <?php
-                        // Get the pre-populated value for this field
-                        $field_value = '';
-                        $input_class = 'ennu-contact-input'; // Define the class here
-                        if ( $user_logged_in ) {
-                            switch ( $field['name'] ) {
-                                case 'first_name':
-                                    $field_value = $first_name;
-                                    break;
-                                case 'last_name':
-                                    $field_value = $last_name;
-                                    break;
-                                case 'email':
-                                    $field_value = $email;
-                                    break;
-                                case 'billing_phone':
-                                    $field_value = $billing_phone;
-                                    break;
-                                case 'height_ft':
-                                    $field_value = get_user_meta($user->ID, 'ennu_global_height_ft', true);
-                                    break;
-                                case 'height_in':
-                                    $field_value = get_user_meta($user->ID, 'ennu_global_height_in', true);
-                                    break;
-                                case 'weight_lbs':
-                                    $field_value = get_user_meta($user->ID, 'ennu_global_weight_lbs', true);
-                                    break;
-                            }
-                        }
-                        ?>
-                        <div class="contact-field">
-                            <label for="<?php echo esc_attr( $field['name'] ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
-                            <input type="<?php echo esc_attr( $field['type'] ); ?>" 
-                                   id="<?php echo esc_attr( $field['name'] ); ?>" 
-                                   name="<?php echo esc_attr( $field['name'] ); ?>"
-                                   value="<?php echo esc_attr( $field_value ); ?>"
-                                   placeholder="<?php echo esc_attr( $field['label'] ); ?>"
-                                   class="<?php echo esc_attr( $input_class ); ?> form-control"
-                                   style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px;"
-                                   <?php echo ! empty( $field['required'] ) ? 'required' : ''; ?>
-                                   <?php if ( $user_logged_in && ! empty( $field_value ) ) : ?>
-                                       data-auto-populated="true"
-                                   <?php endif; ?>>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                       
-            <?php else : ?>
-               <?php
-                $columns = 0;
-                if ( isset( $question["options"] ) && is_array( $question["options"] ) ) {
-                    $columns = count( $question["options"] );
-                }
-                $is_global_field = isset($question['global_key']);
-                $pre_selected_value = null;
-                if ($is_global_field) {
-                    $meta_key = 'ennu_global_' . $question['global_key'];
-                    $pre_selected_value = get_user_meta($user->ID, $meta_key, true);
-                }
-                ?>
-                <div class="answer-options columns-<?php echo esc_attr( $columns ); ?>" data-columns="<?php echo esc_attr( $columns ); ?>">
-                    <?php if ( isset( $question["options"] ) && is_array( $question["options"] ) ) : foreach ( $question["options"] as $option ) : ?>
-                        <div class="answer-option">
-                            <input type="radio" 
-                                   id="<?php echo esc_attr( $simple_question_id . "_" . $option["value"] ); ?>" 
-                                   name="<?php echo esc_attr( $simple_question_id ); ?>" 
-                                   value="<?php echo esc_attr( $option["value"] ); ?>" 
-                                   class="ennu-radio-input"
-                                   <?php checked( $pre_selected_value, $option['value'] ); ?>
-                                   data-value="<?php echo esc_attr( $option["value"] ); ?>" />
-                            <label for="<?php echo esc_attr( $simple_question_id . "_" . $option["value"] ); ?>" data-value="<?php echo esc_attr( $option["value"] ); ?>">
-                                <?php echo esc_html( $option["label"] ); ?>
-                            </label>
-                        </div>
-                    <?php endforeach; endif; ?>
-                </div>
-            <?php endif; ?>
+            <?php echo $question_content; // Render the content from the helper method ?>
             
-            <!-- Navigation Buttons for each question -->
             <div class="question-navigation">
                 <?php if ( $question_number > 1 ) : ?>
                     <button type="button" class="nav-button prev">← Previous</button>
                 <?php endif; ?>
                 
-                <?php 
-                // Check if this is the last question
+                <?php
                 $total_questions = count($this->get_assessment_questions($assessment_type));
                 $is_last_question = $question_number >= $total_questions;
                 ?>
                 
                 <button type="button" class="nav-button next <?php echo esc_attr( $is_last_question ? 'submit' : '' ); ?>">
-                    <?php 
-                    if ( $is_last_question && isset( $question['type'] ) && $question['type'] === 'contact_info' && ! empty( $question['button_text'] ) ) {
-                        echo esc_html( $question['button_text'] );
-                    } elseif ( $is_last_question ) {
-                        echo esc_html__( 'Create My Account', 'ennulifeassessments' );
-                    } else {
-                        echo esc_html__( 'Next →', 'ennulifeassessments' );
-                    }
-                    ?>
+                    <?php echo $is_last_question ? esc_html__( 'Submit & See Results', 'ennulifeassessments' ) : esc_html__( 'Next →', 'ennulifeassessments' ); ?>
                 </button>
             </div>
         </div>
         <?php
         
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the HTML for a 'Date of Birth' question.
+     */
+    private function _render_dob_dropdowns_question($question, $simple_question_id, $current_user_data) {
+                $dob = $current_user_data['dob_combined'] ?? '';
+                $dob_parts = !empty($dob) ? explode('-', $dob) : array('', '', '');
+                $year_val = $dob_parts[0];
+                $month_val = $dob_parts[1];
+                $day_val = $dob_parts[2];
+        ob_start();
+        ?>
+        <div class="question-content">
+                    <div class="dob-dropdowns">
+                <div class="dob-month">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_month">Month:</label>
+                    <select id="<?php echo esc_attr( $simple_question_id ); ?>_month" name="dob_month" required>
+                        <?php for ( $i = 1; $i <= 12; $i++ ) : ?>
+                            <option value="<?php echo esc_attr( $i ); ?>" <?php selected( $month_val, $i ); ?>>
+                                <?php echo esc_html( $i ); ?>
+                            </option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                <div class="dob-day">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_day">Day:</label>
+                    <select id="<?php echo esc_attr( $simple_question_id ); ?>_day" name="dob_day" required>
+                        <?php for ( $i = 1; $i <= 31; $i++ ) : ?>
+                            <option value="<?php echo esc_attr( $i ); ?>" <?php selected( $day_val, $i ); ?>>
+                                <?php echo esc_html( $i ); ?>
+                            </option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                <div class="dob-year">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_year">Year:</label>
+                    <select id="<?php echo esc_attr( $simple_question_id ); ?>_year" name="dob_year" required>
+                        <?php for ( $i = 2023; $i >= 1900; $i-- ) : ?>
+                            <option value="<?php echo esc_attr( $i ); ?>" <?php selected( $year_val, $i ); ?>>
+                                <?php echo esc_html( $i ); ?>
+                            </option>
+                        <?php endfor; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="calculated-age-display" style="min-height: 20px; margin-top: 10px;"></div>
+                </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the HTML for a 'multiselect' question.
+     */
+    private function _render_multiselect_question($question, $simple_question_id, $pre_selected_value) {
+        ob_start();
+        ?>
+        <div class="question-content">
+            <div class="multiselect-container">
+                <label for="<?php echo esc_attr( $simple_question_id ); ?>_options"><?php echo esc_html( $question['title'] ); ?></label>
+                <select id="<?php echo esc_attr( $simple_question_id ); ?>_options" name="multiselect_options[]" multiple size="5" required>
+                    <?php foreach ( $question['options'] as $option_value => $option_label ) : ?>
+                        <option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( in_array( $option_value, $pre_selected_value ) ); ?>>
+                            <?php echo esc_html( $option_label ); ?>
+                        </option>
+                        <?php endforeach; ?>
+                </select>
+                </div>
+                        </div>
+                <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the HTML for a 'height_weight' question.
+     */
+    private function _render_height_weight_question($question, $simple_question_id) {
+        ob_start();
+        ?>
+        <div class="question-content">
+            <div class="height-weight-container">
+                <div class="height-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_height_ft">Height (ft):</label>
+                    <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_height_ft" name="height_ft" min="0" step="0.01" required>
+                        </div>
+                <div class="height-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_height_in">Height (in):</label>
+                    <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_height_in" name="height_in" min="0" step="0.01" required>
+                        </div>
+                <div class="weight-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_weight_lbs">Weight (lbs):</label>
+                    <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_weight_lbs" name="weight_lbs" min="0" step="0.1" required>
+                </div>
+            </div>
+        </div>
+               <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the HTML for a 'contact_info' question.
+     */
+    private function _render_contact_info_question($question, $simple_question_id, $current_user_data) {
+        ob_start();
+        ?>
+        <div class="question-content">
+            <div class="contact-info-container">
+                <div class="first-name-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_first_name">First Name:</label>
+                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_first_name" name="first_name" required>
+                        </div>
+                <div class="last-name-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_last_name">Last Name:</label>
+                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_last_name" name="last_name" required>
+                </div>
+                <div class="email-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_email">Email:</label>
+                    <input type="email" id="<?php echo esc_attr( $simple_question_id ); ?>_email" name="email" required>
+                </div>
+                <div class="phone-input">
+                    <label for="<?php echo esc_attr( $simple_question_id ); ?>_phone">Phone:</label>
+                    <input type="tel" id="<?php echo esc_attr( $simple_question_id ); ?>_phone" name="billing_phone">
+                </div>
+            </div>
+        </div>
+                <?php 
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders the HTML for a 'radio' button question.
+     */
+    private function _render_radio_question($question, $simple_question_id, $pre_selected_value) {
+        ob_start();
+        ?>
+        <div class="question-content">
+            <div class="radio-options-container">
+                <label><?php echo esc_html( $question['title'] ); ?></label>
+                <?php foreach ( $question['options'] as $option_value => $option_label ) : ?>
+                    <div class="radio-option">
+                        <input type="radio" id="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>" name="<?php echo esc_attr( $simple_question_id ); ?>" value="<?php echo esc_attr( $option_value ); ?>" <?php checked( $pre_selected_value, $option_value ); ?>>
+                        <label for="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>"><?php echo esc_html( $option_label ); ?></label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
         return ob_get_clean();
     }
     
@@ -1162,60 +1070,31 @@ final class ENNU_Assessment_Shortcodes {
      */
     public function enqueue_results_styles() {
         global $post;
-        $results_shortcodes = array(
+        if ( !is_a( $post, 'WP_Post' ) || empty($post->post_content) ) {
+            return;
+        }
+
+        $shortcodes_to_check = array(
             'ennu-hair-results', 
             'ennu-ed-results', 
             'ennu-weight-loss-results', 
             'ennu-health-results', 
-            'ennu-skin-results'
-        );
-
-        $found = false;
-        if ( is_a( $post, 'WP_Post' ) ) {
-            foreach ($results_shortcodes as $shortcode) {
-                if ( has_shortcode( $post->post_content, $shortcode ) ) {
-                    $found = true;
-                    break;
-                }
-            }
-        }
-
-        if ($found) {
-            wp_enqueue_style(
-                'ennu-results-page-style',
-                ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-results-page.css',
-                array(),
-                ENNU_LIFE_VERSION
-            );
-            wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.0', true );
-        }
-
-        // In enqueue_results_styles(), add check for details shortcodes to load styles
-        // if ( has_shortcode($post->post_content, 'ennu-hair-assessment-details') || ... )
-        // enqueue assessment-details-page.css and chart.js
-
-        // In enqueue_results_styles()
-        global $post;
-        $is_details_page = false;
-        $details_shortcodes = [
+            'ennu-skin-results',
             'ennu-hair-assessment-details',
             'ennu-ed-treatment-assessment-details',
             'ennu-weight-loss-assessment-details',
             'ennu-health-assessment-details',
             'ennu-skin-assessment-details',
-        ];
-        if (is_a($post, 'WP_Post')) {
-            foreach ($details_shortcodes as $shortcode) {
-                if (has_shortcode($post->post_content, $shortcode)) {
-                    $is_details_page = true;
-                    break;
-                }
-            }
-        }
+        );
 
-        if ($is_details_page) {
+        foreach ($shortcodes_to_check as $shortcode) {
+            if ( has_shortcode( $post->post_content, $shortcode ) ) {
+                wp_enqueue_style('ennu-results-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-results-page.css', array(), ENNU_LIFE_VERSION);
             wp_enqueue_style('ennu-details-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-details-page.css', [], ENNU_LIFE_VERSION);
             wp_enqueue_script('chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', [], '4.4.0', true);
+                // Break after finding the first match
+                return;
+            }
         }
     }
     
@@ -1647,4 +1526,4 @@ final class ENNU_Assessment_Shortcodes {
 }
 
 // Initialize the class
-new ENNU_Assessment_Shortcodes();
+// new ENNU_Assessment_Shortcodes();

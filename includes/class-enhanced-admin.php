@@ -35,11 +35,8 @@ class ENNU_Enhanced_Admin {
     private $performance_log = array();
     
     public function __construct() {
-        // Original WordPress hooks (preserved)
-        add_action('show_user_profile', array($this, 'show_user_assessment_fields'));
-        add_action('edit_user_profile', array($this, 'show_user_assessment_fields'));
-        add_action('personal_options_update', array($this, 'save_user_assessment_fields'));
-        add_action('edit_user_profile_update', array($this, 'save_user_assessment_fields'));
+        // All WordPress hooks are now managed centrally in the main plugin file
+        // to ensure correct loading sequence and prevent duplicate registrations.
         
         // Enhanced AJAX handlers with bulletproof security
         add_action('wp_ajax_ennu_recalculate_scores', array($this, 'ajax_recalculate_scores'));

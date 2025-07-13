@@ -1,0 +1,26 @@
+{
+  "name": "ennulifeassessments",
+  "version": "1.0.0",
+  "description": "**Version:** 27.0.0 **Author:** ENNU Life Development Team **License:** Proprietary",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ennulife/ennulifeassessments.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ennulife/ennulifeassessments/issues"
+  },
+  "homepage": "https://github.com/ennulife/ennulifeassessments#readme",
+  "devDependencies": {
+    "cypress": "^14.5.1"
+  }
+}

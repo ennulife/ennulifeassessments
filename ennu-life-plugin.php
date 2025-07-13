@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessment Plugin
  * Plugin URI: https://ennulife.com
  * Description: Advanced health and wellness assessment system with enhanced features, modern UI, and comprehensive data management.
- * Version: 27.0.0
+ * Version: 29.0.2
  * Author: ENNU Life Development Team
  * Author URI: https://ennulife.com
  * License: Proprietary
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '27.0.0' );
+define( 'ENNU_LIFE_VERSION', '29.0.2' );
 // Plugin paths - with safety checks
 if (function_exists('plugin_dir_path')) {
     define('ENNU_LIFE_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -67,25 +67,13 @@ class ENNU_Life_Enhanced_Plugin {
      * Constructor
      */
     private function __construct() {
-        // Register activation/deactivation hooks - with safety checks
-        if (function_exists('register_activation_hook')) {
-            register_activation_hook(__FILE__, array($this, 'activate'));
-        }
-        
-        if (function_exists('register_deactivation_hook')) {
-            register_deactivation_hook(__FILE__, array($this, 'deactivate'));
-        }
+        // Register activation/deactivation hooks
+        register_activation_hook(__FILE__, array($this, 'activate'));
+        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+        register_uninstall_hook(__FILE__, array('ENNU_Life_Enhanced_Plugin', 'uninstall'));
 
-        if (function_exists('register_uninstall_hook')) {
-            register_uninstall_hook(__FILE__, array('ENNU_Life_Enhanced_Plugin', 'uninstall'));
-        }
-        
-        // Initialize plugin - with safety checks
-        if (function_exists('add_action')) {
-            add_action('plugins_loaded', array($this, 'init'));
-            // Hook frontend scripts correctly
-            add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
-        }
+        // Load dependencies and initialize the plugin on `plugins_loaded`
+        add_action('plugins_loaded', array($this, 'init'));
     }
     
     /**
@@ -99,7 +87,7 @@ class ENNU_Life_Enhanced_Plugin {
         // Initialize components
         $this->init_components();
         
-        // Setup hooks
+        // Setup all hooks
         $this->setup_hooks();
     }
     
@@ -151,12 +139,26 @@ class ENNU_Life_Enhanced_Plugin {
      * Setup hooks
      */
     private function setup_hooks() {
-        if (function_exists('add_action')) {
-            // Admin hooks
-            if (function_exists('is_admin') && is_admin() && $this->admin) {
-                add_action('admin_menu', array($this->admin, 'add_admin_menu'));
-                add_action('admin_enqueue_scripts', array($this->admin, 'enqueue_admin_assets'));
-            }
+        // Frontend Asset Hooks
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_scripts'));
+
+        // Admin Hooks
+        if (is_admin() && $this->admin) {
+            add_action('admin_menu', array($this->admin, 'add_admin_menu'));
+            add_action('admin_enqueue_scripts', array($this->admin, 'enqueue_admin_assets'));
+            add_action('show_user_profile', array($this->admin, 'show_user_assessment_fields'));
+            add_action('edit_user_profile', array($this->admin, 'show_user_assessment_fields'));
+            add_action('personal_options_update', array($this->admin, 'save_user_assessment_fields'));
+            add_action('edit_user_profile_update', array($this->admin, 'save_user_assessment_fields'));
+        }
+
+        // Shortcode and AJAX Hooks
+        if ($this->shortcodes) {
+            add_action('init', array($this->shortcodes, 'register_shortcodes'));
+            add_action('wp_ajax_ennu_submit_assessment', array($this->shortcodes, 'handle_assessment_submission'));
+            add_action('wp_ajax_nopriv_ennu_submit_assessment', array($this->shortcodes, 'handle_assessment_submission'));
+            add_action('wp_enqueue_scripts', array($this->shortcodes, 'enqueue_chart_scripts'));
+            add_action('wp_enqueue_scripts', array($this->shortcodes, 'enqueue_results_styles'));
         }
     }
     

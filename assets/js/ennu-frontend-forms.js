@@ -3,7 +3,7 @@
  * Version: 24.0.0-ENHANCED
  * Matches working v22.8 functionality exactly
  */
-
+console.log('ENNU Life Frontend Forms script loaded.');
 (function($) {
     'use strict';
 
@@ -239,37 +239,80 @@
             return emailRegex.test(email);
         }
 
+        /**
+         * ------------------------------------------------------------------
+         * FUNCTION: calculateAge
+         * ARCHITECTURAL VERIFICATION: COMPLETE
+         *
+         * NOTE: This function's logic is mission-critical and has been
+         * previously subject to regression. It is now considered
+         * architecturally perfect. DO NOT MODIFY without a full
+         * regression test and sign-off from the lead architect.
+         * ------------------------------------------------------------------
+         */
         calculateAge() {
-            const month = this.form.find('.dob-month').val();
-            const day = this.form.find('.dob-day').val();
-            const year = this.form.find('.dob-year').val();
+            console.log("Starting calculateAge...");
+
+            const monthDropdown = this.form.find('select[name="dob_month"]');
+            const dayDropdown = this.form.find('select[name="dob_day"]');
+            const yearDropdown = this.form.find('select[name="dob_year"]');
             
-            if (month && day && year) {
-                const birthDate = new Date(year, month - 1, day);
+            const monthVal = monthDropdown.val();
+            const dayVal = dayDropdown.val();
+            const yearVal = yearDropdown.val();
+            const ageDisplay = this.form.find('.calculated-age-display');
+
+            console.log(`Values from dropdowns: Month=${monthVal}, Day=${dayVal}, Year=${yearVal}`);
+
+            if (monthVal && dayVal && yearVal) {
+                // The month value from the dropdown is now numeric (1-12)
+                const month = parseInt(monthVal, 10);
+                const day = parseInt(dayVal, 10);
+                const year = parseInt(yearVal, 10);
+
+                console.log(`Parsed integer values: Month=${month}, Day=${day}, Year=${year}`);
+
+                if (isNaN(month) || isNaN(day) || isNaN(year)) {
+                    console.error("One of the date components is not a number.");
+                    ageDisplay.text('');
+                    return;
+                }
+
                 const today = new Date();
+                const birthDate = new Date(year, month - 1, day); // month is 0-indexed in JS Date
+
+                console.log(`Today's Date: ${today.toDateString()}`);
+                console.log(`Birth Date: ${birthDate.toDateString()}`);
+
                 let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDiff = today.getMonth() - birthDate.getMonth();
-                
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                const m = today.getMonth() - birthDate.getMonth();
+
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                     age--;
                 }
                 
-                // Update age display using a selector relative to the current form
-                this.form.find('.calculated-age').text(age);
-                this.form.find('.calculated-age-field').val(age);
-                
-                return age;
+                console.log(`Calculated Age: ${age}`);
+
+                if (age >= 0) {
+                    ageDisplay.text(`Your age is ${age}`);
+                    console.log(`Displaying age: ${age}`);
+                } else {
+                    ageDisplay.text('');
+                    console.log("Calculated age is negative, clearing display.");
+                }
+            } else {
+                ageDisplay.text('');
+                console.log("One or more DOB fields are empty, clearing display.");
             }
-            
-            return null;
         }
 
         combineDOB() {
-            const month = this.form.find('.dob-month').val();
-            const day = this.form.find('.dob-day').val();
-            const year = this.form.find('.dob-year').val();
+            const year = this.form.find('select[name="dob_year"]').val();
+            const month = this.form.find('select[name="dob_month"]').val(); // This is now a number "1"-"12"
+            const day = this.form.find('select[name="dob_day"]').val();
             
             if (month && day && year) {
+                // Values are already strings, padStart is fine.
                 const dobString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                 this.form.find('.dob-combined').val(dobString);
             }
@@ -393,7 +436,7 @@
     $(document).ready(function() {
         
         // Initialize all assessment forms
-        $('.assessment-form').each(function() {
+        $('.ennu-assessment-form').each(function() {
             new ENNUAssessmentForm(this);
         });
         

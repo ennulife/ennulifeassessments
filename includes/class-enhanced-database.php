@@ -210,10 +210,14 @@ class ENNU_Life_Enhanced_Database {
             $assessment_data = array();
             $questions = include(ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php');
 
+            // PRIME THE CACHE: Get all metadata for the user in a single query.
+            get_user_meta($user_id);
+
             if (isset($questions[$assessment_type])) {
                 foreach ($questions[$assessment_type] as $question) {
                     if (isset($question['id'])) {
                         $meta_key = 'ennu_' . $assessment_type . '_' . $question['id'];
+                        // This call will now be served from the cache, not the database.
                         $value = get_user_meta($user_id, $meta_key, true);
                         if ($value) {
                             $assessment_data[$question['id']] = $value;
@@ -520,37 +524,37 @@ class ENNU_Life_Enhanced_Database {
     }
     
     /**
-     * Get performance statistics
+     * Get user assessment history
+     *
+     * @param int $user_id The ID of the user.
+     * @return array An array of assessment history data.
      */
-    public function get_performance_stats() {
-        if (empty($this->performance_log)) {
-            return array();
-        }
-        
-        $total_time = 0;
-        $operations = array();
-        
-        foreach ($this->performance_log as $log) {
-            $total_time += $log['execution_time'];
-            
-            if (!isset($operations[$log['operation']])) {
-                $operations[$log['operation']] = array(
-                    'count' => 0,
-                    'total_time' => 0,
-                    'avg_time' => 0
+    public function get_user_assessment_history( $user_id ) {
+        $assessments = array(
+            'hair_assessment',
+            'weight_loss_assessment',
+            'health_assessment',
+            'ed_treatment_assessment',
+            'skin_assessment',
+        );
+        $history = array();
+
+        // PRIME THE CACHE: This single call loads all of the user's metadata into the WordPress cache.
+        get_user_meta( $user_id );
+
+        foreach ( $assessments as $assessment_type ) {
+            // All subsequent get_user_meta calls will be served from the cache, not the database.
+            $score = get_user_meta( $user_id, $assessment_type . '_calculated_score', true );
+            if ( $score ) {
+                $history[ $assessment_type ] = array(
+                    'score'          => $score,
+                    'interpretation' => get_user_meta( $user_id, $assessment_type . '_score_interpretation', true ),
+                    'completed_at'   => get_user_meta( $user_id, $assessment_type . '_completed_at', true ),
+                    'categories'     => get_user_meta( $user_id, $assessment_type . '_category_scores', true ),
                 );
             }
-            
-            $operations[$log['operation']]['count']++;
-            $operations[$log['operation']]['total_time'] += $log['execution_time'];
-            $operations[$log['operation']]['avg_time'] = $operations[$log['operation']]['total_time'] / $operations[$log['operation']]['count'];
         }
-        
-        return array(
-            'total_operations' => count($this->performance_log),
-            'total_execution_time' => $total_time,
-            'operations' => $operations
-        );
+        return $history;
     }
 }
 
