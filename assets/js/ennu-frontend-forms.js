@@ -37,6 +37,9 @@
             
             // Show first question
             this.showQuestion(1);
+
+            // NEW: Initial check to calculate age if DOB is pre-populated
+            this.calculateAge();
             
             // Bind events
             this.bindEvents();
@@ -109,9 +112,11 @@
             this.updateProgress();
             
             // Only scroll on question transitions, not initial load
+            /*
             if (questionNumber > 1) {
                 this.form[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+            */
         }
 
         nextQuestion() {
@@ -233,7 +238,7 @@
                     age--;
                 }
                 
-                // Update age display
+                // Update age display using a selector relative to the current form
                 this.form.find('.calculated-age').text(age);
                 this.form.find('.calculated-age-field').val(age);
                 
@@ -257,15 +262,16 @@
         updateProgress() {
             // Update progress bar
             const progressPercent = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
-            this.form.find('.ennu-progress-fill').css('width', progressPercent + '%');
+            this.form.find('.progress-fill').css('width', progressPercent + '%');
             
             // Update progress text
             this.form.find('.current-question').text(this.currentStep);
             this.form.find('.total-questions').text(this.totalSteps);
             
             // Update page elements if they exist
-            $('#currentStep').text(this.currentStep);
-            $('#totalSteps').text(this.totalSteps);
+            this.form.closest('.ennu-assessment').find('.current-question').text(this.currentStep);
+            this.form.closest('.ennu-assessment').find('.total-questions').text(this.totalSteps);
+            this.form.closest('.ennu-assessment').find('.progress-fill').css('width', progressPercent + '%');
             
             console.log(`Progress updated: ${this.currentStep} of ${this.totalSteps} (${progressPercent}%)`);
         }

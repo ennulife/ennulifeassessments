@@ -175,6 +175,9 @@ final class ENNU_Assessment_Shortcodes {
         // Register results page shortcode
         add_shortcode( 'ennu-assessment-results', array( $this, 'render_results_page' ) );
         
+        // Register chart page shortcode
+        add_shortcode( 'ennu-assessment-chart', array( $this, 'render_chart_page' ) );
+        
         // Register thank you page shortcodes
         $thank_you_shortcodes = array(
             'ennu-hair-results' => 'hair_assessment',
@@ -198,6 +201,8 @@ final class ENNU_Assessment_Shortcodes {
     private function setup_hooks() {
         add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
         add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+        add_action( 'wp_enqueue_scripts', array($this, 'enqueue_chart_scripts' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_results_styles' ) );
     }
     
     /**
@@ -550,7 +555,8 @@ final class ENNU_Assessment_Shortcodes {
                                        id="<?php echo esc_attr( $simple_question_id . "_" . $option['value'] ); ?>" 
                                        name="<?php echo esc_attr( $simple_question_id ); ?>[]" 
                                        value="<?php echo esc_attr( $option['value'] ); ?>"
-                                       class="ennu-checkbox-input">
+                                       class="ennu-checkbox-input"
+                                       <?php if (is_array($pre_selected_value) && in_array($option['value'], $pre_selected_value)) echo 'checked'; ?>>
                                 <label for="<?php echo esc_attr( $simple_question_id . "_" . $option['value'] ); ?>">
                                     <?php echo esc_html( $option['label'] ); ?>
                                 </label>
@@ -559,17 +565,34 @@ final class ENNU_Assessment_Shortcodes {
                     <?php endif; ?>
                 </div>
                        
+            <?php elseif ( isset( $question['type'] ) && $question['type'] === 'height_weight' ) : ?>
+                <div class="height-weight-container">
+                    <?php foreach ( $question['fields'] as $key => $field ) : ?>
+                        <div class="hw-field">
+                            <label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($field['label']); ?></label>
+                            <input type="<?php echo esc_attr($field['type']); ?>" 
+                                   id="<?php echo esc_attr($key); ?>" 
+                                   name="<?php echo esc_attr($key); ?>"
+                                   min="<?php echo esc_attr($field['min']); ?>"
+                                   max="<?php echo esc_attr($field['max']); ?>"
+                                   class="ennu-hw-input"
+                                   required>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                       
             <?php elseif ( isset( $question['type'] ) && $question['type'] === 'contact_info' ) : ?>
                 <!-- Contact Information Form -->
                 <?php
                 // Get current user data for auto-population
-                $user_logged_in = is_user_logged_in();
+                $user = wp_get_current_user();
+                $user_logged_in = $user->ID > 0;
                 
                 // Pre-populate values for logged-in users
-                $first_name = $current_user_data['first_name'] ?? '';
-                $last_name = $current_user_data['last_name'] ?? '';
-                $email = $current_user_data['email'] ?? '';
-                $billing_phone = $current_user_data['billing_phone'] ?? '';
+                $first_name = $user_logged_in ? $user->first_name : '';
+                $last_name = $user_logged_in ? $user->last_name : '';
+                $email = $user_logged_in ? $user->user_email : '';
+                $billing_phone = $user_logged_in ? get_user_meta($user->ID, 'billing_phone', true) : '';
                 
                 if ( $user_logged_in ) {
                     error_log( 'ENNU: Auto-populating contact fields for user ' . get_current_user_id() . ': ' . $first_name . ' ' . $last_name . ' (' . $email . ') - Phone: ' . $billing_phone );
@@ -602,6 +625,15 @@ final class ENNU_Assessment_Shortcodes {
                                 case 'billing_phone':
                                     $field_value = $billing_phone;
                                     break;
+                                case 'height_ft':
+                                    $field_value = get_user_meta($user->ID, 'ennu_global_height_ft', true);
+                                    break;
+                                case 'height_in':
+                                    $field_value = get_user_meta($user->ID, 'ennu_global_height_in', true);
+                                    break;
+                                case 'weight_lbs':
+                                    $field_value = get_user_meta($user->ID, 'ennu_global_weight_lbs', true);
+                                    break;
                             }
                         }
                         ?>
@@ -611,6 +643,7 @@ final class ENNU_Assessment_Shortcodes {
                                    id="<?php echo esc_attr( $field['name'] ); ?>" 
                                    name="<?php echo esc_attr( $field['name'] ); ?>"
                                    value="<?php echo esc_attr( $field_value ); ?>"
+                                   placeholder="<?php echo esc_attr( $field['label'] ); ?>"
                                    class="<?php echo esc_attr( $input_class ); ?> form-control"
                                    style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px;"
                                    <?php echo ! empty( $field['required'] ) ? 'required' : ''; ?>
@@ -628,9 +661,13 @@ final class ENNU_Assessment_Shortcodes {
                     $columns = count( $question["options"] );
                 }
                 $is_global_field = isset($question['global_key']);
-                $pre_selected_value = $is_global_field && isset($current_user_data[$question['global_key']]) ? $current_user_data[$question['global_key']] : null;
+                $pre_selected_value = null;
+                if ($is_global_field) {
+                    $meta_key = 'ennu_global_' . $question['global_key'];
+                    $pre_selected_value = get_user_meta($user->ID, $meta_key, true);
+                }
                 ?>
-                <div class="answer-options" data-columns="<?php echo esc_attr( $columns ); ?>">
+                <div class="answer-options columns-<?php echo esc_attr( $columns ); ?>" data-columns="<?php echo esc_attr( $columns ); ?>">
                     <?php if ( isset( $question["options"] ) && is_array( $question["options"] ) ) : foreach ( $question["options"] as $option ) : ?>
                         <div class="answer-option">
                             <input type="radio" 
@@ -652,8 +689,6 @@ final class ENNU_Assessment_Shortcodes {
             <div class="question-navigation">
                 <?php if ( $question_number > 1 ) : ?>
                     <button type="button" class="nav-button prev">← Previous</button>
-                <?php else : ?>
-                    <div style="width: 120px;"></div>
                 <?php endif; ?>
                 
                 <?php 
@@ -749,13 +784,24 @@ final class ENNU_Assessment_Shortcodes {
             }
         }
 
-        // 5. Save Core & Global Data (New Centralized Handler)
+        // 5. Calculate and save BMI if applicable
+        if (isset($form_data['height_ft']) && isset($form_data['height_in']) && isset($form_data['weight_lbs'])) {
+            $height_in_total = (intval($form_data['height_ft']) * 12) + intval($form_data['height_in']);
+            $weight_lbs = intval($form_data['weight_lbs']);
+            if ($height_in_total > 0 && $weight_lbs > 0) {
+                // BMI Formula: (weight_lbs / (height_in * height_in)) * 703
+                $bmi = ($weight_lbs / ($height_in_total * $height_in_total)) * 703;
+                update_user_meta($user_id, 'ennu_calculated_bmi', round($bmi, 1));
+            }
+        }
+
+        // 6. Save Core & Global Data (New Centralized Handler)
         $this->update_core_user_data($user_id, $form_data);
 
-        // 6. Save Assessment-Specific Data
+        // 7. Save Assessment-Specific Data
         $this->save_assessment_specific_meta( $user_id, $form_data );
 
-        // 7. Calculate and Save Scores
+        // 8. Calculate and Save Scores
         if ( class_exists( 'ENNU_Assessment_Scoring' ) ) {
             $scores = ENNU_Assessment_Scoring::calculate_scores( $form_data['assessment_type'], $form_data );
             if ( $scores ) {
@@ -770,16 +816,17 @@ final class ENNU_Assessment_Shortcodes {
                     'score' => $scores['overall_score'],
                     'interpretation' => $interpretation,
                     'title' => $this->assessments[$form_data['assessment_type']]['title'] ?? 'Assessment',
-                    'category_scores' => $scores['category_scores']
+                    'category_scores' => $scores['category_scores'],
+                    'answers' => $form_data // Pass the user's answers to the results page
                 );
                 set_transient( 'ennu_assessment_results_' . $user_id, $results_data, 60 * 5 ); // Expires in 5 minutes
             }
         }
 
-        // 8. Send Notifications (optional)
+        // 9. Send Notifications (optional)
         // $this->send_assessment_notification( $user_id, $form_data );
 
-        // 9. Return Success Response
+        // 10. Return Success Response
         wp_send_json_success( array(
             'message' => 'Assessment submitted successfully!',
             'redirect_url' => $this->get_thank_you_url( $form_data['assessment_type'] )
@@ -844,7 +891,7 @@ final class ENNU_Assessment_Shortcodes {
                 $question_def = $question_map[$key];
                 // Only save if it's NOT a global field
                 if (!isset($question_def['global_key'])) {
-                    $value_to_save = is_array( $value ) ? implode( ', ', $value ) : $value;
+                    $value_to_save = $value; // Save the raw value, which could be an array for multiselect
                     $meta_key = 'ennu_' . $assessment_type . '_' . $key;
                     update_user_meta( $user_id, $meta_key, $value_to_save );
                 }
@@ -885,19 +932,20 @@ final class ENNU_Assessment_Shortcodes {
             update_user_meta($user_id, 'billing_phone', $data['billing_phone']);
         }
 
-        // 3. Update Custom Global Meta Fields
-        $assessment_type = $data['assessment_type'];
-        $questions = $this->get_assessment_questions( $assessment_type );
-        foreach ($questions as $index => $q_def) {
-            if (isset($q_def['global_key'])) {
-                $assessment_prefix = str_replace('_assessment', '', $assessment_type);
-                $simple_question_id = $assessment_prefix . '_q' . ($index + 1);
-                
-                if (isset($data[$simple_question_id])) {
-                    $value_to_save = is_array($data[$simple_question_id]) ? implode(', ', $data[$simple_question_id]) : $data[$simple_question_id];
-                    $meta_key = 'ennu_global_' . $q_def['global_key'];
-                    update_user_meta($user_id, $meta_key, $value_to_save);
-                }
+        // 3. Update Custom Global Meta Fields from $_POST data directly
+        // These are fields that might not be part of the current assessment's questions
+        // but should still be treated as global if submitted.
+        $other_globals = [
+            'health_goals',
+            'height_ft',
+            'height_in',
+            'weight_lbs'
+        ];
+
+        foreach ($other_globals as $key) {
+            if (isset($data[$key])) {
+                $value_to_save = is_array($data[$key]) ? $data[$key] : sanitize_text_field($data[$key]);
+                update_user_meta($user_id, 'ennu_global_' . $key, $value_to_save);
             }
         }
     }
@@ -1051,7 +1099,68 @@ final class ENNU_Assessment_Shortcodes {
     }
     
     /**
-     * Render thank you page shortcode
+     * Render chart page
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function render_chart_page( $atts = array() ) {
+        ob_start();
+        include ENNU_LIFE_PLUGIN_PATH . 'templates/assessment-chart.php';
+        return ob_get_clean();
+    }
+    
+    /**
+     * Enqueue Chart.js script if a page contains the chart shortcode.
+     */
+    public function enqueue_chart_scripts() {
+        global $post;
+        if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ennu-assessment-chart' ) ) {
+            wp_enqueue_script(
+                'chartjs',
+                ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+        }
+    }
+    
+    /**
+     * Enqueue results page styles if a page contains a results shortcode.
+     */
+    public function enqueue_results_styles() {
+        global $post;
+        $results_shortcodes = array(
+            'ennu-hair-results', 
+            'ennu-ed-results', 
+            'ennu-weight-loss-results', 
+            'ennu-health-results', 
+            'ennu-skin-results'
+        );
+
+        $found = false;
+        if ( is_a( $post, 'WP_Post' ) ) {
+            foreach ($results_shortcodes as $shortcode) {
+                if ( has_shortcode( $post->post_content, $shortcode ) ) {
+                    $found = true;
+                    break;
+                }
+            }
+        }
+
+        if ($found) {
+            wp_enqueue_style(
+                'ennu-results-page-style',
+                ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-results-page.css',
+                array(),
+                ENNU_LIFE_VERSION
+            );
+        }
+    }
+    
+    /**
+     * Render thank you page shortcode, now with dynamic results.
      * 
      * @param array $atts Shortcode attributes
      * @param string $content Shortcode content
@@ -1059,219 +1168,189 @@ final class ENNU_Assessment_Shortcodes {
      * @return string
      */
     public function render_thank_you_page( $atts, $content = '', $tag = '' ) {
-        // Extract assessment type from shortcode tag
+        // 1. Get User and Transient Data
+        $user_id = get_current_user_id();
+        $results_transient = $user_id ? get_transient('ennu_assessment_results_' . $user_id) : false;
+
+        // If results exist, show them and delete the transient.
+        if ( $results_transient ) {
+            delete_transient( 'ennu_assessment_results_' . $user_id );
+
+            // --- Full Results Display Logic ---
+            $assessment_type = $results_transient['type'];
+            $score = $results_transient['score'];
+            $interpretation_arr = $results_transient['interpretation'];
+            $interpretation_key = strtolower($interpretation_arr['level'] ?? 'fair');
+            $category_scores = $results_transient['category_scores'];
+            $user_answers = $results_transient['answers'] ?? [];
+            $bmi = get_user_meta($user_id, 'ennu_calculated_bmi', true);
+
+            // 3. Get Personalized Content from Config
+            $content_config_file = plugin_dir_path( __FILE__ ) . '../includes/config/results-content.php';
+            $content_config = file_exists($content_config_file) ? require $content_config_file : array();
+            $content_data = $content_config[$assessment_type] ?? $content_config['default'];
+            $result_content = $content_data['score_ranges'][$interpretation_key] ?? $content_data['score_ranges']['fair'];
+            $conditional_recs = $content_data['conditional_recommendations'] ?? [];
+
+            $matched_recs = [];
+            if (!empty($conditional_recs) && !empty($user_answers)) {
+                foreach ($conditional_recs as $question_key => $answer_recs) {
+                    $simple_question_id = ENNU_Question_Mapper::get_simple_id_from_semantic_key($assessment_type, $question_key);
+                    if ($simple_question_id && isset($user_answers[$simple_question_id])) {
+                        $user_answer = $user_answers[$simple_question_id];
+                        if (isset($answer_recs[$user_answer])) {
+                            $matched_recs[] = $answer_recs[$user_answer];
+                        }
+                    }
+                }
+            }
+
+            ob_start();
+            ?>
+            <div class="ennu-results-page">
+                <div class="ennu-results-main-panel">
+                    <h1 class="ennu-results-title"><?php echo esc_html($content_data['title']); ?></h1>
+                    
+                    <?php if ($bmi) : ?>
+                    <div class="ennu-bmi-card">
+                        <h2 class="ennu-bmi-card-title">Your Body Mass Index (BMI)</h2>
+                        <div class="ennu-bmi-value"><?php echo esc_html($bmi); ?></div>
+                        <p class="ennu-bmi-info">BMI is a measure of body fat based on height and weight. <a href="#">Learn more</a></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="ennu-score-card">
+                        <h2 class="ennu-score-card-title"><?php echo esc_html($result_content['title']); ?></h2>
+                        <div class="ennu-overall-score-display">
+                            <div class="ennu-score-value"><?php echo number_format($score, 1); ?></div>
+                            <div class="ennu-score-max">/ 10</div>
+                        </div>
+                        <p class="ennu-score-summary"><?php echo esc_html($result_content['summary']); ?></p>
+                    </div>
+                    
+                    <div class="ennu-recommendations-card">
+                        <h3>Your Personalized Recommendations</h3>
+                        <ul>
+                            <?php foreach ($result_content['recommendations'] as $rec) : ?>
+                                <li><?php echo esc_html($rec); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <a href="<?php echo esc_url($this->get_assessment_cta_url($assessment_type)); ?>" class="ennu-cta-button"><?php echo esc_html($result_content['cta']); ?></a>
+                    </div>
+
+                    <?php if (!empty($matched_recs)) : ?>
+                    <div class="ennu-conditional-recs-card">
+                        <h3>Specific Observations</h3>
+                        <ul>
+                            <?php foreach ($matched_recs as $rec) : ?>
+                                <li><?php echo esc_html($rec); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="ennu-results-sidebar">
+                    <div class="ennu-category-scores-card">
+                        <h3>Score Breakdown</h3>
+                        <?php if (!empty($category_scores)) : ?>
+                            <ul class="ennu-category-list">
+                                <?php foreach ($category_scores as $category => $cat_score) : ?>
+                                    <li>
+                                        <span class="ennu-category-label"><?php echo esc_html($category); ?></span>
+                                        <div class="ennu-category-bar-bg">
+                                            <div class="ennu-category-bar-fill" style="width: <?php echo (float)$cat_score * 10; ?>%;"></div>
+                                        </div>
+                                        <span class="ennu-category-score"><?php echo number_format($cat_score, 1); ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p>Category score details are not available.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
+        // --- NEW: Handle the "Empty State" when no transient is found ---
+        
+        // Map the shortcode tag (e.g., 'ennu-hair-results') to an assessment type
         $assessment_type_map = array(
-            'ennu-welcome-results' => 'welcome_assessment',
             'ennu-hair-results' => 'hair_assessment',
             'ennu-ed-results' => 'ed_treatment_assessment',
             'ennu-weight-loss-results' => 'weight_loss_assessment',
             'ennu-health-results' => 'health_assessment',
             'ennu-skin-results' => 'skin_assessment'
         );
+        $assessment_type = $assessment_type_map[$tag] ?? null;
         
-        $assessment_type = isset($assessment_type_map[$tag]) ? $assessment_type_map[$tag] : 'general';
-        
-        // Define assessment-specific content
-        $content_data = $this->get_thank_you_content($assessment_type);
-        
-        // Start output buffering
         ob_start();
         ?>
-        
-        <div class="ennu-results-container">
-            <div class="ennu-results-content <?php echo esc_attr($assessment_type); ?>-theme">
-                <div class="success-icon">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="<?php echo esc_attr($content_data['color']); ?>" stroke-width="2" fill="<?php echo esc_attr($content_data['bg_color']); ?>"/>
-                        <path d="m9 12 2 2 4-4" stroke="<?php echo esc_attr($content_data['color']); ?>" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+        <div class="ennu-results-empty-state">
+            <div class="empty-state-icon">!</div>
+            <h2 class="empty-state-title">Your results have been processed.</h2>
+            
+            <?php if ( is_user_logged_in() ): ?>
+                <p class="empty-state-message">
+                    Your assessment results are saved to your account. You can review your complete history and progress in your private dashboard at any time.
+                </p>
+                <div class="empty-state-actions">
+                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary">View My Dashboard</a>
+                    <?php if ($assessment_type): ?>
+                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary">Take Assessment Again</a>
+                    <?php endif; ?>
                 </div>
-                
-                <div class="thank-you-section">
-                    <h1><?php echo esc_html($content_data['title']); ?></h1>
-                    <p class="thank-you-message">
-                        <?php echo esc_html($content_data['message']); ?>
-                    </p>
-                    
-                    <div class="next-steps">
-                        <h2>What's Next?</h2>
-                        <p>
-                            <?php echo esc_html($content_data['next_steps']); ?>
-                        </p>
-                        
-                        <div class="consultation-cta">
-                            <a href="<?php echo esc_url($content_data['consultation_url']); ?>" class="schedule-consultation-btn">
-                                <span class="btn-icon"><?php echo $content_data['icon']; ?></span>
-                                <?php echo esc_html($content_data['button_text']); ?>
-                            </a>
-                        </div>
-                        
-                        <div class="additional-info">
-                            <h3>What to expect in your consultation:</h3>
-                            <ul>
-                                <?php foreach ($content_data['benefits'] as $benefit): ?>
-                                    <li><?php echo esc_html($benefit); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        
-                        <?php if (isset($content_data['extra_section'])): ?>
-                            <div class="extra-section">
-                                <?php echo $content_data['extra_section']; ?>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="contact-info">
-                            <p><strong><?php echo esc_html($content_data['contact_label']); ?></strong> Call us at <a href="tel:<?php echo esc_attr($content_data['phone']); ?>"><?php echo esc_html($content_data['phone_display']); ?></a> or email <a href="mailto:<?php echo esc_attr($content_data['email']); ?>"><?php echo esc_html($content_data['email']); ?></a></p>
-                        </div>
-                    </div>
+            <?php else: ?>
+                <p class="empty-state-message">
+                    To save your results and track your progress over time, please log in or create an account. Results for guest users are only displayed once.
+                </p>
+                <div class="empty-state-actions">
+                    <a href="<?php echo esc_url( get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) ); ?>" class="ennu-action-button primary">Login or Create Account</a>
+                    <?php if ($assessment_type): ?>
+                        <a href="<?php echo esc_url( $this->get_assessment_page_url($assessment_type) ); ?>" class="ennu-action-button secondary">Take Assessment Again</a>
+                    <?php endif; ?>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
-        
-        <style>
-        .ennu-results-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            font-family: Arial, sans-serif;
-        }
-
-        .ennu-results-content {
-            background: #fff;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            text-align: center;
-            border-top: 5px solid <?php echo esc_attr($content_data['color']); ?>;
-        }
-
-        .success-icon {
-            margin-bottom: 30px;
-            animation: fadeInScale 0.6s ease-out;
-        }
-
-        @keyframes fadeInScale {
-            0% { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .thank-you-section h1 {
-            color: <?php echo esc_attr($content_data['color']); ?>;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .thank-you-message {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .next-steps {
-            margin-top: 40px;
-        }
-
-        .next-steps h2 {
-            color: <?php echo esc_attr($content_data['color']); ?>;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-        }
-
-        .consultation-cta {
-            margin: 30px 0;
-        }
-
-        .schedule-consultation-btn {
-            display: inline-block;
-            background: <?php echo esc_attr($content_data['gradient']); ?>;
-            color: white;
-            padding: 18px 35px;
-            text-decoration: none;
-            border-radius: 50px;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px <?php echo esc_attr($content_data['shadow']); ?>;
-        }
-
-        .schedule-consultation-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px <?php echo esc_attr($content_data['shadow']); ?>;
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn-icon {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
-
-        .additional-info {
-            margin-top: 40px;
-            text-align: left;
-            background: <?php echo esc_attr($content_data['info_bg']); ?>;
-            padding: 25px;
-            border-radius: 10px;
-            border-left: 4px solid <?php echo esc_attr($content_data['color']); ?>;
-        }
-
-        .additional-info h3 {
-            color: <?php echo esc_attr($content_data['color']); ?>;
-            margin-bottom: 15px;
-        }
-
-        .additional-info ul {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-
-        .additional-info li {
-            margin: 12px 0;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        .contact-info {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 0.95em;
-        }
-
-        .contact-info a {
-            color: <?php echo esc_attr($content_data['color']); ?>;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .contact-info a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .ennu-results-content {
-                padding: 25px;
-            }
-            
-            .thank-you-section h1 {
-                font-size: 2em;
-            }
-            
-            .schedule-consultation-btn {
-                padding: 15px 28px;
-                font-size: 1em;
-            }
-        }
-        </style>
-        
         <?php
         return ob_get_clean();
     }
     
+    /**
+     * Helper function to get the URL for the main assessment page.
+     * @param string $assessment_type
+     * @return string
+     */
+    private function get_assessment_page_url($assessment_type) {
+        $assessment_pages = array(
+            'hair_assessment'         => home_url('/hair-assessment/'),
+            'ed_treatment_assessment' => home_url('/ed-treatment-assessment/'),
+            'weight_loss_assessment'  => home_url('/weight-loss-assessment/'),
+            'health_assessment'       => home_url('/health-assessment/'),
+            'skin_assessment'         => home_url('/skin-assessment/'),
+        );
+        return $assessment_pages[$assessment_type] ?? home_url('/');
+    }
+
+    /**
+     * Helper function to get the CTA URL for an assessment results page.
+     * @param string $assessment_type
+     * @return string
+     */
+    private function get_assessment_cta_url($assessment_type) {
+        $cta_links = array(
+            'hair_assessment'         => home_url('/book-hair-consultation/'),
+            'ed_treatment_assessment' => home_url('/book-ed-consultation/'),
+            'weight_loss_assessment'  => home_url('/book-weight-loss-consultation/'),
+            'health_assessment'       => home_url('/book-health-consultation/'),
+            'skin_assessment'         => home_url('/book-skin-consultation/'),
+        );
+        return $cta_links[$assessment_type] ?? home_url('/book-a-consultation/');
+    }
+
     /**
      * Get thank you content data for assessment type
      */
@@ -1287,7 +1366,7 @@ final class ENNU_Assessment_Shortcodes {
                     'Hair growth timeline and realistic expectations',
                     'Customized pricing for your treatment plan'
                 ),
-                'button_text' => 'Schedule Your Hair Consultation',
+                'button_text' => 'Book Your Hair Consultation',
                 'consultation_url' => home_url('/book-hair-consultation/'),
                 'contact_label' => 'Questions about hair restoration?',
                 'phone' => '+1-800-ENNU-HAIR',
@@ -1310,7 +1389,7 @@ final class ENNU_Assessment_Shortcodes {
                     'Discreet and professional care',
                     'Personalized treatment recommendations'
                 ),
-                'button_text' => 'Schedule Your Confidential Consultation',
+                'button_text' => 'Book Your Confidential Call',
                 'consultation_url' => home_url('/book-ed-consultation/'),
                 'contact_label' => 'Confidential questions?',
                 'phone' => '+1-800-ENNU-MENS',
@@ -1334,7 +1413,7 @@ final class ENNU_Assessment_Shortcodes {
                     'Nutritional guidance and meal planning',
                     'Long-term success and maintenance plan'
                 ),
-                'button_text' => 'Schedule Your Weight Loss Consultation',
+                'button_text' => 'Book Your Weight Loss Call',
                 'consultation_url' => home_url('/book-weight-loss-consultation/'),
                 'contact_label' => 'Questions about weight loss?',
                 'phone' => '+1-800-ENNU-SLIM',
@@ -1357,7 +1436,7 @@ final class ENNU_Assessment_Shortcodes {
                     'Hormone optimization options',
                     'Ongoing health monitoring plan'
                 ),
-                'button_text' => 'Schedule Your Health Consultation',
+                'button_text' => 'Book Your Health Consultation',
                 'consultation_url' => home_url('/book-health-consultation/'),
                 'contact_label' => 'Questions about health optimization?',
                 'phone' => '+1-800-ENNU-HLTH',
@@ -1380,7 +1459,7 @@ final class ENNU_Assessment_Shortcodes {
                     'Professional product recommendations',
                     'Skin rejuvenation timeline'
                 ),
-                'button_text' => 'Schedule Your Skin Consultation',
+                'button_text' => 'Book Your Skin Consultation',
                 'consultation_url' => home_url('/book-skin-consultation/'),
                 'contact_label' => 'Questions about skincare?',
                 'phone' => '+1-800-ENNU-SKIN',

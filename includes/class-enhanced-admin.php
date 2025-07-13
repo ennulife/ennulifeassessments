@@ -312,6 +312,9 @@ class ENNU_Enhanced_Admin {
             $simple_question_id = $assessment_prefix . '_q' . ($index + 1);
             $meta_key = 'ennu_' . $assessment_type . '_' . $simple_question_id;
 
+            // Use the scoring_key for score lookups, which is the correct way
+            $scoring_key = $q_data['scoring_key'] ?? null;
+            
             $current_value = get_user_meta($user_id, $meta_key, true);
             $label = $q_data['title'] ?? $simple_question_id;
 
@@ -901,10 +904,10 @@ class ENNU_Enhanced_Admin {
         echo '<input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($current_value) . '" class="regular-text" />';
     }
 
-    private function render_radio_field($meta_key, $current_value, $options, $assessment_type, $question_key) {
+    private function render_radio_field($meta_key, $current_value, $options, $assessment_type, $simple_question_id) {
         echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
         foreach ($options as $option) {
-            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $question_key, $option['value']);
+            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $simple_question_id, $option['value']);
             $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
 
             echo '<label style="display: block; margin-bottom: 5px;">';
@@ -915,14 +918,14 @@ class ENNU_Enhanced_Admin {
         echo '</fieldset>';
     }
 
-    private function render_checkbox_field($meta_key, $current_values, $options, $assessment_type, $question_key) {
+    private function render_checkbox_field($meta_key, $current_values, $options, $assessment_type, $simple_question_id) {
         // Ensure current_values is an array for easy checking.
         $saved_options = is_array($current_values) ? $current_values : array_map('trim', explode(',', $current_values));
 
         echo '<fieldset><legend class="screen-reader-text">' . esc_html($meta_key) . '</legend>';
         foreach ($options as $option) {
             $is_checked = in_array($option['value'], $saved_options);
-            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $question_key, $option['value']);
+            $score = ENNU_Assessment_Scoring::get_answer_score($assessment_type, $simple_question_id, $option['value']);
             $score_display = ($score !== null) ? '<strong>(' . $score . ' pts)</strong>' : '';
 
             echo '<label style="display: block; margin-bottom: 5px;">';
@@ -1148,20 +1151,6 @@ class ENNU_Enhanced_Admin {
             'ennu-life-settings',
             array($this, 'settings_page')
         );
-    }
-    
-    /**
-     * Enqueue admin scripts (compatibility method)
-     */
-    public function enqueue_admin_scripts($hook) {
-        if ($hook === 'user-edit.php' || $hook === 'profile.php') {
-            wp_enqueue_script('ennu-admin-js', plugin_dir_url(__FILE__) . '../../assets/js/ennu-admin.js', array('jquery'), ENNU_LIFE_VERSION, true);
-            wp_localize_script('ennu-admin-js', 'ennu_admin', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('ennu_user_profile_update'),
-                'confirm_msg' => __('Are you sure? This will delete all ENNU data for this user permanently.', 'ennulifeassessments')
-            ));
-        }
     }
     
     /**

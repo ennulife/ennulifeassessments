@@ -52,20 +52,25 @@ class ENNU_Assessment_Scoring {
 
             if ( $semantic_key && isset( $scoring_config[$semantic_key] ) ) {
                 $question_config = $scoring_config[$semantic_key];
-                $score = $question_config['answers'][$answer] ?? 5; // Default score if answer not found
                 $category = $question_config['category'] ?? 'General';
                 $weight = $question_config['weight'] ?? 1;
-                
-                if ( ! isset( $category_scores[$category] ) ) {
-                    $category_scores[$category] = array( 'total' => 0, 'weight' => 0, 'count' => 0 );
+
+                $answers_to_process = is_array($answer) ? $answer : array($answer);
+
+                foreach ($answers_to_process as $single_answer) {
+                    $score = $question_config['answers'][$single_answer] ?? 0; // Default to 0 if an answer isn't scorable
+
+                    if ( ! isset( $category_scores[$category] ) ) {
+                        $category_scores[$category] = array( 'total' => 0, 'weight' => 0, 'count' => 0 );
+                    }
+
+                    $category_scores[$category]['total'] += $score * $weight;
+                    $category_scores[$category]['weight'] += $weight;
+                    $category_scores[$category]['count']++;
+
+                    $total_score += $score * $weight;
+                    $total_weight += $weight;
                 }
-                
-                $category_scores[$category]['total'] += $score * $weight;
-                $category_scores[$category]['weight'] += $weight;
-                $category_scores[$category]['count']++;
-                
-                $total_score += $score * $weight;
-                $total_weight += $weight;
             }
         }
         

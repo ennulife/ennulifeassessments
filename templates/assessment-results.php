@@ -26,12 +26,24 @@ $assessment_type = $results_transient['type'];
 $score = $results_transient['score'];
 $interpretation = strtolower($results_transient['interpretation']); // Lowercase for key matching
 $category_scores = $results_transient['category_scores'];
+$user_answers = $results_transient['answers'] ?? [];
 
 // 2. Get Personalised Content
 $content_config_file = plugin_dir_path( __FILE__ ) . '../includes/config/results-content.php';
 $content_config = file_exists($content_config_file) ? require $content_config_file : array();
 $content = $content_config[$assessment_type] ?? $content_config['default'];
 $result_content = $content['score_ranges'][$interpretation] ?? $content['score_ranges']['fair']; // Fallback to 'fair'
+$conditional_recs = $content['conditional_recommendations'] ?? [];
+
+// 3. Find matching conditional recommendations
+$matched_recs = [];
+if (!empty($conditional_recs) && !empty($user_answers)) {
+    foreach ($conditional_recs as $question_key => $answer_recs) {
+        if (isset($user_answers[$question_key]) && isset($answer_recs[$user_answers[$question_key]])) {
+            $matched_recs[] = $answer_recs[$user_answers[$question_key]];
+        }
+    }
+}
 
 ?>
 
@@ -56,6 +68,17 @@ $result_content = $content['score_ranges'][$interpretation] ?? $content['score_r
             </ul>
             <a href="#" class="ennu-cta-button"><?php echo esc_html($result_content['cta']); ?></a>
         </div>
+
+        <?php if (!empty($matched_recs)) : ?>
+        <div class="ennu-conditional-recs-card">
+            <h3>Specific Observations</h3>
+            <ul>
+                <?php foreach ($matched_recs as $rec) : ?>
+                    <li><?php echo esc_html($rec); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
     </div>
     
     <div class="ennu-results-sidebar">
@@ -94,6 +117,20 @@ $result_content = $content['score_ranges'][$interpretation] ?? $content['score_r
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
     margin-bottom: 30px;
 }
+
+/* New Conditional Recs Card */
+.ennu-conditional-recs-card {
+    background: #fff9e6;
+    border: 1px solid #ffde7a;
+    border-left: 5px solid #ffc107;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+.ennu-conditional-recs-card h3 { font-size: 20px; color: #856404; margin-bottom: 20px; }
+.ennu-conditional-recs-card ul { list-style: none; padding: 0; margin: 0; }
+.ennu-conditional-recs-card li { background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="%23ffc107" d="M10 20C4.477 20 0 15.523 0 10S4.477 0 10 0s10 4.477 10 10-4.477 10-10 10zm-1-5v-2h2v2h-2zm0-4V5h2v6h-2z"/></svg>') no-repeat left center; padding-left: 30px; font-size: 16px; color: #856404; margin-bottom: 15px; }
+
 
 /* Main Panel Styles */
 .ennu-results-title { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 20px; }

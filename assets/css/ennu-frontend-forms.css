@@ -13,6 +13,31 @@
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: center;
+}
+
+/* New styles for the main assessment container */
+.ennu-assessment {
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+/* New styles for the main assessment header */
+.assessment-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.assessment-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #212529;
+    margin: 0 0 10px 0;
+}
+
+.assessment-description {
+    font-size: 18px;
+    color: #6c757d;
 }
 
 /* Progress Bar */
@@ -23,22 +48,37 @@
 
 .progress-bar {
     width: 100%;
+    max-width: 200px;
     height: 8px;
     background-color: #e9ecef;
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin: 0 auto 15px;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6c757d 0%, #495057 100%);
+    background: linear-gradient(270deg, #495057, #6c757d, #495057);
+    background-size: 200% 200%;
     border-radius: 4px;
-    transition: width 0.3s ease;
+    transition: width 0.4s ease-in-out;
+    animation: pulsate-progress 2s ease-in-out infinite;
+}
+
+@keyframes pulsate-progress {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .progress-text {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #495057;
     margin-top: 10px;
@@ -61,16 +101,24 @@
 
 /* Question Styling */
 .question-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #212529;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     text-align: center;
     line-height: 1.3;
 }
 
-.question-subtitle {
+.question-subtitle, .question-description {
     font-size: 18px;
+    color: #6c757d;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.question-description {
+    font-size: 20px;
     color: #6c757d;
     margin-bottom: 30px;
     text-align: center;
@@ -81,8 +129,16 @@
 .answer-options {
     display: grid;
     gap: 15px;
-    margin-bottom: 40px;
+    margin: 0 auto 40px auto;
+    width: 100%;
+    /* Let the column-specific styles handle the layout */
 }
+
+/* Specific Column Layouts for Desktop */
+.answer-options.columns-2 { grid-template-columns: repeat(2, 1fr); max-width: 500px; }
+.answer-options.columns-3 { grid-template-columns: repeat(3, 1fr); max-width: 700px; }
+.answer-options.columns-4 { grid-template-columns: repeat(4, 1fr); max-width: 900px; }
+
 
 .answer-option {
     position: relative;
@@ -96,8 +152,13 @@
 }
 
 .answer-option label {
-    display: block;
-    padding: 20px 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    height: 100%;
+    padding: 15px 20px;
     background: #ffffff;
     border: 2px solid #e9ecef;
     border-radius: 12px;
@@ -151,10 +212,7 @@
 }
 
 .contact-field label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 8px;
+    display: none; /* Hide labels as requested */
 }
 
 .contact-field input,
@@ -167,12 +225,53 @@
     transition: border-color 0.3s ease;
 }
 
+.contact-field input::placeholder {
+    color: #6c757d;
+    font-size: 16px;
+}
+
 .contact-field input:focus,
 .contact-field select:focus {
     outline: none;
     border-color: #6c757d;
     box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
 }
+
+/* Height & Weight Fields */
+.height-weight-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    align-items: flex-end;
+}
+.hw-field {
+    display: flex;
+    flex-direction: column;
+}
+.hw-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 5px;
+    text-align: center;
+}
+.hw-field input {
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #ffffff;
+    transition: border-color 0.3s ease;
+    text-align: center;
+}
+.hw-field input:focus {
+    outline: none;
+    border-color: #6c757d;
+    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+}
+
 
 /* Date of Birth Fields */
 .dob-container {
@@ -196,6 +295,14 @@
     margin: 0 auto;
 }
 
+.dob-age-display {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 20px;
+}
+
 .dob-field {
     display: flex;
     flex-direction: column;
@@ -210,12 +317,17 @@
 }
 
 .dob-field select {
-    padding: 12px;
+    padding: 12px 30px 12px 15px;
     border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border-radius: 8px !important;
     font-size: 16px;
     background: #ffffff;
     transition: border-color 0.3s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
 }
 
 .dob-field select:focus {
@@ -225,9 +337,9 @@
 }
 
 /* Navigation Buttons */
-.navigation-buttons {
+.question-navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-top: 40px;
     gap: 20px;
@@ -244,7 +356,9 @@
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    min-width: 150px;
 }
 
 .nav-button.prev {
@@ -261,7 +375,6 @@
 .nav-button.submit {
     background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
     color: #ffffff;
-    margin-left: auto;
 }
 
 .nav-button.next:hover,
@@ -372,6 +485,24 @@
     .nav-button.submit {
         margin-left: 0;
         order: -1;
+    }
+}
+
+/* Responsive adjustments for answer options */
+@media (max-width: 768px) {
+    /* Stack to 2 columns on tablets and large phones */
+    .answer-options.columns-3,
+    .answer-options.columns-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Stack to 1 column on small phones */
+    .answer-options.columns-2,
+    .answer-options.columns-3,
+    .answer-options.columns-4 {
+        grid-template-columns: 1fr;
     }
 }
 

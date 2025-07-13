@@ -126,24 +126,14 @@ return array(
                 'complete' => 1
             )
         ),
-        'frequency' => array(
-            'category' => 'Symptom Pattern',
-            'weight' => 2.5,
-            'answers' => array(
-                'rarely' => 8,
-                'sometimes' => 6,
-                'often' => 4,
-                'always' => 2
-            )
-        ),
         'duration' => array(
             'category' => 'Timeline',
             'weight' => 2,
             'answers' => array(
                 'recent' => 8,
-                'months' => 6,
-                'years' => 4,
-                'lifelong' => 3
+                'moderate' => 6,
+                'long' => 4,
+                'very_long' => 2
             )
         ),
         'health_conditions' => array(
@@ -152,18 +142,38 @@ return array(
             'answers' => array(
                 'none' => 9,
                 'diabetes' => 4,
-                'heart_disease' => 3,
-                'multiple' => 2
+                'heart' => 3,
+                'hypertension' => 4
+            )
+        ),
+        'previous_treatments' => array(
+            'category' => 'Treatment History',
+            'weight' => 1,
+            'answers' => array(
+                'none' => 8,
+                'oral' => 6,
+                'injections' => 4,
+                'devices' => 5
+            )
+        ),
+        'smoking_status' => array(
+            'category' => 'Medical Factors',
+            'weight' => 2,
+            'answers' => array(
+                'never' => 9,
+                'former' => 7,
+                'occasional' => 4,
+                'regular' => 2
             )
         ),
         'exercise' => array(
             'category' => 'Physical Health',
             'weight' => 1.5,
             'answers' => array(
-                'daily' => 9,
-                'regularly' => 8,
+                'never' => 3,
                 'rarely' => 5,
-                'never' => 3
+                'regularly' => 8,
+                'daily' => 9
             )
         ),
         'stress_level' => array(
@@ -211,10 +221,10 @@ return array(
             'category' => 'Motivation & Goals',
             'weight' => 2,
             'answers' => array(
-                'lose_weight' => 8,
-                'build_muscle' => 7,
-                'improve_health' => 9,
-                'look_better' => 6
+                'lose_10' => 8,
+                'lose_30' => 7,
+                'lose_50' => 6,
+                'maintain' => 9
             )
         ),
         'current_weight' => array(
@@ -231,21 +241,20 @@ return array(
             'category' => 'Physical Activity',
             'weight' => 2.5,
             'answers' => array(
-                'daily' => 9,
-                'frequent' => 8,
-                'occasional' => 5,
-                'rare' => 3,
-                'never' => 1
+                'never' => 1,
+                'rarely' => 3,
+                'often' => 8,
+                'daily' => 9
             )
         ),
         'diet_quality' => array(
             'category' => 'Nutrition',
             'weight' => 3,
             'answers' => array(
-                'excellent' => 9,
-                'good' => 7,
-                'fair' => 5,
-                'poor' => 2
+                'unhealthy' => 2,
+                'balanced' => 6,
+                'healthy' => 8,
+                'strict' => 7
             )
         ),
         'eating_habits' => array(
@@ -262,10 +271,10 @@ return array(
             'category' => 'Lifestyle Factors',
             'weight' => 1.5,
             'answers' => array(
-                'excellent' => 9,
-                'good' => 7,
-                'fair' => 5,
-                'poor' => 3
+                'less_5' => 3,
+                '5_6' => 5,
+                '7_8' => 9,
+                'more_8' => 8
             )
         ),
         'stress_level' => array(
@@ -282,20 +291,20 @@ return array(
             'category' => 'Social Support',
             'weight' => 1,
             'answers' => array(
-                'strong' => 9,
-                'moderate' => 7,
-                'limited' => 5,
-                'none' => 3
+                'none' => 3,
+                'partner' => 7,
+                'family' => 8,
+                'professional' => 9
             )
         ),
         'previous_attempts' => array(
             'category' => 'Weight Loss History',
             'weight' => 1,
             'answers' => array(
-                'none' => 7,
-                'few' => 6,
-                'many' => 4,
-                'yo_yo' => 3
+                'no_success' => 3,
+                'some_success' => 4,
+                'good_success' => 6,
+                'first_time' => 7
             )
         ),
         'motivation_level' => array(
@@ -316,6 +325,46 @@ return array(
                 'confidence' => 7,
                 'performance' => 8,
                 'look_better' => 6
+            )
+        ),
+        'current_weight_status' => array(
+            'category' => 'Current Status',
+            'weight' => 2.5,
+            'answers' => array(
+                'underweight' => 7,
+                'normal' => 9,
+                'overweight' => 6,
+                'obese' => 3
+            )
+        ),
+        'motivation' => array(
+            'category' => 'Motivation & Goals',
+            'weight' => 1.5,
+            'answers' => array(
+                'health' => 9,
+                'appearance' => 6,
+                'energy' => 8,
+                'confidence' => 7
+            )
+        ),
+        'health_conditions' => array(
+            'category' => 'Medical Factors',
+            'weight' => 2,
+            'answers' => array(
+                'none' => 9,
+                'thyroid' => 5,
+                'diabetes' => 4,
+                'pcos' => 5
+            )
+        ),
+        'medications' => array(
+            'category' => 'Drug Interactions',
+            'weight' => 1,
+            'answers' => array(
+                'none' => 8,
+                'antidepressants' => 5,
+                'steroids' => 4,
+                'birth_control' => 6
             )
         )
     ),
@@ -343,61 +392,59 @@ return array(
             'category' => 'Vitality & Energy',
             'weight' => 2,
             'answers' => array(
-                'high' => 9,
+                'low' => 2,
+                'crash' => 4,
                 'moderate' => 7,
-                'low' => 4,
-                'very_low' => 2
+                'high' => 9
             )
         ),
         'exercise_frequency' => array(
             'category' => 'Physical Activity',
             'weight' => 2.5,
             'answers' => array(
-                'daily' => 9,
-                'frequent' => 8,
-                'occasional' => 5,
-                'rare' => 3,
-                'never' => 1
+                'rarely' => 1,
+                'sometimes' => 5,
+                'often' => 8,
+                'daily' => 9
             )
         ),
         'diet_quality' => array(
             'category' => 'Nutrition',
             'weight' => 2.5,
             'answers' => array(
-                'excellent' => 9,
-                'good' => 7,
-                'fair' => 5,
-                'poor' => 2
+                'processed' => 2,
+                'average' => 5,
+                'healthy' => 7,
+                'very_healthy' => 9
             )
         ),
         'sleep_quality' => array(
             'category' => 'Sleep & Recovery',
             'weight' => 2,
             'answers' => array(
-                'excellent' => 9,
-                'good' => 7,
+                'poor' => 3,
                 'fair' => 5,
-                'poor' => 3
+                'good' => 7,
+                'excellent' => 9
             )
         ),
         'stress_management' => array(
             'category' => 'Stress & Mental Health',
             'weight' => 2,
             'answers' => array(
-                'excellent' => 9,
-                'good' => 7,
-                'fair' => 5,
-                'poor' => 3
+                'poorly' => 3,
+                'somewhat' => 5,
+                'well' => 7,
+                'proactively' => 9
             )
         ),
         'preventive_care' => array(
             'category' => 'Preventive Health',
             'weight' => 1.5,
             'answers' => array(
-                'regular' => 9,
-                'occasional' => 6,
-                'rare' => 4,
-                'never' => 2
+                'never' => 2,
+                'sometimes' => 6,
+                'regularly' => 9
             )
         ),
         'health_goals' => array(
@@ -431,80 +478,65 @@ return array(
                 'other' => 5
             )
         ),
-        'skin_type' => array(
-            'category' => 'Skin Characteristics',
-            'weight' => 2,
-            'answers' => array(
-                'normal' => 8,
-                'dry' => 6,
-                'oily' => 6,
-                'combination' => 7,
-                'sensitive' => 5
-            )
-        ),
         'primary_concern' => array(
             'category' => 'Primary Skin Issue',
             'weight' => 3,
             'answers' => array(
                 'acne' => 3,
-                'aging' => 4,
-                'pigmentation' => 5,
+                'wrinkles' => 4,
+                'dark_spots' => 5,
                 'redness' => 4,
-                'dullness' => 6
+                'dryness' => 6
             )
         ),
         'sun_exposure' => array(
             'category' => 'Environmental Factors',
             'weight' => 2.5,
             'answers' => array(
-                'minimal' => 9,
-                'moderate' => 6,
-                'high' => 3
+                'rarely' => 9,
+                'sometimes' => 6,
+                'daily' => 3,
+                'daily_no_spf' => 1
             )
         ),
         'skincare_routine' => array(
             'category' => 'Current Regimen',
             'weight' => 1,
             'answers' => array(
-                'none' => 4,
+                'minimal' => 4,
                 'basic' => 6,
-                'advanced' => 8
+                'advanced' => 8,
+                'none' => 2
             )
         ),
-        'lifestyle_factors' => array(
-            'category' => 'Lifestyle & Diet',
+        'skin_reactivity' => array(
+            'category' => 'Skin Reactivity',
+            'weight' => 1.5,
+            'answers' => array(
+                'never' => 9,
+                'sometimes' => 6,
+                'often' => 3
+            )
+        ),
+        'skin_type' => array(
+            'category' => 'Skin Characteristics',
             'weight' => 2,
             'answers' => array(
-                'healthy' => 9,
-                'average' => 6,
-                'unhealthy' => 3
+                'oily' => 6,
+                'dry' => 6,
+                'combination' => 7,
+                'normal' => 8,
+                'sensitive' => 5
             )
         ),
-        'stress_level' => array(
-            'category' => 'Psychological Factors',
-            'weight' => 1.5,
+        'treatment_accessibility' => array(
+            'category' => 'Treatment Accessibility',
+            'weight' => 0.5,
             'answers' => array(
-                'low' => 9,
-                'moderate' => 6,
-                'high' => 3
-            )
-        ),
-        'hydration' => array(
-            'category' => 'Internal Health',
-            'weight' => 1.5,
-            'answers' => array(
-                'good' => 9,
-                'fair' => 6,
-                'poor' => 3
-            )
-        ),
-        'allergies' => array(
-            'category' => 'Sensitivities',
-            'weight' => 1,
-            'answers' => array(
-                'none' => 9,
-                'some' => 5,
-                'many' => 3
+                'under_50' => 8,
+                '50_100' => 7,
+                '100_200' => 6,
+                'over_200' => 5
             )
         )
     ),
