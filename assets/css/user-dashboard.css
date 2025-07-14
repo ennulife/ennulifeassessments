@@ -1,33 +1,106 @@
-/* styles for user-dashboard.php */
-.ennu-user-dashboard { max-width: 1200px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-.dashboard-header { text-align: center; margin-bottom: 40px; }
-.dashboard-header h2 { font-size: 2em; font-weight: 600; margin-bottom: 8px; color: #333; }
-.dashboard-header p { font-size: 1.1em; color: #666; margin-top: 0; }
-.progress-container { width: 100px; height: 100px; border-radius: 50%; background-color: #e9ecef; margin: 20px auto; position: relative; display: flex; align-items: center; justify-content: center; }
-.progress-bar { background: conic-gradient(#4caf50 var(--progress, 0%), #e9ecef 0); width: 100%; height: 100%; border-radius: 50%; }
-.progress-text { position: absolute; font-size: 1.2em; font-weight: 500; color: #333; }
-.assessment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
-.assessment-card { background: #fff; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 25px; transition: all 0.3s ease; border-left: 5px solid; }
-.assessment-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
-.assessment-card.card-hair_assessment { border-color: #667eea; }
-.assessment-card.card-ed_treatment_assessment { border-color: #f093fb; }
-.assessment-card.card-weight_loss_assessment { border-color: #4facfe; }
-.assessment-card.card-health_assessment { border-color: #fa709a; }
-.assessment-card.card-skin_assessment { border-color: #a8edea; }
-.card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-.card-icon { font-size: 2em; }
-.card-header h3 { margin: 0; font-size: 1.4em; font-weight: 600; }
-.badge-completed { background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-left: auto; }
-.score-display { font-size: 2em; font-weight: 700; color: #333; }
-.completion-date { color: #777; font-size: 0.9em; }
-.card-actions { margin-top: 15px; display: flex; gap: 10px; }
-.expand-button, .retake-button, .button-primary { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; text-decoration: none; text-align: center; }
-.retake-button, .button-primary { background-color: #6c757d; }
-.expand-button:hover, .retake-button:hover, .button-primary:hover { background-color: #0056b3; }
-.retake-button:hover { background-color: #5a6268; }
-.expandable-content { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
-.mini-chart-container { position: relative; min-height: 200px; }
-.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; position: absolute; top: 50%; left: 50%; margin-top: -20px; margin-left: -20px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.motivational-footer { text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 12px; }
-@media (max-width: 768px) { .assessment-grid { grid-template-columns: 1fr; } } 
+/*
+* ENNU Life - User Dashboard Stylesheet
+* Version: 44.0.0 - "The Executive Wellness Interface" (Definitive & Final)
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --bg-main: #f9fafb;
+    --card-bg: #ffffff;
+    --text-dark: #111827;
+    --text-light: #6b7280;
+    --accent-primary: #4338ca;
+    --accent-secondary: #6d28d9;
+    --border-color: #e5e7eb;
+    --shadow-color-light: rgba(67, 56, 202, 0.05);
+    --shadow-color-medium: rgba(67, 56, 202, 0.1);
+}
+
+.ennu-user-dashboard {
+    background-color: var(--bg-main);
+    font-family: 'Inter', sans-serif;
+    padding: 40px;
+}
+
+/* --- Header --- */
+.dashboard-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+.header-welcome h1 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 0; }
+.header-welcome p { font-size: 18px; color: var(--text-light); margin: 4px 0 0 0; }
+.user-profile-summary {
+    background: var(--card-bg);
+    padding: 15px 25px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-align: right;
+}
+.profile-name { font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+.profile-vitals { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px 20px; font-size: 14px; color: var(--text-light); }
+.profile-vitals span strong { color: var(--text-dark); font-weight: 600; }
+
+/* --- Main Grid --- */
+.dashboard-main-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
+.section-header { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 20px; }
+
+/* --- Left Column --- */
+.main-score-card, .pillar-scores-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 10px var(--shadow-color-light);
+    padding: 30px;
+}
+.main-score-card { text-align: center; margin-bottom: 30px; }
+.main-score-radial { width: 220px; height: 220px; position: relative; margin: 0 auto 15px auto; }
+.main-score-radial svg { transform: rotate(-90deg); }
+.main-score-radial circle { fill: none; stroke-width: 12; }
+.radial-progress-bg { stroke: #f3f4f6; }
+.main-score-progress-bar { stroke: url(#score-gradient); stroke-dasharray: 339.29; stroke-dashoffset: 339.29; transition: stroke-dashoffset 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
+.main-score-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.main-score-value { font-size: 64px; font-weight: 800; color: var(--accent-primary); line-height: 1; }
+.main-score-label { font-size: 14px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.pillar-scores-grid { display: flex; flex-direction: column; gap: 20px; }
+.pillar-item { display: flex; flex-direction: column; }
+.pillar-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.pillar-label-group { display: flex; align-items: center; }
+.pillar-label { font-size: 16px; font-weight: 600; color: var(--text-dark); }
+.pillar-score-value { font-size: 16px; font-weight: 700; color: var(--accent-primary); }
+
+/* --- Right Column --- */
+.assessment-card-list { display: flex; flex-direction: column; gap: 20px; }
+.assessment-list-item { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+.assessment-list-item:hover { border-color: var(--accent-primary); transform: translateY(-3px); box-shadow: 0 10px 20px -5px var(--shadow-color-medium); }
+.assessment-summary { display: flex; align-items: center; padding: 25px; cursor: pointer; }
+.assessment-icon { font-size: 28px; margin-right: 20px; width: 40px; text-align: center; }
+.assessment-info h4 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text-dark); }
+.assessment-info p { font-size: 14px; color: var(--text-light); margin: 4px 0 0 0; }
+.assessment-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.details-toggle-icon { font-size: 24px; color: var(--text-light); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); line-height: 1; }
+.assessment-list-item[aria-expanded="true"] .details-toggle-icon { transform: rotate(180deg); }
+
+/* Expanded Category Details */
+.category-details-container { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.category-details-inner { padding: 0px 25px 25px; border-top: 1px solid var(--border-color); margin: 0 25px; }
+.category-score-list { list-style: none; padding: 20px 0 0 0; margin: 0; }
+.category-score-item { margin-bottom: 15px; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.assessment-list-item[aria-expanded="true"] .category-score-item { opacity: 1; transform: translateY(0); }
+<?php for ($i=1; $i<=10; $i++) { echo ".assessment-list-item[aria-expanded=\"true\"] .category-score-item:nth-child($i) { transition-delay: " . (0.3 + $i * 0.06) . "s; }\n"; } ?>
+.category-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 14px; }
+.category-name-group { display: flex; align-items: center; }
+.category-name { color: var(--text-dark); font-weight: 500; }
+.category-score-value { color: var(--text-light); font-weight: 500; }
+.category-bar-bg { width: 100%; background: #f3f4f6; height: 10px; border-radius: 5px; }
+.category-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary)); border-radius: 5px; width: 0; transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.5s; }
+.assessment-actions-footer { padding: 20px 0 0; border-top: 1px solid var(--border-color); margin-top: 20px; display: flex; gap: 15px; }
+.action-button { flex: 1; text-align: center; padding: 12px; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s ease; }
+.button-report { background-color: var(--accent-primary); color: #fff; }
+.button-retake { background-color: #f3f4f6; color: var(--text-dark); border: 1px solid var(--border-color); }
+
+/* Tooltip Styles */
+.tooltip-icon { font-size: 14px; color: #a0aec0; margin-left: 8px; cursor: pointer; position: relative; display: inline-block; }
+.tooltip-text { visibility: hidden; width: 250px; background-color: var(--text-dark); color: #fff; text-align: left; border-radius: 6px; padding: 12px; position: absolute; z-index: 10; bottom: 150%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; font-size: 13px; line-height: 1.6; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.tooltip-icon:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+@media (max-width: 992px) { .dashboard-main-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .dashboard-header { flex-direction: column; gap: 20px; align-items: flex-start; } } 

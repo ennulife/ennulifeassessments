@@ -36,7 +36,7 @@ final class ENNU_Assessment_Shortcodes {
      *
      * @var array
      */
-    private $all_questions = array();
+    private $all_definitions = array();
     
     /**
      * Template cache
@@ -50,7 +50,7 @@ final class ENNU_Assessment_Shortcodes {
      */
     public function __construct() {
         $this->init_assessments();
-        $this->load_all_questions(); // Load questions from the new config file
+        $this->load_all_definitions();
         
         $this->setup_hooks();
     }
@@ -136,17 +136,39 @@ final class ENNU_Assessment_Shortcodes {
                 'questions' => 12,
                 'theme_color' => '#ffecd2',
                 'icon_set' => 'hormone'
+            ),
+            // --- NEW ASSESSMENTS ---
+            'sleep_assessment' => array(
+                'title' => __( 'Sleep Assessment', 'ennulifeassessments' ),
+                'description' => __( 'Placeholder for sleep assessment description.', 'ennulifeassessments' ),
+                'questions' => 1,
+                'theme_color' => '#4a90e2',
+                'icon_set' => 'quiz'
+            ),
+            'menopause_assessment' => array(
+                'title' => __( 'Menopause Assessment', 'ennulifeassessments' ),
+                'description' => __( 'Placeholder for menopause assessment description.', 'ennulifeassessments' ),
+                'questions' => 1,
+                'theme_color' => '#d0021b',
+                'icon_set' => 'medical'
+            ),
+            'testosterone_assessment' => array(
+                'title' => __( 'Testosterone Assessment', 'ennulifeassessments' ),
+                'description' => __( 'Placeholder for testosterone assessment description.', 'ennulifeassessments' ),
+                'questions' => 1,
+                'theme_color' => '#f5a623',
+                'icon_set' => 'medical'
             )
         );
     }
     
     /**
-     * Load all assessment questions from the centralized config file.
+     * Load all assessment definitions from the centralized config file.
      */
-    private function load_all_questions() {
-        $questions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php';
-        if ( file_exists( $questions_file ) ) {
-            $this->all_questions = require $questions_file;
+    private function load_all_definitions() {
+        $definitions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-definitions.php';
+        if ( file_exists( $definitions_file ) ) {
+            $this->all_definitions = require $definitions_file;
         }
     }
     
@@ -161,7 +183,12 @@ final class ENNU_Assessment_Shortcodes {
             'ed_treatment_assessment' => 'ennu-ed-treatment-assessment',
             'weight_loss_assessment' => 'ennu-weight-loss-assessment',
             'health_assessment' => 'ennu-health-assessment',
-            'skin_assessment' => 'ennu-skin-assessment'
+            'skin_assessment' => 'ennu-skin-assessment',
+            // --- NEW ASSESSMENTS ---
+            'sleep_assessment' => 'ennu-sleep-assessment',
+            'hormone_assessment' => 'ennu-hormone-assessment',
+            'menopause_assessment' => 'ennu-menopause-assessment',
+            'testosterone_assessment' => 'ennu-testosterone-assessment',
         );
         
         foreach ( $core_assessments as $assessment_key => $shortcode_tag ) {
@@ -185,7 +212,12 @@ final class ENNU_Assessment_Shortcodes {
             'ennu-ed-results' => 'ed_treatment_assessment',
             'ennu-weight-loss-results' => 'weight_loss_assessment',
             'ennu-health-results' => 'health_assessment',
-            'ennu-skin-results' => 'skin_assessment'
+            'ennu-skin-results' => 'skin_assessment',
+            // --- NEW ASSESSMENTS ---
+            'ennu-sleep-results' => 'sleep_assessment',
+            'ennu-hormone-results' => 'hormone_assessment',
+            'ennu-menopause-results' => 'menopause_assessment',
+            'ennu-testosterone-results' => 'testosterone_assessment',
         );
         
         foreach ( $thank_you_shortcodes as $shortcode_tag => $assessment_type ) {
@@ -205,6 +237,11 @@ final class ENNU_Assessment_Shortcodes {
             'ennu-weight-loss-assessment-details',
             'ennu-health-assessment-details',
             'ennu-skin-assessment-details',
+            // --- NEW ASSESSMENTS ---
+            'ennu-sleep-assessment-details',
+            'ennu-hormone-assessment-details',
+            'ennu-menopause-assessment-details',
+            'ennu-testosterone-assessment-details',
         ];
         foreach ($details_shortcodes as $shortcode) {
             add_shortcode($shortcode, [$this, 'render_detailed_results_page']);
@@ -216,6 +253,8 @@ final class ENNU_Assessment_Shortcodes {
      */
     private function setup_hooks() {
         // All hooks are now registered in the main plugin file for centralized control.
+        // This method is kept for clarity and future use if needed.
+        add_action('wp_ajax_nopriv_ennu_check_email', array($this, 'ajax_check_email_exists'));
     }
     
     /**
@@ -352,7 +391,7 @@ final class ENNU_Assessment_Shortcodes {
         
         ob_start();
         ?>
-        <div class="ennu-assessment ennu-modern-assessment ennu-<?php echo esc_attr( $assessment_type ); ?>" 
+        <div class="ennu-assessment" 
              data-assessment="<?php echo esc_attr( $assessment_type ); ?>"
              data-theme="<?php echo esc_attr( $atts['theme'] ); ?>">
              
@@ -378,7 +417,7 @@ final class ENNU_Assessment_Shortcodes {
             </div>
             
             <!-- Assessment Form -->
-            <form id="ennu-assessment-form-<?php echo esc_attr( $assessment_type ); ?>" class="assessment-form" data-assessment="<?php echo esc_attr( $assessment_type ); ?>" data-nonce="<?php echo wp_create_nonce('ennu_ajax_nonce'); ?>">
+            <form id="ennu-assessment-form-<?php echo esc_attr( $assessment_type ); ?>" class="ennu-assessment-form" data-assessment="<?php echo esc_attr( $assessment_type ); ?>" data-nonce="<?php echo wp_create_nonce('ennu_ajax_nonce'); ?>">
                 <input type="hidden" name="action" value="ennu_submit_assessment">
                 <input type="hidden" name="assessment_type" value="<?php echo esc_attr( $assessment_type ); ?>">
                 
@@ -426,9 +465,10 @@ final class ENNU_Assessment_Shortcodes {
         $questions = $this->get_assessment_questions( $assessment_type );
         $output = '';
         
-        foreach ( $questions as $index => $question ) {
-            $question_number = $index + 1;
+        $question_number = 1;
+        foreach ( $questions as $question_key => $question ) {
             $output .= $this->render_question( $assessment_type, $question_number, $question, $config, $current_user_data );
+            $question_number++;
         }
         
         return $output;
@@ -439,9 +479,43 @@ final class ENNU_Assessment_Shortcodes {
      */
     private function render_question( $assessment_type, $question_number, $question, $config, $current_user_data = array() ) {
         $user_id = get_current_user_id();
-        $pre_selected_value = isset( $question['global_key'] ) && $user_id ? get_user_meta( $user_id, 'ennu_global_' . $question['global_key'], true ) : array();
+        
+        // --- DEFINITIVE FIX FOR PRE-SELECTED VALUES ---
+        $pre_selected_value = null;
+
+        if ( $user_id ) {
+            $simple_question_id = str_replace('_assessment', '', $assessment_type) . '_q' . $question_number;
+            $meta_key = 'ennu_' . $assessment_type . '_' . $simple_question_id;
+
+            if ( ! empty( $question['global_key'] ) ) {
+                $meta_key = 'ennu_global_' . $question['global_key'];
+            }
+
+            $saved_value = get_user_meta( $user_id, $meta_key, true );
+            
+            if ($question['type'] === 'multiselect') {
+                if (is_array($saved_value)) {
+                    $pre_selected_value = $saved_value;
+                } elseif (is_string($saved_value) && !empty($saved_value)) {
+                    $pre_selected_value = array_map('trim', explode(',', $saved_value));
+                } else {
+                    $pre_selected_value = [];
+                }
+            } else {
+                $pre_selected_value = $saved_value;
+            }
+        } else {
+             if ($question['type'] === 'multiselect') {
+                $pre_selected_value = [];
+             } else {
+                $pre_selected_value = '';
+             }
+        }
+        // --- END DEFINITIVE FIX ---
+
         $active_class = $question_number === 1 ? 'active' : '';
         $simple_question_id = str_replace('_assessment', '', $assessment_type) . '_q' . $question_number;
+        $is_global_slide = !empty($question['global_key']);
         
         // Dispatch to the correct rendering method based on question type
         switch ($question['type']) {
@@ -464,7 +538,7 @@ final class ENNU_Assessment_Shortcodes {
         
         ob_start();
         ?>
-        <div class="question-slide <?php echo esc_attr( $active_class ); ?>" data-step="<?php echo esc_attr( $question_number ); ?>" data-question-key="<?php echo esc_attr( $simple_question_id ); ?>" data-question-type="<?php echo esc_attr( $question['type'] ); ?>">
+        <div class="question-slide <?php echo esc_attr( $active_class ); ?>" data-step="<?php echo esc_attr( $question_number ); ?>" data-question-key="<?php echo esc_attr( $simple_question_id ); ?>" data-question-type="<?php echo esc_attr( $question['type'] ); ?>" <?php if ($is_global_slide) echo 'data-is-global="true"'; ?>>
             <div class="question-header">
                 <h2 class="question-title"><?php echo esc_html( $question['title'] ); ?></h2>
                 <?php if ( ! empty( $question['description'] ) ) : ?>
@@ -503,21 +577,28 @@ final class ENNU_Assessment_Shortcodes {
                 $year_val = $dob_parts[0];
                 $month_val = $dob_parts[1];
                 $day_val = $dob_parts[2];
+
+                $months = [
+                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                ];
+
         ob_start();
         ?>
         <div class="question-content">
                     <div class="dob-dropdowns">
-                <div class="dob-month">
+                <div class="dob-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_month">Month:</label>
                     <select id="<?php echo esc_attr( $simple_question_id ); ?>_month" name="dob_month" required>
-                        <?php for ( $i = 1; $i <= 12; $i++ ) : ?>
-                            <option value="<?php echo esc_attr( $i ); ?>" <?php selected( $month_val, $i ); ?>>
-                                <?php echo esc_html( $i ); ?>
+                        <?php foreach ( $months as $num => $name ) : ?>
+                            <option value="<?php echo esc_attr( $num ); ?>" <?php selected( $month_val, $num ); ?>>
+                                <?php echo esc_html( $name ); ?>
                             </option>
-                            <?php endfor; ?>
+                        <?php endforeach; ?>
                         </select>
                     </div>
-                <div class="dob-day">
+                <div class="dob-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_day">Day:</label>
                     <select id="<?php echo esc_attr( $simple_question_id ); ?>_day" name="dob_day" required>
                         <?php for ( $i = 1; $i <= 31; $i++ ) : ?>
@@ -527,7 +608,7 @@ final class ENNU_Assessment_Shortcodes {
                             <?php endfor; ?>
                         </select>
                     </div>
-                <div class="dob-year">
+                <div class="dob-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_year">Year:</label>
                     <select id="<?php echo esc_attr( $simple_question_id ); ?>_year" name="dob_year" required>
                         <?php for ( $i = 2023; $i >= 1900; $i-- ) : ?>
@@ -539,6 +620,7 @@ final class ENNU_Assessment_Shortcodes {
                     </div>
                 </div>
                 <div class="calculated-age-display" style="min-height: 20px; margin-top: 10px;"></div>
+                <input type="hidden" name="dob_combined" class="dob-combined" />
                 </div>
         <?php
         return ob_get_clean();
@@ -547,22 +629,32 @@ final class ENNU_Assessment_Shortcodes {
     /**
      * Renders the HTML for a 'multiselect' question.
      */
-    private function _render_multiselect_question($question, $simple_question_id, $pre_selected_value) {
+    private function _render_multiselect_question($question, $simple_question_id, $saved_options) {
+        // The $saved_options variable is now guaranteed to be an array by the calling function.
+        $count = count($question['options']);
+        $num_columns = 2; // Default
+        if ($count === 3 || $count > 4) { $num_columns = 3; }
+        if ($count === 4) { $num_columns = 4; }
+        $column_class = 'columns-' . $num_columns;
         ob_start();
         ?>
         <div class="question-content">
-            <div class="multiselect-container">
-                <label for="<?php echo esc_attr( $simple_question_id ); ?>_options"><?php echo esc_html( $question['title'] ); ?></label>
-                <select id="<?php echo esc_attr( $simple_question_id ); ?>_options" name="multiselect_options[]" multiple size="5" required>
-                    <?php foreach ( $question['options'] as $option_value => $option_label ) : ?>
-                        <option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( in_array( $option_value, $pre_selected_value ) ); ?>>
+            <div class="answer-options <?php echo esc_attr($column_class); ?>">
+                <?php foreach ( $question['options'] as $option_value => $option_label ) : ?>
+                    <div class="answer-option">
+                        <input type="checkbox" 
+                               id="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>" 
+                               name="<?php echo esc_attr( $simple_question_id ); ?>[]" 
+                               value="<?php echo esc_attr( $option_value ); ?>" 
+                               <?php checked( in_array( $option_value, $saved_options ) ); ?> required>
+                        <label for="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>">
                             <?php echo esc_html( $option_label ); ?>
-                        </option>
-                        <?php endforeach; ?>
-                </select>
-                </div>
-                        </div>
-                <?php
+                        </label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
         return ob_get_clean();
     }
 
@@ -574,15 +666,15 @@ final class ENNU_Assessment_Shortcodes {
         ?>
         <div class="question-content">
             <div class="height-weight-container">
-                <div class="height-input">
+                <div class="hw-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_height_ft">Height (ft):</label>
                     <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_height_ft" name="height_ft" min="0" step="0.01" required>
                         </div>
-                <div class="height-input">
+                <div class="hw-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_height_in">Height (in):</label>
                     <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_height_in" name="height_in" min="0" step="0.01" required>
                         </div>
-                <div class="weight-input">
+                <div class="hw-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_weight_lbs">Weight (lbs):</label>
                     <input type="number" id="<?php echo esc_attr( $simple_question_id ); ?>_weight_lbs" name="weight_lbs" min="0" step="0.1" required>
                 </div>
@@ -596,25 +688,31 @@ final class ENNU_Assessment_Shortcodes {
      * Renders the HTML for a 'contact_info' question.
      */
     private function _render_contact_info_question($question, $simple_question_id, $current_user_data) {
+        $first_name = is_user_logged_in() ? $current_user_data['first_name'] : '';
+        $last_name  = is_user_logged_in() ? $current_user_data['last_name'] : '';
+        $email      = is_user_logged_in() ? $current_user_data['email'] : '';
+        $phone      = is_user_logged_in() ? $current_user_data['billing_phone'] : '';
+        $readonly   = is_user_logged_in() ? 'readonly' : '';
+
         ob_start();
         ?>
         <div class="question-content">
-            <div class="contact-info-container">
-                <div class="first-name-input">
+            <div class="contact-fields">
+                <div class="contact-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_first_name">First Name:</label>
-                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_first_name" name="first_name" required>
+                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_first_name" name="first_name" placeholder="First Name" value="<?php echo esc_attr($first_name); ?>" <?php echo $readonly; ?> required>
                         </div>
-                <div class="last-name-input">
+                <div class="contact-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_last_name">Last Name:</label>
-                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_last_name" name="last_name" required>
+                    <input type="text" id="<?php echo esc_attr( $simple_question_id ); ?>_last_name" name="last_name" placeholder="Last Name" value="<?php echo esc_attr($last_name); ?>" <?php echo $readonly; ?> required>
                 </div>
-                <div class="email-input">
+                <div class="contact-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_email">Email:</label>
-                    <input type="email" id="<?php echo esc_attr( $simple_question_id ); ?>_email" name="email" required>
+                    <input type="email" id="<?php echo esc_attr( $simple_question_id ); ?>_email" name="email" placeholder="Email Address" value="<?php echo esc_attr($email); ?>" <?php echo $readonly; ?> required>
                 </div>
-                <div class="phone-input">
+                <div class="contact-field">
                     <label for="<?php echo esc_attr( $simple_question_id ); ?>_phone">Phone:</label>
-                    <input type="tel" id="<?php echo esc_attr( $simple_question_id ); ?>_phone" name="billing_phone">
+                    <input type="tel" id="<?php echo esc_attr( $simple_question_id ); ?>_phone" name="billing_phone" placeholder="Phone Number" value="<?php echo esc_attr($phone); ?>" <?php echo $readonly; ?>>
                 </div>
             </div>
         </div>
@@ -626,14 +724,18 @@ final class ENNU_Assessment_Shortcodes {
      * Renders the HTML for a 'radio' button question.
      */
     private function _render_radio_question($question, $simple_question_id, $pre_selected_value) {
+        $count = count($question['options']);
+        $num_columns = 2; // Default
+        if ($count === 3 || $count > 4) { $num_columns = 3; }
+        if ($count === 4) { $num_columns = 4; }
+        $column_class = 'columns-' . $num_columns;
         ob_start();
         ?>
         <div class="question-content">
-            <div class="radio-options-container">
-                <label><?php echo esc_html( $question['title'] ); ?></label>
+            <div class="answer-options <?php echo esc_attr($column_class); ?>">
                 <?php foreach ( $question['options'] as $option_value => $option_label ) : ?>
-                    <div class="radio-option">
-                        <input type="radio" id="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>" name="<?php echo esc_attr( $simple_question_id ); ?>" value="<?php echo esc_attr( $option_value ); ?>" <?php checked( $pre_selected_value, $option_value ); ?>>
+                    <div class="answer-option">
+                        <input type="radio" id="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>" name="<?php echo esc_attr( $simple_question_id ); ?>" value="<?php echo esc_attr( $option_value ); ?>" <?php checked( $pre_selected_value, $option_value ); ?> required>
                         <label for="<?php echo esc_attr( $simple_question_id ); ?>_<?php echo esc_attr( $option_value ); ?>"><?php echo esc_html( $option_label ); ?></label>
                     </div>
                 <?php endforeach; ?>
@@ -650,8 +752,11 @@ final class ENNU_Assessment_Shortcodes {
      * @return array
      */
     public function get_assessment_questions( $assessment_type ) {
-        // Return the questions for the specified assessment type from the loaded array.
-        return $this->all_questions[ $assessment_type ] ?? array();
+        return $this->all_definitions[ $assessment_type ] ?? array();
+    }
+
+    public function get_all_assessment_definitions() {
+        return $this->all_definitions;
     }
     
     /**
@@ -717,14 +822,14 @@ final class ENNU_Assessment_Shortcodes {
             $height_in_total = (intval($form_data['height_ft']) * 12) + intval($form_data['height_in']);
             $weight_lbs = intval($form_data['weight_lbs']);
             if ($height_in_total > 0 && $weight_lbs > 0) {
-                // BMI Formula: (weight_lbs / (height_in * height_in)) * 703
                 $bmi = ($weight_lbs / ($height_in_total * $height_in_total)) * 703;
                 update_user_meta($user_id, 'ennu_calculated_bmi', round($bmi, 1));
             }
         }
 
-        // 6. Save Core & Global Data (New Centralized Handler)
-        $this->update_core_user_data($user_id, $form_data);
+        // 6. Save Global Data (New Robust Handler)
+        $this->save_global_meta($user_id, $form_data);
+        $this->sync_core_data_to_wp($user_id, $form_data);
 
         // 7. Save Assessment-Specific Data
         $this->save_assessment_specific_meta( $user_id, $form_data );
@@ -733,18 +838,37 @@ final class ENNU_Assessment_Shortcodes {
         if ( class_exists( 'ENNU_Assessment_Scoring' ) ) {
             $scores = ENNU_Assessment_Scoring::calculate_scores( $form_data['assessment_type'], $form_data );
             if ( $scores ) {
-                // Save historical data
-                $historical_scores_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
-                $historical_scores = get_user_meta($user_id, $historical_scores_key, true);
-                if (!is_array($historical_scores)) { $historical_scores = []; }
-                $historical_scores[] = ['date' => current_time('timestamp'), 'score' => $scores['overall_score']];
-                update_user_meta($user_id, $historical_scores_key, $historical_scores);
+                $completion_time = current_time('mysql');
 
-                // Update latest score for easy access
+                // Update latest score data with a consistent timestamp
+                update_user_meta($user_id, 'ennu_' . $form_data['assessment_type'] . '_score_calculated_at', $completion_time);
                 update_user_meta($user_id, 'ennu_' . $form_data['assessment_type'] . '_calculated_score', $scores['overall_score']);
                 $interpretation = ENNU_Assessment_Scoring::get_score_interpretation( $scores['overall_score'] );
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', $interpretation );
                 update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
+                
+                // --- PHASE 2: SAVE PILLAR SCORES ---
+                if (isset($scores['pillar_scores'])) {
+                    update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_pillar_scores', $scores['pillar_scores'] );
+                }
+                // --- END PHASE 2 ---
+
+                // --- PHASE 3: CALCULATE AND SAVE ENNU LIFE SCORE ---
+                $ennu_life_score = ENNU_Assessment_Scoring::calculate_ennu_life_score($user_id);
+                update_user_meta($user_id, 'ennu_life_score', $ennu_life_score);
+
+                // --- Store Historical ENNU LIFE SCORE ---
+                $history_key = 'ennu_life_score_history';
+                $history = get_user_meta($user_id, $history_key, true);
+                if (!is_array($history)) {
+                    $history = [];
+                }
+                $history[] = [
+                    'date' => current_time('mysql'),
+                    'score' => $ennu_life_score
+                ];
+                update_user_meta($user_id, $history_key, $history);
+                // --- END ---
 
                 // Store results in a transient for the results page to pick up.
                 $results_data = array(
@@ -767,6 +891,34 @@ final class ENNU_Assessment_Shortcodes {
             'message' => 'Assessment submitted successfully!',
             'redirect_url' => $this->get_thank_you_url( $form_data['assessment_type'] )
         ) );
+    }
+
+    /**
+     * AJAX handler to check if an email exists for a non-logged-in user.
+     */
+    public function ajax_check_email_exists() {
+        // Security check
+        check_ajax_referer('ennu_ajax_nonce', 'nonce');
+
+        $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+
+        if (empty($email) || !is_email($email)) {
+            wp_send_json_error(['message' => 'Invalid email provided.'], 400);
+            return;
+        }
+
+        if (email_exists($email)) {
+            // Email exists, prompt user to log in.
+            $login_url = wp_login_url(get_permalink());
+            $message = sprintf(
+                __('An account with this email already exists. <a href="%s">Please log in</a> to continue.', 'ennulifeassessments'),
+                esc_url($login_url)
+            );
+            wp_send_json_success(['exists' => true, 'message' => $message]);
+        } else {
+            // Email does not exist.
+            wp_send_json_success(['exists' => false]);
+        }
     }
 
     /**
@@ -813,22 +965,21 @@ final class ENNU_Assessment_Shortcodes {
         $assessment_type = $data['assessment_type'];
         $questions = $this->get_assessment_questions( $assessment_type );
 
-        // Map simple question IDs to their definitions
-        $question_map = array();
-        foreach ($questions as $index => $q_def) {
-            $assessment_prefix = str_replace('_assessment', '', $assessment_type);
-            $simple_question_id = $assessment_prefix . '_q' . ($index + 1);
-            $question_map[$simple_question_id] = $q_def;
-        }
-        
-        // Save only assessment-specific fields
-        foreach ( $data as $key => $value ) {
-            if (isset($question_map[$key])) {
-                $question_def = $question_map[$key];
+        foreach ( $questions as $question_id => $question_def ) {
+            // Check if the submitted data has an answer for this question
+            if ( isset( $data[$question_id] ) ) {
                 // Only save if it's NOT a global field
-                if (!isset($question_def['global_key'])) {
-                    $value_to_save = $value; // Save the raw value, which could be an array for multiselect
-                    $meta_key = 'ennu_' . $assessment_type . '_' . $key;
+                if ( ! isset($question_def['global_key'] ) ) {
+                    $value_to_save = $data[$question_id];
+                    
+                    // Sanitize array values for multiselect
+                    if ( is_array( $value_to_save ) ) {
+                        $value_to_save = array_map('sanitize_text_field', $value_to_save);
+                    } else {
+                        $value_to_save = sanitize_text_field($value_to_save);
+                    }
+                    
+                    $meta_key = 'ennu_' . $assessment_type . '_' . $question_id;
                     update_user_meta( $user_id, $meta_key, $value_to_save );
                 }
             }
@@ -836,53 +987,83 @@ final class ENNU_Assessment_Shortcodes {
     }
 
     /**
-     * Update Core User Data across WP Native, WC, and Global meta.
+     * Saves all fields marked with a `global_key` to user meta.
+     * This is the new, robust handler that replaces the brittle hardcoded function.
      *
      * @param int $user_id The ID of the user.
      * @param array $data The sanitized assessment data.
      */
-    private function update_core_user_data($user_id, $data) {
-        // 1. Update WP Native User Fields
-        $user_data_update = array('ID' => $user_id);
-        if (isset($data['first_name'])) {
-            $user_data_update['first_name'] = $data['first_name'];
+    private function save_global_meta($user_id, $data) {
+        $assessment_type = $data['assessment_type'];
+        $questions = $this->get_assessment_questions($assessment_type);
+
+        foreach ($questions as $question_id => $question_def) {
+            if (isset($question_def['global_key'])) {
+                $meta_key = 'ennu_global_' . $question_def['global_key'];
+                $value_to_save = null;
+
+                // Handle special field types that have different data keys
+                if ($question_def['type'] === 'dob_dropdowns') {
+                    if (isset($data['dob_combined'])) {
+                        $value_to_save = sanitize_text_field($data['dob_combined']);
+                    }
+                } elseif ($question_def['type'] === 'height_weight') {
+                    if (isset($data['height_ft'], $data['height_in'], $data['weight_lbs'])) {
+                        $value_to_save = [
+                            'ft'  => sanitize_text_field($data['height_ft']),
+                            'in'  => sanitize_text_field($data['height_in']),
+                            'lbs' => sanitize_text_field($data['weight_lbs']),
+                        ];
+                    }
+                } else {
+                    // Standard fields
+                    if (isset($data[$question_id])) {
+                        $value_to_save = $data[$question_id];
+                    }
+                }
+                
+                // Save the data if a value was found
+                if ($value_to_save !== null) {
+                    if (is_array($value_to_save)) {
+                        // No need to sanitize here as individual parts are sanitized above
+                        update_user_meta($user_id, $meta_key, $value_to_save);
+                    } else {
+                        update_user_meta($user_id, $meta_key, sanitize_text_field($value_to_save));
+                    }
+                }
+            }
         }
-        if (isset($data['last_name'])) {
-            $user_data_update['last_name'] = $data['last_name'];
-        }
+    }
+
+    /**
+     * Syncs core data (name, email, phone) to native WP and WooCommerce fields.
+     *
+     * @param int $user_id The ID of the user.
+     * @param array $data The sanitized assessment data.
+     */
+    private function sync_core_data_to_wp($user_id, $data) {
+        // Update WP Native User Fields
+        $user_data_update = ['ID' => $user_id];
+        if (isset($data['first_name'])) { $user_data_update['first_name'] = $data['first_name']; }
+        if (isset($data['last_name'])) { $user_data_update['last_name'] = $data['last_name']; }
         if (count($user_data_update) > 1) {
             wp_update_user($user_data_update);
         }
 
-        // 2. Update WooCommerce and other standard meta fields
+        // Sync with WooCommerce Billing & Shipping fields
         if (isset($data['first_name'])) {
             update_user_meta($user_id, 'billing_first_name', $data['first_name']);
+            update_user_meta($user_id, 'shipping_first_name', $data['first_name']);
         }
         if (isset($data['last_name'])) {
             update_user_meta($user_id, 'billing_last_name', $data['last_name']);
+            update_user_meta($user_id, 'shipping_last_name', $data['last_name']);
         }
         if (isset($data['email'])) {
             update_user_meta($user_id, 'billing_email', $data['email']);
         }
         if (isset($data['billing_phone'])) {
             update_user_meta($user_id, 'billing_phone', $data['billing_phone']);
-        }
-
-        // 3. Update Custom Global Meta Fields from $_POST data directly
-        // These are fields that might not be part of the current assessment's questions
-        // but should still be treated as global if submitted.
-        $other_globals = [
-            'health_goals',
-            'height_ft',
-            'height_in',
-            'weight_lbs'
-        ];
-
-        foreach ($other_globals as $key) {
-            if (isset($data[$key])) {
-                $value_to_save = is_array($data[$key]) ? $data[$key] : sanitize_text_field($data[$key]);
-                update_user_meta($user_id, 'ennu_global_' . $key, $value_to_save);
-            }
         }
     }
     
@@ -1134,11 +1315,33 @@ final class ENNU_Assessment_Shortcodes {
             $matched_recs = [];
             if (!empty($conditional_recs) && !empty($user_answers)) {
                 foreach ($conditional_recs as $question_key => $answer_recs) {
-                    $simple_question_id = ENNU_Question_Mapper::get_simple_id_from_semantic_key($assessment_type, $question_key);
+                    // --- REPLACEMENT LOGIC ---
+                    // The old ENNU_Question_Mapper is obsolete. We now find the question ID
+                    // by iterating through the definitive master definition list.
+                    $simple_question_id = null;
+                    if (isset($this->all_definitions[$assessment_type])) {
+                        foreach ($this->all_definitions[$assessment_type] as $q_id => $q_def) {
+                            // The semantic key is now just the question's array key.
+                            if ($q_id === $question_key) {
+                                $simple_question_id = $q_id;
+                                break;
+                            }
+                        }
+                    }
+                    // --- END REPLACEMENT LOGIC ---
+
                     if ($simple_question_id && isset($user_answers[$simple_question_id])) {
                         $user_answer = $user_answers[$simple_question_id];
-                        if (isset($answer_recs[$user_answer])) {
-                            $matched_recs[] = $answer_recs[$user_answer];
+                        if (is_array($user_answer)) { // Handle multiselect answers
+                            foreach ($user_answer as $single_answer) {
+                                if (isset($answer_recs[$single_answer])) {
+                                    $matched_recs[] = $answer_recs[$single_answer];
+                                }
+                            }
+                        } else { // Handle radio/single answers
+                            if (isset($answer_recs[$user_answer])) {
+                                $matched_recs[] = $answer_recs[$user_answer];
+                            }
                         }
                     }
                 }
@@ -1464,25 +1667,139 @@ final class ENNU_Assessment_Shortcodes {
 
     // New method at end of class
     public function render_user_dashboard( $atts = array() ) {
-        $user_id = get_current_user_id();
-        if ( !$user_id ) {
-            return '<p>' . esc_html__( 'You must be logged in to view your dashboard.', 'ennulifeassessments' ) . '</p>';
+        if (!is_user_logged_in()) {
+            return '<p>' . esc_html__('You must be logged in to view your dashboard.', 'ennulifeassessments') . '</p>';
         }
+
+        $user_id = get_current_user_id();
+        $current_user = wp_get_current_user();
+        
+        // --- DEFINITIVE FIX FOR MISSING ASSESSMENTS ---
+        // Dynamically build the dashboard configuration from the single source of truth.
+        $assessment_keys = array_keys($this->all_definitions);
+
+        $assessment_configs = [];
+        $dashboard_icons = [
+            'hair_assessment' => '🦱',
+            'ed_treatment_assessment' => '❤️‍🩹',
+            'weight_loss_assessment' => '⚖️',
+            'health_assessment' => '❤️',
+            'skin_assessment' => '✨',
+            'sleep_assessment' => '😴',
+            'hormone_assessment' => '🔬',
+            'menopause_assessment' => '🌡️',
+            'testosterone_assessment' => '💪',
+        ];
+
+        foreach ($assessment_keys as $key) {
+            if ($key === 'welcome_assessment') {
+                continue; // Do not show the Welcome assessment on the dashboard
+            }
+            $assessment_configs[$key] = [
+                'label' => $this->assessments[$key]['title'] ?? 'Assessment',
+                'icon' => $dashboard_icons[$key] ?? '📄',
+                'url' => home_url('/' . str_replace('_', '-', $key) . '/'),
+            ];
+        }
+        // --- END DEFINITIVE FIX ---
+        
+        $user_assessments = [];
+        $completed_count = 0;
+        
+        foreach ($assessment_configs as $key => $config) {
+            $score = get_user_meta($user_id, 'ennu_' . $key . '_calculated_score', true);
+            $is_completed = !empty($score);
+
+            if ($is_completed) {
+                $completed_count++;
+            }
+
+            $user_assessments[$key] = [
+                'label' => $config['label'],
+                'icon' => $config['icon'],
+                'url' => $config['url'],
+                'completed' => $is_completed,
+                'score' => $is_completed ? (float)$score : 0,
+                'date' => $is_completed ? get_user_meta($user_id, 'ennu_' . $key . '_score_calculated_at', true) : '',
+                'categories' => $is_completed ? get_user_meta($user_id, 'ennu_' . $key . '_category_scores', true) : [],
+                'details_url' => str_replace('_assessment', '-assessment-details', $config['url']),
+            ];
+        }
+
+        $ennu_life_score = get_user_meta($user_id, 'ennu_life_score', true);
+        $average_pillar_scores = ENNU_Assessment_Scoring::calculate_average_pillar_scores($user_id);
+
+        // --- Fetch User Profile Data ---
+        $dob_combined = get_user_meta($user_id, 'ennu_global_user_dob_combined', true);
+        $age = $dob_combined ? (new DateTime())->diff(new DateTime($dob_combined))->y : null;
+        $gender = get_user_meta($user_id, 'ennu_global_gender', true);
+        // --- END Fetch User Profile Data ---
+
+        // --- Fetch Historical Data ---
+        $score_history = get_user_meta($user_id, 'ennu_life_score_history', true);
+        if (!is_array($score_history)) {
+            $score_history = [];
+        }
+        // --- END Fetch Historical Data ---
+
+        // --- Definitive Fetch Height/Weight and Calculate BMI ---
+        $height_weight = get_user_meta($user_id, 'ennu_global_height_weight', true);
+        $bmi = null;
+        $height_display = null;
+        $weight_display = null;
+        
+        if (is_array($height_weight) && !empty($height_weight['ft']) && !empty($height_weight['lbs'])) {
+            $height_ft = intval($height_weight['ft']);
+            $height_in = intval($height_weight['in'] ?? 0);
+            $weight_lbs = intval($height_weight['lbs']);
+            
+            $height_display = "{$height_ft}' {$height_in}\"";
+            $weight_display = "{$weight_lbs} lbs";
+
+            $height_in_total = ($height_ft * 12) + $height_in;
+            if ($height_in_total > 0 && $weight_lbs > 0) {
+                $bmi = round(($weight_lbs / ($height_in_total * $height_in_total)) * 703, 1);
+            }
+        }
+        // --- END ---
+        
+        // --- Load Dashboard Insights ---
+        $insights_config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/dashboard-insights.php';
+        $dashboard_insights = file_exists($insights_config_file) ? require $insights_config_file : [];
+        // --- END Load Dashboard Insights ---
+
+        // Pass all data to the template
         ob_start();
+        // Make variables available to the template
+        $template_vars = [
+            'current_user' => $current_user,
+            'user_assessments' => $user_assessments,
+            'completed_count' => $completed_count,
+            'ennu_life_score' => $ennu_life_score,
+            'average_pillar_scores' => $average_pillar_scores,
+            'age' => $age,
+            'dob' => $dob_combined ? date("F j, Y", strtotime($dob_combined)) : null,
+            'gender' => $gender ? ucfirst($gender) : null,
+            'insights' => $dashboard_insights,
+            'score_history' => $score_history,
+            'height' => $height_display,
+            'weight' => $weight_display,
+            'bmi' => $bmi,
+        ];
+        extract($template_vars);
         include ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php';
         return ob_get_clean();
     }
 
-    // New method at end of class
     public function render_detailed_results_page($atts, $content = '', $tag = '') {
         if (!is_user_logged_in()) {
             return '<p>' . esc_html__( 'You must be logged in to view this page.', 'ennulifeassessments' ) . '</p>';
         }
-        $assessment_type = str_replace(['ennu-', '-assessment-details'], '', $tag);
+        $assessment_type_slug = str_replace(['ennu-', '-assessment-details'], '', $tag);
         
         // Pass assessment_type to the template
         ob_start();
-        set_query_var('assessment_type', $assessment_type);
+        set_query_var('assessment_type', $assessment_type_slug);
         include ENNU_LIFE_PLUGIN_PATH . 'templates/assessment-details-page.php';
         return ob_get_clean();
     }

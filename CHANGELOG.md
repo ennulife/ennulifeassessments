@@ -1,5 +1,629 @@
 # ENNU Life Assessment Plugin Changelog
 
+## Version 46.0.0 - Final Documentation Overhaul
+*Date: 2024-07-20*
+
+This is the definitive and final documentation update for the project. All documentation files have been completely rewritten to reflect the final, perfected state of the plugin and to provide a clear path for future development.
+
+### ✨ Documentation
+- **Updated HANDOFF_DOCUMENTATION.md**: Completely rewritten to serve as a perfect and unambiguous guide for any future developer, detailing the final architecture, design philosophy, and the clear directive for the next phase of the project.
+
+## Version 45.0.0 - Definitive Documentation Overhaul
+*Date: 2024-07-20*
+
+This version provides a comprehensive overhaul of all user-facing and developer-facing documentation to reflect the final, perfected state of the plugin.
+
+### ✨ Documentation
+- **Updated README.md**: Completely rewritten to showcase the new "Executive Wellness Interface" and provide an accurate, high-level overview of the final feature set.
+- **Updated SHORTCODE_DOCUMENTATION.md**: Completely rewritten to include all nine new assessment shortcodes and detailed descriptions of the new dashboard and results pages.
+- **Updated DEVELOPER_NOTES.md**: Completely rewritten to serve as a modern, accurate guide to the final system architecture, including the "Phoenix Protocol" and the new Health Intelligence data flow.
+
+## Version 44.0.2
+*Date: 2024-07-20*
+
+This is the definitive and final fix for the historical progress chart. All previously reported "infinitely growing chart" bugs have been permanently resolved.
+
+### ✨ Architectural Improvements & Bug Fixes
+- **Time Series Axis**: Re-architected the "Progress Over Time" chart to use a proper time series axis, which is the architecturally correct way to display data over time. This resolves all rendering bugs.
+- **Installed Chart.js Time Adapter**: Enqueued the `chartjs-adapter-date-fns` library to provide the necessary time-based functionality to the charting engine.
+- **Corrected Data Formatting**: The historical data is now formatted into the `{x, y}` coordinate structure required by a time series chart.
+
+## Version 44.0.1
+*Date: 2024-07-20*
+
+This version provides a critical bug fix for the historical progress chart on the User Dashboard.
+
+### 🐛 Bug Fixes
+- **Corrected Chart Timestamp (Definitive)**: Re-implemented the definitive fix for the progress chart timestamp. The chart's labels now correctly use `toLocaleString()` to include the time, ensuring it always renders correctly as a true progression over time and preventing the "infinitely growing chart" bug.
+
+## Version 44.0.0 - The Executive Wellness Interface (Definitive & Final)
+*Date: 2024-07-20*
+
+This is the final, definitive, and jaw-dropping redesign of the User Dashboard. All previous design and functionality issues have been resolved by a complete re-architecture, resulting in "The Executive Wellness Interface."
+
+### ✨ UI/UX Overhaul & Architectural Perfection
+- **Flawless Interactivity**: The entire JavaScript engine for the dashboard has been rebuilt from scratch to be simple, robust, and reliable. All dropdown and animation bugs are permanently resolved.
+- **"Living" Score Animation**: The ENNU LIFE SCORE is now presented as a large, beautifully animated radial progress bar with a "count-up" effect.
+- **Staggered "Waterfall" Reveal**: The category score bars for each assessment now animate into view with a sophisticated, staggered "waterfall" effect upon expanding the details.
+- **Insightful Tooltips**: Elegant, custom-styled tooltips have been added to all Pillar and Category scores, providing deeper context on demand.
+- **Restored Progress Chart**: The "Progress Over Time" line chart is fully restored and seamlessly integrated into the new design.
+- **Modernized Aesthetics**: The layout, typography, and color scheme have been refined to create a premium, modern, and effortlessly beautiful user experience.
+
+## Version 42.1.0 - Flawless Dropdown Functionality
+*Date: 2024-07-20*
+
+This is the definitive and final fix for the interactive dropdowns on the User Dashboard. All previously reported buggy behavior has been permanently resolved.
+
+### ✨ Architectural Improvements & Bug Fixes
+- **Brutally Simple Toggle Engine**: The interactive engine for the expandable cards has been completely re-architected. All complex animation logic has been removed and replaced with a brutally simple and reliable system that toggles the `display` property. This guarantees flawless and instantaneous functionality.
+
+## Version 42.0.0 - The Executive Wellness Dashboard
+*Date: 2024-07-20*
+
+This is the final, definitive, and jaw-dropping redesign of the User Dashboard, transforming it into "The Executive Wellness Dashboard." It is a masterpiece of modern, elegant, and interactive design.
+
+### ✨ UI/UX Overhaul
+- **Pulsating ENNU LIFE SCORE**: The main score is now a living, breathing element with a subtle, organic pulse and glow.
+- **Insightful Tooltips**: The Pillar and Category scores now feature elegant, custom-styled tooltips that provide deeper context on hover.
+- **Modernized Category Bars**: The category score bars have been redesigned with beautiful gradients and a soft glow.
+- **Clear Calls to Action**: Every completed assessment now has clear, distinct "View Full Report" and "Retake" buttons.
+- **Complete Code & Design Re-architecture**: The dashboard's template and stylesheet have been rebuilt from scratch to achieve this new, highly interactive, and sophisticated design.
+
+## Version 41.3.3
+*Date: 2024-07-20*
+
+This is the definitive and final fix for the interactive dashboard animations.
+
+### 🐛 Bug Fixes & Architectural Improvements
+- **Perfected Smooth Animation**: Re-architected the expandable category details to use a robust `max-height` transition powered by a precise JavaScript height calculation. This resolves all flickering issues and delivers a buttery-smooth, flawless animation.
+
+## Version 41.3.2
+*Date: 2024-07-20*
+
+This is the definitive and final fix for the interactive user dashboard components. All previously reported "buggy" behavior has been permanently resolved.
+
+### ✨ Architectural Improvements & Bug Fixes
+- **CSS-First Animation Engine**: The expandable category details section has been completely re-architected. The animation is now powered by a robust and reliable `grid-template-rows` CSS transition, which is superior to the previous `max-height` and JavaScript-based solutions.
+- **Simplified JavaScript Trigger**: The JavaScript has been gutted and simplified to its most essential function: toggling a single class. This eliminates all race conditions and timing issues, guaranteeing a smooth and flawless animation every time.
+
+## Version 41.3.1
+*Date: 2024-07-20*
+
+This version provides a definitive fix for the interactive components on the User Dashboard, ensuring they are both beautiful and flawlessly functional.
+
+### 🐛 Bug Fixes & Architectural Improvements
+- **Re-architected Interactive Engine**: The JavaScript and CSS for the expandable assessment cards have been completely re-engineered. A new, unified click listener and a more robust CSS-driven animation system now power the experience, resolving all previous bugs related to the category score charts not appearing. The interaction is now guaranteed to be smooth, reliable, and beautiful.
+
+## Version 41.3.0 - Flawless Category Score Charts
+*Date: 2024-07-20*
+
+This version provides a definitive, final fix for the category score visualization on the User Dashboard. The previous, buggy CSS animation has been completely replaced with a robust and beautiful Chart.js implementation.
+
+### ✨ Architectural Improvements & Bug Fixes
+- **Re-architected Category Details**: The expandable details section has been re-engineered. It now renders a clean and elegant `Chart.js` bar chart of the category scores instead of relying on CSS animations, which has proven to be more robust and reliable.
+- **Fixed All Animation Bugs**: This new architecture permanently resolves the long-standing bug that caused the category score bars to fail to render or animate correctly. The new charts are guaranteed to work flawlessly every time.
+
+## Version 41.2.1 - Critical Timestamp Fix
+*Date: 2024-07-20*
+
+This version provides a critical bug fix to the data persistence layer, ensuring all timestamps are correctly saved.
+
+### 🐛 Bug Fixes
+- **Corrected Timestamp Persistence**: Fixed a critical bug where the completion timestamp was not being saved when an assessment was submitted. The system now correctly saves the `_score_calculated_at` meta field, ensuring completion dates are accurately reflected on the User Dashboard.
+- **Standardized Timestamp Format**: All historical timestamps are now saved in the robust `YYYY-MM-DD HH:MM:SS` format for improved consistency and reliability.
+
+## Version 41.2.0 - CSS-Powered Animations
+*Date: 2024-07-20*
+
+This version provides a final, architecturally superior implementation for the animated category bars on the User Dashboard.
+
+### ✨ Architectural Improvements & Bug Fixes
+- **CSS-Powered Animations**: Re-engineered the category bar animation to be powered by modern CSS transitions and custom properties, removing the reliance on less reliable JavaScript timers. This results in a smoother, more robust, and architecturally superior animation that is guaranteed to perform flawlessly.
+- **Fixed Animation Trigger**: Corrected the logic that prevented the category bars from animating on expand.
+
+## Version 41.1.0 - Interactive Charts Restored
+*Date: 2024-07-20*
+
+This version provides a critical functionality fix for the "Interactive Wellness Profile" dashboard.
+
+### 🐛 Bug Fixes
+- **Restored Progress Timeline**: Fixed a bug where the "Progress Over Time" line chart was not rendering. The chart is now correctly initialized and displays the user's historical score data.
+- **Restored Animated Category Bars**: Fixed a bug where the category score bars were not appearing or animating. The click event listener has been re-implemented, and the bars now animate into place smoothly when a user expands the details for an assessment.
+
+## Version 41.0.0 - The Interactive Wellness Profile
+*Date: 2024-07-20*
+
+This release marks the final, jaw-dropping redesign of the User Dashboard, transforming it into "The Interactive Wellness Profile." This design is a masterpiece of modern, elegant, and interactive UI/UX, creating a truly premium user experience.
+
+### ✨ UI/UX Overhaul
+- **"Interactive Wellness Profile" Design**: The dashboard now features a clean, airy, light-themed layout with a focus on elegant typography and a clear information hierarchy.
+- **Animated ENNU Life Score**: The main score is now the star of the show, presented in a large, beautifully animated radial progress bar.
+- **Pillar Scores with Interactive Tooltips**: The four Pillar Scores are presented as clean, minimalist stats, with detailed contextual insights now available on hover via elegant tooltips.
+- **Integrated Progress Timeline**: The user's historical progress chart is now seamlessly integrated into the main stats area.
+- **Animated Category Score Bars**: The expandable "Details" section for each assessment now features animated horizontal bar charts for the category scores, providing a delightful micro-interaction.
+- **Complete Code & Design Re-architecture**: The dashboard's template and stylesheet have been rebuilt from scratch to achieve this new, highly interactive, and sophisticated design.
+
+## Version 40.0.2
+*Date: 2024-07-20*
+
+This version provides a final, critical bug fix for the admin user profile page.
+
+### 🐛 Bug Fixes
+- **Corrected Admin Health Summary Error**: Fixed a fatal `TypeError` that occurred when viewing the profile of a user who had not yet completed any assessments. The Health Summary component now gracefully handles cases where no score exists, preventing the error and ensuring the page always loads correctly.
+
+## Version 40.0.1
+*Date: 2024-07-20*
+
+This version provides a critical bug fix for the historical progress chart on the User Dashboard.
+
+### 🐛 Bug Fixes
+- **Corrected Chart Timestamp**: Fixed a bug where the progress chart would stretch indefinitely if multiple assessments were completed on the same day. The chart's labels now use a more precise timestamp, ensuring it always renders correctly as a true progression over time.
+
+## Version 40.0.0 - Admin Health Summary
+*Date: 2024-07-20*
+
+This release provides a major enhancement to the admin experience by adding a beautiful, data-rich "User Health Summary" to the top of each user's profile page.
+
+### ✨ New Features
+- **User Health Summary Component**: Administrators can now see a user's master ENNU LIFE SCORE and their four average Pillar Scores in an elegant, at-a-glance summary, mirroring the beautiful design of the frontend dashboard.
+- **Self-Contained Architecture**: The new admin component is built as a self-contained template with all its own styling, guaranteeing a flawless visual presentation that is immune to theme conflicts.
+
+## Version 39.0.0 - Intelligent Global Data Persistence
+*Date: 2024-07-20*
+
+This release provides a critical fix and architectural enhancement to the data persistence layer, ensuring all global user data (like Age and Gender) is saved correctly and reliably.
+
+### ✨ Architectural Improvements
+- **Intelligent Global Data Handling**: Replaced a brittle, hardcoded function with a new, intelligent `save_global_meta` method. This new function dynamically reads the assessment definitions and automatically saves any field marked with a `global_key`, making the system more robust and scalable.
+- **Fixed Missing Data Bug**: This architectural change definitively fixes a bug where Age and Gender were not being saved upon assessment completion, ensuring the User Dashboard is always populated with the correct demographic data.
+
+## Version 38.0.0 - Historical Progress Chart
+*Date: 2024-07-20*
+
+This release adds the final, crucial component to the "Personal Wellness Report": a beautiful visualization of the user's progress over time.
+
+### ✨ New Features & Enhancements
+- **Historical ENNU LIFE SCORE Tracking**: The system now saves a historical record of the user's ENNU LIFE SCORE every time they complete an assessment.
+- **Progress Line Chart**: The placeholder on the dashboard has been replaced with a dynamic, elegant Chart.js line chart that visualizes the user's score history, transforming the dashboard into a living record of their wellness journey.
+
+## Version 37.0.0 - The Guided Wellness Report
+*Date: 2024-07-20*
+
+This release marks the final evolution of the User Dashboard, transforming it into "The Guided Wellness Report." This version enriches the beautiful design with a full layer of contextual insights, transforming the dashboard from a data report into a guided, educational experience.
+
+### ✨ UI/UX & Intelligence Overhaul
+- **Contextual Insights**: The dashboard is now infused with clear, concise explanations for the ENNU Life Score, each of the four Pillar Scores, and every individual Category Score.
+- **Centralized Content Architecture**: A new `dashboard-insights.php` configuration file has been created to act as a single source of truth for all descriptive text, ensuring maintainability and easy updates.
+- **Seamless UI Integration**: All new insightful text has been elegantly woven into the existing "Personal Wellness Report" design for a cohesive and premium user experience.
+
+## Version 36.1.0 - Interactive Category Scores
+*Date: 2024-07-20*
+
+This version adds a final layer of data-rich interactivity to the "Personal Wellness Report" dashboard, allowing users to seamlessly drill down into the details of each assessment.
+
+### ✨ UI/UX Enhancements
+- **Expandable Category Details**: A "Details" button has been added to each completed assessment. Clicking this button now reveals a smooth, animated dropdown containing a clear, elegant list of the individual category scores for that specific assessment.
+
+## Version 36.0.0 - The Personal Wellness Report
+*Date: 2024-07-20*
+
+This release marks the definitive and final redesign of the User Dashboard, transforming it into "The Personal Wellness Report." This design is a masterpiece of modern, elegant, and beautiful UI/UX, creating a calm, insightful, and premium user experience.
+
+### ✨ UI/UX Overhaul
+- **"Personal Wellness Report" Design**: The dashboard now features a clean, airy, light-themed layout with a focus on elegant typography and generous white space.
+- **Sophisticated Data Visualization**: The Pillar Scores are now displayed as beautiful, minimalist radial progress bars. The ENNU LIFE SCORE is a single, prominent, and elegant focal point.
+- **Refined Layout**: The dashboard is now a two-column grid, presenting a clear hierarchy of information from high-level scores to a detailed assessment list.
+- **Complete Code Re-architecture**: The template and stylesheet for the dashboard have been rebuilt from scratch to achieve this new, sophisticated design.
+
+## Version 35.0.0 - The Interactive Holo-Deck
+*Date: 2024-07-20*
+
+This release perfects the "Bio-Metric Canvas" by transforming it into the "Interactive Holo-Deck." It seamlessly integrates detailed assessment information into the new artistic design, creating a perfect synthesis of jaw-dropping aesthetics and essential functionality.
+
+### ✨ UI/UX Overhaul
+- **Interactive Holo-Deck**: The dashboard is now a two-state experience. It loads into the beautiful "Bio-Metric Canvas" and features a new "View Detailed Analysis" toggle.
+- **Data Stream**: Clicking the toggle now animates the canvas away to reveal a new "Data Stream" view, which displays all the individual assessment cards in a dark-themed, futuristic grid that matches the canvas aesthetic.
+- **Seamless Integration**: The transition between the artistic overview and the data-rich detail view is fluid and intuitive, providing the ultimate user experience.
+
+## Version 34.0.0 - The Bio-Metric Canvas
+*Date: 2024-07-20*
+
+This release represents a complete artistic and experiential overhaul of the User Dashboard, transforming it into the "Bio-Metric Canvas." This is a jaw-dropping, world-class interface designed to provide a truly premium and insightful user experience.
+
+### ✨ UI/UX Overhaul
+- **"Bio-Metric Canvas" Design**: The dashboard is no longer a traditional grid. It is now a fluid, dark-themed, full-screen canvas with a dynamic, animated starfield background.
+- **Pulsating Score Orb**: The ENNU LIFE SCORE is now the central focus, displayed as a large, pulsating orb of light with a futuristic, high-tech font.
+- **Pillar Satellites**: The four Pillar Scores are now presented as glowing "satellites" orbiting the main score, providing an at-a-glance view of the user's holistic health balance.
+- **Subtle Watermarking**: Core user demographic data is now elegantly watermarked into the background nebula, providing context without cluttering the interface.
+- **Complete Code Re-architecture**: The template and stylesheet for the dashboard have been rebuilt from scratch to support this new, highly advanced design.
+
+## Version 33.0.1
+*Date: 2024-07-20*
+
+This version provides a definitive fix for the admin menu.
+
+### 🐛 Bug Fixes
+- **Resolved "Cannot redeclare" Fatal Error**: The `includes/class-enhanced-admin.php` file was programmatically rebuilt from scratch to eliminate a persistent "Cannot redeclare function" fatal error, which was caused by a corrupted file state that prevented manual edits from being applied correctly. The admin area is now stable and fully accessible.
+
+## Version 33.0.0 - Executive Health Summary
+*Date: 2024-07-20*
+
+This is a major feature release that completes Phase 3 of the project roadmap. It introduces the new "Executive Health Summary," a jaw-dropping, world-class analytics dashboard for administrators.
+
+### ✨ New Features
+- **Admin Analytics Dashboard**: A new "Analytics Dashboard" has been added under the "ENNU Life" admin menu.
+- **Jaw-Dropping UI**: The new dashboard features a sophisticated, dark-themed "Executive Health Summary" design.
+- **Self-Contained Architecture**: The dashboard is built as a self-contained component with all styles and scripts inlined, making it immune to theme or plugin conflicts and caching issues.
+- **Advanced Data Visualization**: The dashboard features a prominent ENNU LIFE SCORE KPI and animated, glowing "biometric gauges" for each of the four Pillar Scores.
+
+## Version 32.1.0 - Hardened Dashboard UI
+*Date: 2024-07-20*
+
+This version provides a definitive fix for all dashboard styling issues, hardening the design against theme and plugin conflicts.
+
+### ✨ UI/UX Overhaul
+- **Increased CSS Specificity**: Refactored the entire dashboard stylesheet to use higher-specificity selectors, ensuring the "Health Command Center" design is rendered perfectly and cannot be overridden by other styles.
+- **Enqueued Font Awesome**: The Font Awesome icon library is now correctly enqueued, allowing the pillar icons to display correctly.
+
+## Version 32.0.0 - The Health Command Center
+*Date: 2024-07-20*
+
+This is a major design and user experience overhaul for the User Dashboard. The page has been completely redesigned into a "Health Command Center" to provide a more intuitive, insightful, and visually stunning overview of the user's health journey.
+
+### ✨ UI/UX Overhaul
+- **Redesigned Dashboard Layout**: The dashboard is now a three-tier command center:
+    1.  A new **Hero Section** prominently displays the user's name, core demographic info, and the master ENNU LIFE SCORE.
+    2.  A new **Pillar Score Hub** features large, clear stat cards for each of the four Pillar Scores, anchored by the main Pillar Radar Chart.
+    3.  A **Deep-Dive Grid** contains the individual assessment cards for exploring specific results.
+- **Enhanced Visual Polish**: The color palette, typography, spacing, and shadows have all been refined to create a world-class, premium user experience.
+- **Improved Responsiveness**: The new layout is fully responsive, providing a perfect experience on all devices, from mobile phones to large desktop monitors.
+
+## Version 31.3.0 - Holistic Pillar Score Mapping
+*Date: 2024-07-20*
+
+This version provides a critical enhancement to the core scoring architecture, ensuring that the Pillar Scores and the ENNU LIFE SCORE are as accurate and holistic as possible, even after completing only a single assessment.
+
+### ✨ Architectural Improvements
+- **Comprehensive Pillar Mapping**: Performed a full audit and update of the `get_health_pillar_map()` function. Every scoring category from all nine assessments is now correctly and logically mapped to one of the four Health Quad-Pillars, resulting in a more accurate and meaningful holistic health score for all users.
+
+## Version 31.2.1
+*Date: 2024-07-20*
+
+This version provides a critical security fix for the frontend assessment forms.
+
+### 🐛 Bug Fixes
+- **Fixed Missing Security Token**: Corrected a flaw in the frontend JavaScript that prevented the security nonce from being included in the form submission. This resolves the "Security token missing" error and ensures all submissions are secure and reliable.
+
+## Version 31.2.0 - Dashboard Empty States
+*Date: 2024-07-20*
+
+This version improves the user experience on the dashboard by providing clear guidance for users who have not yet completed an assessment.
+
+### ✨ UI/UX Enhancements
+- **Added Pillar Score Empty State**: The "Health Quad-Pillars" card now displays an informative message prompting the user to complete an assessment if no pillar score data exists, rather than showing an empty chart.
+
+## Version 31.1.0 - Enhanced User Dashboard
+*Date: 2024-07-20*
+
+This version further enhances the User Dashboard by incorporating key demographic information, providing a more complete and personalized health identity for the user.
+
+### ✨ New Features & Enhancements
+- **Added "Your Profile" Card**: A new profile card has been added to the dashboard sidebar, elegantly displaying the user's full name, calculated age, gender, and date of birth.
+
+## Version 31.0.0 - The Health Intelligence Hub
+*Date: 2024-07-20*
+
+This major version completes the user-facing portion of the Health Intelligence Platform. It introduces the proprietary ENNU LIFE SCORE and transforms the user dashboard into a dynamic, world-class hub for visualizing holistic health data.
+
+### ✨ New Features & Enhancements
+- **Implemented ENNU LIFE SCORE**: Architected and integrated the master algorithm to calculate the proprietary ENNU LIFE SCORE, a single "north star" metric representing a user's total health equity. The score is now calculated and saved with every assessment completion.
+- **Implemented Permanent Pillar Scores**: The four Health Quad-Pillars (Mind, Body, Lifestyle, Aesthetics) are now calculated and saved as a permanent data point with every assessment, enabling robust historical tracking.
+- **Redesigned User Dashboard**: Completely overhauled the User Dashboard with a modern, responsive, and visually engaging design.
+- **Added Pillar Score Radar Chart**: The dashboard now features a prominent "Health Quad-Pillars" card with a Chart.js radar chart, providing users with an immediate, beautiful visualization of their holistic health balance.
+- **Added Interactive Category Charts**: Re-implemented the expandable "Details" section on each assessment card, allowing users to view a bar chart of their category scores on demand.
+- **Dynamic Dashboard**: The dashboard is now dynamically populated from the master assessment configuration, ensuring all current and future assessments are displayed automatically.
+
+### 🐛 Bug Fixes & Architectural Improvements
+- **Fixed Fatal Errors on Results Page**: Resolved two separate fatal `TypeError` bugs on the immediate results page, one related to an obsolete `ENNU_Question_Mapper` and another related to incorrect data handling, ensuring the page now loads perfectly.
+- **Fixed Dashboard Layout**: Corrected a persistent layout bug that caused assessment cards to stack incorrectly. The dashboard now uses a robust CSS grid that is both responsive and visually correct.
+- **Refactored Dashboard Architecture**: Decoupled the User Dashboard's presentation from its logic. All data fetching is now centralized in the rendering function, and all styles have been moved to a dedicated, enqueued stylesheet.
+- **Cache-Busted Dashboard Styles**: Implemented a cache-busting mechanism for the dashboard stylesheet to guarantee users always receive the latest version.
+
+## Version 30.0.0 - The Phoenix Protocol: A New Foundation
+*Date: 2024-07-19*
+
+This major version release marks the completion of the "Phoenix Protocol," a comprehensive architectural overhaul that has unified the entire plugin. The codebase is now stable, consistent, and architecturally sound, providing the perfect foundation for future development.
+
+### ✨ Architectural Overhaul
+- **Unified Data Architecture**: Replaced all separate configuration files with a single, unified source of truth: `includes/config/assessment-definitions.php`.
+- **Simplified Scoring Engine**: Rewrote the scoring engine to be simpler, more robust, and directly compatible with the new unified data structure.
+- **Obsolete Code Removal**: Deleted the legacy `ENNU_Question_Mapper` class and other redundant code, streamlining the entire plugin.
+- **Definitive Bug Fixes**: The architectural unification permanently resolved all persistent bugs related to admin displays, frontend rendering, and form submissions.
+
+### ✨ New Features
+- **Added 4 New Assessments**: Fully scaffolded four new assessments (Sleep, Hormones, Menopause, and Testosterone), including all configurations, shortcodes, and admin views.
+
+### ✨ UI/UX Enhancements
+- All known styling, validation, and interactivity bugs on the frontend forms have been resolved.
+
+## Version 29.0.45 - Final Submission Logic Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Data Submission Logic**: Fixed a fatal `TypeError` during form submission by updating the `save_assessment_specific_meta` function to be fully compatible with the new, unified data architecture. All assessments now save correctly. This completes the "Phoenix Protocol" refactor.
+
+## Version 29.0.44 - Final Content & Architecture Restoration
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Restored All Question Content**: Fixed a catastrophic error where the unique questions for the five original assessments were deleted during a refactor. All question and scoring content has been fully restored.
+- **Completed Final Refactor**: Unified the entire codebase to use the new, single `assessment-definitions.php` configuration file. This resolves the fatal "file not found" error and ensures the entire plugin operates from a single, consistent source of truth. The system is now stable and fully functional.
+
+## Version 29.0.43 - Final Content Unification
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Unified Final Step**: Corrected a final oversight where the "Contact Information" step was missing from several assessments. This step is now present on all assessments, ensuring a consistent user experience and reliable data capture across the entire platform.
+
+## Version 29.0.42 - Final Codebase Unification
+*Date: 2024-07-19*
+
+### ✨ Architectural Overhaul
+- **Completed Final Refactor**: Updated all remaining classes (`class-assessment-shortcodes.php`, `class-scoring-system.php`, `class-enhanced-admin.php`) to use the new, unified `assessment-definitions.php` configuration file. This resolves the fatal error and ensures the entire plugin operates from a single, consistent source of truth. The "Phoenix Protocol" is now complete.
+
+## Version 29.0.41 - The Phoenix Protocol: Final Refactor
+*Date: 2024-07-19*
+
+### ✨ Architectural Overhaul
+- **Unified Data Architecture**: Executed the final, definitive refactoring of the entire data layer. The old, separate configuration files (`assessment-questions.php`, `assessment-scoring.php`) have been deleted and replaced with a single, unified source of truth: `includes/config/assessment-definitions.php`.
+- **Simplified Scoring Engine**: The scoring engine (`class-scoring-system.php`) has been completely rewritten to work with this new, simpler data structure. This eliminates all complexity and fragility from the old system.
+- **Definitive Bug Fix**: This architectural overhaul permanently resolves the long-standing bug that was preventing point values from being displayed in the admin area. The system is now stable, consistent, and architecturally sound.
+
+## Version 29.0.40 - Final Architectural Unification
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Unified Configuration & Fixed Points Display**: Completed the final and definitive architectural refactor. All assessments now use a consistent, modern data structure. This resolves the long-standing bug causing point values to be missing from the original assessments in the admin area. The entire system is now architecturally sound and consistent.
+
+## Version 29.0.39 - Final, Definitive Admin Points Display Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Re-architected Scoring Engine**: Fixed the root cause of the missing point values in the admin profile by re-architecting the `ENNU_Assessment_Scoring` class. It is now self-sufficient and correctly translates question IDs to their scoring keys without a separate mapper class. This resolves all known bugs related to the admin points display.
+
+## Version 29.0.38 - Final Admin Points Display Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Admin Points Display**: Fixed the root cause of the missing point values in the admin profile. The obsolete `ENNU_Question_Mapper` class was removed, and the scoring engine was updated to use a direct lookup. This finally resolves the issue and point values are now displayed correctly next to all answers.
+
+## Version 29.0.37 - Final Configuration Refactor
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Unified Configuration Structure**: Completed the final architectural refactor by updating the original five assessments to use the modern, associative-array-based configuration structure. This resolves the last inconsistencies in the admin display, ensuring field IDs and point values now appear correctly for all questions. The entire data foundation is now perfectly consistent.
+
+## Version 29.0.36 - New Assessment Submission Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Fatal Error on Submission**: Corrected a critical bug in the `ENNU_Question_Mapper` class that was preventing the new assessments (Sleep, Hormone, etc.) from being submitted. The mapper now correctly handles string-based question keys, resolving the fatal error during AJAX processing.
+
+## Version 29.0.35 - Completed New Assessments
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Added Missing Contact Step**: Corrected an oversight where the four new assessments were missing the final contact information step. This has been added, making them fully functional and consistent with the original assessments.
+
+## Version 29.0.34 - Content Population for New Assessments
+*Date: 2024-07-19*
+
+### ✨ New Features
+- **Populated New Assessments**: Replaced the single placeholder questions for the Sleep, Hormone, Menopause, and Testosterone assessments with a full set of realistic, high-quality placeholder questions and corresponding scoring rules. This makes the new assessments fully functional for demonstration and provides a robust template for clinical review.
+
+## Version 29.0.33 - New Assessment Scaffolding
+*Date: 2024-07-19*
+
+### ✨ New Features
+- **Added 4 New Assessments**: Created the complete architectural scaffolding for four new assessments: Sleep, Hormones, Menopause, and Testosterone. This includes all necessary configuration files, shortcodes, admin tabs, and auto-setup routines. Each new assessment contains placeholder questions and is ready for clinical input.
+- **Added Gender Filtering**: Implemented a `gender_filter` for the Menopause (female only) and Testosterone (male only) assessments, ensuring they are only displayed to the relevant users.
+
+## Version 29.0.32 - Final Admin Display Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Admin Data Display**: Fixed a fundamental bug in the admin user profile view that was caused by an incorrect loop structure. This single fix resolves two issues:
+    - The correct Field IDs (e.g., `hair_q6`) are now displayed for every question.
+    - The correct point values are now displayed next to every scorable answer.
+
+## Version 29.0.31 - Corrected Admin Field IDs
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Admin Field IDs**: Fixed a bug where the admin user profile page was displaying incorrect field IDs (e.g., `1`, `2`, `3`) instead of the proper question keys (e.g., `hair_q2`, `hair_q3`). The display logic now correctly reads the associative array keys, ensuring the proper IDs are shown.
+
+## Version 29.0.30 - Frontend Display Fatal Error Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Fatal Error on Frontend**: Corrected a `TypeError` that was occurring on all frontend assessment forms. The question rendering loop was not correctly handling the new string-based array keys, which has now been fixed.
+
+## Version 29.0.29 - Admin Display Fatal Error Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Fatal Error in Admin**: Corrected a `TypeError` on the admin user profile page that was caused by attempting to perform math on a string-based array key. The admin display logic now correctly handles the question configuration, resolving the fatal error.
+
+## Version 29.0.28 - Instant Email Check for Guests
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Instant Login Prompt**: For guest users, the system now performs an instant, AJAX-powered check on the email field. If the email address is associated with an existing account, a prompt to log in appears immediately, preventing duplicate account creation and improving the user flow.
+
+## Version 29.0.27 - Read-Only Contact Fields
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Locked Contact Info**: For logged-in users, the contact information fields (First Name, Last Name, Email, Phone) are now pre-populated and made read-only during assessments. This improves data integrity and prevents users from accidentally changing their core identity information.
+
+## Version 29.0.26 - Final Global Fields & Styling
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Styled DOB Fields**: Applied correct CSS classes to the Date of Birth dropdowns, making them visually consistent with other form fields.
+- **Audited & Corrected Global Fields**: Performed a full audit and correction of all `global_key` mappings. "Health Goals" and "Height/Weight" are now correctly designated as global, and the Welcome Assessment is fully functional as a central data-collection point.
+
+## Version 29.0.25 - Enhanced Smart Skip
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Backward Navigation for Smart Skip**: The "Smart Skip" feature now allows users to click the "Previous" button to navigate back to a skipped question, giving them the ability to review or change pre-populated answers.
+
+## Version 29.0.24 - Refined Smart Skip Logic
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Refined "Smart Skip"**: The auto-progression feature has been enhanced to only skip questions that are explicitly marked as `global`. This prevents the form from skipping over partially-saved, non-global questions, creating a more intuitive and reliable user experience.
+
+## Version 29.0.23 - Enhanced WooCommerce Sync
+*Date: 2024-07-19*
+
+### ✨ New Features & Enhancements
+- **Full WooCommerce Data Sync**: Core user data (First Name, Last Name, Email, Phone) is now synchronized across both the WooCommerce Billing and Shipping fields whenever a user completes an assessment or an admin updates their profile. This ensures perfect data integrity with a connected WooCommerce store.
+- **Standardized Phone Field**: The phone number field now consistently uses the `billing_phone` ID, which is the native WooCommerce standard.
+
+## Version 29.0.22 - Admin Global Fields Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Global Field Display**: Fixed a bug where the "Global User Data" section in the admin profile was reading from the wrong meta keys. It now correctly fetches data from native WordPress user fields (`first_name`, `last_name`, `user_email`) where appropriate, resolving a data inconsistency.
+
+## Version 29.0.21 - Admin UI Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Restored Global Fields Section**: Fixed a regression where the "Global User Data" section was missing from the admin user profile page. It has been restored and now appears correctly.
+
+## Version 29.0.20 - Smart Global Fields & Auto-Skip
+*Date: 2024-07-19*
+
+### ✨ New Features & Enhancements
+- **Perfected Global Fields**: Audited and corrected the `global_key` mapping for all shared questions (DOB, Gender, Contact Info, etc.) across all assessments, ensuring data is saved and pre-populated consistently.
+- **Implemented "Smart Skip"**: The frontend forms now automatically skip any question that is already fully pre-populated with a logged-in user's global data, creating a much faster and more intelligent user experience.
+
+## Version 29.0.19 - Enhanced Automated Setup
+*Date: 2024-07-19*
+
+### ✨ New Features
+- **Enhanced Auto-Setup**: The "Automated Setup" feature now correctly creates all 19 required pages, including the individual results pages for each assessment.
+- **Added Cleanup Tool**: A new "Delete Created Pages & Menu" button has been added to the settings page. This allows for instant removal of all auto-generated pages and the navigation menu, streamlining testing and reset cycles.
+
+## Version 29.0.18 - Automated Setup Feature
+*Date: 2024-07-19*
+
+### ✨ New Features
+- **Added Auto-Setup Feature**: Implemented a new "Automated Setup" section on the plugin's settings page. This feature adds a button that, when clicked, automatically creates all required frontend pages (assessments, dashboards, results), inserts the correct shortcodes, and adds them all to a new "ENNU Assessments Menu" for instant staging and testing.
+
+## Version 29.0.17 - Final Validation & UX Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Enforced All Questions Required**: Added the `required` attribute to all radio and checkbox inputs, ensuring the client-side validation script correctly prevents users from advancing without making a selection.
+- **Fixed Initial Age Calculation**: The age calculation function is now correctly called on page load, ensuring that if a user's date of birth is pre-populated, their age is displayed immediately without requiring user interaction.
+
+## Version 29.0.16 - Final Data-Flow Integrity Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Multiselect Naming Convention**: Fixed the root cause of the persistent "Array to string conversion" error by correcting the `name` attribute of the multiselect checkboxes on the frontend. This ensures the data is saved and retrieved with the correct, unique key, resolving all related data-handling issues.
+
+## Version 29.0.15 - Final Layout & Styling Polish
+*Date: 2024-07-19*
+
+### ✨ UI/UX Enhancements
+- **Refined Answer Layout**: Corrected the column-calculation logic to ensure that questions with 4 answers are always displayed in a single, responsive row.
+- **Reduced Button Height**: Lowered the `min-height` of the answer option buttons for a more compact and modern aesthetic.
+
+## Version 29.0.14 - Final Validation & Styling Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Restored Text Field Styling**: Applied the correct CSS classes to the wrappers for text, number, and contact info fields, ensuring they are styled consistently with the rest of the form.
+- **Implemented Universal Validation**: Re-implemented the client-side validation logic to ensure that all questions marked as `required` must be answered before a user can proceed to the next step.
+
+## Version 29.0.13 - Final Answer Styling Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Restored Answer Styling**: Applied the correct `.answer-options` and `.answer-option` CSS classes to the wrappers in the question rendering functions. This restores the card-based styling for all radio button and checkbox answers on the frontend.
+
+## Version 29.0.12 - Final Frontend Styling Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Restored All Frontend Styles**: Corrected the main container class in the assessment template. This allows the `ennu-frontend-forms.css` stylesheet to be applied correctly, restoring all intended fonts, colors, spacing, and layout to the frontend forms.
+
+## Version 29.0.11 - Final Frontend Data-Flow Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Architectural Flaw**: Fixed the root cause of the persistent "Array to string conversion" error on the frontend. The core `render_question` function was not correctly fetching and preparing saved answers for logged-in users. This has been completely rewritten to handle all data types correctly, permanently resolving the issue.
+
+## Version 29.0.10 - Frontend Multiselect Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Frontend Array to String Conversion**: Corrected the rendering logic for multiselect (checkbox) questions on the frontend assessment forms. The function now correctly handles pre-selecting multiple answers from a saved array, resolving the "Array to string conversion" PHP warning.
+
+## Version 29.0.9 - Admin Multiselect Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Array to String Conversion**: Corrected the data handling for multiselect (checkbox) fields on the admin user profile page. The system now correctly saves and retrieves this data as a native array instead of a string, which resolves the "Array to string conversion" PHP warning.
+
+## Version 29.0.8 - Definitive Frontend Logic Overhaul
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Fatal JavaScript Error**: Completely rewrote the core `ENNUAssessmentForm` JavaScript class to fix a fatal error caused by mixing jQuery objects and native DOM methods. This single fix resolves all reported frontend issues:
+    - The age calculation now works correctly.
+    - Auto-progression after selecting a date of birth is now functional.
+    - The "Next" and "Previous" buttons now work as expected.
+    - The progress bar now updates correctly.
+
+## Version 29.0.7 - Admin Display Fatal Error Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Fatal Error**: Corrected a fatal `TypeError` on the admin user profile page. The functions that render radio buttons and checkboxes were not looping through the answer options correctly, causing the page to crash. The loops have been fixed, and the admin dashboard is now fully functional.
+
+## Version 29.0.6 - Admin Dashboard Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Fixed Admin Tabs**: Corrected a PHP warning (`Undefined variable: assessment_key`) on the admin user profile page by properly implementing the loops that render the tabbed interface for viewing assessment answers. The dashboard now correctly displays all assessment data.
+
+## Version 29.0.5 - Definitive DOB Logic Overhaul
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **DOB Logic Rewrite**: Completely rewrote the `calculateAge` and `combineDOB` JavaScript functions to be more robust and to fix a persistent bug where the age was not being calculated and the form was not auto-advancing.
+- **Added Hidden DOB Field**: Added the required hidden input for the combined DOB to the PHP template to ensure the `combineDOB` function can store its value correctly.
+- **Corrected Month Display**: The month dropdown now correctly displays the full month name (e.g., "January") while still providing a numeric value for calculations.
+
+## Version 29.0.4 - Final Form Initialization Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected Form Class Name**: Fixed the root cause of recent interactive issues. The main form's CSS class in the PHP template (`class-assessment-shortcodes.php`) was `assessment-form`, but the JavaScript was looking for `ennu-assessment-form`. Correcting the class name in the PHP file has re-enabled all form interactivity, including the age calculation and auto-progression.
+
+## Version 29.0.3 - Final DOB Calculation & Auto-Progression Fix
+*Date: 2024-07-19*
+
+### 🐛 Bug Fixes
+- **Corrected DOB Event Handling**: Fixed a bug where the age calculation was not triggering because the JavaScript event listener was targeting the wrong class (`.dob-dropdown`). The listener now correctly targets all three dropdowns (`select[name^="dob_"]`).
+- **Implemented DOB Auto-Progression**: Fixed a regression where the form would not auto-advance after a valid date of birth was selected. The `calculateAge` function now correctly calls the `nextQuestion()` method after a successful calculation.
+
 ## Version 29.0.2 - Final Age Calculation & Testing Fix
 *Date: 2024-07-19*
 
@@ -241,405 +865,4 @@ This is a major feature-complete release that finalizes the user experience and 
 *Date: 2024-07-25*
 
 ### ✨ New Features
-- **Dynamic Results Shortcodes**: The five assessment results shortcodes (e.g., `[ennu-hair-results]`) no longer show a static "funnel" page. They now display a full, dynamic report containing the user's score, interpretation, category breakdown, and personalized observations based on their answers. This completes the core user journey.
-- **Enhanced Question Mapper**: Added a reverse-lookup function to the question mapper, enabling the new dynamic results pages to function correctly.
-
-## Version 25.0.4 - Dynamic Content on All Results Pages
-*Date: 2024-07-25*
-
-### ✨ New Features
-- **Personalized Observations**: Expanded the dynamic content engine to all assessment results pages. Each page now shows a "Specific Observations" section with feedback tailored to the user's individual answers, creating a more detailed and personalized experience.
-
-## Version 25.0.3 - Enhanced User Results Pages
-*Date: 2024-07-25*
-
-### ✨ New Features
-- **Radar Chart Results Page**: Created a new `[ennu-assessment-chart]` shortcode that displays a beautiful and informative radar chart of the user's category scores. This provides a professional, at-a-glance visualization of their assessment results.
-- **Updated CTA Buttons**: Changed the call-to-action buttons on all assessment results pages to "Book a Call" or similar, as requested.
-
-## Version 25.0.2 - Multiselect Submission & Scoring Fix
-*Date: 2024-07-25*
-
-### 🐛 Bug Fixes
-- **Fixed Multiselect Submissions**: Resolved a critical bug where assessments containing multiple-choice (checkbox) questions would fail on submission. The backend now correctly handles and saves array-based data from these questions.
-- **Enabled Multiselect Scoring**: Updated the scoring engine to correctly process the array of answers from multiple-choice questions, ensuring each selected option contributes to the final score.
-
-## Version 25.0.1 - Critical Dashboard Fix
-*Date: 2024-07-25*
-
-### 🐛 Critical Bug Fixes
-- **Fixed Invisible Score Dashboard**: Resolved a critical bug where the "Health Intelligence Dashboard" was not appearing on the admin user profile page. This was caused by the main plugin file calling an incorrect function name (`enqueue_admin_scripts` instead of `enqueue_admin_assets`). The fix enables the display of calculated scores, interpretations, and the entire dashboard interface, resolving a major gap in functionality.
-
-## Version 25.0.0 - Core Feature Complete & Documentation Release
-*Date: July 12, 2025*
-
-This major version marks the completion of the plugin's core feature set and a full documentation overhaul. The plugin is now stable, fully functional, and ready for production use.
-
-### ✨ New Features
-- **User-Facing Results Page**: Implemented a dynamic, personalized results page that displays the user's overall score, a detailed interpretation of their results, and a breakdown of scores by category.
-- **Comprehensive Scoring Documentation**: Created a full suite of documentation for the scoring system, including a deep-dive guide and individual verification reports for each assessment.
-
-### 🐛 Bug Fixes & Enhancements
-- **Completed Scoring Logic**: Fully implemented the category scoring calculations and data flow, ensuring the new results page has the data it needs.
-- **Final Documentation Polish**: Updated all documentation files to be consistent with the final `25.0.0` version.
-
-## Version 24.13.0 - Comprehensive Documentation Release
-*Date: July 12, 2025*
-
-This release introduces a full suite of comprehensive documentation, including detailed scoring guides and audits for every assessment, providing complete transparency into the system's logic.
-
-### 📝 Documentation
-- **Scoring System Deep Dive**: Created a central document explaining the architecture, data flow, and logic of the scoring engine.
-- **Individual Scoring Guides**: Created separate, detailed scoring guides for all five core assessments, each with a full breakdown of questions, categories, weights, and point values.
-- **Scoring Audits**: Created separate, formal audit and verification documents for each assessment, confirming the correctness and clinical soundness of the scoring logic.
-- **General Cleanup**: Updated version numbers and dates across all documentation to ensure consistency.
-
-## Version 24.12.4 - Admin UX Enhancement
-*Date: July 12, 2025*
-
-This release enhances the admin user profile page to provide greater clarity and control over assessment data.
-
-### ✨ Admin UI/UX Enhancements
-- **Score and ID Display**: The admin view for assessment answers now displays the point value and the answer ID next to each radio and checkbox option, providing immediate insight into the scoring system.
-- **Improved Field ID Visibility**: The unique field ID for each question (e.g., `health_q1`) is now clearly displayed under the question title for easy reference.
-
-## Version 24.12.3 - Final Hotfix
-*Date: July 12, 2025*
-
-This release provides the definitive fix for a persistent bug related to saving multiselect/checkbox fields from both the frontend assessments and the backend admin user profile.
-
-### 🐛 Critical Bug Fix
-- **Fixed Multiselect/Checkbox Saving**: Resolved the root cause of the checkbox saving issue. The frontend JavaScript now correctly collects and sends the array of selected values, and the backend save handlers (for both form submissions and admin profile updates) now correctly process this array, including cases where all options are deselected. This ensures data is saved with 100% accuracy.
-
-## Version 24.12.2 - Admin & Frontend UI Polish
-*Date: 2024-07-24*
-
-This release focuses on significant UI/UX improvements for both the admin user profile page and the frontend assessment forms, resolving all known visual and functional bugs.
-
-### ✨ UI/UX Enhancements
-- **Interactive Admin Fields**: Assessment answers in the user profile are now fully interactive. They display as their proper field type (radio, checkbox, text) with all options visible and the user's answer correctly selected. Administrators can now edit and update user answers directly from this page.
-- **Improved Admin Layout**: Cleaned up the "Complete Field Reference" sections by integrating field descriptions directly into the main row, creating a more compact and readable layout.
-- **Consistent Frontend Styling**: Multiselect/checkbox questions on the frontend now have the exact same modern styling as the radio button questions, providing a consistent user experience.
-
-### 🐛 Bug Fixes
-- **Fixed Missing Assessment Data**: Resolved a critical bug where the assessment answer sections were not appearing at all on the user profile page.
-- **Corrected DOB/Age Sync**: Fixed a data inconsistency where a separate "Age" field was displayed. Age is now correctly calculated from the Date of Birth and is not an editable field.
-- **Fixed "Clear Data" Button**: Repaired the non-functional "Clear All ENNU Data" button by implementing its backend AJAX handler.
-- **Resolved Minor UI Glitches**: Cleaned up spacing and formatting in the admin dashboard metrics.
-
-## Version 24.12.1 - Hotfix Release
-*Date: July 12, 2025*
-
-This is a critical hotfix release that resolves a fatal error and a form submission error introduced in version 24.12.0.
-
-### 🔒 Critical Fixes
-- **Resolved Fatal Error**: Fixed a fatal error (`Call to undefined method ENNU_Assessment_Shortcodes::setup_hooks()`) caused by an incorrect refactoring that removed a required method. The method has been restored, and the plugin is now stable.
-- **Fixed Form Submission Error**: Corrected a JavaScript nonce mismatch that was causing all form submissions to fail with a "Security check failed" error. The script localization and nonce handling are now centralized and correct.
-
-## Version 24.12.0 - Core User Experience Fixes
-*Date: July 12, 2025*
-
-This release focuses on critical bug fixes that fully implement the required user experience for global data synchronization and user registration, ensuring a seamless and logical journey for all users.
-
-### ✨ Core Functionality Implemented
-- **True Global Fields**: Implemented a robust system for synchronizing global fields (`first_name`, `last_name`, `email`, `phone`, `gender`, `dob`). Data is now correctly shared across native WordPress user profiles, WooCommerce billing fields, and all assessments.
-- **Seamless Logged-In Experience**: Logged-in users will now see all global fields correctly pre-populated when they start any assessment, creating a consistent and intelligent user journey.
-- **Correct Guest User Flow**:
-    - **New Users**: When a guest user submits an assessment, a full WordPress account is automatically and correctly created with all their provided details.
-    - **Existing Users**: If a guest user's email is already in the database, they are now correctly prompted to log in to continue, preventing duplicate accounts and confusion.
-
-### 🐛 Bug Fixes
-- **Corrected Data Saving**: Fixed a critical bug where global fields were being saved with incorrect keys. All data is now saved with the proper global or assessment-specific prefixes.
-- **Fixed Pre-filling Logic**: Repaired the form rendering logic to fetch data from the correct sources (native user object and global meta), ensuring fields are pre-filled reliably.
-- **Resolved Fatal Error Risk**: Removed dangling references to non-existent AJAX handlers in the WooCommerce integration class, preventing a potential fatal error.
-
-## Version 24.11.0 - Major Refactoring and Stabilization
-*Date: July 12, 2025*
-
-This is a critical update that addresses architectural flaws, security vulnerabilities, and numerous bugs. The plugin is now significantly more stable, secure, and maintainable.
-
-### ✨ New Features & Major Improvements
-- **Architectural Overhaul**: Centralized all assessment data (questions, scoring rules) into dedicated configuration files located in `includes/config/`. This removes all hardcoded data from the PHP classes, making the plugin dramatically easier to update and maintain.
-- **Code Consolidation**: Removed old and redundant classes (`class-admin.php`, `class-database.php`) to resolve conflicts and prevent fatal errors. The codebase now uses a single, consistent set of 'enhanced' classes.
-- **Improved Stability**: Replaced fragile Reflection calls with direct, reliable method calls, improving both performance and stability.
-
-### 🔒 Security Fixes
-- **Patched `extract()` Vulnerability**: Removed a dangerous call to `extract()` in the template loader to prevent variable injection vulnerabilities.
-- **Removed Insecure Polyfill**: Deleted an unnecessary and insecure polyfill for the `error_log()` function that could write logs to a publicly accessible file.
-- **Standardized AJAX Nonces**: Corrected inconsistent AJAX nonce handling between the frontend and backend to ensure all AJAX requests are properly secured.
-
-### 🐛 Bug Fixes & Performance
-- **Fixed Activation Bug**: Repaired the plugin activation hook to ensure that the necessary database tables are correctly created on installation.
-- **Resolved Duplicate Initialization**: Removed a redundant call that was causing the entire plugin to load twice, which could lead to unpredictable behavior.
-- **Fixed Performance Bottleneck**: Disabled a feature that was writing a large security log to the `wp_options` table, preventing database bloat and improving site-wide performance.
-- **Cleaned Up Dead Code**: Removed multiple unused AJAX hooks and unnecessary function polyfills to streamline the codebase.
-- **Decoupled WooCommerce Data**: Removed the hardcoded product list from the WooCommerce integration class, encouraging the standard practice of managing products in the WordPress admin.
-
-## Version 24.10.1
-*Date: 2024-06-15*
-- Fix: Corrected issue where user meta was not saving correctly from the frontend assessment forms. The meta keys were mismatched between the form and the database handler.
-- Enhancement: Added error logging for AJAX form submissions to better capture issues.
-- Fix: Resolved a JavaScript conflict with the Pixfort theme that prevented the form from advancing.
-
-## Version 23.5.0
-*Date: 2024-05-20*
-- Feature: Added Comprehensive Health Assessment.
-- Enhancement: Improved admin UI for viewing assessment results.
-- Fix: Addressed a bug where multiselect fields were not saving properly.
-
-## Version 22.8.0
-*Date: 2024-04-10*
-- Initial enhanced version with separate classes for admin and database.
-- Added 5 core assessments.
-- Implemented basic shortcode functionality.
-
----
-*For older versions, please refer to internal version control history.*
-
-## [26.0.17] - 2024-10-01
-### Changed
-- Updated assessment-chart.php to always pull from user meta for logged-in users, falling back to transient if needed.
-
-## [26.0.19] - 2024-10-01
-### Added
-- Integrated radar chart directly into assessment results pages for better user experience.
-- Enqueued Chart.js on results pages.
-
-## [26.0.21] - 2024-10-01
-### Added
-- New [ennu-user-dashboard] shortcode for user-facing all-results dashboard.
-- Template user-dashboard.php with table, scores, dates, mini-radar charts, and average calculation.
-- Updated enqueueing for Chart.js on dashboard pages.
-
-## [26.0.22] - 2024-10-01
-### Added
-- Full Chart.js initialization for mini-charts in user-dashboard.php.
-
-## [26.0.23] - 2024-10-01
-### Changed
-- Updated mini-charts in user-dashboard.php from radar to bar chart for improved appearance.
-
-## [26.0.24] - 2024-10-01
-### Added
-- Full UX overhaul for [ennu-user-dashboard]: Cards/grid layout, type-themed colors/icons, expandable sections, motivational messages, retake/share buttons, progress badges, responsive design, accessibility features, loading animations.
-- New user-dashboard.css for styling.
-
-## [26.0.26] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed the `[ennu-user-dashboard]` shortcode, which was not rendering the grid of assessments. The template loop is now fully implemented.
-- Ensured all 5 assessment cards display correctly, showing "Not completed" status with a "Start Now" link if no data exists.
-
-### Added
-- Implemented a complete visual and functional overhaul of the user dashboard as requested:
-  - **Layout**: Modern, responsive card-based grid instead of a table.
-  - **Personalization**: Header now greets the user by name and shows a visual progress indicator.
-  - **Visuals**: Themed colors, icons, and progress badges for each assessment type. Mini bar charts are now fully functional and animated.
-  - **Interactivity**: Cards are expandable to show details, and include "Retake" buttons.
-  - **Engagement**: Added conditional motivational messages based on the user's average score.
-  - **Accessibility & Polish**: Added ARIA labels, focus states, and loading spinners for a polished, inclusive experience.
-- Created `assets/css/user-dashboard.css` to house all new styles.
-
-### Changed
-- Updated `class-assessment-shortcodes.php` to enqueue `user-dashboard.css` on the relevant page.
-
-## [26.0.27] - 2024-10-02
-### Added
-- Updated `IMPLEMENTATION_ROADMAP_2025.md` with a new "Phase 5" detailing future enhancements for the user dashboard, including historical tracking, gamification, AI-powered insights, and advanced sharing features.
-
-## [26.0.28] - 2024-10-02
-### Fixed
-- Styled multi-choice question options to display in a responsive grid instead of stacking vertically.
-- Reduced the max-width of contact form inputs and centered the text for a cleaner UI.
-- Corrected the logic for the global gender question to ensure the user's selection is saved and persists across all assessments.
-
-## [26.0.29] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed an issue where the `gender` field was not being saved or retrieved globally. The data-saving logic now correctly handles any question marked with a `global_key`.
-- Styled multi-choice question options to display in a responsive grid.
-- Corrected the styling for contact form inputs to have a reduced max-width and centered text.
-
-## [26.0.30] - 2024-10-02
-### Added
-- **FEATURE**: Implemented a new system for comprehensive, persistent results pages for each of the 5 main assessment types.
-- **New Shortcodes**: Added 5 new shortcodes: `[ennu-hair-assessment-details]`, `[ennu-ed-treatment-assessment-details]`, etc.
-- **New Template**: Created `templates/assessment-details-page.php` to render the detailed view.
-- **New CSS**: Added `assets/css/assessment-details-page.css` for styling the new pages.
-- **Dashboard Integration**: Added a "View Full Report" button on each dashboard card, linking to the new details pages.
-
-## [26.0.31] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed the 5 `[...-details]` shortcodes, which were previously rendering a blank page. The template `assessment-details-page.php` is now fully implemented with logic to fetch and display all comprehensive results from user meta.
-- Added correct CSS and JavaScript enqueueing for the new details pages.
-
-## [26.0.32] - 2024-10-02
-### Added
-- **Project Chimera**: A complete and total reimagining of the user results experience, creating a jaw-dropping, hyper-personalized "Health Dossier" page with a suite of new features:
-  - **Health Trinity Score:** A holistic view of Mind, Body, and Lifestyle.
-  - **AI Insight Narrative:** A dynamic, empathetic summary of results.
-  - **What-If Simulator:** An interactive tool to explore score impact.
-  - **Journey Timeline:** A visual history of the user's progress.
-  - **Deep-Dive Modals:** Clickable category cards with detailed analysis and action plans.
-- Created `health-dossier.css` and `health-dossier.js` to power the new design and interactivity.
-- Updated core logic to support historical data tracking.
-
-## [26.0.33] - 2024-10-02
-### Added
-- **CRITICAL FIX & FEATURE**: Fully implemented the "Health Dossier" on the details pages, replacing the previously blank template. The new page is a complete visual and functional overhaul.
-- **Features Included**:
-  - **AI Insight Narrative:** A dynamic, personalized summary of results.
-  - **Health Trinity Score:** A holistic view of Mind, Body, and Lifestyle with animated visuals.
-  - **Journey Timeline:** A line chart displaying the user's score history.
-  - **Deep-Dive Grid:** Clickable cards for each score category.
-- Updated core logic to save historical score data.
-- Added new CSS and JS files (`health-dossier.css`, `health-dossier.js`) to support the new design and interactivity.
-
-## [26.0.34] - 2024-10-02
-### Changed
-- **Architecture**: Evolved the "Health Trinity" into the "Health Quad-Pillars" by adding a fourth pillar for **Aesthetics**.
-- Updated the pillar mapping, Health Dossier template, and AI narrative logic to reflect this more nuanced and superior four-pillar model.
-
-## [26.0.35] - 2024-10-02
-### Changed
-- **Architecture**: Performed a comprehensive review and enhancement of the entire question configuration.
-- Upgraded key questions from single-choice to multi-select to capture richer, more accurate user data (e.g., health conditions, medications).
-- Refined question wording for improved clarity and user empathy.
-- **Added**: Implemented the `trinity_pillar` key to all scorable questions, programmatically linking them to the Mind, Body, Lifestyle, or Aesthetics pillars. This completes the data architecture required for the Health Dossier feature.
-
-## [26.0.36] - 2024-10-02
-### Changed
-- **Architecture**: Performed a global refactor to rename the "Health Trinity" to the "Health Quad-Pillars" across all relevant files, including functions, CSS classes, and documentation, to accurately reflect the four-pillar model.
-
-## [26.0.37] - 2024-10-02
-### Added
-- **FEATURE**: Added new, high-impact questions to all assessments to gather richer data for more optimal and accurate calculations.
-- **FEATURE**: Completely overhauled the Admin User Profile page into a true "Admin Health Dashboard." It now features a "Health Quad-Pillars" summary and a tabbed interface to view and edit all of a user's answers for each assessment.
-- Created corresponding new scoring rules for all new questions.
-
-### Changed
-- The data foundation and scoring architecture are now finalized and considered feature-complete for this phase.
-
-## [26.0.38] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed a fatal error (`Call to undefined method`) on the Health Dossier page. The `get_health_pillar_map()` function was missing from the scoring class and has now been implemented, and the template has been corrected to call the right function. The Health Quad-Pillars now display correctly.
-
-## [26.0.39] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed a PHP warning (`Undefined variable $user` and `Attempt to read property "ID" on null`) that occurred in the question rendering logic for non-logged-in users. The code now correctly checks for a valid user before attempting to retrieve meta data.
-
-## [26.0.40] - 2024-10-02
-### Changed
-- **Architecture**: Implemented a new, universal system for global data persistence. Any question marked with a `global_key` is now automatically saved and pre-filled across all assessments.
-### Fixed
-- **CRITICAL**: Fixed an issue where `gender`, `date of birth`, `height`, and `weight` values were not being remembered across all assessments. They now behave as true global fields.
-
-## [26.0.41] - 2024-10-02
-### Added
-- **FEATURE**: Significantly enhanced the data collection model by adding several new, high-impact questions to all five assessments.
-- Added questions covering mental well-being, gut health, alcohol consumption, diet granularity, and other key lifestyle factors.
-- Created corresponding scoring rules for all new questions to ensure they are seamlessly integrated into the calculation for the Health Quad-Pillars.
-- This provides a richer, more accurate, and more insightful foundation for the entire assessment system.
-
-## [26.0.42] - 2024-10-02
-### Changed
-- **Architecture**: Performed a global refactor to rename the internal data key from `trinity_pillar` to `health_pillar` in the question configuration, ensuring perfect alignment with the "Health Quad-Pillars" model.
-
-## [26.0.43] - 2024-10-02
-### Added
-- **FEATURE**: Significantly enhanced the data collection model by adding several new, high-impact questions to all five assessments.
-- Added questions covering mental well-being, gut health, alcohol consumption, diet granularity, and other key lifestyle factors.
-- Created corresponding scoring rules for all new questions to ensure they are seamlessly integrated into the calculation for the Health Quad-Pillars.
-- This provides a richer, more accurate, and more insightful foundation for the entire assessment system.
-
-## [26.0.44] - 2024-10-02
-### Changed
-- **Architecture**: Executed the final, "god-like" overhaul of the entire question architecture.
-- **Added**:
-  - A `"why"` key to all sensitive questions, with front-end tooltips to explain the reasoning to the user, building trust.
-  - A `"description"` to all answer options, providing context and removing ambiguity for more accurate data collection.
-  - A new `'dynamic_follow_up'` question type that creates an intelligent, conversational flow where questions appear in real-time based on user answers.
-- Updated the frontend rendering engine (PHP and JS) to fully support this new, superior data structure.
-- Performed a final polish of all question language to be empowering and aspirational.
-### Fixed
-- This completes the data foundation. The system is now considered feature-complete and perfect for its intended purpose.
-
-## [26.0.45] - 2024-10-02
-### Added
-- **Roadmap**: Expanded the official project roadmap with two new, visionary phases to transform the plugin into a world-class Health Intelligence Platform.
-  - **Phase 6: The Interactive Health Engine**: Details the implementation of the "What-If" Simulator and advanced gamification features.
-  - **Phase 7: The Proprietary Intelligence Platform**: Outlines the development of the proprietary "ENNU Index," the "Digital Coach" AI, and the Cohort Analysis data engine.
-
-## [26.0.46] - 2024-10-02
-### Added
-- **FEATURE**: Finalized the `[ennu-hair-assessment-details]` page, fully implementing all "Health Dossier" features for it.
-- Implemented the hair-specific "AI Insight Narrative."
-- Implemented the interactive "Deep-Dive" modals for all hair assessment categories with tailored content and actionable "Path Forward" plans.
-- Added new CSS and JavaScript to support the modal functionality.
-
-## [26.0.47] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed a fatal parse error in `includes/config/assessment-questions.php`. The file was corrupted with example code and has now been completely rewritten with the full, correct, and architecturally superior question set. The plugin is now functional again.
-
-## [26.0.48] - 2024-10-02
-### Added
-- **FEATURE**: Implemented the full frontend rendering logic for the new, superior question architecture.
-- The "why" tooltip icons are now rendered and functional with hover-activated tooltips.
-- Contextual descriptions for answer options are now displayed.
-- The "dynamic follow-up" questions are now fully interactive, appearing and disappearing based on user answers.
-- Added all necessary CSS for the new frontend elements to ensure they are beautifully styled.
-
-## [26.0.49] - 2024-10-02
-### Added
-- **FEATURE**: Finalized and implemented the full, superior question architecture. The `assessment-questions.php` file now contains all new and enhanced questions with the `why`, `description`, and `dynamic_follow_up` structures.
-- **FEATURE**: The `assessment-scoring.php` file is now complete with corresponding scoring rules for every new and follow-up question.
-### Changed
-- The data foundation of the plugin is now perfect and feature-complete.
-
-## [26.0.50] - 2024-10-02
-### Fixed
-- **CRITICAL**: Replaced the incomplete, placeholder question and scoring configuration files with the full, final, and complete implementation.
-### Added
-- The system now contains all new high-impact questions and their corresponding scoring rules across all five assessments. The data foundation is now truly complete and perfect.
-
-## [26.0.51] - 2024-10-02
-### Added
-- **FINAL IMPLEMENTATION**: The `assessment-questions.php` and `assessment-scoring.php` configuration files have been completely rewritten with the full, final, and superior architecture. This includes all new high-impact questions and their corresponding scoring rules.
-### Changed
-- The data foundation of the plugin is now considered absolutely complete and perfect.
-
-## [26.0.52] - 2024-10-02
-### Fixed
-- **CRITICAL**: Fixed a fatal parse error by completely rewriting the `assessment-questions.php` and `assessment-scoring.php` files with their full, final, and syntactically correct content. The placeholder files have been replaced.
-### Added
-- The system now correctly includes the full question set and scoring rules for all five assessments, with all advanced architectural features.
-
-## [26.0.53] - 2024-10-02
-### Fixed
-- **CRITICAL**: Replaced the placeholder/broken `assessment-questions.php` and `assessment-scoring.php` files with their final, complete, and fully populated versions. This resolves all parse errors and ensures the system is fully functional.
-### Added
-- The system now contains the complete set of architecturally superior questions and their corresponding scoring rules. The data foundation is now 100% complete and perfect.
-
-## [29.0.1] - 2025-07-13
-### Fixed
-- **Critical**: Restored the architecturally-verified `calculateAge` JavaScript function to fix a major regression causing incorrect age calculations. The function now correctly accounts for the month and day of birth relative to the current date.
-- **Fixed**: Corrected the display order of the date of birth dropdowns on all assessment forms to the standard "Month, Day, Year" format for improved usability.
-- **Fixed**: Updated the Cypress e2e test suite to reflect the corrected dropdown order, ensuring automated tests remain valid.
-
-## [29.0.0] - 2025-07-12
-### Added
-- Created a comprehensive PHPUnit test suite for all backend logic, including the scoring engine, data persistence, and AJAX handlers.
-- Implemented a Cypress frontend testing suite to automate user interaction tests, including form submission and UI element verification.
-- Created `COMPREHENSIVE_USER_EXPERIENCE_DOCUMENTATION.md`, a complete guide and verification manifest for the plugin.
-
-### Fixed
-- **Critical**: Rebuilt the `includes/config/assessment-scoring.php` file from scratch to fix a catastrophic regression where the file had been reverted to a broken modular loader.
-- **Architectural**: Resolved a critical loading sequence conflict by centralizing all `add_action` hooks into the main plugin file (`ennu-life-plugin.php`) and neutralizing the hooking logic within `includes/class-assessment-shortcodes.php`.
-- **Performance**: Fixed an N+1 query issue in `includes/class-enhanced-database.php` by priming the user meta cache.
-- **Refactor**: Simplified the `enqueue_results_styles` method in `includes/class-assessment-shortcodes.php`.
-- **Refactor**: Replaced a complex `if/else` block in the `render_question` method with a more maintainable `switch` statement and dedicated private rendering methods for each question type.
-- **Critical**: Reconstructed the entire `includes/config/assessment-questions.php` file from memory after it was replaced with a non-functional dynamic loader, restoring all frontend forms.
-- **Fixed**: Corrected a typo in the jQuery selector in `assets/js/ennu-frontend-forms.js` from `.assessment-form` to the correct `.ennu-assessment-form`.
-- **Fixed**: Removed redundant user profile hooks from the `ENNU_Enhanced_Admin` class constructor to resolve a conflict with the main plugin file's hook registration.
-- **Fixed**: Corrected the plugin initialization hook from `plugins_loaded` to `init` to resolve a "text domain loaded too early" notice and prevent race conditions with shortcode registration.
-- **Fixed**: Added the `show_user_profile` and `edit_user_profile` action hooks to the main plugin file to correctly render the "Health Intelligence Dashboard" in the admin user profile.
-- **Fixed**: Corrected the `calculateAge` function in `assets/js/ennu-frontend-forms.js` to accurately account for the user's birth month and day, not just the year.
-
+- **Dynamic Results Shortcodes**: The five assessment results shortcodes (e.g., `

@@ -56,7 +56,7 @@
     margin: 0 auto 15px;
 }
 
-.progress-fill {
+.ennu-progress-fill {
     height: 100%;
     background: linear-gradient(270deg, #495057, #6c757d, #495057);
     background-size: 200% 200%;
@@ -156,7 +156,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 80px;
+    min-height: 60px;
     height: 100%;
     padding: 15px 20px;
     background: #ffffff;

@@ -39,20 +39,35 @@ if (is_array($category_scores) && !empty($category_scores)) {
     $insight_narrative .= " Your key strength appears to be in " . esc_html(key($strengths)) . ", while the primary area for focus is " . esc_html(key($focus_areas)) . ".";
 }
 
-// --- 3. Health Trinity Calculation ---
-$pillar_map = ENNU_Assessment_Scoring::get_health_pillar_map();
-$pillar_scores = ['mind' => [], 'body' => [], 'lifestyle' => [], 'aesthetics' => []];
-foreach($category_scores as $cat => $cat_score) {
-    // This logic should now be driven by the 'health_pillar' key from the question config,
-    // which is mapped to categories in the scoring config.
-    // The existing pillar map function is sufficient, but this ensures consistency if we ever read the pillar directly.
+// --- PHASE 2 OPTIMIZATION: Fetch pre-calculated pillar scores ---
+$pillar_scores = get_user_meta($user_id, 'ennu_' . $assessment_type . '_pillar_scores', true);
+if (empty($pillar_scores) || !is_array($pillar_scores)) {
+    // Fallback for old assessments that don't have saved pillar scores.
+    // This can be removed after a data migration is performed.
+    $pillar_map = ENNU_Assessment_Scoring::get_health_pillar_map();
+    $pillar_totals = [];
+    $pillar_counts = [];
+    foreach ($pillar_map as $pillar_name => $categories) {
+        $pillar_totals[$pillar_name] = 0;
+        $pillar_counts[$pillar_name] = 0;
+    }
+    if (is_array($category_scores)) {
+        foreach ($category_scores as $category => $score) {
+            foreach ($pillar_map as $pillar_name => $categories) {
+                if (in_array($category, $categories)) {
+                    $pillar_totals[$pillar_name] += $score;
+                    $pillar_counts[$pillar_name]++;
+                    break;
+                }
+            }
+        }
+    }
+    $pillar_scores = [];
+    foreach ($pillar_totals as $pillar_name => $total) {
+        $pillar_scores[$pillar_name] = ($pillar_counts[$pillar_name] > 0) ? round($total / $pillar_counts[$pillar_name], 1) : 0;
+    }
 }
-$trinity_avg = [
-    'mind' => !empty($pillar_scores['mind']) ? array_sum($pillar_scores['mind']) / count($pillar_scores['mind']) : 0,
-    'body' => !empty($pillar_scores['body']) ? array_sum($pillar_scores['body']) / count($pillar_scores['body']) : 0,
-    'lifestyle' => !empty($pillar_scores['lifestyle']) ? array_sum($pillar_scores['lifestyle']) / count($pillar_scores['lifestyle']) : 0,
-    'aesthetics' => !empty($pillar_scores['aesthetics']) ? array_sum($pillar_scores['aesthetics']) / count($pillar_scores['aesthetics']) : 0,
-];
+// --- END PHASE 2 OPTIMIZATION ---
 
 $pillar_colors = ['mind' => '#8e44ad', 'body' => '#2980b9', 'lifestyle' => '#27ae60', 'aesthetics' => '#f39c12'];
 
@@ -89,9 +104,9 @@ wp_enqueue_script('ennu-health-dossier', ENNU_LIFE_PLUGIN_URL . 'assets/js/healt
     </div>
 
     <div class="trinity-pillars">
-        <?php foreach ($trinity_avg as $pillar => $pillar_score): ?>
+        <?php foreach ($pillar_scores as $pillar => $pillar_score): ?>
             <div class="pillar-item pillar-<?php echo esc_attr( strtolower( $pillar ) ); ?>">
-                <div class="pillar-circle" data-score="<?php echo esc_attr( $pillar_score ); ?>" style="--pillar-color: <?php echo esc_attr( $pillar_colors[$pillar] ); ?>;">
+                <div class="pillar-circle" data-score="<?php echo esc_attr( $pillar_score ); ?>" style="--pillar-color: <?php echo esc_attr( $pillar_colors[$pillar] ?? '#7f8c8d' ); ?>;">
                     <span><?php echo esc_html( number_format( $pillar_score, 1 ) ); ?></span>
                 </div>
                 <h4><?php echo esc_html( ucfirst( $pillar ) ); ?></h4>
@@ -124,7 +139,7 @@ wp_enqueue_script('ennu-health-dossier', ENNU_LIFE_PLUGIN_URL . 'assets/js/healt
 document.addEventListener('DOMContentLoaded', () => {
     const dossierData = {
         historicalScores: <?php echo wp_json_encode( $historical_scores ); ?>,
-        trinityScores: <?php echo wp_json_encode( $trinity_avg ); ?>,
+        trinityScores: <?php echo wp_json_encode( array_values($pillar_scores) ); ?>,
         deepDiveContent: <?php echo wp_json_encode( $deep_dive_content ); ?>
     };
 

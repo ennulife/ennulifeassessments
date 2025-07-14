@@ -10,65 +10,40 @@ console.log('ENNU Life Frontend Forms script loaded.');
     class ENNUAssessmentForm {
         constructor(formElement) {
             this.form = $(formElement);
-            this.currentStep = 1;
+            this.currentStep = 0; // Start at 0, so first question is 1
             this.totalSteps = 0;
-            this.questions = [];
-            this.answers = {};
             this.isSubmitting = false;
+
+            // --- DEFINITIVE FIX ---
+            // Properties are now jQuery objects, found within the specific form instance.
+            this.questions = this.form.find('.question-slide');
+            this.progressBar = this.form.closest('.ennu-assessment').find('.ennu-progress-fill');
+            this.progressText = this.form.closest('.ennu-assessment').find('.progress-text .current-question');
+            this.totalStepsText = this.form.closest('.ennu-assessment').find('.progress-text .total-questions');
             
-            this.progressBar = this.form.querySelector('.ennu-progress-bar-inner');
-            this.progressText = this.form.querySelector('.ennu-progress-text');
-            this.nextButtons = this.form.querySelectorAll('.ennu-next-btn');
-            this.prevButtons = this.form.querySelectorAll('.ennu-prev-btn');
-            this.submitButton = this.form.querySelector('.ennu-submit-btn');
-            
-            this.totalSteps = this.form.querySelectorAll('.question-slide').length;
-            
+            this.totalSteps = this.questions.length;
+
             this.init();
         }
 
         init() {
-            // Find all question slides
-            this.questions = this.form.find('.question-slide');
-            this.totalSteps = this.questions.length;
-            
             if (this.totalSteps === 0) {
-                this.form.html('<p class="ennu-error">' + 'No questions found for this assessment.' + '</p>');
+                this.form.html('<p class="ennu-error">No questions found for this assessment.</p>');
                 return;
             }
 
-            // Update progress display
-            this.updateProgressBar();
-            
-            // Show first question
-            this.showQuestion(1);
-
-            // NEW: Initial check to calculate age if DOB is pre-populated
-            this.calculateAge();
-            
-            // Bind events
+            this.totalStepsText.text(this.totalSteps);
+            this.showQuestion(1); // Show the first question
+            this.calculateAge(); // Calculate age on initial load
             this.bindEvents();
         }
 
         bindEvents() {
-            // Radio button auto-advance (like v22.8)
+            // Use .on() for delegated events on the form
             this.form.on('change', 'input[type="radio"]', (e) => {
-                const $radio = $(e.target);
-                const questionSlide = $radio.closest('.question-slide');
-                const questionNumber = parseInt(questionSlide.data('step'));
-                
-                // Store answer
-                this.answers[$radio.attr('name')] = $radio.val();
-                
-                // Auto-advance after short delay (like v22.8)
-                setTimeout(() => {
-                    if (questionNumber < this.totalSteps) {
-                        this.nextQuestion();
-                    }
-                }, 300);
+                setTimeout(() => this.nextQuestion(), 300);
             });
 
-            // Navigation buttons
             this.form.on('click', '.nav-button.next', (e) => {
                 e.preventDefault();
                 this.nextQuestion();
@@ -79,392 +54,234 @@ console.log('ENNU Life Frontend Forms script loaded.');
                 this.prevQuestion();
             });
 
-            // DOB dropdowns
-            this.form.on('change', '.dob-dropdown', () => {
+            this.form.on('change', 'select[name^="dob_"]', () => {
                 this.calculateAge();
-                this.combineDOB();
             });
 
-            // Form submission
+            this.form.on('blur', 'input[name="email"]', (e) => {
+                this.checkEmailExists(e.target);
+            });
+
             this.form.on('submit', (e) => {
                 e.preventDefault();
                 this.submitForm();
             });
-
-            // Contact form validation
-            this.form.on('blur', 'input[type="email"]', (e) => {
-                this.validateEmail($(e.target));
-            });
-
-            this.form.on('blur', 'input[required]', (e) => {
-                this.validateRequired($(e.target));
-            });
         }
 
-        showQuestion(questionNumber) {
-            const questions = this.form.querySelectorAll('.question-slide');
-            
-            // Hide all questions
-            questions.forEach(q => q.classList.remove('active'));
-
-            this.currentStep = questionNumber;
-            
-            if (questions[questionNumber - 1]) {
-                questions[questionNumber - 1].classList.add('active');
-                this.updateProgressBar();
+        showQuestion(step, direction = 'next') {
+            if (step < 1 || step > this.totalSteps) {
+                return;
             }
-            this.updateButtonVisibility();
+            this.currentStep = step;
+            const currentSlide = this.questions.eq(step - 1);
+            
+            this.questions.removeClass('active').hide();
+            currentSlide.addClass('active').show();
+            this.updateProgressBar();
+
+            // --- AUTO-SKIP LOGIC ---
+            // Only run the auto-skip if navigating forward
+            if (direction !== 'prev' && currentSlide.data('is-global')) {
+                const inputs = currentSlide.find('input[required], select[required]');
+                let allPrefilled = true;
+                if (inputs.length > 0) {
+                    inputs.each((i, input) => {
+                        const $input = $(input);
+                        if ($input.is(':radio') || $input.is(':checkbox')) {
+                            if (currentSlide.find(`input[name="${$input.attr('name')}"]:checked`).length === 0) {
+                                allPrefilled = false;
+                            }
+                        } else {
+                            if (!$input.val() || $input.val().trim() === '') {
+                                allPrefilled = false;
+                            }
+                        }
+                    });
+
+                    if (allPrefilled) {
+                        setTimeout(() => {
+                            this.nextQuestion();
+                        }, 500); // A brief delay to show the pre-filled data
+                    }
+                }
+            }
         }
 
         nextQuestion() {
-            if (this.currentStep < this.totalSteps) {
-                // Validate current question before advancing
-                if (this.validateCurrentQuestion()) {
-                    this.currentStep++;
-                    this.showQuestion(this.currentStep);
+            if (this.validateCurrentQuestion()) {
+                if (this.currentStep < this.totalSteps) {
+                    this.showQuestion(this.currentStep + 1);
+                } else {
+                    this.submitForm();
                 }
-            } else {
-                // Last question - submit form
-                this.submitForm();
             }
         }
 
         prevQuestion() {
             if (this.currentStep > 1) {
-                this.currentStep--;
-                this.showQuestion(this.currentStep);
+                this.showQuestion(this.currentStep - 1, 'prev');
             }
         }
 
-        updateButtonVisibility() {
-            const prevButton = this.form.find('.nav-button.prev');
-            const nextButton = this.form.find('.nav-button.next');
-
-            if (this.currentStep === 1) {
-                prevButton.hide();
-            } else {
-                prevButton.show();
+        updateProgressBar() {
+            if (this.progressBar.length) {
+                const progress = (this.currentStep / this.totalSteps) * 100;
+                this.progressBar.css('width', `${progress}%`);
             }
-
-            if (this.currentStep === this.totalSteps) {
-                nextButton.text('Submit');
-            } else {
-                nextButton.text('Next →');
+            if (this.progressText.length) {
+                this.progressText.text(this.currentStep);
             }
         }
 
         validateCurrentQuestion() {
-            const currentQuestion = this.questions.eq(this.currentStep - 1);
-            const questionType = currentQuestion.data('question-type');
-            
-            // Clear previous errors
-            currentQuestion.find('.error-message').remove();
-            currentQuestion.find('.field-error').removeClass('field-error');
-            
+            const currentSlide = this.questions.eq(this.currentStep - 1);
+            currentSlide.find('.error-message').remove();
+            currentSlide.find('.error').removeClass('error');
             let isValid = true;
-            
-            if (questionType === 'dob_dropdowns') {
-                // Validate DOB dropdowns
-                const month = currentQuestion.find('.dob-month').val();
-                const day = currentQuestion.find('.dob-day').val();
-                const year = currentQuestion.find('.dob-year').val();
-                
-                if (!month || !day || !year) {
-                    this.showError(currentQuestion, 'Please select your complete date of birth.');
-                    isValid = false;
-                }
-            } else if (questionType === 'contact_info') {
-                // Validate contact fields
-                currentQuestion.find('input[required]').each((index, field) => {
-                    const $field = $(field);
-                    if (!$field.val().trim()) {
-                        $field.addClass('field-error');
-                        this.showError($field.parent(), `${$field.prev('label').text()} is required.`);
+
+            const inputs = currentSlide.find('input[required], select[required]');
+
+            inputs.each((i, input) => {
+                const $input = $(input);
+                if ($input.is(':radio') || $input.is(':checkbox')) {
+                    const name = $input.attr('name');
+                    if ($(`input[name="${name}"]:checked`).length === 0) {
                         isValid = false;
                     }
-                });
-                
-                // Validate email format
-                const emailField = currentQuestion.find('input[type="email"]');
-                if (emailField.length && !this.isValidEmail(emailField.val())) {
-                    emailField.addClass('field-error');
-                    this.showError(emailField.parent(), 'Please enter a valid email address.');
-                    isValid = false;
+                } else {
+                    if (!$input.val() || $input.val().trim() === '') {
+                        isValid = false;
+                        $input.addClass('error');
+                    }
                 }
-            } else {
-                // Validate radio button selection
-                const radioName = currentQuestion.find('input[type="radio"]').first().attr('name');
-                if (radioName && !currentQuestion.find(`input[name="${radioName}"]:checked`).length) {
-                    this.showError(currentQuestion, 'Please select an answer to continue.');
-                    isValid = false;
-                }
+            });
+            
+            if (!isValid) {
+                this.showError(currentSlide, 'Please complete all required fields to continue.');
             }
             
             return isValid;
         }
 
-        showError(container, message) {
+        showError(slide, message) {
             const errorDiv = $(`<div class="error-message">${message}</div>`);
-            container.append(errorDiv);
+            slide.find('.question-content').append(errorDiv);
         }
 
-        validateEmail(emailField) {
-            const email = emailField.val();
-            if (email && !this.isValidEmail(email)) {
-                emailField.addClass('field-error');
-                this.showError(emailField.parent(), 'Please enter a valid email address.');
-                return false;
-            } else {
-                emailField.removeClass('field-error');
-                emailField.parent().find('.error-message').remove();
-                return true;
+        checkEmailExists(emailField) {
+            const $emailField = $(emailField);
+            const email = $emailField.val();
+            const $fieldContainer = $emailField.parent();
+
+            // Clear previous messages
+            $fieldContainer.find('.email-check-message').remove();
+
+            if (!email || !this.validateCurrentQuestion()) {
+                return;
             }
+
+            $.post(ennu_ajax.ajax_url, {
+                action: 'ennu_check_email',
+                email: email,
+                nonce: ennu_ajax.nonce
+            })
+            .done((response) => {
+                if (response.success && response.data.exists) {
+                    const messageDiv = `<div class="email-check-message notice notice-warning">${response.data.message}</div>`;
+                    $fieldContainer.append(messageDiv);
+                }
+            });
         }
 
-        validateRequired(field) {
-            const $field = $(field);
-            if (!$field.val().trim()) {
-                $field.addClass('field-error');
-                this.showError($field.parent(), `${$field.prev('label').text()} is required.`);
-                return false;
-            } else {
-                $field.removeClass('field-error');
-                $field.parent().find('.error-message').remove();
-                return true;
-            }
-        }
-
-        isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * FUNCTION: calculateAge
-         * ARCHITECTURAL VERIFICATION: COMPLETE
-         *
-         * NOTE: This function's logic is mission-critical and has been
-         * previously subject to regression. It is now considered
-         * architecturally perfect. DO NOT MODIFY without a full
-         * regression test and sign-off from the lead architect.
-         * ------------------------------------------------------------------
-         */
         calculateAge() {
-            console.log("Starting calculateAge...");
-
-            const monthDropdown = this.form.find('select[name="dob_month"]');
-            const dayDropdown = this.form.find('select[name="dob_day"]');
-            const yearDropdown = this.form.find('select[name="dob_year"]');
-            
-            const monthVal = monthDropdown.val();
-            const dayVal = dayDropdown.val();
-            const yearVal = yearDropdown.val();
+            const month = parseInt(this.form.find('select[name="dob_month"]').val(), 10);
+            const day = parseInt(this.form.find('select[name="dob_day"]').val(), 10);
+            const year = parseInt(this.form.find('select[name="dob_year"]').val(), 10);
             const ageDisplay = this.form.find('.calculated-age-display');
 
-            console.log(`Values from dropdowns: Month=${monthVal}, Day=${dayVal}, Year=${yearVal}`);
-
-            if (monthVal && dayVal && yearVal) {
-                // The month value from the dropdown is now numeric (1-12)
-                const month = parseInt(monthVal, 10);
-                const day = parseInt(dayVal, 10);
-                const year = parseInt(yearVal, 10);
-
-                console.log(`Parsed integer values: Month=${month}, Day=${day}, Year=${year}`);
-
-                if (isNaN(month) || isNaN(day) || isNaN(year)) {
-                    console.error("One of the date components is not a number.");
-                    ageDisplay.text('');
-                    return;
-                }
-
+            if (month && day && year) {
                 const today = new Date();
-                const birthDate = new Date(year, month - 1, day); // month is 0-indexed in JS Date
-
-                console.log(`Today's Date: ${today.toDateString()}`);
-                console.log(`Birth Date: ${birthDate.toDateString()}`);
-
+                const birthDate = new Date(year, month - 1, day);
                 let age = today.getFullYear() - birthDate.getFullYear();
                 const m = today.getMonth() - birthDate.getMonth();
-
                 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                     age--;
                 }
-                
-                console.log(`Calculated Age: ${age}`);
 
                 if (age >= 0) {
                     ageDisplay.text(`Your age is ${age}`);
-                    console.log(`Displaying age: ${age}`);
+                    this.combineDOB();
+                    // Auto-advance after a short delay
+                    setTimeout(() => this.nextQuestion(), 400);
                 } else {
                     ageDisplay.text('');
-                    console.log("Calculated age is negative, clearing display.");
                 }
-            } else {
-                ageDisplay.text('');
-                console.log("One or more DOB fields are empty, clearing display.");
             }
         }
 
         combineDOB() {
             const year = this.form.find('select[name="dob_year"]').val();
-            const month = this.form.find('select[name="dob_month"]').val(); // This is now a number "1"-"12"
+            const month = this.form.find('select[name="dob_month"]').val();
             const day = this.form.find('select[name="dob_day"]').val();
-            
+
             if (month && day && year) {
-                // Values are already strings, padStart is fine.
-                const dobString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                this.form.find('.dob-combined').val(dobString);
+                const monthPadded = month.toString().padStart(2, '0');
+                const dayPadded = day.toString().padStart(2, '0');
+                const dobString = `${year}-${monthPadded}-${dayPadded}`;
+                this.form.find('input[name="dob_combined"]').val(dobString);
             }
         }
-
-        updateProgressBar() {
-            if (!this.progressBar) return;
-            const progressPercent = (this.currentStep - 1) / this.totalSteps * 100;
-            this.progressBar.style.width = `${progressPercent}%`;
-            if (this.progressText) {
-                this.progressText.textContent = `Step ${this.currentStep} of ${this.totalSteps}`;
-            }
-        }
-
+        
         collectFormData() {
-            // The FormData constructor correctly handles all input types, including
-            // creating an array for checkboxes that share the same name with `[]`.
-            const formData = new FormData(this.form[0]);
-            
-            return formData;
+            return new FormData(this.form[0]);
         }
 
         submitForm() {
-            if (this.isSubmitting) {
+            if (this.isSubmitting || !this.validateCurrentQuestion()) {
                 return;
             }
-            
-            // Validate final question
-            if (!this.validateCurrentQuestion()) {
-                return;
-            }
-            
             this.isSubmitting = true;
             this.form.addClass('loading');
-            $('#ennu-operation-status').html('<span class="dashicons dashicons-update-alt"></span> ' + 'Submitting...').addClass('show loading');
             
             const formData = this.collectFormData();
-            
-            // Add AJAX action and nonce
-            formData.append('action', 'ennu_submit_assessment');
-            
-            // The 'ennu_ajax' object is now the single source of truth, localized correctly from the main plugin file.
-            if (typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
-                formData.append('nonce', ennu_ajax.nonce);
-            } else {
-                this.showSubmissionError('Security token missing. Please refresh the page.');
+            const nonce = this.form.data('nonce'); // Get nonce directly from the form's data attribute
+
+            if (!nonce) {
+                alert('Security token missing. Please refresh the page.');
                 this.isSubmitting = false;
                 this.form.removeClass('loading');
                 return;
             }
-            
-            const ajaxUrl = (typeof ennu_ajax !== 'undefined' && ennu_ajax.ajax_url) ? ennu_ajax.ajax_url : '/wp-admin/admin-ajax.php';
-            
+            formData.append('nonce', nonce);
+
             $.ajax({
-                url: ajaxUrl,
+                url: ennu_ajax.ajax_url,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: (response) => {
-                    this.showSuccess(response);
+                    if (response.success && response.data.redirect_url) {
+                        window.location.href = response.data.redirect_url;
+                    } else {
+                        alert('Thank you! Your assessment is complete.');
+                    }
                 },
-                error: (xhr, status, error) => {
-                    this.showSubmissionError('An error occurred: ' + status + ' ' + error);
+                error: (xhr) => {
+                    alert('An error occurred: ' + xhr.responseText);
                 },
                 complete: () => {
                     this.isSubmitting = false;
                     this.form.removeClass('loading');
-                    $('#ennu-operation-status').removeClass('show loading');
                 }
             });
-        }
-
-        showSuccess(response) {
-            // Check if the response is valid and contains a redirect URL
-            if (response && response.success && response.data && response.data.redirect_url) {
-                // Redirect the user to the specified "Thank You" page
-                window.location.href = response.data.redirect_url;
-            } else {
-                // Fallback for unexpected responses: just show a generic success message
-                // Hide form
-                this.form.find('.questions-container').hide();
-                
-                // Show success message
-                const successMessage = this.form.find('.assessment-success');
-                if (successMessage.length) {
-                    successMessage.show();
-                } else {
-                    // Create success message if it doesn't exist
-                    const successHtml = `
-                        <div class="assessment-success">
-                            <div class="success-icon">✓</div>
-                            <h2>Assessment Complete!</h2>
-                            <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
-                        </div>
-                    `;
-                    this.form.append(successHtml);
-                }
-                
-                // Scroll to success message
-                this.form.find('.assessment-success')[0].scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        showSubmissionError(message = 'There was a problem submitting your assessment. Please try again.') {
-            const errorHtml = `
-                <div class="validation-message error">
-                    <strong>Submission Error:</strong> ${message}
-                </div>
-            `;
-            
-            $('#ennu-operation-status').html(message).addClass('show error');
-
-            const currentQuestion = this.questions.eq(this.currentStep - 1);
-            currentQuestion.find('.validation-message').remove();
-            currentQuestion.append(errorHtml);
         }
     }
 
     // Initialize when DOM is ready
     $(document).ready(function() {
-        
-        // Initialize all assessment forms
         $('.ennu-assessment-form').each(function() {
             new ENNUAssessmentForm(this);
-        });
-        
-        // Debug: Log total questions found on page
-        const totalQuestions = $('.question-slide').length;
-        
-        if (totalQuestions === 0) {
-        }
-
-        // "Why" tooltip handler
-        $('.why-tooltip').on('mouseenter', function() {
-            // Create and show a custom tooltip div using the data-tooltip attribute
-        }).on('mouseleave', function() {
-            // Hide the tooltip
-        });
-
-        // Dynamic Follow-up Question Handler
-        $('input[type=radio]').on('change', function() {
-            const slide = $(this).closest('.question-slide');
-            const container = slide.find('.follow-up-question-container');
-            if (container.length) {
-                const trigger = container.data('trigger-answer');
-                if ($(this).val() === trigger) {
-                    container.slideDown(); // Show with animation
-                } else {
-                    container.slideUp(); // Hide if another option is chosen
-                }
-            }
         });
     });
 

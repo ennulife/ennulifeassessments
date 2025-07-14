@@ -24,7 +24,8 @@ delete_transient( 'ennu_assessment_results_' . $user_id );
 
 $assessment_type = $results_transient['type'];
 $score = $results_transient['score'];
-$interpretation = strtolower($results_transient['interpretation']); // Lowercase for key matching
+$interpretation_data = $results_transient['interpretation'];
+$interpretation = isset($interpretation_data['level']) ? strtolower($interpretation_data['level']) : 'fair'; // Lowercase for key matching
 $category_scores = $results_transient['category_scores'];
 $user_answers = $results_transient['answers'] ?? [];
 

@@ -86,11 +86,11 @@ This section details every facet of the end-user experience. Each claim is backe
 
 -   **Code-Backed Confirmation**: An event listener in `assets/js/ennu-frontend-forms.js` on `input[type="radio"]` calls the `nextQuestion()` method.
 
-#### 4.2.2 Live Age Calculation
+#### 4.2.2 Live Age Calculation & Auto-Progression
 
--   **The Perfect Expected Result**: Selecting a date of birth from the dropdowns instantly and accurately calculates the user's age.
+-   **The Perfect Expected Result**: After selecting the final part of their date of birth (month, day, or year), the user's age is instantly calculated and displayed. Immediately after, the form automatically advances to the next question after a 300ms delay.
 
--   **Code-Backed Confirmation**: The `calculateAge` method in `assets/js/ennu-frontend-forms.js` is triggered by the `change` event on `.dob-dropdown` elements. It correctly accounts for month and day, not just year.
+-   **Code-Backed Confirmation**: The `calculateAge` method in `assets/js/ennu-frontend-forms.js` is triggered by the `change` event on the DOB dropdowns (`select[name^="dob_"]`). It correctly accounts for month and day, not just year. Upon a successful calculation, it initiates a `setTimeout` to call the `nextQuestion()` method.
 
 ### 4.3 Feature: Seamless Data Submission and User Creation
 
@@ -382,9 +382,9 @@ This section provides an explicit, step-by-step protocol to verify every functio
 2.  **Steps**:
     a. Navigate to the "Hair Test" page on the frontend.
     b. **Expected Result**: A multi-step form with the title "Hair Assessment" appears. A progress bar is visible.
-    c. Select a Date of Birth.
-    d. **Expected Result**: An age is instantly calculated and displayed below the dropdowns.
-    e. Select an answer for the "Gender" question (a radio button question).
+    c. Select a Date of Birth from the three dropdowns.
+    d. **Expected Result**: An age is instantly calculated and displayed below the dropdowns. The form then automatically advances to the next question.
+    e. Use the "Previous" button to navigate back to the Date of Birth question. Select an answer for the "Gender" question (a radio button question).
     f. **Expected Result**: The form automatically advances to the next question after a short delay.
     g. Use the "Previous" button.
     h. **Expected Result**: The form successfully navigates to the previous question.

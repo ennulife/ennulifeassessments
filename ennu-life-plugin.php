@@ -1,18 +1,12 @@
 <?php
 /**
- * Plugin Name: ENNU Life Assessment Plugin
- * Plugin URI: https://ennulife.com
- * Description: Advanced health and wellness assessment system with enhanced features, modern UI, and comprehensive data management.
- * Version: 29.0.2
- * Author: ENNU Life Development Team
- * Author URI: https://ennulife.com
- * License: Proprietary
- * Text Domain: ennulifeassessments
- * Domain Path: /languages
- * Requires at least: 5.0
- * Tested up to: 6.8.1
- * Requires PHP: 7.4
- * Network: false
+ * Plugin Name:       ENNU Life Assessments
+ * Description:       A comprehensive health assessment and scoring system.
+ * Version:           46.0.0
+ * Author:            ENNU Life Development Team
+ * License:           Proprietary
+ * Text Domain:       ennulifeassessments
+ * Domain Path:       /languages
  */
 
 // Prevent direct access
@@ -21,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '29.0.2' );
+define( 'ENNU_LIFE_VERSION', '46.0.0' );
 // Plugin paths - with safety checks
 if (function_exists('plugin_dir_path')) {
     define('ENNU_LIFE_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -163,32 +157,40 @@ class ENNU_Life_Enhanced_Plugin {
     }
     
     /**
-     * Enqueue frontend scripts
+     * Enqueue frontend scripts and styles.
      */
     public function enqueue_frontend_scripts() {
-        if (!function_exists('wp_enqueue_style') || !function_exists('wp_enqueue_script')) {
-            return;
-        }
-        
-        // Enqueue frontend styles
-        $css_file = ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css';
-        if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/css/ennu-frontend-forms.css')) {
-            wp_enqueue_style('ennu-assessment-frontend', $css_file, array(), ENNU_LIFE_VERSION);
-        }
-        
-        // Enqueue frontend scripts
-        $js_file = ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js';
-        if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/js/ennu-frontend-forms.js')) {
-            wp_enqueue_script('ennu-assessment-frontend', $js_file, array('jquery'), ENNU_LIFE_VERSION, true);
-            
-            // Localize script
-            if (function_exists('wp_localize_script')) {
-                wp_localize_script('ennu-assessment-frontend', 'ennu_ajax', array(
-                    'ajax_url' => function_exists('admin_url') ? admin_url('admin-ajax.php') : '',
-                    'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ennu_ajax_nonce') : ''
-                ));
+        global $post;
+
+        $has_assessment_shortcode = false;
+        if ( is_a( $post, 'WP_Post' ) ) {
+            $assessment_shortcodes = array(
+                'ennu-welcome-assessment', 'ennu-hair-assessment', 'ennu-ed-treatment-assessment',
+                'ennu-weight-loss-assessment', 'ennu-health-assessment', 'ennu-skin-assessment',
+                'ennu-sleep-assessment', 'ennu-hormone-assessment', 'ennu-menopause-assessment', 'ennu-testosterone-assessment'
+            );
+            foreach ($assessment_shortcodes as $shortcode) {
+                if (has_shortcode($post->post_content, $shortcode)) {
+                    $has_assessment_shortcode = true;
+                    break;
+                }
             }
         }
+
+        if ( $has_assessment_shortcode ) {
+            wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css', array(), ENNU_LIFE_VERSION );
+            wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
+            wp_localize_script( 'ennu-frontend-forms', 'ennu_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+        }
+        
+        // --- PHASE 3 REFACTOR: Enqueue Dashboard Styles ---
+        if ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ennu-user-dashboard' ) ) {
+            // Enqueue Font Awesome for icons
+            wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', array(), '5.15.4' );
+            
+            wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION . '.' . time() );
+        }
+        // --- END PHASE 3 REFACTOR ---
     }
     
     /**
@@ -269,6 +271,16 @@ class ENNU_Life_Enhanced_Plugin {
      * Get shortcodes instance
      */
     public function get_shortcodes() {
+        return $this->shortcodes;
+    }
+
+    /**
+     * Getter for the shortcode handler instance.
+     * This is the definitive fix for the admin panel fatal errors.
+     *
+     * @return ENNU_Assessment_Shortcodes
+     */
+    public function get_shortcode_handler() {
         return $this->shortcodes;
     }
     

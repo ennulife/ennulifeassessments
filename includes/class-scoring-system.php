@@ -1,8 +1,9 @@
 <?php
 /**
  * ENNU Life Assessment Scoring System
- * 
- * Comprehensive scoring logic for all 5 assessment types
+ *
+ * This class is responsible for calculating scores based on the unified
+ * assessment definitions.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,33 +12,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ENNU_Assessment_Scoring {
     
-    /**
-     * All scoring configurations, loaded from a config file.
-     *
-     * @var array
-     */
-    private static $all_scoring_configs = array();
+    private static $all_definitions = array();
 
-    /**
-     * Load all scoring rules from the centralized config file.
-     */
-    private static function load_all_scoring_configs() {
-        if ( empty( self::$all_scoring_configs ) ) {
-            $scoring_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-scoring.php';
-            if ( file_exists( $scoring_file ) ) {
-                self::$all_scoring_configs = require $scoring_file;
+    private static function load_all_definitions() {
+        if ( empty( self::$all_definitions ) ) {
+            $definitions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-definitions.php';
+            if ( file_exists( $definitions_file ) ) {
+                self::$all_definitions = require $definitions_file;
             }
         }
     }
-    
-    /**
-     * Calculate assessment scores
-     */
-    public static function calculate_scores( $assessment_type, $responses ) {
-        self::load_all_scoring_configs();
-        $scoring_config = self::$all_scoring_configs[$assessment_type] ?? array();
 
-        if (empty($scoring_config)) {
+    public static function calculate_scores( $assessment_type, $responses ) {
+        self::load_all_definitions();
+        $assessment_questions = self::$all_definitions[$assessment_type] ?? [];
+
+        if (empty($assessment_questions)) {
             return false;
         }
 
@@ -46,19 +36,17 @@ class ENNU_Assessment_Scoring {
         $total_weight = 0;
         
         foreach ( $responses as $question_key => $answer ) {
-            // The question key from the form is simple, e.g., 'hair_q1'
-            // We need to map it to the semantic key used in scoring, e.g., 'gender'
-            $semantic_key = ENNU_Question_Mapper::get_semantic_key($assessment_type, $question_key);
+            $question_def = $assessment_questions[$question_key] ?? null;
 
-            if ( $semantic_key && isset( $scoring_config[$semantic_key] ) ) {
-                $question_config = $scoring_config[$semantic_key];
-                $category = $question_config['category'] ?? 'General';
-                $weight = $question_config['weight'] ?? 1;
+            if ( $question_def && isset($question_def['scoring']) ) {
+                $scoring_rules = $question_def['scoring'];
+                $category = $scoring_rules['category'] ?? 'General';
+                $weight = $scoring_rules['weight'] ?? 1;
 
                 $answers_to_process = is_array($answer) ? $answer : array($answer);
 
                 foreach ($answers_to_process as $single_answer) {
-                    $score = $question_config['answers'][$single_answer] ?? 0; // Default to 0 if an answer isn't scorable
+                    $score = $scoring_rules['answers'][$single_answer] ?? 0;
 
                     if ( ! isset( $category_scores[$category] ) ) {
                         $category_scores[$category] = array( 'total' => 0, 'weight' => 0, 'count' => 0 );
@@ -68,48 +56,67 @@ class ENNU_Assessment_Scoring {
                     $category_scores[$category]['weight'] += $weight;
                     $category_scores[$category]['count']++;
 
-                    $total_score += $score * $weight;
-                    $total_weight += $weight;
+                    if ($weight > 0) {
+                        $total_score += $score * $weight;
+                        $total_weight += $weight;
+                    }
                 }
             }
         }
         
-        // Calculate category averages
         $final_category_scores = array();
         foreach ( $category_scores as $category => $data ) {
-            $final_category_scores[$category] = $data['weight'] > 0 ? round($data['total'] / $data['weight'], 1) : 0;
+            if ($data['weight'] > 0) {
+                $final_category_scores[$category] = round($data['total'] / $data['weight'], 1);
+            }
         }
         
         $overall_score = $total_weight > 0 ? round($total_score / $total_weight, 1) : 0;
         
-        return array(
-            'overall_score' => $overall_score,
-            'category_scores' => $final_category_scores,
-        );
-    }
-    
-    /**
-     * Get scoring configuration for assessment type
-     */
-    private static function get_scoring_config( $assessment_type ) {
-        self::load_all_scoring_configs();
-        return self::$all_scoring_configs[ $assessment_type ] ?? array();
-    }
-    
-    /**
-     * Get the point value for a specific answer.
-     */
-    public static function get_answer_score($assessment_type, $question_key, $answer_value) {
-        self::load_all_scoring_configs();
-        $scoring_config = self::$all_scoring_configs[$assessment_type] ?? array();
+        // --- PHASE 2: CALCULATE PILLAR SCORES ---
+        $pillar_map = self::get_health_pillar_map();
+        $pillar_scores = [];
+        $pillar_totals = [];
+        $pillar_counts = [];
 
-        if (empty($scoring_config)) {
-            return null;
+        foreach ($pillar_map as $pillar_name => $categories) {
+            $pillar_totals[$pillar_name] = 0;
+            $pillar_counts[$pillar_name] = 0;
         }
 
-        $semantic_key = ENNU_Question_Mapper::get_semantic_key($assessment_type, $question_key);
-        if ($semantic_key && isset($scoring_config[$semantic_key]['answers'][$answer_value])) {
-            return $scoring_config[$semantic_key]['answers'][$answer_value];
+        foreach ($final_category_scores as $category => $score) {
+            foreach ($pillar_map as $pillar_name => $categories) {
+                if (in_array($category, $categories)) {
+                    $pillar_totals[$pillar_name] += $score;
+                    $pillar_counts[$pillar_name]++;
+                    break; // Move to the next category once pillar is found
+                }
+            }
+        }
+
+        foreach ($pillar_totals as $pillar_name => $total) {
+            if ($pillar_counts[$pillar_name] > 0) {
+                $pillar_scores[$pillar_name] = round($total / $pillar_counts[$pillar_name], 1);
+            } else {
+                $pillar_scores[$pillar_name] = 0; // Default to 0 if no categories for this pillar
+            }
+        }
+        // --- END PHASE 2 ---
+
+        return [
+            'overall_score' => $overall_score,
+            'category_scores' => $final_category_scores,
+            'pillar_scores' => $pillar_scores, // Add pillar scores to the return value
+        ];
+    }
+    
+    public static function get_answer_score($assessment_type, $question_key, $answer_value) {
+        self::load_all_definitions();
+        $assessment_questions = self::$all_definitions[$assessment_type] ?? [];
+        $question_def = $assessment_questions[$question_key] ?? null;
+
+        if ($question_def && isset($question_def['scoring']['answers'][$answer_value])) {
+            return $question_def['scoring']['answers'][$answer_value];
         }
 
         return null;
@@ -229,6 +236,13 @@ class ENNU_Assessment_Scoring {
                 'Treatment Motivation',
                 'Stress & Mental Health',
                 'Readiness for Change',
+                'Treatment Expectations',
+                'Social Support',
+                'Motivation & Goals',
+                'Health Motivation',
+                'Vitality & Drive',
+                'Mental Clarity',
+                'Mood & Wellbeing',
             ],
             'body' => [
                 'Condition Severity',
@@ -237,26 +251,127 @@ class ENNU_Assessment_Scoring {
                 'Genetic Factors',
                 'Nutritional Support',
                 'Internal Health',
+                'Current Health Status',
+                'Vitality & Energy',
+                'Sleep & Recovery',
+                'Anabolic Response',
+                'Symptom Severity',
+                'Menopause Stage',
+                'Physical Symptoms',
             ],
             'lifestyle' => [
                 'Physical Health',
                 'Treatment History',
                 'Progression Timeline',
                 'Symptom Pattern',
-                'Sleep & Recovery',
                 'Preventive Health',
                 'Lifestyle Choices',
                 'Environmental Factors',
                 'Skincare Habits',
+                'Weight Loss History',
+                'Behavioral Patterns',
+                'Physical Activity',
+                'Nutrition',
+                'Sleep Duration',
+                'Sleep Quality',
+                'Sleep Continuity',
+                'Sleep Dependency',
+                'Current Regimen',
+                'Lifestyle & Diet',
             ],
             'aesthetics' => [
                 'Hair Health Status',
                 'Primary Skin Issue',
                 'Skin Characteristics',
-                'Motivation & Goals',
                 'Current Status',
+                'Progression Rate',
+                'Skin Reactivity',
             ]
         ];
+    }
+
+    public static function calculate_ennu_life_score($user_id) {
+        self::load_all_definitions();
+        
+        $assessment_types = array_keys(self::$all_definitions);
+        $all_pillar_scores = [];
+
+        // Initialize accumulators for each pillar
+        foreach (self::get_health_pillar_map() as $pillar_key => $categories) {
+            $all_pillar_scores[$pillar_key] = [];
+        }
+
+        // 1. Collect all pillar scores from all completed assessments
+        foreach ($assessment_types as $assessment_type) {
+            $pillar_scores = get_user_meta($user_id, 'ennu_' . $assessment_type . '_pillar_scores', true);
+            if (is_array($pillar_scores) && !empty($pillar_scores)) {
+                foreach ($pillar_scores as $pillar_name => $score) {
+                    if (isset($all_pillar_scores[$pillar_name])) {
+                        $all_pillar_scores[$pillar_name][] = $score;
+                    }
+                }
+            }
+        }
+
+        // 2. Calculate the average for each pillar
+        $average_pillar_scores = [];
+        foreach ($all_pillar_scores as $pillar_name => $scores) {
+            if (!empty($scores)) {
+                $average_pillar_scores[$pillar_name] = array_sum($scores) / count($scores);
+            } else {
+                $average_pillar_scores[$pillar_name] = 0;
+            }
+        }
+        
+        // 3. Apply strategic weights
+        $weights = [
+            'mind' => 0.3,
+            'body' => 0.3,
+            'lifestyle' => 0.3,
+            'aesthetics' => 0.1
+        ];
+
+        $ennu_life_score = 0;
+        foreach ($average_pillar_scores as $pillar_name => $avg_score) {
+            if (isset($weights[$pillar_name])) {
+                $ennu_life_score += $avg_score * $weights[$pillar_name];
+            }
+        }
+
+        return round($ennu_life_score, 1);
+    }
+
+    public static function calculate_average_pillar_scores($user_id) {
+        self::load_all_definitions();
+        
+        $assessment_types = array_keys(self::$all_definitions);
+        $all_pillar_scores = [];
+
+        foreach (self::get_health_pillar_map() as $pillar_key => $categories) {
+            $all_pillar_scores[$pillar_key] = [];
+        }
+
+        foreach ($assessment_types as $assessment_type) {
+            $pillar_scores = get_user_meta($user_id, 'ennu_' . $assessment_type . '_pillar_scores', true);
+            if (is_array($pillar_scores) && !empty($pillar_scores)) {
+                foreach ($pillar_scores as $pillar_name => $score) {
+                    if (isset($all_pillar_scores[$pillar_name])) {
+                        $all_pillar_scores[$pillar_name][] = $score;
+                    }
+                }
+            }
+        }
+
+        $average_pillar_scores = [];
+        foreach ($all_pillar_scores as $pillar_name => $scores) {
+            if (!empty($scores)) {
+                $average_pillar_scores[ucfirst($pillar_name)] = round(array_sum($scores) / count($scores), 1);
+            } else {
+                $average_pillar_scores[ucfirst($pillar_name)] = 0;
+            }
+        }
+        
+        return $average_pillar_scores;
     }
 }
 

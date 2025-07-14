@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="ENNU Life Assessments">
+    <description>The PHP coding standards for the ENNU Life Assessments plugin.</description>
+
+    <!--
+    What to scan
+    -->
+    <file>.</file>
+    <exclude-pattern>/vendor/</exclude-pattern>
+    <exclude-pattern>/node_modules/</exclude-pattern>
+
+    <!--
+    WordPress Coding Standards
+    -->
+    <rule ref="WordPress-Extra">
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+    </rule>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array" value="ennu, ENNU" />
+        </properties>
+    </rule>
+</ruleset> 

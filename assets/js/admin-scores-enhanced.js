@@ -268,7 +268,7 @@
         handleClearUserData: function(e) {
             e.preventDefault();
 
-            if (!confirm(this.strings.confirm_clear || 'Are you sure you want to permanently delete all data?')) {
+            if (!confirm(this.strings.confirm_clear || 'Are you sure you want to permanently delete all ENNU assessment data for this user? This cannot be undone.')) {
                 return;
             }
 
