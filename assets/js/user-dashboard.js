@@ -15,6 +15,7 @@
 			this.initDetailsToggle();
 			this.initPillarHovers();
 			this.initScoreAnimation();
+			this.initPillarAnimation();
 			this.initHistoricalCharts();
 			this.initHealthMapAccordion();
 			this.initToggleAll();
@@ -55,17 +56,27 @@
 		}
 
 		initDetailsToggle() {
-			this.dashboard.find('.assessment-list-item').each((index, item) => {
-				const $item = $(item);
-				const toggleButton = $item.find('.details-toggle-icon');
-				const detailsContainer = $item.find('.category-details-container');
-
-				toggleButton.on('click', (e) => {
-					e.stopPropagation();
-					const isExpanded = $item.attr('aria-expanded') === 'true';
-					$item.attr('aria-expanded', !isExpanded);
-					detailsContainer.slideToggle(400);
-				});
+			// Use event delegation to handle dynamically loaded content
+			this.dashboard.on('click', '.assessment-list-item .details-toggle-icon', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				
+				const $button = $(e.currentTarget);
+				const $item = $button.closest('.assessment-list-item');
+				const $detailsContainer = $item.find('.category-details-container');
+				
+				// Toggle expanded state
+				const isExpanded = $item.attr('aria-expanded') === 'true';
+				$item.attr('aria-expanded', !isExpanded);
+				
+				// Toggle visibility with animation
+				if (isExpanded) {
+					$detailsContainer.slideUp(400);
+					$button.removeClass('active');
+				} else {
+					$detailsContainer.slideDown(400);
+					$button.addClass('active');
+				}
 			});
 		}
 
@@ -84,6 +95,8 @@
 
 		initScoreAnimation() {
 			const mainScoreOrb = this.dashboard.find('.main-score-orb');
+			const mainScoreInsight = this.dashboard.find('.main-score-insight');
+			
 			if (mainScoreOrb.length > 0) {
 				const score = parseFloat(mainScoreOrb.data('score')) || 0;
 				const scoreValueElement = mainScoreOrb.find('.main-score-value');
@@ -94,6 +107,9 @@
 
 				setTimeout(() => {
 					mainScoreOrb.addClass('loaded');
+					// Also fade in the insight text
+					mainScoreInsight.addClass('visible');
+					
 					$({ Counter: 0 }).animate({ Counter: score }, {
 						duration: 1500,
 						easing: 'swing',
@@ -105,6 +121,23 @@
 						}
 					});
 				}, 500);
+			}
+		}
+
+		initPillarAnimation() {
+			const pillarOrbs = this.dashboard.find('.pillar-orb');
+			if (pillarOrbs.length > 0) {
+				// Add visible class with staggered delay for smooth animation
+				pillarOrbs.each(function(index) {
+					const $orb = $(this);
+					setTimeout(() => {
+						$orb.addClass('visible');
+						// Also add loaded class for progress bar animation
+						setTimeout(() => {
+							$orb.addClass('loaded');
+						}, 300);
+					}, 700 + (index * 150)); // Stagger by 150ms after main score
+				});
 			}
 		}
 

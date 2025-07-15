@@ -73,64 +73,68 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<?php
 			$health_opt_assessment = $user_assessments['health_optimization_assessment'] ?? null;
-			if ( isset( $health_optimization_report, $health_optimization_report['health_map'], $health_opt_assessment ) ) :
+			if ( isset( $health_optimization_report, $health_optimization_report['health_map'] ) ) :
 				$health_map   = $health_optimization_report['health_map'];
 				$is_completed = !empty($health_optimization_report['user_symptoms']);
 				?>
 				<div class="health-optimization-report-card">
 					<div class="report-header">
 						<h3 class="report-title">Health Optimization</h3>
-						<?php if ( $is_completed ) : ?>
-							<button type="button" id="toggle-all-accordions" class="toggle-all-btn">Toggle All</button>
-						<?php endif; ?>
+						<button type="button" id="toggle-all-accordions" class="toggle-all-btn">Toggle All</button>
 					</div>
 					
-					<?php if ( $is_completed ) : ?>
-						<p class="report-subtitle">Your key health vectors. Expand to see related symptoms and biomarkers.</p>
-						<div class="health-map-accordion">
-							<?php foreach ( $health_map as $vector => $data ) :
-								$is_triggered = ! empty( $data['triggered_symptoms_count'] );
-								?>
-								<div class="accordion-item <?php echo $is_triggered ? 'triggered' : ''; ?>" data-color-index="<?php echo esc_attr( crc32( $vector ) % 6 ); ?>">
-									<div class="accordion-header">
-										<h4 class="vector-title"><?php echo esc_html( $vector ); ?></h4>
-										<div class="vector-counts">
-											<span class="count-badge symptoms <?php echo ( $data['triggered_symptoms_count'] > 0 ) ? 'active' : ''; ?>" title="Triggered Symptoms">
-												<?php echo esc_html( $data['triggered_symptoms_count'] ); ?>
-											</span>
-											<span class="count-badge biomarkers <?php echo ( $data['recommended_biomarkers_count'] > 0 ) ? 'active' : ''; ?>" title="Recommended Biomarkers">
-												<?php echo esc_html( $data['recommended_biomarkers_count'] ); ?>
-											</span>
-											<span class="accordion-icon"></span>
-										</div>
-									</div>
-									<div class="accordion-content">
-										<div class="map-section">
-											<h5>Symptoms</h5>
-											<ul class="symptom-list">
-												<?php foreach ( $data['symptoms'] as $symptom ) : ?>
-													<li class="<?php echo in_array( $symptom, $health_optimization_report['user_symptoms'], true ) ? 'active pulsate' : ''; ?>"><?php echo esc_html( $symptom ); ?></li>
-												<?php endforeach; ?>
-											</ul>
-										</div>
-										<div class="map-section">
-											<h5>Biomarkers</h5>
-											<ul class="biomarker-list">
-												<?php foreach ( $data['biomarkers'] as $biomarker ) : ?>
-													<li class="<?php echo in_array( $biomarker, $health_optimization_report['recommended_biomarkers'], true ) ? 'active pulsate' : ''; ?>"><?php echo esc_html( $biomarker ); ?></li>
-												<?php endforeach; ?>
-											</ul>
-										</div>
-									</div>
-								</div>
-							<?php endforeach; ?>
-						</div>
-					<?php else : ?>
-						<p class="report-subtitle">Answer a few questions about your symptoms to unlock your personalized health map.</p>
-						<div class="empty-state-actions" style="margin-top: 20px;">
-							<a href="<?php echo esc_url( $health_opt_assessment['url'] ); ?>" class="action-button button-report">Start Health Optimization</a>
+					<p class="report-subtitle">
+						<?php if ( $is_completed ) : ?>
+							Your key health vectors. Expand to see related symptoms and biomarkers.
+						<?php else : ?>
+							Explore health vectors to understand symptoms and biomarkers for each area.
+						<?php endif; ?>
+					</p>
+
+					<?php if ( ! $is_completed && $health_opt_assessment ) : ?>
+						<div class="empty-state-actions" style="margin: 15px 0;">
+							<a href="<?php echo esc_url( $health_opt_assessment['url'] ); ?>" class="action-button button-report" style="width: 100%; text-align: center;">Start Health Optimization</a>
 						</div>
 					<?php endif; ?>
+
+					<div class="health-map-accordion">
+						<?php foreach ( $health_map as $vector => $data ) :
+							$is_triggered = ! empty( $data['triggered_symptoms_count'] );
+							?>
+							<div class="accordion-item <?php echo $is_triggered ? 'triggered' : ''; ?>" data-color-index="<?php echo esc_attr( crc32( $vector ) % 6 ); ?>">
+								<div class="accordion-header">
+									<h4 class="vector-title"><?php echo esc_html( $vector ); ?></h4>
+									<div class="vector-counts">
+										<span class="count-badge symptoms <?php echo ( $data['triggered_symptoms_count'] > 0 ) ? 'active' : ''; ?>" title="Triggered Symptoms">
+											<?php echo esc_html( $data['triggered_symptoms_count'] ); ?>
+										</span>
+										<span class="count-badge biomarkers <?php echo ( $data['recommended_biomarkers_count'] > 0 ) ? 'active' : ''; ?>" title="Recommended Biomarkers">
+											<?php echo esc_html( $data['recommended_biomarkers_count'] ); ?>
+										</span>
+										<span class="accordion-icon"></span>
+									</div>
+								</div>
+								<div class="accordion-content">
+									<div class="map-section">
+										<h5>Symptoms</h5>
+										<ul class="symptom-list">
+											<?php foreach ( $data['symptoms'] as $symptom ) : ?>
+												<li class="<?php echo $is_completed && in_array( $symptom, $health_optimization_report['user_symptoms'], true ) ? 'active pulsate' : ''; ?>"><?php echo esc_html( $symptom ); ?></li>
+											<?php endforeach; ?>
+										</ul>
+									</div>
+									<div class="map-section">
+										<h5>Biomarkers</h5>
+										<ul class="biomarker-list">
+											<?php foreach ( $data['biomarkers'] as $biomarker ) : ?>
+												<li class="<?php echo $is_completed && in_array( $biomarker, $health_optimization_report['recommended_biomarkers'], true ) ? 'active pulsate' : ''; ?>"><?php echo esc_html( $biomarker ); ?></li>
+											<?php endforeach; ?>
+										</ul>
+									</div>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
 				</div>
 			<?php endif; ?>
 		</aside>
@@ -157,7 +161,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<div class="assessment-actions">
 								<?php if ( ! empty( $data['completed'] ) ) : ?>
 									<span class="assessment-score-badge"><?php echo isset( $data['score'] ) ? esc_html( number_format( $data['score'], 1 ) ) : '-'; ?></span>
-									<button class="details-toggle-icon"></button>
+									<button type="button" class="details-toggle-icon"></button>
 								<?php else : ?>
 									<a href="<?php echo isset( $data['url'] ) ? esc_url( $data['url'] ) : '#'; ?>" class="action-button button-retake">Start Now</a>
 								<?php endif; ?>

@@ -1,69 +1,189 @@
-# ENNU Life Assessment Plugin
+# ENNU Life Assessments WordPress Plugin
 
-**Version:** 57.2.0
-**Author:** ENNU Life Development Team
+**Version:** 59.0.0  
+**Last Updated:** December 18, 2024  
+**WordPress:** 5.0+ required, 6.8+ recommended  
+**PHP:** 7.4+ required, 8.0+ recommended  
 **License:** Proprietary
-
----
 
 ## Overview
 
-The ENNU Life Assessment Plugin is a powerful, enterprise-grade system for creating, managing, and scoring advanced health and wellness assessments. It is designed for high performance and stability, with a focus on providing a seamless user experience and actionable data for health professionals.
+The ENNU Life Assessments plugin is a comprehensive health assessment system for WordPress that provides multiple health evaluations with sophisticated scoring algorithms, user dashboards, and administrative tools. It features a proprietary four-tier scoring hierarchy culminating in the master ENNU LIFE SCORE.
 
-The latest releases add powerful new dimensions of **Longitudinal Wellness Tracking** and **Enhanced Administrative Control**.
+## Key Features
 
-## Core Features
+### Assessment Types
+- **Welcome Assessment** - User onboarding and data collection
+- **Hair Assessment** - Hair health evaluation
+- **ED Treatment Assessment** - Erectile dysfunction assessment
+- **Weight Loss Assessment** - Weight management evaluation
+- **Health Assessment** - General health status
+- **Skin Assessment** - Skin health analysis
+- **Sleep Assessment** - Sleep quality evaluation
+- **Hormone Assessment** - Hormonal health check
+- **Menopause Assessment** (Female only)
+- **Testosterone Assessment** (Male only)
+- **Health Optimization Assessment** - Symptom-based qualitative assessment
 
-*   **The Bio-Metric Canvas**: A stunning, interactive dashboard featuring a central, pulsating ENNU LIFE SCORE orb, animated Pillar Orbs, and historical trend charts for both the master score and BMI.
-*   **Longitudinal BMI Tracking**: The system now captures a user's BMI history, providing a clear, visual journey of their weight management progress over time.
-*   **Tokenized, Unified Results**: A robust, token-based results system that ensures a flawless post-assessment experience for all users.
-*   **Intelligent Gender Filtering**: A personalized user dashboard that automatically displays only the assessments relevant to the user's gender profile.
-*   **Unified Data Architecture**: All questions and scoring rules now live together in a single, unified configuration file: `includes/config/assessment-definitions.php`.
-*   **Advanced Scoring Engine**: A powerful engine that calculates scores for 9 distinct health assessments, aggregates them into 4 Core Health Pillars, and computes a master ENNU LIFE SCORE.
-*   **The Administrative Toolkit**: A new suite of powerful tools on the user profile page that allows administrators to recalculate scores and clear assessment data with surgical precision.
-*   **Secure by Design**: Nonce-protected AJAX, strict data validation and sanitization, and a hardened database layer.
-*   **Developer-Friendly**: A clean, object-oriented architecture and detailed documentation.
+### Scoring System
+- **Four-Tier Hierarchy:**
+  1. Category Scores - Granular feedback within assessments
+  2. Overall Assessment Score - Per health vertical
+  3. Pillar Scores - Mind, Body, Lifestyle, Aesthetics
+  4. ENNU LIFE SCORE - Master proprietary health metric
 
-## Getting Started
+### User Features
+- **Bio-Metric Canvas Dashboard** - Stunning visualization of health metrics
+- **Historical Tracking** - Score and BMI trends over time
+- **Tokenized Results** - Secure post-assessment flow
+- **Gender-Specific Filtering** - Appropriate assessments per user
+- **Health Optimization Map** - Interactive symptom and biomarker visualization
 
-See `INSTALLATION.md` for detailed installation instructions.
+### Administrative Features
+- **Enhanced User Profiles** - Comprehensive assessment data view
+- **Score Recalculation** - Manual score refresh capability
+- **Data Management** - Clear individual or all assessment data
+- **Analytics Dashboard** - Aggregate insights (Phase 2 - planned)
 
-### Configuration
+## Installation
 
-All assessment questions and scoring rules are managed in `includes/config/assessment-definitions.php`. To add or modify assessments, please refer to the `documentation/REFACTORING_AND_MAINTENANCE_GUIDE.md` file.
+1. **Upload Plugin**
+   ```bash
+   cd /path/to/wordpress/wp-content/plugins/
+   git clone [repository-url] ennulifeassessments
+   ```
 
-## Security
+2. **Activate Plugin**
+   - Navigate to WordPress Admin → Plugins
+   - Find "ENNU Life Assessments" and click "Activate"
 
-The ENNU Life Assessment Plugin has been developed with security as a top priority. It includes:
-*   **Nonce-Protected AJAX:** All AJAX requests are protected with WordPress nonces.
-*   **Data Validation and Sanitization:** All user input is strictly validated and sanitized.
-*   **Prepared SQL Queries:** All database queries are prepared using `$wpdb->prepare`.
-*   **Capability Checks:** All administrative actions are protected with capability checks.
+3. **Create Assessment Pages**
+   - Go to ENNU Life → Settings
+   - Click "Create Assessment Pages" button
+   - This auto-generates all required pages with proper shortcodes
 
-## Shortcodes
+4. **Configure Settings**
+   - Set your timezone
+   - Configure email notifications
+   - Set up any integrations (WP Fusion, HubSpot)
 
-The following shortcodes are available. See `SHORTCODE_DOCUMENTATION.md` for detailed usage instructions.
+## Usage
 
-*   `[ennu-welcome-assessment]`
-*   `[ennu-hair-assessment]`
-*   `[ennu-ed-treatment-assessment]`
-*   `[ennu-weight-loss-assessment]`
-*   `[ennu-health-assessment]`
-*   `[ennu-skin-assessment]`
-*   `[ennu-sleep-assessment]`
-*   `[ennu-hormone-assessment]`
-*   `[ennu-menopause-assessment]`
-*   `[ennu-testosterone-assessment]`
-*   `[ennu-user-dashboard]`
-*   `[ennu-assessment-results]` (and individual results pages like `[ennu-hair-results]`)
-*   `[ennu-*-assessment-details]` (e.g., `[ennu-hair-assessment-details]`)
+### Shortcodes
 
-## Technical Details
+**Assessment Forms:**
+- `[ennu-welcome-assessment]` - Welcome/onboarding form
+- `[ennu-hair-assessment]` - Hair assessment form
+- `[ennu-health-optimization-assessment]` - Symptom assessment form
+- (Similar pattern for all assessment types)
 
-- **Minimum PHP Version:** 7.4
-- **Minimum WordPress Version:** 5.0
-- **Dependencies:** None
+**Results Pages:**
+- `[ennu-hair-results]` - Hair assessment results
+- `[ennu-health-optimization-results]` - Health optimization results
+- (Similar pattern for all assessment types)
+
+**Dashboard:**
+- `[ennu-user-dashboard]` - Main user dashboard
+
+**Details Pages:**
+- `[ennu-hair-assessment-details]` - Detailed assessment history
+- (Similar pattern for all assessment types)
+
+### User Flow
+1. User completes an assessment form
+2. System calculates scores and saves data
+3. User receives token-based redirect to results page
+4. Dashboard updates with new scores and history
+5. User can view detailed reports and track progress
+
+## Development
+
+### File Structure
+```
+ennulifeassessments/
+├── assets/
+│   ├── css/         # Stylesheets
+│   └── js/          # JavaScript files
+├── includes/
+│   ├── config/      # Assessment definitions and mappings
+│   └── *.php        # Core PHP classes
+├── templates/       # Display templates
+├── documentation/   # Detailed docs
+└── tests/          # Test files (minimal coverage currently)
+```
+
+### Key Files
+- `includes/config/assessment-definitions.php` - Single source of truth for all assessments
+- `includes/class-scoring-system.php` - Core scoring engine
+- `includes/class-assessment-shortcodes.php` - Shortcode handlers
+- `templates/user-dashboard.php` - Main dashboard template
+
+### Code Standards
+- Follow WordPress Coding Standards
+- Use proper sanitization and escaping
+- Implement nonce verification for all forms
+- Add meaningful code comments
+- Test across different user states
+
+## Current State (v59.0.0)
+
+### Recent Fixes
+- ✅ Assessment toggle functionality restored
+- ✅ Pillar scores display correctly
+- ✅ Health optimization counts calculate properly
+- ✅ Progress charts work on all pages
+- ✅ Main score animations function properly
+- ✅ Health optimization section always visible
+
+### Known Limitations
+- Heavy jQuery dependency (modernization planned)
+- Limited automated testing (expansion planned)
+- Manual build process (automation planned)
+- Basic API endpoints (REST API planned)
+
+## Roadmap
+
+### Q1 2025 - Testing & Modernization
+- Implement comprehensive test suite
+- Remove jQuery dependencies
+- Add build pipeline
+- Security hardening
+
+### Q2 2025 - API & Mobile
+- Full REST API
+- Mobile app support
+- Advanced caching
+- Performance optimization
+
+### Q3 2025 - Enterprise Features
+- Multi-tenant support
+- Advanced analytics
+- HIPAA compliance
+- Bulk operations
+
+### Q4 2025 - AI Integration
+- Predictive scoring
+- Natural language processing
+- Computer vision features
+- Machine learning insights
+
+## Support
+
+For issues or questions:
+1. Check the `/documentation` folder
+2. Review the changelog for recent changes
+3. Ensure you're running compatible versions of WordPress and PHP
+4. Check browser console for JavaScript errors
+
+## Contributing
+
+This is a proprietary plugin. All contributions must be approved by the ENNU Life development team.
+
+## License
+
+Proprietary - All rights reserved by ENNU Life.
 
 ---
-For support or inquiries, please contact the ENNU Life Development Team.
+
+*Built with excellence by the World's Greatest Developer*
 

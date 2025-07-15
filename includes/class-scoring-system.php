@@ -249,6 +249,7 @@ class ENNU_Assessment_Scoring {
 	public static function get_health_pillar_map() {
 		return array(
 			'mind'       => array(
+				// Original categories
 				'Psychological Factors',
 				'Treatment Motivation',
 				'Stress & Mental Health',
@@ -260,8 +261,14 @@ class ENNU_Assessment_Scoring {
 				'Vitality & Drive',
 				'Mental Clarity',
 				'Mood & Wellbeing',
+				// Missing categories from actual assessments
+				'Psychosocial Factors',    // ED treatment
+				'Mood & Cognition',        // Hormone
+				'Mental Acuity',           // Hormone
+				'Timeline',                // ED treatment (motivation related)
 			),
 			'body'       => array(
+				// Original categories
 				'Condition Severity',
 				'Medical Factors',
 				'Drug Interactions',
@@ -275,8 +282,14 @@ class ENNU_Assessment_Scoring {
 				'Symptom Severity',
 				'Menopause Stage',
 				'Physical Symptoms',
+				// Missing categories from actual assessments
+				'Demographics',            // Used in multiple assessments
+				'Current Status',          // Weight loss
+				'Vitality',                // Hormone
+				'Hair Health Status',      // Hair (moved from aesthetics to body for health aspect)
 			),
 			'lifestyle'  => array(
+				// Original categories
 				'Physical Health',
 				'Treatment History',
 				'Progression Timeline',
@@ -295,14 +308,24 @@ class ENNU_Assessment_Scoring {
 				'Sleep Dependency',
 				'Current Regimen',
 				'Lifestyle & Diet',
+				// Missing categories from actual assessments
+				'Lifestyle Factors',       // Hair
+				'Hydration',               // Skin
+				'Sleep Latency',           // Sleep
+				'Daytime Function',        // Sleep
+				'Sleep Hygiene',           // Sleep
+				'Diet & Lifestyle',        // Hormone
 			),
 			'aesthetics' => array(
-				'Hair Health Status',
+				// Original categories (removed Hair Health Status)
 				'Primary Skin Issue',
 				'Skin Characteristics',
 				'Current Status',
 				'Progression Rate',
 				'Skin Reactivity',
+				// Aesthetic-specific categories
+				'Hair Health Status',      // Hair appearance
+				'Advanced Care',           // Skin
 			),
 		);
 	}
@@ -469,7 +492,13 @@ class ENNU_Assessment_Scoring {
 
 		// Save the detailed score data for transparency
 		update_user_meta( $user_id, 'ennu_pillar_score_data', $pillar_score_data );
-		update_user_meta( $user_id, 'ennu_average_pillar_scores', $final_pillar_scores );
+		
+		// Fix capitalization for dashboard display
+		$capitalized_pillar_scores = array();
+		foreach ( $final_pillar_scores as $pillar_name => $score ) {
+			$capitalized_pillar_scores[ ucfirst( $pillar_name ) ] = round( $score, 1 );
+		}
+		update_user_meta( $user_id, 'ennu_average_pillar_scores', $capitalized_pillar_scores );
 
 		return round( $ennu_life_score, 1 );
 	}
@@ -514,13 +543,21 @@ class ENNU_Assessment_Scoring {
 		
 		// 1. Get all user-selected symptoms from the form data.
 		$user_symptoms = array();
-		foreach ( $form_data as $key => $value ) {
-			if ( strpos( $key, 'symptom_q' ) === 0 && ! empty( $value ) ) {
-				$symptoms_list = ( isset( $value['selection'] ) && is_array( $value['selection'] ) ) ? $value['selection'] : (array) $value;
-				$user_symptoms = array_merge( $user_symptoms, $symptoms_list );
+		if ( !empty( $form_data ) ) {
+			foreach ( $form_data as $key => $value ) {
+				if ( strpos( $key, 'symptom_q' ) === 0 && ! empty( $value ) ) {
+					$symptoms_list = ( isset( $value['selection'] ) && is_array( $value['selection'] ) ) ? $value['selection'] : (array) $value;
+					// Convert symptom keys to display values
+					foreach ( $symptoms_list as $symptom_key ) {
+						// Map lowercase keys to capitalized display values
+						$symptom_display = str_replace( '_', ' ', $symptom_key );
+						$symptom_display = ucwords( $symptom_display );
+						$user_symptoms[] = $symptom_display;
+					}
+				}
 			}
+			$user_symptoms = array_unique( $user_symptoms );
 		}
-		$user_symptoms = array_unique( $user_symptoms );
 		
 		// 2. Build the complete health map: a structured array of all vectors, symptoms, and biomarkers.
 		$health_map = array();
@@ -542,20 +579,22 @@ class ENNU_Assessment_Scoring {
 		// 3. Determine which parts of the map were triggered by the user.
 		$triggered_vectors = array();
 		$recommended_biomarkers = array();
-		foreach ( $user_symptoms as $symptom ) {
-			if ( isset( $symptom_map[ $symptom ] ) ) {
-				foreach ( $symptom_map[ $symptom ] as $vector ) {
-					if ( ! in_array( $vector, $triggered_vectors ) ) {
-						$triggered_vectors[] = $vector;
-					}
-					if ( isset( $biomarker_map[ $vector ] ) ) {
-						$recommended_biomarkers = array_merge( $recommended_biomarkers, $biomarker_map[ $vector ] );
+		if ( !empty( $user_symptoms ) ) {
+			foreach ( $user_symptoms as $symptom ) {
+				if ( isset( $symptom_map[ $symptom ] ) ) {
+					foreach ( $symptom_map[ $symptom ] as $vector ) {
+						if ( ! in_array( $vector, $triggered_vectors ) ) {
+							$triggered_vectors[] = $vector;
+						}
+						if ( isset( $biomarker_map[ $vector ] ) ) {
+							$recommended_biomarkers = array_merge( $recommended_biomarkers, $biomarker_map[ $vector ] );
+						}
 					}
 				}
 			}
+			$recommended_biomarkers = array_unique( $recommended_biomarkers );
+			sort( $recommended_biomarkers );
 		}
-		$recommended_biomarkers = array_unique( $recommended_biomarkers );
-		sort( $recommended_biomarkers );
 		
 		// 4. Return the complete map and the user's specific triggered data.
 		return array(

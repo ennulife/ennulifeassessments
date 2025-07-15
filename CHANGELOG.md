@@ -1,6 +1,100 @@
-# ENNU Life Assessment Plugin Changelog
+# ENNU Life Assessments Plugin - Changelog
 
-## Version 58.0.2 - 2024-08-04
+## [59.0.0] - 2024-12-18 - The Documentation Renaissance
+
+### Added
+- **Comprehensive Documentation Overhaul**: A complete rewrite and modernization of all technical and user-facing documentation to reflect the current state of the plugin.
+- **New `TECHNICAL_DEBT_REGISTER.md`**: A detailed register of all known technical debt, prioritized for future development sprints.
+- **New `SCORING_AUDIT_AND_VALIDATION.md`**: A complete audit and validation report certifying the correctness of all scoring algorithms.
+
+### Changed
+- **Updated `DEVELOPER_NOTES.md`**: Now includes a full analysis of the plugin's technical state, a list of all recent critical fixes, and a clear set of priorities for 2025.
+- **Updated `IMPLEMENTATION_ROADMAP_2025.md`**: The roadmap has been reactivated and updated with a new focus on Testing, Modernization, and Security for Q1 2025.
+- **Updated `README.md`**: Rewritten to provide a clear, professional overview of the plugin, including features, installation, and current development status.
+- **Updated `HANDOFF_DOCUMENTATION.md`**: Modernized to provide a clear handoff path for new developers, outlining the current state, critical files, and immediate next steps.
+- **Version Bump**: Plugin version formally updated to `59.0.0` to signify this major documentation and stability milestone.
+
+## [58.0.8] - 2024-12-18
+
+### Fixed
+- **Health Optimization Section**: Now always displays all health vectors, symptoms, and biomarkers regardless of assessment completion
+- Health map accordions are visible even when user hasn't taken the health optimization assessment
+- Added "Start Health Optimization" button above the accordions when assessment not completed
+- Modified `get_health_optimization_report_data` to handle empty form data gracefully
+- Improved user experience by showing all available health information upfront
+
+### Changed
+- Removed conditional hiding of health optimization content based on completion status
+- Toggle All button now always visible for better accordion navigation
+- Updated subtitle text to be contextual based on completion status
+
+## [58.0.7] - 2024-12-18
+
+### Fixed
+- **Main Score Insight Animation**: Fixed opacity issue - insight text now properly fades in with the score
+- Added `visible` class to main-score-insight during score animation sequence
+
+### Changed
+- **Pillar Scores Layout**: Redesigned to display in a 2x2 grid for better sidebar fit
+  - Changed from flex row to CSS grid with 2 columns
+  - Reduced orb size from 90px to 80px
+  - Adjusted spacing and centered the grid
+  - Maximum width set to 200px for optimal sidebar display
+
+## [58.0.6] - 2024-12-18
+
+### Fixed
+- **CRITICAL FIX**: Pillar orbs now properly animate and become visible on the user dashboard
+- Added missing `initPillarAnimation()` function to apply `visible` and `loaded` classes
+- Pillar orbs now have staggered animation for smooth appearance after main score
+- Removed all debug messages and test output from templates
+
+### Technical Details
+- The pillar orbs were being rendered in HTML but had `opacity: 0` due to missing JavaScript initialization
+- Added proper animation sequence: visible class first, then loaded class for progress bars
+- Animation timing: starts 700ms after page load with 150ms stagger between each orb
+
+## [58.0.5] - 2024-12-18
+
+### Fixed
+- Added debug output to diagnose why pillar scores aren't displaying
+- Added test messages to verify template variable availability
+- Verified pillar scores are correctly calculated (Mind: 4.2, Body: 2.6, Lifestyle: 4.1, Aesthetics: 1.3)
+- Investigating template rendering issue where pillar orbs don't appear despite data being present
+
+## [58.0.4] - 2024-12-18
+
+### Fixed
+- **CRITICAL FIX**: Pillar scores now display correctly - Fixed category mapping mismatch between assessment definitions and pillar map
+- Updated pillar map to include ALL actual categories from assessments (added 11 missing categories)
+- Categories like "Psychosocial Factors", "Timeline", "Demographics", "Vitality", etc. now properly map to pillars
+- Created recalculation script to update existing users' pillar scores
+- Debug logging added to trace pillar score calculations
+
+## [58.0.3] - 2024-12-18
+
+### Fixed
+- **Critical Fix**: Assessment details toggle functionality restored - Fixed JavaScript event delegation for assessment expansion
+- **Critical Fix**: Pillar scores now display correctly on user dashboard - Fixed calculation and display logic for users with/without completed assessments
+- **Critical Fix**: Health Optimization symptom/biomarker counts now calculate correctly - Removed hardcoded demo data that was overriding real calculations
+- **Critical Fix**: Added proper logged-out user experience with login/registration template
+- **Critical Fix**: Progress over time charts now work on assessment details pages - Added proper JavaScript data localization
+- **Critical Fix**: Fixed CSS conflict preventing assessment details from toggling - Changed from max-height transition to display none/block
+- **Critical Fix**: Fixed pillar score capitalization mismatch between storage and display
+- **Critical Fix**: Fixed health optimization symptom mapping between form keys and display values
+- **Critical Fix**: Added button type attribute to prevent form submission on toggle
+
+### Added
+- New `user-dashboard-logged-out.php` template for better UX when not authenticated
+- New `assessment-details.js` file to handle timeline charts on assessment details pages
+
+### Improved
+- Enhanced error handling for pillar score calculations
+- Better data validation for health optimization report generation
+- Improved JavaScript initialization timing for dashboard interactions
+- Consistent naming conventions across pillar score handling
+
+## [58.0.2] - 2024-12-17
 ### Fixed
 - **Catastrophic Dashboard Regression**: Restored the entire User Dashboard to its fully functional and aesthetically perfect state.
 - **Restored Pillar Orbs**: Corrected a critical HTML structural flaw in `templates/user-dashboard.php` that caused the Pillar Orbs and other main content to disappear.

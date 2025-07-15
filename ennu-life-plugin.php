@@ -1,9 +1,10 @@
 <?php
 /**
  * Plugin Name: ENNU Life Assessments
- * Description: Comprehensive assessment and scoring system for ENNU Life.
- * Version: 58.0.2
- * Author: ENNU Life
+ * Plugin URI: https://ennulife.com
+ * Description: Advanced health assessment system with comprehensive user scoring
+ * Version: 59.0.0
+ * Author: ENNU Life Development Team
  * License: GPLv2 or later
  * Text Domain: ennulifeassessments
  * Domain Path:       /languages
@@ -15,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '58.0.2' );
+define( 'ENNU_LIFE_VERSION', '59.0.0' );
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );

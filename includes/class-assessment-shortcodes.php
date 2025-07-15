@@ -1036,6 +1036,9 @@ final class ENNU_Assessment_Shortcodes {
 			// Quantitative Engine Flow (existing logic)
 			$scores = ENNU_Assessment_Scoring::calculate_scores( $form_data['assessment_type'], $form_data );
 			$this->_log_submission_debug( 'Scores calculated.', $scores );
+			
+			// DEBUG: Log the exact contents of $scores
+			error_log( '[ENNU DEBUG] Scores returned from calculate_scores: ' . print_r( $scores, true ) );
 
 			if ( $scores ) {
 				$completion_time = date( 'Y-m-d H:i:s.u' );
@@ -1078,6 +1081,13 @@ final class ENNU_Assessment_Shortcodes {
 				);
 				update_user_meta( $user_id, $history_key, $history );
 				$this->_log_submission_debug( 'All scores and history saved.' );
+				
+				// DEBUG: Check pillar scores before saving
+				if ( isset( $scores['pillar_scores'] ) ) {
+					error_log( '[ENNU DEBUG] Pillar scores being saved: ' . print_r( $scores['pillar_scores'], true ) );
+				} else {
+					error_log( '[ENNU DEBUG] WARNING: No pillar_scores in $scores array!' );
+				}
 
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
@@ -1970,6 +1980,33 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 		
+		// Format score history for JavaScript
+		$formatted_score_history = array();
+		if ( is_array( $score_history ) ) {
+			foreach ( $score_history as $entry ) {
+				if ( isset( $entry['date'] ) && isset( $entry['score'] ) ) {
+					$formatted_score_history[] = array(
+						'date' => $entry['date'],
+						'score' => (float) $entry['score']
+					);
+				}
+			}
+		}
+		
+		// Enqueue Chart.js and localize data
+		wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.1', true );
+		wp_enqueue_script( 'chartjs-adapter-date-fns', 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js', array( 'chartjs' ), '1.1.0', true );
+		wp_enqueue_script( 'ennu-assessment-details', ENNU_LIFE_PLUGIN_URL . 'assets/js/assessment-details.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns' ), ENNU_LIFE_VERSION, true );
+		
+		wp_localize_script(
+			'ennu-assessment-details',
+			'assessmentDetailsData',
+			array(
+				'scoreHistory' => $formatted_score_history,
+				'assessmentType' => ucwords( str_replace( '_', ' ', $assessment_type_slug ) )
+			)
+		);
+		
 		return compact(
 			'current_user', 'age', 'gender', 'assessment_type_slug', 'pillar_scores',
 			'pillar_colors', 'category_scores', 'score_history', 'deep_dive_content',
@@ -2219,10 +2256,40 @@ final class ENNU_Assessment_Shortcodes {
 		$current_user          = wp_get_current_user();
 		$ennu_life_score       = get_user_meta( $user_id, 'ennu_life_score', true );
 		$average_pillar_scores = get_user_meta( $user_id, 'ennu_average_pillar_scores', true );
+		
+		// DEBUG: Check what's in average_pillar_scores
+		error_log( '[ENNU DEBUG] Dashboard - ennu_average_pillar_scores from DB: ' . print_r( $average_pillar_scores, true ) );
+		
 		if ( ! is_array( $average_pillar_scores ) || empty( $average_pillar_scores ) ) {
-			$average_pillar_scores = ENNU_Assessment_Scoring::calculate_average_pillar_scores( $user_id );
+			// Calculate base pillar scores without penalties
+			$base_pillar_scores = ENNU_Assessment_Scoring::calculate_average_pillar_scores( $user_id );
+			
+			// If we have base scores, use them
+			if ( ! empty( $base_pillar_scores ) && array_sum( $base_pillar_scores ) > 0 ) {
+				$average_pillar_scores = $base_pillar_scores;
+			} else {
+				// Initialize with default structure
+				$average_pillar_scores = array(
+					'Mind' => 0,
+					'Body' => 0,
+					'Lifestyle' => 0,
+					'Aesthetics' => 0
+				);
+			}
+			// Save for future use
 			update_user_meta( $user_id, 'ennu_average_pillar_scores', $average_pillar_scores );
 		}
+		
+		// Ensure proper capitalization of pillar names
+		$formatted_pillar_scores = array();
+		foreach ( $average_pillar_scores as $pillar => $score ) {
+			$formatted_pillar_scores[ucfirst(strtolower($pillar))] = $score;
+		}
+		$average_pillar_scores = $formatted_pillar_scores;
+		
+		// DEBUG: Check what's in the formatted pillar scores
+		error_log( '[ENNU DEBUG] Formatted pillar scores: ' . print_r( $average_pillar_scores, true ) );
+		
 		$dob                   = get_user_meta( $user_id, 'ennu_global_user_dob_combined', true );
 		$age                   = $dob ? ( new DateTime() )->diff( new DateTime( $dob ) )->y : null;
 		$gender                = get_user_meta( $user_id, 'ennu_global_gender', true );
@@ -2258,24 +2325,8 @@ final class ENNU_Assessment_Shortcodes {
 		// --- MASTER DEBUG: Log the final data before sending to template ---
 		error_log( '[ENNU DEBUG] Final Health Optimization Report Data: ' . print_r( $health_optimization_report, true ) );
 
-		// --- FORCED DEMO BLOCK ---
-		// Force the Health Optimization assessment to appear as completed with sample data for demonstration.
-		if ( isset( $user_assessments['health_optimization_assessment'] ) ) {
-			$user_assessments['health_optimization_assessment']['completed'] = true;
-		}
-		$health_optimization_report['user_symptoms'] = array( 'Fatigue', 'Joint pain', 'Mood Swings', 'Weight Changes' );
-		$health_optimization_report['triggered_vectors'] = array( 'Hormones', 'Energy', 'Weight Loss', 'Strength' );
-		$health_optimization_report['recommended_biomarkers'] = array_unique(
-			array_merge(
-				$health_optimization_report['health_map']['Hormones']['biomarkers'] ?? array(),
-				$health_optimization_report['health_map']['Energy']['biomarkers'] ?? array(),
-				$health_optimization_report['health_map']['Weight Loss']['biomarkers'] ?? array(),
-				$health_optimization_report['health_map']['Strength']['biomarkers'] ?? array()
-			)
-		);
-		sort( $health_optimization_report['recommended_biomarkers'] );
-		// --- END ---
-
+		// Remove the forced demo block that was overriding real data
+		
 		wp_localize_script(
 			'ennu-user-dashboard',
 			'dashboardData',
