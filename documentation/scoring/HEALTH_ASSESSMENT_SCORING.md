@@ -1,62 +1,54 @@
-# General Health Assessment: Scoring Deep Dive
+# Health Assessment: Scoring & Logic Guide
 
-**Version**: 24.12.4
-**Date**: July 12, 2025
+**Document Version:** 1.0
+**Plugin Version:** 55.0.0
+
+---
+
+## 1.0 Overview
+
+This document provides a comprehensive breakdown of the scoring logic for the **Health Assessment**. Each question is detailed below with its corresponding field ID, answer options, point values, and its impact on both Category and Pillar scores.
 
 ---
 
-## 1. Scoring Philosophy & Rationale
+## 2.0 Scoring Map
 
-This document provides a complete breakdown of the scoring logic for the **General Health Assessment**. The system's philosophy is to create a holistic score that reflects a user's overall state of wellness, with an emphasis on modifiable lifestyle factors. A higher score indicates a stronger foundation of health.
-
-The scoring is weighted based on the foundational pillars of preventative and lifestyle medicine:
-
-*   **High Weight**: The most critical factors are the user's self-reported `Current Health Status` and their core lifestyle habits, including `Physical Activity` and `Nutrition`. These are the strongest indicators of current and future health outcomes.
-*   **Medium Weight**: `Vitality & Energy`, `Sleep & Recovery`, and `Stress & Mental Health` are given significant weight, as these factors are deeply intertwined with physical health and are often the first indicators of underlying issues.
-*   **Low Weight**: `Preventive Care` habits and stated `Health Motivation` are included to provide a complete picture but are weighted less heavily than the primary clinical and lifestyle indicators.
-
-The goal is to provide a comprehensive wellness score that empowers users by showing them which modifiable behaviors have the greatest impact on their health.
-
-## 2. Scoring Table
-
-This table details every scorable question in the assessment, its category, weight, and the point value for each possible answer.
-
-| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| health_q2 | gender | Demographics | 0.5 | Male | `male` | 5 |
-| | | | | Female | `female` | 5 |
-| health_q3 | overall_health | Current Health Status | 3 | Poor | `poor` | 2 |
-| | | | | Fair | `fair` | 5 |
-| | | | | Good | `good` | 7 |
-| | | | | Excellent | `excellent` | 9 |
-| health_q4 | energy_levels | Vitality & Energy | 2 | Consistently Low | `low` | 2 |
-| | | | | I crash in the afternoon | `crash` | 4 |
-| | | | | Generally Okay | `moderate` | 7 |
-| | | | | High and Stable | `high` | 9 |
-| health_q5 | exercise_frequency| Physical Activity | 2.5 | Rarely or Never | `rarely` | 1 |
-| | | | | 1-2 times a week | `sometimes` | 5 |
-| | | | | 3-5 times a week | `often` | 8 |
-| | | | | Almost every day | `daily` | 9 |
-| health_q6 | diet_quality | Nutrition | 2.5 | High in processed foods | `processed` | 2 |
-| | | | | A typical Western diet | `average` | 5 |
-| | | | | Mostly whole foods | `healthy` | 7 |
-| | | | | Very clean, whole foods diet | `very_healthy` | 9 |
-| health_q7 | sleep_quality | Sleep & Recovery | 2 | Poor, I wake up tired| `poor` | 3 |
-| | | | | Fair, could be better | `fair` | 5 |
-| | | | | Good, usually restful| `good` | 7 |
-| | | | | Excellent, I wake up refreshed | `excellent` | 9 |
-| health_q8 | stress_management | Stress & Mental Health | 2 | I don't manage it well | `poorly` | 3 |
-| | | | | I have some coping methods | `somewhat` | 5 |
-| | | | | I manage it well | `well` | 7 |
-| | | | | I have a proactive routine | `proactively`| 9 |
-| health_q9 | preventive_care | Preventive Health | 1.5 | Never or rarely | `never` | 2 |
-| | | | | Only when I have a problem| `sometimes` | 6 |
-| | | | | I have regular annual check-ups | `regularly` | 9 |
-| health_q10 | health_goals | Health Motivation | 1 | Improve Longevity | `longevity`| 9 |
-| | | | | Increase Energy | `energy` | 8 |
-| | | | | Manage Weight | `weight` | 7 |
-| | | | | Improve Mental Clarity | `mental_clarity`| 8 |
-| | | | | Enhance Athletic Performance | `athletic_performance` | 7 |
-
----
-*Note: The Date of Birth (health_q1) and Contact Information (health_q11) questions are not scorable.* 
+| Question Title | Field ID | Answer Option | Points | Category | Pillar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **What is your gender?** | `health_q2` | Male | `5` | Demographics | Body |
+| | | Female | `5` | | |
+| **How would you rate your overall health?** | `health_q3` | Poor | `2` | Current Health Status | Body |
+| | | Fair | `5` | | |
+| | | Good | `7` | | |
+| | | Excellent | `9` | | |
+| **How often do you engage in moderate to intense physical activity?** | `health_q5` | Rarely or Never | `1` | Physical Activity | Lifestyle |
+| | | 1-2 times a week | `5` | | |
+| | | 3-5 times a week | `8` | | |
+| | | Almost every day | `9` | | |
+| **How would you describe your typical diet?** | `health_q6` | High in processed foods | `2` | Nutrition | Lifestyle |
+| | | A typical Western diet | `5` | | |
+| | | Mostly whole foods | `7` | | |
+| | | Very clean, whole foods diet | `9` | | |
+| **How would you rate your sleep quality?** | `health_q7` | Poor, I wake up tired | `3` | Sleep & Recovery | Lifestyle |
+| | | Fair, could be better | `5` | | |
+| | | Good, usually restful | `7` | | |
+| | | Excellent, I wake up refreshed | `9` | | |
+| **How well do you manage stress?** | `health_q8` | I don't manage it well | `3` | Stress & Mental Health | Mind |
+| | | I have some coping methods | `5` | | |
+| | | I manage it well | `7` | | |
+| | | I have a proactive routine | `9` | | |
+| **Do you get regular preventive care (e.g., check-ups)?** | `health_q9` | Never or rarely | `2` | Preventive Health | Lifestyle |
+| | | Only when I have a problem | `6` | | |
+| | | I have regular annual check-ups | `9` | | |
+| **What are your main health goals?** | `health_q10` | Live longer | `9` | Health Motivation | Mind |
+| | | Boost energy | `8` | | |
+| | | Improve sleep | `8` | | |
+| | | Lose weight | `7` | | |
+| | | Build muscle | `7` | | |
+| | | Sharpen focus & memory | `8` | | |
+| | | Balance hormones | `9` | | |
+| | | Improve mood | `7` | | |
+| | | Boost libido & performance | `8` | | |
+| | | Support heart health | `9` | | |
+| | | Manage menopause | `8` | | |
+| | | Increase testosterone | `8` | | | 

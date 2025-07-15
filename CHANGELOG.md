@@ -1,5 +1,280 @@
 # ENNU Life Assessment Plugin Changelog
 
+## Version 58.0.2 - 2024-08-04
+### Fixed
+- **Catastrophic Dashboard Regression**: Restored the entire User Dashboard to its fully functional and aesthetically perfect state.
+- **Restored Pillar Orbs**: Corrected a critical HTML structural flaw in `templates/user-dashboard.php` that caused the Pillar Orbs and other main content to disappear.
+- **Restored Accordion Functionality**: The Health Optimization Map accordion is now fully interactive, powered by a robust `slideToggle()` implementation.
+- **Corrected "0" Counts**: Fixed the data processing pipeline in `includes/class-assessment-shortcodes.php` to ensure the triggered symptom and recommended biomarker counts are calculated correctly and no longer display as "0".
+
+## Version 58.0.1 - 2024-08-03
+### Fixed
+- **Critical Submission & Redirect Failure**: Repaired the client-side submission handler (`ennu-frontend-forms.js`) to correctly parse the JSON response from the server. This resolves a critical bug where the `success` callback was failing to interpret the server's response, preventing the user from being redirected after successfully submitting an assessment. The form now redirects flawlessly as intended.
+
+## Version 58.0.0 - 2024-08-02
+### Added
+- **Health Optimization Map**: A comprehensive, interactive map on the user dashboard that displays all health vectors, their associated symptoms, and biomarkers.
+- **Dynamic Highlighting**: User's triggered vectors, symptoms, and recommended biomarkers are now highlighted with a pulsating, glowing animation for enhanced visibility and personalization.
+- **Two-State Dashboard Card**: The Health Optimization Map now features two states: an "empty" state with a call-to-action to take the assessment, and a "completed" state displaying the full, interactive map.
+- Added robust validation to the admin page selector to prevent fatal errors when a linked page is deleted. A visual warning now appears for invalid or unpublished pages.
+
+### Fixed
+- **Critical Assessment Submission Failure**: Resolved a persistent fatal error that prevented users from submitting any assessments. The issue was traced to the scoring system failing to handle unanswered multiselect questions.
+- **AJAX Submission Hooks**: Corrected missing AJAX action hooks (`wp_ajax_ennu_submit_assessment` and `wp_ajax_nopriv_ennu_submit_assessment`) to ensure the backend submission handler is correctly triggered.
+
+### Changed
+- Refactored `get_health_optimization_report_data()` to return the complete "health map" instead of just triggered data, enabling the new comprehensive dashboard view.
+- Removed temporary demonstration code from the user dashboard.
+
+---
+
+## Version 57.2.4 - The Definitive Scoring Engine Fix
+*Date: 2024-08-01*
+
+This release provides the final and definitive fix for the critical error that was causing assessment submissions to fail. The root cause has been identified and permanently resolved within the core scoring engine.
+
+### 🐛 Bug Fixes & Architectural Enhancements
+- **Corrected Architectural Mismatch**: Fixed a fatal error in the `calculate_scores` function that occurred when processing assessments with a nested question structure. The function now intelligently detects the correct location of the question definitions, whether they are in a flat or nested array.
+- **Hardened Scoring Logic**: Added a graceful failsafe to the scoring loop. If a question definition cannot be found for a given response, the system will now log the issue and skip that question, rather than crashing the entire submission process. This makes the engine resilient to configuration errors.
+
+## Version 57.2.3 - The Resilient Notification System
+*Date: 2024-08-01*
+
+This release provides a comprehensive, definitive fix for the critical error occurring during assessment submission. The entire notification system has been re-architected to be more robust, resilient, and logically sound.
+
+### 🐛 Bug Fixes & Architectural Enhancements
+- **Corrected Data Flow**: Fixed the root cause of the fatal error by implementing a new data preparation step. The `handle_assessment_submission` function no longer passes raw form data to the notification system. Instead, it now meticulously prepares a well-structured array with all the expected data, guaranteeing the email templates always receive the information they need.
+- **Unified Submission Logic**: Applied this superior data handling and error-catching logic to both the quantitative and qualitative assessment submission flows, ensuring a consistent and resilient process across the entire platform.
+- **Hardened Error Handling**: Upgraded the error handling from catching `Exception` to the more comprehensive `Throwable`. This ensures that all possible errors and exceptions within the notification block are gracefully caught and logged, permanently preventing them from causing a critical failure for the end-user.
+
+## Version 57.2.2 - The Universal Report Parser
+*Date: 2024-08-01*
+
+This release provides a critical fix to the Health Optimization Report on the user dashboard, ensuring it appears correctly for all users after they have completed the relevant assessment.
+
+### 🐛 Bug Fixes & Architectural Enhancements
+- **Universal Data Parsing**: Re-architected the `get_health_optimization_report_data` function to be context-aware. It now intelligently handles both the raw, unprocessed data from a direct form submission and the structured, pre-saved data retrieved from the database for a returning user. This resolves a logical flaw that prevented the report from being displayed on the dashboard after its initial generation.
+
+## Version 57.2.1 - The Resilient Submission
+*Date: 2024-08-01*
+
+This release provides a critical fix to the assessment submission process, eliminating a fatal error and hardening the system against future email-related failures.
+
+### 🐛 Bug Fixes & Architectural Enhancements
+- **Corrected Notification Error**: Fixed a fatal PHP error in the `send_assessment_notification` function that occurred during form submission. The function was referencing an incorrect property (`$this->assessments`) to retrieve the assessment title, which has now been corrected to use the valid `$this->all_definitions` property.
+- **Hardened Submission Process**: Wrapped the call to `send_assessment_notification` within a `try...catch` block. This ensures that any potential failures in the email sending process are gracefully caught and logged without causing a critical failure that would interrupt the user's submission.
+
+## Version 57.2.0 - The Unyielding Chart
+*Date: 2024-07-31*
+
+This release provides the definitive and final fix for the historical progress charts on the User Dashboard, which were suffering from a persistent "infinite growth" bug.
+
+### 🐛 Bug Fixes & Architectural Enhancements
+- **Corrected Timestamp Uniqueness**: Re-architected the data submission handler (`handle_assessment_submission`) to save all historical score and BMI data with a high-precision timestamp that includes microseconds. This guarantees that every data point is unique, even if assessments are completed in rapid succession.
+- **Hardened Chart Rendering Container**: Re-architected the dashboard template and stylesheet to create an absolutely stable containing block for the Chart.js canvases. By wrapping the charts and applying strict positional and height constraints via CSS, the "infinite resize loop" that was causing the visual glitch has been permanently eliminated.
+
+## Version 57.1.1 - The Grand Documentation Unification
+*Date: 2024-07-28*
+
+This release provides a comprehensive update to all user and developer-facing documentation, ensuring that it is in perfect, harmonious alignment with all of the latest features and architectural enhancements.
+
+### ✨ Documentation Enhancements
+- **Comprehensive Review**: Performed a full audit and update of `README.md`, `DEVELOPER_NOTES.md`, and `SHORTCODE_DOCUMENTATION.md`.
+- **Feature Alignment**: All documentation now accurately reflects the implementation of the Administrative Toolkit, Longitudinal BMI Tracking, and all recent UI/UX enhancements.
+
+## Version 57.1.0 - The Administrative Toolkit
+*Date: 2024-07-28*
+
+This is a major feature release that introduces a powerful new "Administrative Actions" toolkit on the user profile page. This gives administrators granular, powerful control over user data management.
+
+### ✨ New Features & Admin Experience Enhancements
+- **New "Recalculate All Scores" Tool**: A new button allows admins to trigger a comprehensive recalculation of all scores and metrics for a user, ensuring all data is up-to-date with the latest scoring engine logic.
+- **New "Clear All Data" Tool**: A new, red-colored button provides the ability to completely wipe all assessment-related data for a user, returning them to a clean slate. This action is protected by a confirmation dialog to prevent accidents.
+- **New Per-Assessment "Clear Data" Tool**: For more surgical control, each assessment tab now has its own button to clear the data for only that specific assessment, which also triggers a recalculation of the master ENNU LIFE SCORE.
+- **Robust AJAX Implementation**: All new actions are powered by secure, nonce-protected AJAX handlers for a smooth and safe administrative experience.
+
+## Version 57.0.9 - Longitudinal BMI Tracking
+*Date: 2024-07-28*
+
+This is a landmark feature release that introduces historical BMI tracking, transforming the platform into a more powerful, longitudinal wellness guide. This provides both users and administrators with a clearer, more motivating picture of weight management progress over time.
+
+### ✨ New Features & Enhancements
+- **Historical BMI Data Capture**: The system now saves a historical record of the user's BMI every time it is calculated upon assessment completion.
+- **"BMI Over Time" Chart**: A new line chart has been added to the user dashboard, providing a beautiful and clear visualization of their BMI trend history.
+- **Enhanced Admin View**: The user profile page in the WordPress admin has been updated to display the full, chronological BMI history, giving administrators a complete and nuanced view of the user's journey.
+
+## Version 57.0.8 - The Interactive Admin Dossier
+*Date: 2024-07-28*
+
+This release transforms the "Global & Health Metrics" tab on the user profile page into a fully interactive and editable interface, empowering administrators with greater control over user data.
+
+### ✨ Admin Experience Enhancements
+- **Editable Health Goals**: Replaced the static list of health goals with a styled, editable group of checkboxes.
+- **Editable Height & Weight**: The height and weight fields are now separate, editable number inputs for more granular control.
+- **Enhanced Save Logic**: The profile save functionality has been updated to correctly process and persist any changes made to these new editable global fields.
+
+## Version 57.0.7 - Admin Tab Interactivity Restored
+*Date: 2024-07-28*
+
+This release provides a critical fix to the administrative user profile page, restoring full interactivity to the tabbed dossier interface.
+
+### 🐛 Bug Fixes & Architectural Improvements
+- **Corrected JavaScript Execution**: Refactored the tab-switching logic in `ennu-admin.js` to use a unified jQuery `document.ready()` function. This resolves a race condition that prevented the click event listeners from being attached correctly, making the tabs fully functional.
+
+## Version 57.0.6 - The Compact Admin Dossier
+*Date: 2024-07-28*
+
+This release completely revamps the admin user profile page, replacing the long, scrolling list of data with a compact, elegant, and interactive tabbed interface.
+
+### ✨ Admin Experience Enhancements
+- **Tabbed UI Implementation**: Re-architected the `show_user_assessment_fields` function to organize all user data into a modern tabbed view.
+- **Improved Organization**: Created a "Global & Health Metrics" tab for high-level data and dedicated tabs for each individual assessment, dramatically improving the clarity and navigability of the user profile.
+- **Enhanced Interactivity**: Added new JavaScript and CSS to create a smooth, responsive, and intuitive tab-switching experience for administrators.
+
+## Version 57.0.5 - The Omniscient Admin View
+*Date: 2024-07-28*
+
+This release dramatically enhances the administrative user profile page, providing a comprehensive, transparent view of all key user metrics and system-generated data.
+
+### ✨ Admin Experience Enhancements
+- **Enhanced Global Data**: The "Global User Data" section now displays all critical demographic and preference data, including Health Goals, Height/Weight, and calculated BMI.
+- **New Score History View**: Added a new "ENNU LIFE SCORE History" section, giving admins an at-a-glance view of a user's health journey over time.
+- **New System Data Section**: Each assessment tab now includes a "System Data" section, revealing the exact calculation timestamp, the qualitative score interpretation, and the per-assessment pillar scores for complete transparency.
+
+## Version 57.0.4 - Enhanced User Onboarding
+*Date: 2024-07-28*
+
+This release refines the user onboarding experience by providing clearer, more distinct calls to action on the logged-out dashboard page.
+
+### ✨ UI/UX Enhancements
+- **Split Authentication Buttons**: Replaced the single "Log In or Create Account" button with two separate buttons: a primary "Register Free Account" and a secondary "Login". This provides a more intuitive and streamlined path for both new and returning users.
+
+## Version 57.0.3 - The Styled Dashboard Gateway
+*Date: 2024-07-28*
+
+This release transforms the logged-out user dashboard view from a simple text prompt into a fully styled, welcoming gateway that is aesthetically aligned with the "Bio-Metric Canvas."
+
+### ✨ UI/UX Enhancements
+- **Styled Login Prompt**: Re-architected the `render_user_dashboard` function to display a beautiful, themed login prompt for logged-out users, complete with the starfield background and a clear call-to-action button. This replaces the previous unstyled paragraph.
+
+## Version 57.0.2 - Aesthetic Unification of Edge Cases
+*Date: 2024-07-28*
+
+This release ensures that all user-facing messages, including error and empty states, are presented with the same high-quality "Bio-Metric Canvas" aesthetic, creating a completely seamless visual experience.
+
+### ✨ UI/UX Enhancements
+- **Styled Error & Empty States**: Added new styles to `user-dashboard.css` to beautifully render the `.ennu-error` and `.ennu-results-empty-state` containers. These messages now appear in a themed card that matches the dashboard, rather than as unstyled text.
+
+## Version 57.0.1 - The Dossier Access Correction
+*Date: 2024-07-28*
+
+This release provides a critical fix to the access control for the detailed results pages ("Health Dossier"), ensuring a seamless post-assessment experience for both guest and logged-in users.
+
+### ✨ Architectural & Bug Fixes
+- **Token-Based Access Implemented**: Re-architected the `render_detailed_results_page` function to correctly recognize and validate the one-time-use `results_token`.
+- **Flawless User Journey**: Guest users are no longer incorrectly blocked from their results. The system now correctly prioritizes a valid token, falling back to checking the user's login status, which aligns with the original architectural intent.
+
+## Version 57.0.0 - The Unified Styling Mandate
+*Date: 2024-07-28*
+
+This release enforces a critical mandate of aesthetic unity across the entire user-facing platform. The "Bio-Metric Canvas" styling is no longer confined to the main dashboard; it now graces all `assessment-details` pages, ensuring a seamless, consistent, and visually perfect user journey from start to finish.
+
+### ✨ Architectural & UI/UX Enhancements
+- **Unified Asset Loading**: Re-architected the frontend asset enqueueing logic to intelligently detect when a user is on an `assessment-details` page.
+- **Consistent Styling**: The `user-dashboard.css` and `user-dashboard.js` files are now correctly loaded on all details pages, guaranteeing that their appearance perfectly matches the main dashboard.
+
+## Version 56.0.0 - The Grand Documentation Unification
+*Date: 2024-07-27*
+
+This release marks the conclusion of the architectural planning phase for the next generation of the ENNU Life scoring system. All project documentation has been meticulously updated and expanded to reflect the complete, four-engine vision for the future.
+
+### ✨ Architectural & Documentation Enhancements
+- **New Scoring Blueprints**: Created a new library of design documents that detail the future of the scoring engine, including `ennulife_scoring_system_brainstorming_ideas.md` and dedicated deep dives for the new **Qualitative (Symptom)**, **Objective (Biomarker)**, and **Intentionality (Goals)** engines.
+- **New Assessment Guides**: Created a full suite of scoring guides for every individual assessment (e.g., `HAIR_ASSESSMENT_SCORING.md`), providing unparalleled clarity into the system's logic.
+- **Comprehensive Updates**: Meticulously updated all existing documentation (`README.md`, `DEVELOPER_NOTES.md`, `HANDOFF_DOCUMENTATION.md`, etc.) to perfectly align with the current state of the plugin (v55.0.0) and the new, fully-documented vision for the future. The project's documentation is now a perfect and complete mirror of its architecture.
+
+## Version 55.0.0 - The Unified Documentation & Experience Release
+*Date: 2024-07-27*
+
+This is a landmark release that perfects the end-to-end user journey and brings all project documentation into a state of flawless alignment with the current codebase. The user experience is now more robust, intuitive, and aesthetically unified than ever before.
+
+### ✨ Architectural & UI/UX Enhancements
+- **Token-Based Results**: Re-architected the results system to use a secure, one-time-use token in the URL instead of relying on a fragile user session. This guarantees that all users, especially newly created ones, can reliably view their results immediately after submission.
+- **Intelligent Gender Filtering**: The User Dashboard is now context-aware, automatically hiding assessments that are not relevant to the user's gender profile (e.g., Menopause for male users).
+- **Aesthetically Unified Results**: The post-assessment results pages and even the "expired link" error page have been rebuilt to perfectly match the beautiful "Bio-Metric Canvas" aesthetic of the main dashboard, creating a seamless visual experience.
+- **Expanded User Options**: The results pages now feature a comprehensive set of three logical next steps, allowing users to view their detailed report, proceed to their main dashboard, or retake the assessment.
+
+### 📚 Documentation Overhaul
+- **Comprehensive Update**: All user-facing and developer-facing documentation (`README.md`, `SHORTCODE_DOCUMENTATION.md`, `DEVELOPER_NOTES.md`, `HANDOFF_DOCUMENTATION.md`, and `COMPREHENSIVE_USER_EXPERIENCE_DOCUMENTATION.md`) has been meticulously rewritten to reflect the final, perfected state of the plugin's architecture and user flow.
+
+## Version 54.0.0 - Tokenized Results Architecture
+*Date: 2024-07-27*
+
+This release provides a critical architectural enhancement to the post-assessment results flow, eliminating a key race condition and making the entire process more robust, secure, and aesthetically consistent.
+
+### ✨ Architectural & UI/UX Enhancements
+- **Token-Based Results**: Re-architected the results system to use a secure, one-time-use token in the URL instead of relying on a fragile user session. This guarantees that all users, especially newly created ones, can reliably view their results immediately after submission.
+- **Unified Empty State**: Redesigned the "results expired" or "empty" state page to use the same beautiful "Bio-Metric Canvas" shell as the rest of the dashboard, ensuring a consistent and professional user experience even in edge cases.
+
+## Version 53.0.0 - The Results Canvas
+*Date: 2024-07-27*
+
+This release marks a complete aesthetic and functional overhaul of the immediate post-assessment results pages. They have been transformed from simple reports into a beautiful, seamless "overture" to the main "Bio-Metric Canvas" dashboard, creating a perfectly unified user journey.
+
+### ✨ UI/UX Masterpiece: The Results Canvas
+- **Aesthetic Unification**: The results pages now share the exact same CSS and JavaScript as the main user dashboard, creating a consistent, dark, futuristic "starfield" look and feel.
+- **Re-architected Results Template**: The `assessment-results.php` template has been completely rebuilt to mirror the layout of the main dashboard. It now features a prominent, animated "Score Orb" for the assessment just completed, along with elegantly styled cards for recommendations and score breakdowns.
+- **Seamless User Journey**: The page now includes a clear and prominent "Proceed to My Dashboard" button, providing a logical and intuitive next step for the user and completing the intended user flow.
+- **Flawless Data Integration**: The data passed to the results page has been verified and perfected, ensuring all dynamic components of the new template render with rich, personalized information.
+
+## Version 52.0.2 - Intelligent Gender Filtering
+*Date: 2024-07-27*
+
+This release provides a critical enhancement to the user experience by implementing intelligent, gender-based filtering for relevant assessments. This ensures the user dashboard and assessment access are perfectly tailored to the individual.
+
+### ✨ UI/UX Enhancements
+- **Personalized User Dashboard**: The User Dashboard is now context-aware. It automatically hides assessments that are not relevant to the user's gender (e.g., the Menopause assessment for male users, and the ED Treatment / Testosterone assessments for female users).
+- **Restricted Form Access**: The system now prevents users from directly accessing the URL of a gender-specific assessment if it does not match their profile, ensuring a consistent and logical user journey.
+- **Strengthened Configuration**: The `assessment-definitions.php` file has been refactored to make the `gender_filter` a top-level, authoritative rule for each assessment.
+
+## Version 52.0.1 - Corrected Redirection Architecture
+*Date: 2024-07-27*
+
+This release provides a critical fix to the user redirection flow, ensuring a more logical and intuitive user experience after an assessment is completed. It also corrects a foundational issue with the automated page setup routine.
+
+### ✨ Architectural Improvements
+- **Corrected Post-Submission Redirection**: Re-architected the redirection logic to send users to a unique, dedicated results page (e.g., `/hair-results/`) for the specific assessment they completed, rather than the full "Health Dossier" page. This aligns with the intended user journey of seeing a one-time summary before accessing their main dashboard.
+- **Fixed Automated Page Setup**: The administrative "Automated Setup" feature has been corrected. It now correctly creates all of the required unique results pages (e.g., "Hair Results," "Skin Results," etc.), ensuring the new, perfected redirection logic has a valid destination.
+
+## Version 52.0.0 - The Unified Experience
+*Date: 2024-07-27*
+
+This release marks the final and ultimate unification of the user-facing experience. The Assessment Details pages (the "Health Dossier") have been completely re-architected to perfectly mirror the sublime aesthetics and functionality of the "Bio-Metric Canvas" user dashboard, creating a single, seamless, and breathtakingly beautiful user journey.
+
+### ✨ Aesthetic & Architectural Unification
+- **Health Dossier Reborn**: The `[ennu-*-assessment-details]` pages have been completely redesigned to match the two-column layout and futuristic "starfield" aesthetic of the main user dashboard.
+- **Unified Asset Loading**: The system now uses a single, unified set of CSS and JavaScript assets for all dashboard and details pages, ensuring perfect visual and functional consistency.
+- **Global Data Perfection**: Refactored the "Health Goals" and "Height & Weight" questions to be truly global, ensuring data is captured once and used everywhere.
+- **Comprehensive Bug Squashing**: Eliminated numerous bugs related to data persistence, asset loading, and interactive element functionality across the entire user-facing experience.
+
+## Version 50.0.0 - The Bio-Metric Canvas
+*Date: 2024-07-27*
+
+This is a monumental design and user experience overhaul, transforming the user dashboard into the "Bio-Metric Canvas." This new interface provides a futuristic, artistic, and deeply insightful visualization of the user's holistic health.
+
+### ✨ UI/UX Masterpiece: The Bio-Metric Canvas
+- **Complete Visual Re-architecture**: The dashboard has been rebuilt from the ground up with a dark, elegant, "starfield" aesthetic.
+- **Pulsating ENNU LIFE SCORE Orb**: The master score is now a central, pulsating orb of light, providing a beautiful and intuitive focal point.
+- **Animated Pillar Orbs**: The four pillar scores are now represented by vibrant, glowing orbs, each with its own unique color and a perpetually spinning, score-driven "pinstripe" halo.
+- **Interactive Contextual Insights**: Hovering over a pillar orb now reveals a descriptive text overlay, providing context and deeper understanding of each score.
+- **Seamless "Data Stream" View**: A "View Detailed Analysis" button now elegantly reveals the complete list of assessments, seamlessly integrated into the new design.
+- **Comprehensive Code Refactoring**: The dashboard's template (`user-dashboard.php`), stylesheet (`assets/css/user-dashboard.css`), and JavaScript (`assets/js/user-dashboard.js`) have been completely re-architected to support this new, highly advanced, and interactive design.
+
+### 🐛 Bug Fixes & Hardening
+- **Corrected All Display Logic**: Fixed numerous bugs related to the Pillar Score and Progress Chart displays.
+- **Hardened Data Handling**: Refactored dashboard data fetching to be more resilient, ensuring a flawless experience even for users with incomplete data.
+- **Resolved All JS Execution Errors**: Corrected script enqueueing and execution errors to restore all interactivity.
+
 ## Version 46.0.0 - Final Documentation Overhaul
 *Date: 2024-07-20*
 
@@ -336,7 +611,7 @@ This major version release marks the completion of the "Phoenix Protocol," a com
 
 ### ✨ Architectural Overhaul
 - **Unified Data Architecture**: Replaced all separate configuration files with a single, unified source of truth: `includes/config/assessment-definitions.php`.
-- **Simplified Scoring Engine**: Rewrote the scoring engine to be simpler, more robust, and directly compatible with the new unified data structure.
+- **Simplified Scoring Engine**: Rewritten the scoring engine to be simpler, more robust, and directly compatible with the new unified data structure.
 - **Obsolete Code Removal**: Deleted the legacy `ENNU_Question_Mapper` class and other redundant code, streamlining the entire plugin.
 - **Definitive Bug Fixes**: The architectural unification permanently resolved all persistent bugs related to admin displays, frontend rendering, and form submissions.
 

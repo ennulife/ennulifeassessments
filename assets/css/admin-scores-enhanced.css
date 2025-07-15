@@ -1147,3 +1147,115 @@
     margin-top: 5px;
 }
 
+.ennu-summary-card.has-score .score-value {
+	animation: count-up 1s ease-out forwards;
+}
+
+/* v57.0.6: Tabbed Interface Styles */
+.ennu-admin-tabs {
+	margin-top: 20px;
+}
+
+.ennu-admin-tab-nav {
+	border-bottom: 1px solid #c3c4c7;
+	margin-bottom: -1px;
+}
+
+.ennu-admin-tab-nav ul {
+	margin: 0;
+	padding: 0;
+	display: flex;
+}
+
+.ennu-admin-tab-nav li {
+	list-style: none;
+	margin: 0 5px 0 0;
+}
+
+.ennu-admin-tab-nav a {
+	display: block;
+	padding: 10px 15px;
+	text-decoration: none;
+	color: #2c3338;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-bottom: none;
+	border-radius: 4px 4px 0 0;
+	font-weight: 600;
+	position: relative;
+	top: 1px;
+}
+
+.ennu-admin-tab-nav a.ennu-admin-tab-active {
+	background: #fff;
+	border-bottom-color: #fff;
+}
+
+.ennu-admin-tab-content {
+	display: none;
+	background: #fff;
+	padding: 20px;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+}
+
+.ennu-admin-tab-content.ennu-admin-tab-active {
+	display: block;
+}
+
+.ennu-admin-tab-content h3 {
+    margin-top: 0;
+}
+
+.ennu-admin-tab-content .form-table {
+    margin-top: 0;
+}
+
+/* v57.0.8: Styles for editable global fields */
+.ennu-admin-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+}
+
+.ennu-admin-checkbox-group label {
+    display: block;
+    padding: 5px 0;
+}
+
+.ennu-admin-hw-group .small-text {
+    width: 60px;
+}
+
+/* v57.1.0: Admin Actions Section */
+.ennu-admin-actions-section {
+	margin-top: 30px;
+	padding: 20px;
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	border-left-color: #d63638;
+	background: #fff;
+}
+
+.ennu-admin-actions-section h3 {
+	margin-top: 0;
+	color: #d63638;
+}
+
+.ennu-admin-action-buttons {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.ennu-admin-action-buttons .button-delete {
+	background: #d63638;
+	border-color: #b02a2c;
+	color: #fff;
+}
+
+.ennu-admin-action-buttons .button-delete:hover {
+	background: #b02a2c;
+	border-color: #902123;
+}
+

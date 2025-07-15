@@ -1,23 +1,34 @@
-# Sleep Assessment: Scoring Deep Dive
+# Sleep Assessment: Scoring & Logic Guide
 
-**Version**: 29.0.33
-**Date**: July 19, 2024
+**Document Version:** 1.0
+**Plugin Version:** 55.0.0
 
 ---
 
-## 1. Scoring Philosophy & Rationale
+## 1.0 Overview
 
-*(Awaiting input from a clinical sleep expert to define the scoring rationale.)*
+This document provides a comprehensive breakdown of the scoring logic for the **Sleep Assessment**. Each question is detailed below with its corresponding field ID, answer options, point values, and its impact on both Category and Pillar scores.
 
-This document will provide a complete breakdown of the scoring logic for the **Sleep Assessment**.
+---
 
-## 2. Scoring Table
+## 2.0 Scoring Map
 
-*(This table should be populated with the final, clinically-validated questions, categories, weights, and point values.)*
-
-| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| sleep_q1 | sleep_duration | Sleep Quality | 1 | Less than 5 | `less_than_5` | 2 |
-| | | | | 5 to 7 | `5_to_7` | 5 |
-| | | | | 7 to 9 | `7_to_9` | 9 |
-| | | | | More than 9 | `more_than_9` | 7 | 
+| Question Title | Field ID | Answer Option | Points | Category | Pillar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **On average, how many hours of sleep do you get per night?** | `sleep_q1` | Less than 5 hours | `2` | Sleep Duration | Lifestyle |
+| | | 5-6 hours | `4` | | |
+| | | 7-8 hours (Recommended) | `9` | | |
+| | | 9 or more hours | `7` | | |
+| **How would you rate the quality of your sleep?** | `sleep_q2` | Very Poor | `1` | Sleep Quality | Lifestyle |
+| | | Poor | `3` | | |
+| | | Fair | `5` | | |
+| | | Good | `8` | | |
+| **How often do you wake up during the night?** | `sleep_q3` | Frequently (3+ times) | `2` | Sleep Continuity | Lifestyle |
+| | | Sometimes (1-2 times) | `5` | | |
+| | | Rarely | `8` | | |
+| | | Never | `9` | | |
+| **Which of the following do you use to help you sleep?** | `sleep_q4` | None | `9` | Sleep Dependency | Lifestyle |
+| | | Melatonin | `6` | | |
+| | | Herbal supplements (e.g., Valerian) | `5` | | |
+| | | Over-the-counter sleep aids | `4` | | |
+| | | Prescription sleep medication | `2` | | | 

@@ -8,31 +8,34 @@
 .ennu-assessment-form {
     max-width: 800px;
     margin: 0 auto;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 0px 20px;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     text-align: center;
 }
 
 /* New styles for the main assessment container */
 .ennu-assessment {
-    max-width: 800px;
-    margin: 40px auto;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
 }
 
 /* New styles for the main assessment header */
 .assessment-header {
     text-align: center;
-    margin-bottom: 30px;
-}
+    margin-bottom: 0px !important;
+} 
 
 .assessment-title {
     font-size: 36px;
     font-weight: 700;
     color: #212529;
     margin: 0 0 10px 0;
+    /* display: none; */
 }
 
 .assessment-description {
@@ -42,7 +45,7 @@
 
 /* Progress Bar */
 .progress-container {
-    margin-bottom: 40px;
+    margin-bottom: 10px;
     text-align: center;
 }
 
@@ -101,12 +104,13 @@
 
 /* Question Styling */
 .question-title {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 1.2em;
+    font-weight: 300;
     color: #212529;
     margin-bottom: 15px;
     text-align: center;
     line-height: 1.3;
+    margin-top: 0;
 }
 
 .question-subtitle, .question-description {
@@ -128,20 +132,21 @@
 /* Answer Options */
 .answer-options {
     display: grid;
-    gap: 15px;
-    margin: 0 auto 40px auto;
+    gap: 14px;
+    margin: 0 auto 20px auto;
     width: 100%;
     /* Let the column-specific styles handle the layout */
 }
 
 /* Specific Column Layouts for Desktop */
 .answer-options.columns-2 { grid-template-columns: repeat(2, 1fr); max-width: 500px; }
-.answer-options.columns-3 { grid-template-columns: repeat(3, 1fr); max-width: 700px; }
+.answer-options.columns-3 {grid-template-columns: repeat(3, 1fr);max-width: 100%;}
 .answer-options.columns-4 { grid-template-columns: repeat(4, 1fr); max-width: 900px; }
 
 
 .answer-option {
     position: relative;
+    font-weight: 100 !important;
 }
 
 .answer-option input[type="radio"],
@@ -154,22 +159,22 @@
 .answer-option label {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    min-height: 60px;
-    height: 100%;
-    padding: 15px 20px;
+    /* min-height: 60px; */
+    height: 80%;
+    padding: 9px 1px;
     background: #ffffff;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 200;
     color: #495057;
     text-align: center;
     position: relative;
     overflow: hidden;
+    justify-content: center;
 }
 
 .answer-option label:hover {
@@ -181,8 +186,8 @@
 
 .answer-option input[type="radio"]:checked + label,
 .answer-option input[type="checkbox"]:checked + label {
-    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
-    border-color: #495057;
+    background: linear-gradient(135deg, #a3a3a3 0%, #797979 100%);
+    border-color: #7a7a7a;
     color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(73, 80, 87, 0.3);
@@ -190,12 +195,12 @@
 
 .answer-option input[type="radio"]:checked + label::before,
 .answer-option input[type="checkbox"]:checked + label::before {
-    content: '✓';
+    content: '✔';
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 18px;
-    font-weight: bold;
+    top: 3px;
+    right: 7px;
+    font-size: 13px;
+    font-weight: normal;
     color: #ffffff;
 }
 
@@ -240,38 +245,38 @@
 /* Height & Weight Fields */
 .height-weight-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    max-width: 500px;
-    margin: 0 auto 30px;
-    align-items: flex-end;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    justify-content: center;
+    max-width: 450px;
+    margin: 1rem auto 0;
 }
+
 .hw-field {
     display: flex;
     flex-direction: column;
-}
-.hw-field label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #6c757d;
-    margin-bottom: 5px;
     text-align: center;
-}
-.hw-field input {
-    padding: 12px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 16px;
-    background: #ffffff;
-    transition: border-color 0.3s ease;
-    text-align: center;
-}
-.hw-field input:focus {
-    outline: none;
-    border-color: #6c757d;
-    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
 }
 
+.hw-field label {
+    margin-bottom: 0.5rem;
+    font-weight: 100;
+    color: #4a5568;
+    font-size: 16px;
+}
+
+.hw-field input {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Validation & Interactivity */
+input:required:invalid {
+    border-color: #e2e8f0; /* Keep it subtle */
+}
 
 /* Date of Birth Fields */
 .dob-container {
@@ -317,7 +322,7 @@
 }
 
 .dob-field select {
-    padding: 12px 30px 12px 15px;
+    padding: 10px 30px 10px 15px !important;
     border: 2px solid #e9ecef;
     border-radius: 8px !important;
     font-size: 16px;
@@ -328,6 +333,7 @@
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
     background-repeat: no-repeat;
     background-position: right 10px center;
+    text-align: center;
 }
 
 .dob-field select:focus {
@@ -341,16 +347,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 40px;
+    margin-top: 11px;
     gap: 20px;
+    padding-bottom: 20px;
 }
 
 .nav-button {
-    padding: 15px 30px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 10px 30px;
+    border: 1px solid #80808008;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 100 !important;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -373,15 +380,16 @@
 
 .nav-button.next,
 .nav-button.submit {
-    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #e9ecef 0%, #e9ecef 100%);
+    color: #4d545b;
 }
 
 .nav-button.next:hover,
 .nav-button.submit:hover {
-    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    background: linear-gradient(135deg, #e9ecef 0%, #d8d8d8 100%);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(73, 80, 87, 0.3);
+    color: #525252;
 }
 
 .nav-button:disabled {
@@ -571,5 +579,41 @@
     background: #f8f9fa;
     border-left: 4px solid #007bff;
     border-radius: 8px;
+}
+
+/* New Styles for Symptom Qualification Engine */
+.qualifiers-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+}
+
+.qualifiers-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #eee;
+    margin-bottom: 15px;
+}
+
+.qualifier-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.qualifier-question .qualifier-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ddd;
+    margin-bottom: 10px;
+}
+
+.qualifier-question .answer-options {
+    justify-content: flex-start; /* Align radio buttons to the left */
+}
+
+.qualifier-question .answer-option {
+    margin-bottom: 5px; /* Reduce margin for a more compact layout */
 }
 

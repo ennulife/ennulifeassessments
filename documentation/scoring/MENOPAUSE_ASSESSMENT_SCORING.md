@@ -1,22 +1,32 @@
-# Menopause Assessment: Scoring Deep Dive
+# Menopause Assessment: Scoring & Logic Guide
 
-**Version**: 29.0.33
-**Date**: July 19, 2024
+**Document Version:** 1.0
+**Plugin Version:** 55.0.0
 
 ---
 
-## 1. Scoring Philosophy & Rationale
+## 1.0 Overview
 
-*(Awaiting input from a gynecologist or menopause specialist to define the scoring rationale.)*
+This document provides a comprehensive breakdown of the scoring logic for the **Menopause Assessment**. Each question is detailed below with its corresponding field ID, answer options, point values, and its impact on both Category and Pillar scores.
 
-This document will provide a complete breakdown of the scoring logic for the **Menopause Assessment**. This assessment is filtered to only be shown to users who identify as female.
+*Note: This assessment will only be displayed to users who have identified their gender as "Female".*
 
-## 2. Scoring Table
+---
 
-*(This table should be populated with the final, clinically-validated questions, categories, weights, and point values.)*
+## 2.0 Scoring Map
 
-| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| menopause_q1 | menopause_symptoms | Menopausal Health | 1 | Yes | `yes` | 3 |
-| | | | | No | `no` | 9 |
-| | | | | Not Sure | `not_sure` | 5 | 
+| Question Title | Field ID | Answer Option | Points | Category | Pillar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Which of the following best describes your current stage?** | `menopause_q1` | I have not yet started menopause | `9` | Menopause Stage | Body |
+| | | Perimenopause (transitioning) | `5` | | |
+| | | Menopause (last period over 12 months ago) | `3` | | |
+| | | Post-menopause | `4` | | |
+| **Which of the following symptoms...are you experiencing?** | `menopause_q2` | Hot flashes | `2` | Symptom Severity | Body |
+| | | Night sweats | `2` | | |
+| | | Sleep disturbances | `2` | | |
+| | | Mood changes or irritability | `2` | | |
+| | | Vaginal dryness | `2` | | |
+| | | None of the above | `9` | | |
+| **Are you currently using or have you previously used HRT?** | `menopause_q3` | Never | `7` | Treatment History | Lifestyle |
+| | | Currently using | `5` | | |
+| | | Used in the past | `6` | | | 

@@ -1,22 +1,28 @@
-# Hormone Assessment: Scoring Deep Dive
+# Hormone Assessment: Scoring & Logic Guide
 
-**Version**: 29.0.33
-**Date**: July 19, 2024
+**Document Version:** 1.0
+**Plugin Version:** 55.0.0
 
 ---
 
-## 1. Scoring Philosophy & Rationale
+## 1.0 Overview
 
-*(Awaiting input from an endocrinologist or hormone specialist to define the scoring rationale.)*
+This document provides a comprehensive breakdown of the scoring logic for the **Hormone Assessment**. Each question is detailed below with its corresponding field ID, answer options, point values, and its impact on both Category and Pillar scores.
 
-This document will provide a complete breakdown of the scoring logic for the **Hormone Assessment**.
+---
 
-## 2. Scoring Table
+## 2.0 Scoring Map
 
-*(This table should be populated with the final, clinically-validated questions, categories, weights, and point values.)*
-
-| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| hormone_q1 | hormone_symptoms | Hormonal Balance | 1 | Yes | `yes` | 3 |
-| | | | | No | `no` | 9 |
-| | | | | Not Sure | `not_sure` | 5 | 
+| Question Title | Field ID | Answer Option | Points | Category | Pillar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Which of the following symptoms...have you been experiencing?** | `hormone_q1` | Fatigue or lack of energy | `2` | Symptom Severity | Body |
+| | | Unexplained weight gain... | `2` | | |
+| | | Mood swings, irritability, or anxiety | `2` | | |
+| | | Decreased sex drive | `2` | | |
+| | | Difficulty sleeping | `2` | | |
+| | | Changes in skin or hair... | `2` | | |
+| | | None of the above | `9` | | |
+| **How would you describe your energy levels throughout the day?** | `hormone_q2` | Consistently low | `2` | Vitality | Body |
+| | | I crash in the afternoon | `4` | | |
+| | | Generally stable | `7` | | |
+| | | High and consistent | `9` | | | 

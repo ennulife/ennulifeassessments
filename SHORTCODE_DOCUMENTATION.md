@@ -1,82 +1,85 @@
 # ENNU Life Assessment Plugin - Shortcode Documentation
 
-**Version**: 44.0.2
-
-This document provides documentation for all available shortcodes in the ENNU Life Assessment Plugin.
-
-## Table of Contents
-- [Overview](#overview)
-- [Assessment Shortcodes](#assessment-shortcodes)
-- [Dashboard & Results Shortcodes](#dashboard--results-shortcodes)
-- [Usage Examples](#usage-examples)
+**Version:** 57.2.0
+**Author:** ENNU Life Development Team
 
 ---
 
-## Overview
+## 1.0 Introduction
 
-The ENNU Life Assessment Plugin uses shortcodes to display health and wellness assessments on your WordPress site. Simply place the desired shortcode on any page or post.
+This document provides a comprehensive guide to all shortcodes available in the ENNU Life Assessment Plugin. Each shortcode is a building block for creating a seamless and powerful user experience.
 
 ---
 
-## Assessment Shortcodes
+## 2.0 Assessment Form Shortcodes
 
-These shortcodes render the interactive, multi-step assessment forms. They all support the same set of attributes.
+These shortcodes are used to render the main, multi-step assessment forms on any page or post. Each form is a complete, self-contained experience.
 
 *   `[ennu-welcome-assessment]`
 *   `[ennu-hair-assessment]`
 *   `[ennu-ed-treatment-assessment]`
-*   `[ennu-weight-loss-assessment]`
-*   `[ennu-health-assessment]`
 *   `[ennu-skin-assessment]`
 *   `[ennu-sleep-assessment]`
 *   `[ennu-hormone-assessment]`
 *   `[ennu-menopause-assessment]`
 *   `[ennu-testosterone-assessment]`
-
-**Attributes:**
-*   `show_progress="false"`: (Optional) Hides the progress bar.
-*   `auto_advance="false"`: (Optional) Disables advancing to the next question automatically after a selection is made.
+*   `[ennu-weight-loss-assessment]`
 
 ---
 
-## Dashboard & Results Shortcodes
+## 3.0 User Account & Results Shortcodes
 
-### The Executive Wellness Interface
+These shortcodes render the pages that constitute the core user journey after completing an assessment.
+
+### 3.1 Main User Dashboard
+
 *   `[ennu-user-dashboard]`
-    *   **Description**: Renders the new "Executive Wellness Interface," a premium, jaw-dropping dashboard that is the central hub for the user's health journey.
-    *   **Features**:
-        *   An animated radial progress bar for the master **ENNU LIFE SCORE**.
-        *   Elegant progress bars for the four **Pillar Scores**, with insightful tooltips.
-        *   A historical line chart to visualize the user's progress over time.
-        *   A list of all assessments, with expandable sections to view detailed category scores.
-    *   **Note**: This shortcode should be placed on a dedicated "Dashboard" page.
+    *   **Renders**: The main "Bio-Metric Canvas" user dashboard.
+    *   **Behavior**:
+        *   If the user is not logged in, it will show a beautifully styled login/registration prompt.
+        *   If the user is logged in, it displays a card for each assessment relevant to their gender. Each card shows their latest score and provides links to retake the assessment or view the full "Health Dossier".
+        *   The dashboard also renders two historical trend charts: one for the user's **ENNU LIFE SCORE History** and a new one for their **BMI Over Time**.
 
-### Assessment Results Pages
-*   `[ennu-assessment-results]`: A generic results page that displays a summary of the most recently completed assessment.
-*   `[ennu-hair-results]`, `[ennu-skin-results]`, etc.: Each assessment has a corresponding results shortcode for creating dedicated "Thank You" or results pages.
+### 3.2 Post-Assessment Results Pages
 
-### Detailed Report Pages
-*   `[ennu-hair-assessment-details]`, `[ennu-skin-assessment-details]`, etc.: Each assessment has a corresponding "details" shortcode that renders a full, in-depth report page, including historical data and visualizations. These are the pages linked to from the "View Full Report" buttons on the main dashboard.
+After a user submits any assessment, they are redirected to a unique results page. These pages are designed to provide a beautiful, one-time summary of their performance.
+
+*   **Generic Fallback**: `[ennu-assessment-results]`
+    *   This shortcode is primarily a fallback. The system will always try to redirect to a specific results page first.
+
+*   **Specific Results Pages**:
+    *   `[ennu-hair-results]`
+    *   `[ennu-ed-results]`
+    *   `[ennu-skin-results]`
+    *   `[ennu-sleep-results]`
+    *   `[ennu-hormone-results]`
+    *   `[ennu-menopause-results]`
+    *   `[ennu-testosterone-results]`
+    *   `[ennu-weight-loss-results]`
+    *   **Behavior**:
+        *   These pages are accessed via a secure, one-time-use token in the URL immediately after an assessment is completed.
+        *   They display a "Bio-Metric Canvas" style summary of the user's score for the assessment they just took.
+        *   They provide three clear next steps: "View Assessment Results" (which links to the permanent "Health Dossier"), "View My ENNU LIFE Dashboard", and "Take Test Again".
+        *   If a user tries to access the URL after the token has been used, it will gracefully inform them that the link has expired and direct them to their main dashboard.
 
 ---
 
-## Usage Examples
+## 4.0 Detailed Results Page Shortcodes (The Health Dossier)
 
-### Basic Usage
-Place any shortcode directly in a page or post.
-```
-[ennu-health-assessment]
-```
+These shortcodes are used on dedicated pages to display the full, permanent results for a specific assessment. These are the pages linked to from the `[ennu-user-dashboard]` and the post-assessment results summary.
 
-### With Attributes
-Customize the behavior of an assessment.
-```
-[ennu-hair-assessment show_progress="false"]
-```
-
-### In PHP Templates
-Render shortcodes directly in your theme's template files.
-```php
-echo do_shortcode('[ennu-user-dashboard]');
-```
+*   `[ennu-hair-assessment-details]`
+*   `[ennu-ed-treatment-assessment-details]`
+*   `[ennu-skin-assessment-details]`
+*   `[ennu-sleep-assessment-details]`
+*   `[ennu-hormone-assessment-details]`
+*   `[ennu-menopause-assessment-details]`
+*   `[ennu-testosterone-assessment-details]`
+*   `[ennu-weight-loss-assessment-details]`
+    *   **Renders**: A comprehensive, visually rich "Health Dossier" for the specified assessment, styled to match the "Bio-Metric Canvas" aesthetic.
+    *   **Behavior**:
+        *   Grants access to logged-in users to view their own data at any time.
+        *   Also grants temporary, one-time access to guest users who have just completed an assessment and arrive with a valid `results_token`.
+        *   Requires a login for any subsequent views.
+        *   Displays a historical score timeline, a breakdown of scores by category, and other personalized data visualizations.
 

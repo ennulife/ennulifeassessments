@@ -1,7 +1,7 @@
 # The ENNU Life Assessment Plugin: A Comprehensive Guide & Verification Manifest
 
-**Document Version:** 2.0
-**Plugin Version:** 29.0.0 (The Phoenix Release)
+**Document Version:** 3.0
+**Plugin Version:** 56.0.0 (The Unified Experience)
 **Author:** The World's Greatest WordPress Developer
 
 ---
@@ -29,22 +29,14 @@ The main plugin file, `ennu-life-plugin.php`, acts as the central controller or 
     2.  **Component Initialization**: It instantiates the key classes (`ENNU_Enhanced_Admin`, `ENNU_Assessment_Shortcodes`, etc.).
     3.  **Centralized Hook Registration**: Critically, the `setup_hooks()` method within this file is the **single source of truth** for all `add_action` and `add_filter` calls that connect the plugin's functionality to the WordPress core. This prevents conflicts and makes the loading sequence predictable and debuggable.
 
-### 2.2 Decoupled Logic: The Role of Classes
+### 2.2 Unified Data Architecture: The `assessment-definitions.php` File
 
-Functionality is strictly segregated into classes with specific responsibilities:
+This is the most important configuration file in the plugin. Located at `includes/config/assessment-definitions.php`, it is the single source of truth for all assessment content. This includes:
+-   All questions, their types, and their options.
+-   The complete scoring logic, including point values and category weights.
+-   Metadata for the assessments themselves, such as the `gender_filter` key, which controls visibility.
 
--   `ENNU_Assessment_Shortcodes`: Manages all shortcode registration and rendering. Handles the AJAX form submission endpoint.
--   `ENNU_Enhanced_Admin`: Manages all functionality within the WordPress admin area, including the "Health Intelligence Dashboard" on user profiles.
--   `ENNU_Assessment_Scoring`: Contains the logic for calculating scores. It is a purely computational class with no direct WordPress hooks.
--   `ENNU_Enhanced_Database`: A utility class for complex database queries (though most data is stored in `usermeta` and accessed via standard WP functions).
--   `ENNU_Question_Mapper`: An architectural keystone that decouples the visual order of questions from their scoring logic.
-
-### 2.3 The Keystone: `ENNU_Question_Mapper`
-
-This class (`includes/class-question-mapper.php`) is essential for long-term maintainability.
-
--   **Problem**: In the forms, a question might be identified as `hair_q3`. In the scoring logic, this question's semantic meaning is `family_history`. If the questions were reordered, `hair_q3` might become `hair_q4`, which would break the scoring.
--   **Solution**: The `assessment-questions.php` config file contains a `scoring_key` for each question. The `ENNU_Question_Mapper::get_semantic_key()` method acts as a translator, allowing the scoring engine to ask "What was the answer for `family_history`?" instead of the brittle "What was the answer for `hair_q3`?". This allows administrators to re-order, add, or remove questions from the form without breaking the entire scoring system.
+This unified architecture eliminates the need for complex "mapper" classes and makes the system exceptionally easy to maintain and extend.
 
 ---
 
@@ -55,9 +47,10 @@ The plugin's functionality is built around a core user journey. Understanding th
 1.  **Initiation**: A user encounters an assessment on a page, rendered by a shortcode.
 2.  **Interaction**: The user moves through a series of questions in a clean, multi-step form.
 3.  **Submission**: The user's answers are sent securely to the server via AJAX.
-4.  **Processing**: A new user account is created if one doesn't exist. All answers and calculated scores are saved to the user's profile.
-5.  **Revelation**: The user is immediately redirected to a dynamic results page showing their score, interpretation, and personalized feedback.
-6.  **Archiving**: All results are permanently archived and accessible to the user via their dashboard and to administrators on the user's profile page in the WordPress admin.
+4.  **Processing**: A new user account is created if one doesn't exist. All answers and calculated scores are saved to the user's profile. A secure, one-time-use token is generated.
+5.  **Revelation (The Results Canvas)**: The user is immediately redirected to a unique results page (e.g., `/hair-results/`) using the secure token. This page displays a beautiful, "Bio-Metric Canvas" style summary of their score for the assessment they just took and provides clear next steps.
+6.  **Exploration (The Bio-Metric Canvas)**: From the results page, the user can proceed to their main User Dashboard, a stunning, interactive hub featuring a central, pulsating ENNU LIFE SCORE orb and animated, score-driven Pillar Orbs for all relevant assessments.
+7.  **Deep Dive (The Health Dossier)**: From the main dashboard, the user can click to view a full, permanent report for any completed assessment. This "Health Dossier" provides a detailed breakdown of their scores, historical progress charts, and other personalized data.
 
 ---
 
@@ -68,76 +61,53 @@ This section details every facet of the end-user experience. Each claim is backe
 ### 4.1 Feature: The Multi-Step Assessment Form
 
 -   **The Perfect Expected Result**: When a user views a page containing an assessment shortcode (e.g., `[ennu-hair-assessment]`), they see a beautifully styled, multi-step form. The form displays one question at a time, with a clear title, a descriptive subtitle, and a progress bar. Navigation is handled by "Next" and "Previous" buttons.
+-   **Intelligent Access Control**: The form will only render if it is appropriate for the user. For example, a male user attempting to access the `[ennu-menopause-assessment]` page will be shown a polite message indicating the assessment is not available for their profile, rather than the form itself.
 
 -   **Code-Backed Confirmation**:
-    -   **Shortcode Registration**: The `register_shortcodes` method in `includes/class-assessment-shortcodes.php` is hooked to `init` by the main plugin file.
-    -   **Rendering Engine**: `render_assessment_shortcode` in the same file renders the form's HTML structure.
-    -   **Client-Side Logic**: The `ENNUAssessmentForm` class in `assets/js/ennu-frontend-forms.js` handles the step-by-step interactive logic. This script is enqueued by the `enqueue_frontend_scripts` method in `ennu-life-plugin.php`.
+    -   **Shortcode Registration**: The `register_shortcodes` method in `includes/class-assessment-shortcodes.php` is hooked to `init`.
+    -   **Rendering Engine**: `render_assessment_shortcode` in the same file renders the form's HTML structure and contains the gender-filtering logic.
+    -   **Client-Side Logic**: The `ENNUAssessmentForm` class in `assets/js/ennu-frontend-forms.js` handles the step-by-step interactive logic.
 
--   **Nuanced Scenarios & Edge Cases**:
-    -   **Scenario**: What if a shortcode is placed on a page twice? **Result**: Each form is instantiated as a separate object in the JavaScript. They will not interfere.
-    -   **Scenario**: What if the `assessment-questions.php` config is missing? **Result**: The form will display a clean error message ("No questions found for this assessment.") instead of crashing the page.
+### 4.2 Feature: Seamless Data Submission and User Creation
 
-### 4.2 Feature: Dynamic Question Interactions
-
-#### 4.2.1 Auto-Progression on Single-Choice Questions
-
--   **The Perfect Expected Result**: Clicking a radio button automatically advances to the next question after a 300ms delay.
-
--   **Code-Backed Confirmation**: An event listener in `assets/js/ennu-frontend-forms.js` on `input[type="radio"]` calls the `nextQuestion()` method.
-
-#### 4.2.2 Live Age Calculation & Auto-Progression
-
--   **The Perfect Expected Result**: After selecting the final part of their date of birth (month, day, or year), the user's age is instantly calculated and displayed. Immediately after, the form automatically advances to the next question after a 300ms delay.
-
--   **Code-Backed Confirmation**: The `calculateAge` method in `assets/js/ennu-frontend-forms.js` is triggered by the `change` event on the DOB dropdowns (`select[name^="dob_"]`). It correctly accounts for month and day, not just year. Upon a successful calculation, it initiates a `setTimeout` to call the `nextQuestion()` method.
-
-### 4.3 Feature: Seamless Data Submission and User Creation
-
--   **The Perfect Expected Result**: Clicking "Submit" securely sends data, creates a user account if one doesn't exist, saves all data, calculates scores, and redirects to the results page.
+-   **The Perfect Expected Result**: Clicking "Submit" securely sends data, creates a user account if one doesn't exist, saves all data, calculates scores, and redirects to a unique results page via a secure token.
 
 -   **Code-Backed Confirmation**:
     -   **AJAX Endpoint**: The `handle_assessment_submission` method in `includes/class-assessment-shortcodes.php` is the target for the `wp_ajax_ennu_submit_assessment` action.
     -   **Security**: The method begins by verifying a WordPress nonce with `check_ajax_referer('ennu_ajax_nonce')`.
     -   **User Handling**: It uses `email_exists()` and `wp_insert_user()` for account management.
-    -   **Data Persistence**: It calls `update_core_user_data()` and `save_assessment_specific_meta()` to save all answers.
-    -   **Scoring**: It invokes `ENNU_Assessment_Scoring::calculate_scores()`.
-    -   **Redirection**: It returns a JSON response with a `redirect_url`, which the frontend JavaScript uses to change the `window.location`.
+    -   **Data Persistence**: It saves all answers and scores to the `usermeta` table.
+    -   **Tokenization**: It generates a secure, 32-character token, saves the results to a transient keyed by this token, and appends the token to the redirect URL.
 
 ---
 
 ## 5.0 The Dynamic Results Ecosystem
 
-This section details the ecosystem of pages and data that make up the user's journey after completing an assessment. Each claim is backed by code and has a corresponding verification step in Section 11.0.
+This section details the ecosystem of pages and data that make up the user's journey after completing an assessment.
 
-### 5.1 The Immediate Results Page
+### 5.1 The Immediate Results Page (The "Results Canvas")
 
--   **The Perfect Expected Result**: After submission, the user lands on a results page unique to the assessment they just took. This page is not static. It displays their calculated overall score, a qualitative interpretation (e.g., "Good," "Needs Attention"), a detailed breakdown of their scores by category, and a list of personalized recommendations based on their score range.
+-   **The Perfect Expected Result**: After submission, the user lands on a results page unique to the assessment they just took (e.g., `/hair-results/`). This page is not static. It is a perfect, single-assessment version of the main "Bio-Metric Canvas" dashboard, featuring the same dark, futuristic aesthetic. It displays a prominent score orb for the current assessment and provides three clear, context-aware buttons for their next step: "View Assessment Results," "View My ENNU LIFE Dashboard," and "Take Test Again."
 
--   **Code-Backed Confirmation**: The `handle_assessment_submission` method saves the full results payload into a short-lived transient (`ennu_assessment_results_{user_id}`). The `render_thank_you_page` method (which powers the results shortcodes) retrieves this transient, displays all the dynamic data, and then immediately deletes the transient. This ensures the results are shown only once, right after the assessment.
-
--   **Nuanced Scenarios & Edge Cases**:
-    -   **Scenario**: What if the user bookmarks the results page and tries to visit it again later? **Result**: Since the transient is deleted after the first view, any subsequent visit will find no transient. The `render_thank_you_page` function will then render a graceful "empty state" message, prompting the user to log in and visit their dashboard to see their permanent results. This prevents confusion and stale data.
-    -   **Scenario**: What if a user completes two assessments back-to-back? **Result**: The transient key is unique per user (`ennu_assessment_results_{user_id}`). When the second assessment is completed, its data simply overwrites the transient from the first. When they are redirected, they will see the results for the most recently completed assessment, which is the expected and correct behavior.
-
-### 5.2 The Health Dossier (Detailed Results Pages)
-
--   **The Perfect Expected Result**: From their dashboard, a user can click "View Full Report" to access their permanent "Health Dossier" for that assessment. This is a visually stunning, hyper-personalized page featuring the Health Quad-Pillars (Mind, Body, Lifestyle, Aesthetics) score breakdown, a visual timeline of their progress for that assessment, and deep-dive cards for each scoring category.
-
--   **Code-Backed Confirmation**: This is handled by the `[ennu-*-assessment-details]` shortcodes and the `templates/assessment-details-page.php` template. This template queries all the user's saved meta data for that assessment, including historical scores, and uses it to populate the complex UI components. The logic for the Quad-Pillars is handled by the `ENNU_Assessment_Shortcodes::get_trinity_pillar_map()` method, ensuring perfect data mapping.
+-   **Code-Backed Confirmation**: The `handle_assessment_submission` method redirects to a URL like `/hair-results/?results_token=...`. The `render_thank_you_page` method (which powers the `[ennu-hair-results]` shortcode) reads the token, retrieves the results from the transient, displays them using the `templates/assessment-results.php` template, and then immediately deletes the transient. This ensures the results are shown only once, right after the assessment.
 
 -   **Nuanced Scenarios & Edge Cases**:
-    -   **Scenario**: What if a non-logged-in user tries to access a details page directly? **Result**: The `render_detailed_results_page` method has a guard clause at the very top: `if (!is_user_logged_in()) { ... }`. It will halt execution and display a "You must be logged in" message, ensuring total privacy.
-    -   **Scenario**: How is historical data for the timeline chart handled? **Result**: Every time an assessment is submitted, the `handle_assessment_submission` method fetches the existing `_historical_scores` meta array, appends the new score with a timestamp, and saves it back. The Health Dossier template then reads this array to construct the timeline, providing a perfect historical record.
+    *   **Scenario**: What if a user bookmarks the tokenized results page and tries to visit it again later? **Result**: Since the transient is deleted after the first view, the `render_thank_you_page` function will find no data for the token. It will then render a graceful "empty state" message, also styled in the "Bio-Metric Canvas" aesthetic, prompting the user to visit their dashboard to see their permanent results.
+    *   **Scenario**: What if a non-logged-in user clicks the "View My Dashboard" button from the results page? **Result**: The button URL is intelligently generated. The `wp_login_url()` function is used to create a link that, after a successful login, will redirect the user directly to their dashboard, providing a seamless experience.
 
-### 5.3 The Main User Dashboard
+### 5.2 The Main User Dashboard (The "Bio-Metric Canvas")
 
--   **The Perfect Expected Result**: A logged-in user can visit their main dashboard page (powered by `[ennu-user-dashboard]`) and see a beautiful, card-based overview of every assessment they have completed. Each card shows their latest score, the date taken, and a "View Full Report" link to the Health Dossier.
+-   **The Perfect Expected Result**: A logged-in user can visit their main dashboard page (powered by `[ennu-user-dashboard]`) and see a beautiful, card-based overview of every assessment they have completed that is relevant to them. The dashboard also features the **Health Optimization Map**.
+-   **Intelligent Filtering**: The dashboard is now context-aware. For a male user, the Menopause assessment will not be displayed. For a female user, the ED Treatment and Testosterone assessments will not be displayed. This creates a clean, personalized, and relevant experience.
 
--   **Code-Backed Confirmation**: The `render_user_dashboard` method and its template, `templates/user-dashboard.php`, are responsible for this. The template calls the now-perfected `ENNU_Life_Enhanced_Database::get_user_assessment_history()` method, which efficiently fetches all assessment history for the user and provides it to the template for rendering.
+-   **Code-Backed Confirmation**: The `render_user_dashboard` method calls `get_user_assessments_data()`. This helper method now fetches the user's gender from their profile and filters the complete list of assessments from `assessment-definitions.php` before returning the data to be rendered by the `templates/user-dashboard.php` template.
 
--   **Nuanced Scenarios & Edge Cases**:
-    -   **Scenario**: What happens on the dashboard if a user has not completed any assessments? **Result**: The `get_user_assessment_history` method will return an empty array. The `user-dashboard.php` template has a built-in check for this. It will loop through the assessments and, finding no data, will render each card in its "Not completed" state, with a "Start Now" button, perfectly guiding the user on their next steps.
+### 5.3 Feature: The Health Optimization Map
+
+-   **The Perfect Expected Result**: The dashboard prominently features the "Health Optimization Map," which has two distinct states:
+    1.  **Empty State**: If the user has *not* yet completed the Health Optimization Assessment, the map card displays a clear explanation of the feature and a prominent "Start Health Optimization Assessment" button that links directly to the assessment.
+    2.  **Completed State**: Once the user completes the assessment, the card transforms into a rich, interactive display. It shows a grid of every possible Health Vector (e.g., "Inflammation," "Hormones"). Within each vector, it lists all associated symptoms and biomarkers. The specific vectors, symptoms, and biomarkers triggered by the user's answers are highlighted with a vibrant, pulsating glow, drawing their attention to their personalized results.
+-   **Code-Backed Confirmation**: The `render_user_dashboard` function fetches the complete `health_map` from the scoring engine. The `user-dashboard.php` template then uses a conditional (`if ( $is_completed )`) to render either the empty state with the link or the full, interactive map with the `pulsate` class applied to highlighted items.
 
 ---
 

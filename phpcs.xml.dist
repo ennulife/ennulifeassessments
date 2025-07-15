@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<ruleset name="ENNU Life Assessments">
-    <description>The PHP coding standards for the ENNU Life Assessments plugin.</description>
+<ruleset name="WordPress Coding Standards">
+    <description>A custom ruleset for the ENNU Life Assessment Plugin.</description>
 
-    <!--
-    What to scan
-    -->
+    <!-- Set the path to the WordPress Coding Standards. -->
+    <config name="installed_paths" value="vendor/wp-coding-standards/wpcs"/>
+
+    <!-- What to scan -->
     <file>.</file>
     <exclude-pattern>/vendor/</exclude-pattern>
     <exclude-pattern>/node_modules/</exclude-pattern>

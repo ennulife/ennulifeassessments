@@ -66,6 +66,26 @@ console.log('ENNU Life Frontend Forms script loaded.');
                 e.preventDefault();
                 this.submitForm();
             });
+
+            // --- New: Symptom Qualification Engine Logic ---
+            this.form.find('.question-slide[data-question-type="multiselect"]').on('change', 'input[type="checkbox"]', (e) => {
+                const $checkbox = $(e.currentTarget);
+                const symptomValue = $checkbox.val();
+                const $slide = $checkbox.closest('.question-slide');
+                const $qualifiersContainer = $slide.find('.qualifiers-container');
+                const $qualifierGroup = $qualifiersContainer.find(`.qualifier-group[data-qualifier-for="${symptomValue}"]`);
+
+                if ($checkbox.is(':checked')) {
+                    $qualifiersContainer.slideDown();
+                    $qualifierGroup.slideDown();
+                } else {
+                    $qualifierGroup.slideUp();
+                    // If no other qualifiers are visible, hide the whole container
+                    if ($qualifiersContainer.find('.qualifier-group:visible').length === 1) {
+                        $qualifiersContainer.slideUp();
+                    }
+                }
+            });
         }
 
         showQuestion(step, direction = 'next') {
@@ -136,36 +156,45 @@ console.log('ENNU Life Frontend Forms script loaded.');
         validateCurrentQuestion() {
             const currentSlide = this.questions.eq(this.currentStep - 1);
             currentSlide.find('.error-message').remove();
-            currentSlide.find('.error').removeClass('error');
-            let isValid = true;
-
-            const inputs = currentSlide.find('input[required], select[required]');
-
-            inputs.each((i, input) => {
-                const $input = $(input);
+            let allValid = true;
+        
+            const uniqueRequiredFields = {};
+        
+            // Find all visible, required fields and group them by name
+            currentSlide.find(':input[required]:visible').each(function() {
+                if (this.name) {
+                    uniqueRequiredFields[this.name] = $(this);
+                }
+            });
+        
+            for (const name in uniqueRequiredFields) {
+                const $input = uniqueRequiredFields[name];
+                let isGroupValid = true;
+        
                 if ($input.is(':radio') || $input.is(':checkbox')) {
-                    const name = $input.attr('name');
-                    if ($(`input[name="${name}"]:checked`).length === 0) {
-                        isValid = false;
+                    if (currentSlide.find(`input[name="${name}"]:checked`).length === 0) {
+                        isGroupValid = false;
                     }
                 } else {
                     if (!$input.val() || $input.val().trim() === '') {
-                        isValid = false;
-                        $input.addClass('error');
+                        isGroupValid = false;
                     }
                 }
-            });
-            
-            if (!isValid) {
-                this.showError(currentSlide, 'Please complete all required fields to continue.');
+        
+                if (!isGroupValid) {
+                    allValid = false;
+                    const $container = $input.closest('.answer-options, .contact-field, .hw-field, .dob-dropdowns');
+                    this.showError($container, 'Please complete all required fields to continue.');
+                }
             }
-            
-            return isValid;
+        
+            return allValid;
         }
-
-        showError(slide, message) {
-            const errorDiv = $(`<div class="error-message">${message}</div>`);
-            slide.find('.question-content').append(errorDiv);
+        
+        showError(element, message) {
+            if (element.next('.error-message').length === 0) {
+                element.after(`<div class="error-message" style="color: #ef4444; font-size: 0.875rem; text-align: left; margin-top: 0.5rem;">${message}</div>`);
+            }
         }
 
         checkEmailExists(emailField) {
@@ -260,15 +289,40 @@ console.log('ENNU Life Frontend Forms script loaded.');
                 data: formData,
                 processData: false,
                 contentType: false,
+                dataType: 'json', // Ensure jQuery parses the response as JSON
                 success: (response) => {
-                    if (response.success && response.data.redirect_url) {
-                        window.location.href = response.data.redirect_url;
+                    // Definitive Fix: The server sends back a JSON object.
+                    // We must check the 'success' property within that object.
+                    if (response && response.success === true) {
+                        if (response.data && response.data.redirect_url) {
+                            window.location.href = response.data.redirect_url;
+                        } else {
+                            // Fallback if redirect URL is missing but was successful
+                            this.showError(this.form, 'Submission successful, but there was an issue redirecting. Please check your dashboard.');
+                        }
                     } else {
-                        alert('Thank you! Your assessment is complete.');
+                        // Handle cases where the server returns a success:false response
+                        const message = response.data && response.data.message ? response.data.message : 'An unknown error occurred.';
+                        this.showError(this.form, message);
                     }
                 },
                 error: (xhr) => {
-                    alert('An error occurred: ' + xhr.responseText);
+                    let errorMessage = 'An unexpected error occurred. Please try again.';
+                    if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+                        errorMessage = xhr.responseJSON.data.message;
+                    } else if (xhr.responseText) {
+                        // Try to parse as HTML and find a relevant error message
+                        try {
+                            const errorHtml = $(xhr.responseText);
+                            const errorText = errorHtml.find('p').first().text();
+                            if(errorText) errorMessage = errorText;
+                        } catch(e) {
+                             // Fallback if responseText is not HTML
+                             errorMessage = 'An error occurred. Check the console for details.';
+                             console.error(xhr.responseText);
+                        }
+                    }
+                     this.showError(this.form, errorMessage);
                 },
                 complete: () => {
                     this.isSubmitting = false;

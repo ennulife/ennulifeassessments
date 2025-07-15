@@ -1,11 +1,71 @@
-/* styles for assessment-details-page.php */
-.assessment-details-page { max-width: 1100px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; gap: 30px; }
-.details-main-panel { flex: 2; }
-.details-sidebar { flex: 1; }
-.details-card { background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 25px rgba(0,0,0,0.08); margin-bottom: 30px; }
-.bmi-card { background: linear-gradient(135deg, #f0faff 0%, #e6f7ff 100%); border: 1px solid #bee5eb; text-align: center; }
-.specific-observations-card { background: #fff9e6; border-left: 5px solid #ffc107; }
-.recommendations-list { list-style: none; padding-left: 0; }
-.recommendations-list li { padding-left: 30px; background: url('data:image/svg+xml;utf8,<svg ...>') no-repeat left 5px; margin-bottom: 15px; }
-.full-chart-container { min-height: 400px; }
-@media (max-width: 768px) { .assessment-details-page { flex-direction: column; } } 
+.deep-dive-grid {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-4);
+}
+
+.category-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-5);
+}
+
+.category-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+	font-size: 1rem;
+}
+
+.category-name {
+	color: var(--text-dark);
+	font-weight: 600;
+}
+
+.category-score-value {
+	color: var(--text-light);
+	font-weight: 500;
+}
+
+.category-bar-bg {
+	width: 100%;
+	background: var(--border-color);
+	height: 10px;
+	border-radius: 5px;
+	margin-bottom: 8px;
+}
+
+.bar-fill {
+	height: 100%;
+	background-color: var(--accent-secondary);
+	border-radius: inherit;
+	width: calc(var(--score, 0) / 10 * 100%);
+	transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.category-explanation p {
+	margin: var(--spacing-3) 0 0 0;
+	font-size: 0.9rem;
+	color: var(--text-light);
+	font-style: italic;
+}
+
+.dossier-grid {
+	display: grid;
+	grid-template-columns: 350px 1fr;
+	gap: var(--spacing-6);
+	align-items: start;
+	position: relative;
+	z-index: 1;
+}
+
+/* --- Sidebar --- */
+.dossier-sidebar {
+	position: sticky;
+	top: var(--spacing-6);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-6);
+} 

@@ -1,58 +1,55 @@
-# Weight Loss Assessment: Scoring Deep Dive
+# Weight Loss Assessment: Scoring & Logic Guide
 
-**Version**: 24.12.4
-**Date**: July 12, 2025
+**Document Version:** 1.0
+**Plugin Version:** 55.0.0
+
+---
+
+## 1.0 Overview
+
+This document provides a comprehensive breakdown of the scoring logic for the **Weight Loss Assessment**. Each question is detailed below with its corresponding field ID, answer options, point values, and its impact on both Category and Pillar scores.
 
 ---
 
-## 1. Scoring Philosophy & Rationale
+## 2.0 Scoring Map
 
-This document provides a complete breakdown of the scoring logic for the **Weight Loss Assessment**. The system's philosophy is to assess a user's readiness and potential for successful, sustainable weight management. A higher score indicates a stronger foundation for success.
-
-The scoring is weighted based on the key pillars of modern weight management programs, balancing behavioral, psychological, and lifestyle factors:
-
-*   **High Weight**: The most critical factors are `Nutrition` and `Physical Activity`, as these are the primary drivers of energy balance and metabolic health.
-*   **Medium Weight**: `Psychological Factors` (stress), `Lifestyle Factors` (sleep), and `Behavioral Patterns` are given significant weight, as these are often the root causes of weight gain and the biggest barriers to success.
-*   **Low Weight**: `Motivation`, `Social Support`, and `Weight Loss History` are included to provide a complete profile but are weighted less heavily than the core behavioral and lifestyle indicators.
-
-The goal is to create a score that goes beyond simple calorie counting to assess the user's entire ecosystem, providing a more accurate picture of their readiness for change.
-
-## 2. Scoring Table
-
-This table details every scorable question in the assessment, its category, weight, and the point value for each possible answer.
-
-| Question ID | Scoring Key | Category | Weight | Answer | Answer ID | Points |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| weight_loss_q2 | gender | Demographics | 0.5 | Male | `male` | 5 |
-| | | | | Female | `female` | 5 |
-| weight_loss_q3 | primary_goal | Motivation & Goals | 2 | Lose 10-20 lbs | `lose_10` | 8 |
-| | | | | Lose 20-50 lbs | `lose_30` | 7 |
-| | | | | Lose 50+ lbs | `lose_50` | 6 |
-| | | | | Maintain current weight | `maintain` | 9 |
-| weight_loss_q5 | exercise_frequency| Physical Activity | 2.5 | Never | `never` | 1 |
-| | | | | 1-2 times/week | `rarely` | 3 |
-| | | | | 3-4 times/week | `often` | 8 |
-| | | | | 5+ times/week | `daily` | 9 |
-| weight_loss_q6 | diet_quality | Nutrition | 3 | Mostly Unhealthy | `unhealthy` | 2 |
-| | | | | Generally Balanced | `balanced` | 6 |
-| | | | | Very Healthy | `healthy` | 8 |
-| | | | | Strict Diet | `strict` | 7 |
-| weight_loss_q7 | sleep_quality | Lifestyle Factors | 1.5 | Less than 5 hours | `less_5` | 3 |
-| | | | | 5-6 hours | `5_6` | 5 |
-| | | | | 7-8 hours | `7_8` | 9 |
-| | | | | More than 8 hours | `more_8` | 8 |
-| weight_loss_q8 | stress_level | Psychological Factors | 1.5 | Low | `low` | 9 |
-| | | | | Moderate | `moderate` | 7 |
-| | | | | High | `high` | 4 |
-| | | | | Very High | `very_high` | 2 |
-| weight_loss_q9 | previous_attempts | Weight Loss History | 1 | Never had lasting success | `no_success` | 3 |
-| | | | | Some success, but gained it back | `some_success` | 4 |
-| | | | | Good success, maintained for a while | `good_success` | 6 |
-| | | | | This is my first serious attempt | `first_time` | 7 |
-| weight_loss_q12 | support_system | Social Support | 1 | I'm on my own | `none` | 3 |
-| | | | | Partner/Spouse | `partner` | 7 |
-| | | | | Family and Friends | `family` | 8 |
-| | | | | Professional | `professional` | 9 |
-
----
-*Note: The Date of Birth (weight_loss_q1) and other non-scorable questions do not contribute to the final score.* 
+| Question Title | Field ID | Answer Option | Points | Category | Pillar |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **What is your gender?** | `weight_loss_q2` | Male | `5` | Demographics | Body |
+| | | Female | `5` | | |
+| **What is your primary weight loss goal?** | `weight_loss_q3` | Lose 10-20 lbs | `8` | Motivation & Goals | Mind |
+| | | Lose 20-50 lbs | `7` | | |
+| | | Lose 50+ lbs | `6` | | |
+| | | Maintain current weight | `9` | | |
+| **How often do you exercise?** | `weight_loss_q5` | Never | `1` | Physical Activity | Lifestyle |
+| | | 1-2 times/week | `3` | | |
+| | | 3-4 times/week | `8` | | |
+| | | 5+ times/week | `9` | | |
+| **How would you describe your typical diet?** | `weight_loss_q6` | Mostly Unhealthy | `2` | Nutrition | Lifestyle |
+| | | Generally Balanced | `6` | | |
+| | | Very Healthy | `8` | | |
+| | | Strict Diet | `7` | | |
+| **How many hours of sleep do you get per night?** | `weight_loss_q7` | Less than 5 hours | `3` | Lifestyle Factors | Lifestyle |
+| | | 5-6 hours | `5` | | |
+| | | 7-8 hours | `9` | | |
+| | | More than 8 hours | `8` | | |
+| **How would you rate your daily stress levels?** | `weight_loss_q8` | Low | `9` | Psychological Factors | Mind |
+| | | Moderate | `7` | | |
+| | | High | `4` | | |
+| | | Very High | `2` | | |
+| **What has been your experience with weight loss in the past?** | `weight_loss_q9` | Never had lasting success | `3` | Weight Loss History | Lifestyle |
+| | | Some success, but gained it back | `4` | | |
+| | | Good success, maintained for a while | `6` | | |
+| | | This is my first serious attempt | `7` | | |
+| **Do you have any of these eating habits?** | `weight_loss_q10` | Emotional eating | `3` | Behavioral Patterns | Lifestyle |
+| | | Late-night snacking | `4` | | |
+| | | Binge eating | `2` | | |
+| | | Sugary drinks | `3` | | |
+| **How motivated are you to make a change?** | `weight_loss_q11`| Not very motivated | `2` | Motivation & Goals | Mind |
+| | | Somewhat motivated | `4` | | |
+| | | Very motivated | `7` | | |
+| | | Committed and ready | `9` | | |
+| **What kind of support system do you have?** | `weight_loss_q12`| I'm on my own | `3` | Social Support | Mind |
+| | | Partner/Spouse | `7` | | |
+| | | Family and Friends | `8` | | |
+| | | Professional (coach, etc.) | `9` | | | 
