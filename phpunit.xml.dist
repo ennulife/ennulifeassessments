@@ -1,15 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-    bootstrap="tests/backend/bootstrap.php"
-    backupGlobals="false"
+    bootstrap="tests/bootstrap.php"
     colors="true"
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
-    >
+    processIsolation="false"
+    stopOnFailure="false"
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutOutputDuringTests="true"
+    verbose="true">
+    
     <testsuites>
-        <testsuite name="ENNU Life Assessments Backend">
-            <directory suffix=".php">tests/backend/</directory>
+        <testsuite name="ENNU Life Assessments Test Suite">
+            <directory>tests/</directory>
+        </testsuite>
+        <testsuite name="Unit Tests">
+            <directory>tests/unit/</directory>
+        </testsuite>
+        <testsuite name="Integration Tests">
+            <directory>tests/integration/</directory>
+        </testsuite>
+        <testsuite name="Scoring Tests">
+            <directory>tests/scoring/</directory>
         </testsuite>
     </testsuites>
+    
+    <coverage>
+        <include>
+            <directory suffix=".php">includes/</directory>
+            <file>ennu-life-plugin.php</file>
+        </include>
+        <exclude>
+            <directory>tests/</directory>
+            <directory>vendor/</directory>
+            <directory>assets/</directory>
+            <file>includes/config/assessment-definitions.php</file>
+        </exclude>
+        <report>
+            <html outputDirectory="coverage"/>
+            <text outputFile="coverage.txt"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
+    
+    <php>
+        <const name="WP_TESTS_PHPUNIT_POLYFILLS_PATH" value="vendor/yoast/phpunit-polyfills"/>
+        <server name="SERVER_NAME" value="http://localhost"/>
+    </php>
 </phpunit> 

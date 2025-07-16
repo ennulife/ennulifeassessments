@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://ennulife.com
  * Description: Advanced health assessment system with comprehensive user scoring
- * Version: 59.0.0
+ * Version: 60.0.0
  * Author: ENNU Life Development Team
  * License: GPLv2 or later
  * Text Domain: ennulifeassessments
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '59.0.0' );
+define( 'ENNU_LIFE_VERSION', '60.0.0' );
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -197,18 +197,25 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				}
 			}
 
-			if ( $has_assessment_shortcode ) {
-				wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css', array(), ENNU_LIFE_VERSION );
-				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
-				wp_localize_script(
-					'ennu-frontend-forms',
-					'ennu_ajax',
-					array(
-						'ajax_url' => admin_url( 'admin-ajax.php' ),
-						'nonce'    => wp_create_nonce( 'ennu_ajax_nonce' ),
-					)
-				);
-			}
+					if ( $has_assessment_shortcode ) {
+			// Use built assets for production, source files for development
+			$use_built_assets = ! defined( 'WP_DEBUG' ) || ! WP_DEBUG;
+			$css_path = $use_built_assets ? 'assets/dist/ennu-frontend-forms-css.min.css' : 'assets/css/ennu-frontend-forms.css';
+			$js_path = $use_built_assets ? 'assets/dist/ennu-frontend-forms.min.js' : 'assets/js/ennu-frontend-forms.js';
+			
+			wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . $css_path, array(), ENNU_LIFE_VERSION );
+			wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . $js_path, array( 'jquery' ), ENNU_LIFE_VERSION, true );
+			wp_localize_script(
+				'ennu-frontend-forms',
+				'ennu_ajax',
+				array(
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'nonce'    => wp_create_nonce( 'ennu_ajax_nonce' ),
+					'debug'    => defined( 'WP_DEBUG' ) && WP_DEBUG,
+					'version'  => ENNU_LIFE_VERSION,
+				)
+			);
+		}
 
 			// --- PHASE 3 REFACTOR: Enqueue Dashboard Styles ---
 			$has_dashboard_shortcode = is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'ennu-user-dashboard' );
@@ -222,13 +229,18 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				}
 			}
 
-			// v57.0.3: UNIFIED ASSET LOADING. Load dashboard assets if ANY relevant shortcode is present.
+			// v60.0.0: UNIFIED ASSET LOADING with Build System Integration
 			if ( $has_dashboard_shortcode || $has_details_shortcode || $has_assessment_shortcode ) {
 				// Enqueue Font Awesome for icons
 				wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', array(), '5.15.4' );
 
-				wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION . '.' . time() );
-				wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
+				// Use built assets for production, source files for development
+				$use_built_assets = ! defined( 'WP_DEBUG' ) || ! WP_DEBUG;
+				$dashboard_css_path = $use_built_assets ? 'assets/dist/user-dashboard-css.min.css' : 'assets/css/user-dashboard.css';
+				$dashboard_js_path = $use_built_assets ? 'assets/dist/ennu-user-dashboard.min.js' : 'assets/js/user-dashboard.js';
+
+				wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . $dashboard_css_path, array(), ENNU_LIFE_VERSION );
+				wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . $dashboard_js_path, array( 'jquery' ), ENNU_LIFE_VERSION, true );
 			}
 			// --- END PHASE 3 REFACTOR ---
 		}

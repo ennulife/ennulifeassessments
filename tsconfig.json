@@ -1,0 +1,78 @@
+{
+  "compilerOptions": {
+    // Target modern JavaScript while maintaining compatibility
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    
+    // Enable all strict type-checking options
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    
+    // Additional checks
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    
+    // Module resolution
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    // Type declaration generation
+    "declaration": false,
+    "declarationMap": false,
+    
+    // Source map options
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    
+    // Skip type checking of declaration files
+    "skipLibCheck": true,
+    
+    // Path mapping for clean imports
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["assets/js/*"],
+      "@css/*": ["assets/css/*"],
+      "@images/*": ["assets/images/*"],
+      "@types/*": ["types/*"]
+    },
+    
+    // WordPress and jQuery types
+    "types": ["jquery"]
+  },
+  
+  // Include patterns
+  "include": [
+    "assets/js/**/*",
+    "assets/css/**/*",
+    "types/**/*",
+    "tests/**/*",
+    "*.config.js",
+    "*.config.ts"
+  ],
+  
+  // Exclude patterns
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "cypress",
+    "vendor",
+    "assets/dist",
+    "**/*.min.js",
+    "**/*.min.css"
+  ],
+  
+  // TypeScript project references
+  "references": []
+}
