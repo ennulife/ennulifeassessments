@@ -226,6 +226,26 @@ final class ENNU_Assessment_Shortcodes {
 		add_shortcode( 'ennu-user-dashboard', array( $this, 'render_user_dashboard' ) );
 		add_shortcode( 'ennu-assessment-results', array( $this, 'render_thank_you_page' ) ); // Generic fallback
 		error_log('ENNU Shortcodes: Registered core shortcodes: ennu-user-dashboard, ennu-assessment-results');
+
+		// Register consultation shortcodes
+		$consultation_types = array(
+			'hair_restoration',
+			'ed_treatment', 
+			'weight_loss',
+			'health_optimization',
+			'skin_care',
+			'general_consultation',
+			'schedule_call',
+			'ennu_life_score',
+			'health_optimization_results',
+			'confidential_consultation'
+		);
+
+		foreach ( $consultation_types as $type ) {
+			$shortcode_name = 'ennu-' . str_replace( '_', '-', $type ) . '-consultation';
+			add_shortcode( $shortcode_name, array( $this, 'render_consultation_shortcode' ) );
+			error_log('ENNU Shortcodes: Registered consultation shortcode: ' . $shortcode_name);
+		}
 	}
 
 	/**
@@ -2651,6 +2671,385 @@ final class ENNU_Assessment_Shortcodes {
 			$url = add_query_arg( $query_args, $url );
 		}
 		return $url;
+	}
+
+	/**
+	 * Render consultation shortcode
+	 * 
+	 * @param array $atts Shortcode attributes
+	 * @param string $content Shortcode content
+	 * @param string $tag Shortcode tag
+	 * @return string
+	 */
+	public function render_consultation_shortcode( $atts, $content = '', $tag = '' ) {
+		// Extract consultation type from shortcode tag
+		$consultation_type = str_replace( array( 'ennu-', '-consultation' ), '', $tag );
+		$consultation_type = str_replace( '-', '_', $consultation_type );
+
+		// Get HubSpot settings
+		$hubspot_settings = get_option( 'ennu_hubspot_settings', array() );
+		$consultation_config = $this->get_consultation_config( $consultation_type );
+		
+		if ( ! $consultation_config ) {
+			return $this->render_error_message( __( 'Invalid consultation type.', 'ennulifeassessments' ) );
+		}
+
+		// Get user data for pre-population
+		$user_data = $this->get_user_data_for_consultation();
+		
+		// Get embed configuration
+		$embed_config = $hubspot_settings['embeds'][ $consultation_type ] ?? array();
+		$embed_code = $embed_config['embed_code'] ?? '';
+		$meeting_type = $embed_config['meeting_type'] ?? '';
+		$pre_populate_fields = $embed_config['pre_populate_fields'] ?? array( 'firstname', 'lastname', 'email' );
+
+		// Start output buffering
+		ob_start();
+		?>
+		<div class="ennu-consultation-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+			<div class="ennu-consultation-header" style="text-align: center; margin-bottom: 40px;">
+				<div class="consultation-icon" style="font-size: 48px; margin-bottom: 20px;">
+					<?php echo esc_html( $consultation_config['icon'] ); ?>
+				</div>
+				<h1 style="font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 15px; background: <?php echo esc_attr( $consultation_config['gradient'] ?? $consultation_config['color'] ); ?>; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+					<?php echo esc_html( $consultation_config['title'] ); ?>
+				</h1>
+				<p style="font-size: 18px; color: #4a5568; line-height: 1.6; margin-bottom: 20px;">
+					<?php echo esc_html( $consultation_config['description'] ); ?>
+				</p>
+			</div>
+
+			<div class="ennu-consultation-benefits" style="background: <?php echo esc_attr( $consultation_config['info_bg'] ?? '#f8f9ff' ); ?>; padding: 30px; border-radius: 12px; margin-bottom: 40px; border-left: 4px solid <?php echo esc_attr( $consultation_config['color'] ); ?>;">
+				<h3 style="font-size: 20px; font-weight: 600; color: #1a202c; margin-bottom: 20px;">
+					What to Expect:
+				</h3>
+				<ul style="list-style: none; padding: 0; margin: 0;">
+					<?php foreach ( $consultation_config['benefits'] as $benefit ) : ?>
+						<li style="display: flex; align-items: center; margin-bottom: 12px; font-size: 16px; color: #4a5568;">
+							<span style="color: <?php echo esc_attr( $consultation_config['color'] ); ?>; margin-right: 10px; font-weight: bold;">✓</span>
+							<?php echo esc_html( $benefit ); ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+
+			<?php if ( ! empty( $embed_code ) ) : ?>
+				<div class="ennu-consultation-booking" style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<h3 style="font-size: 24px; font-weight: 600; color: #1a202c; margin-bottom: 20px; text-align: center;">
+						Book Your Consultation
+					</h3>
+					
+					<div class="hubspot-calendar-embed" 
+						data-consultation-type="<?php echo esc_attr( $consultation_type ); ?>"
+						data-meeting-type="<?php echo esc_attr( $meeting_type ); ?>"
+						data-user-data="<?php echo esc_attr( json_encode( $user_data ) ); ?>"
+						data-pre-populate="<?php echo esc_attr( json_encode( $pre_populate_fields ) ); ?>">
+						
+						<?php echo wp_kses_post( $embed_code ); ?>
+					</div>
+				</div>
+			<?php else : ?>
+				<div class="ennu-consultation-placeholder" style="background: #f8f9fa; padding: 40px; border-radius: 12px; text-align: center; border: 2px dashed #dee2e6;">
+					<div style="font-size: 48px; margin-bottom: 20px;">📅</div>
+					<h3 style="font-size: 20px; font-weight: 600; color: #6c757d; margin-bottom: 15px;">
+						Booking Calendar Not Configured
+					</h3>
+					<p style="color: #6c757d; margin-bottom: 20px;">
+						Please configure the HubSpot calendar embed for this consultation type in the admin settings.
+					</p>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=ennu-life-hubspot-booking' ) ); ?>" class="button button-primary" style="text-decoration: none;">
+						Configure Booking Settings
+					</a>
+				</div>
+			<?php endif; ?>
+
+			<div class="ennu-consultation-contact" style="margin-top: 40px; text-align: center; padding: 30px; background: <?php echo esc_attr( $consultation_config['info_bg'] ?? '#f8f9ff' ); ?>; border-radius: 12px;">
+				<h3 style="font-size: 20px; font-weight: 600; color: #1a202c; margin-bottom: 15px;">
+					<?php echo esc_html( $consultation_config['contact_label'] ); ?>
+				</h3>
+				<div class="contact-info" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+					<div class="contact-phone">
+						<strong>Phone:</strong> 
+						<a href="tel:<?php echo esc_attr( $consultation_config['phone'] ); ?>" style="color: <?php echo esc_attr( $consultation_config['color'] ); ?>; text-decoration: none; font-weight: 600;">
+							<?php echo esc_html( $consultation_config['phone_display'] ); ?>
+						</a>
+					</div>
+					<div class="contact-email">
+						<strong>Email:</strong> 
+						<a href="mailto:<?php echo esc_attr( $consultation_config['email'] ); ?>" style="color: <?php echo esc_attr( $consultation_config['color'] ); ?>; text-decoration: none; font-weight: 600;">
+							<?php echo esc_html( $consultation_config['email'] ); ?>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<?php if ( ! empty( $consultation_config['extra_section'] ) ) : ?>
+				<div class="ennu-consultation-extra" style="margin-top: 30px;">
+					<?php echo wp_kses_post( $consultation_config['extra_section'] ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<style>
+		.ennu-consultation-container {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		}
+		.ennu-consultation-container h1, 
+		.ennu-consultation-container h2, 
+		.ennu-consultation-container h3 {
+			font-family: inherit;
+		}
+		.hubspot-calendar-embed {
+			min-height: 400px;
+		}
+		@media (max-width: 768px) {
+			.ennu-consultation-container {
+				padding: 15px;
+			}
+			.ennu-consultation-header h1 {
+				font-size: 24px;
+			}
+			.contact-info {
+				flex-direction: column;
+				gap: 15px;
+			}
+		}
+		</style>
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Get consultation configuration
+	 */
+	private function get_consultation_config( $consultation_type ) {
+		$configs = array(
+			'hair_restoration' => array(
+				'title' => 'Hair Restoration Consultation',
+				'description' => 'Schedule a personalized consultation with our hair restoration specialists to discuss your hair growth journey.',
+				'benefits' => array(
+					'Personalized hair restoration strategy',
+					'Advanced treatment options (PRP, transplants, medications)',
+					'Hair growth timeline and realistic expectations',
+					'Customized pricing for your treatment plan'
+				),
+				'contact_label' => 'Questions about hair restoration?',
+				'phone' => '+1-800-ENNU-HAIR',
+				'phone_display' => '(800) ENNU-HAIR',
+				'email' => 'hair@ennulife.com',
+				'icon' => '🦱',
+				'color' => '#667eea',
+				'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+				'info_bg' => 'linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%)'
+			),
+			'ed_treatment' => array(
+				'title' => 'ED Treatment Consultation',
+				'description' => 'Book a confidential consultation with our medical specialists to discuss personalized ED treatment options.',
+				'benefits' => array(
+					'Confidential medical consultation',
+					'FDA-approved treatment options',
+					'Discreet and professional care',
+					'Personalized treatment recommendations'
+				),
+				'contact_label' => 'Confidential questions?',
+				'phone' => '+1-800-ENNU-MENS',
+				'phone_display' => '(800) ENNU-MENS',
+				'email' => 'confidential@ennulife.com',
+				'icon' => '🔒',
+				'color' => '#f093fb',
+				'gradient' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+				'info_bg' => 'linear-gradient(135deg, #fef7ff 0%, #fdf2ff 100%)',
+				'extra_section' => '<div class="privacy-notice" style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border-radius: 8px; border-left: 4px solid #28a745; font-size: 0.95em;"><p><strong>🔒 Your Privacy is Protected:</strong> All consultations are completely confidential and HIPAA compliant. Your information is secure and private.</p></div>'
+			),
+			'weight_loss' => array(
+				'title' => 'Weight Loss Consultation',
+				'description' => 'Schedule a consultation to discuss your personalized weight loss plan and achieve your health goals.',
+				'benefits' => array(
+					'Personalized weight loss strategy',
+					'Medical supervision and support',
+					'Nutrition and exercise guidance',
+					'Long-term success planning'
+				),
+				'contact_label' => 'Questions about weight loss?',
+				'phone' => '+1-800-ENNU-WEIGHT',
+				'phone_display' => '(800) ENNU-WEIGHT',
+				'email' => 'weight@ennulife.com',
+				'icon' => '⚖️',
+				'color' => '#4facfe',
+				'gradient' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+				'info_bg' => 'linear-gradient(135deg, #f0faff 0%, #e6f7ff 100%)'
+			),
+			'health_optimization' => array(
+				'title' => 'Health Optimization Consultation',
+				'description' => 'Book a comprehensive consultation to optimize your overall health and wellness.',
+				'benefits' => array(
+					'Comprehensive health evaluation',
+					'Preventive care recommendations',
+					'Hormone optimization options',
+					'Ongoing health monitoring plan'
+				),
+				'contact_label' => 'Questions about health optimization?',
+				'phone' => '+1-800-ENNU-HLTH',
+				'phone_display' => '(800) ENNU-HLTH',
+				'email' => 'health@ennulife.com',
+				'icon' => '🏥',
+				'color' => '#fa709a',
+				'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+				'info_bg' => 'linear-gradient(135deg, #fff8fb 0%, #fef5f8 100%)'
+			),
+			'skin_care' => array(
+				'title' => 'Skin Care Consultation',
+				'description' => 'Schedule a consultation with our skincare specialists to achieve your skin goals.',
+				'benefits' => array(
+					'Personalized skincare regimen',
+					'Advanced treatments (Botox, fillers, laser)',
+					'Professional product recommendations',
+					'Skin rejuvenation timeline'
+				),
+				'contact_label' => 'Questions about skincare?',
+				'phone' => '+1-800-ENNU-SKIN',
+				'phone_display' => '(800) ENNU-SKIN',
+				'email' => 'skin@ennulife.com',
+				'icon' => '✨',
+				'color' => '#a8edea',
+				'gradient' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+				'info_bg' => 'linear-gradient(135deg, #f0fffe 0%, #edfffe 100%)'
+			),
+			'general_consultation' => array(
+				'title' => 'General Health Consultation',
+				'description' => 'Schedule a general health consultation to discuss any health concerns or questions.',
+				'benefits' => array(
+					'Comprehensive health review',
+					'Personalized recommendations',
+					'Preventive care guidance',
+					'Referral to specialists if needed'
+				),
+				'contact_label' => 'General health questions?',
+				'phone' => '+1-800-ENNU-LIFE',
+				'phone_display' => '(800) ENNU-LIFE',
+				'email' => 'info@ennulife.com',
+				'icon' => '👨‍⚕️',
+				'color' => '#667eea',
+				'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+				'info_bg' => 'linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%)'
+			),
+			'schedule_call' => array(
+				'title' => 'Schedule a Call',
+				'description' => 'Book a call to discuss any health concerns or questions with our team.',
+				'benefits' => array(
+					'Flexible scheduling options',
+					'No-obligation consultation',
+					'Expert health guidance',
+					'Personalized recommendations'
+				),
+				'contact_label' => 'Need immediate assistance?',
+				'phone' => '+1-800-ENNU-LIFE',
+				'phone_display' => '(800) ENNU-LIFE',
+				'email' => 'info@ennulife.com',
+				'icon' => '📞',
+				'color' => '#4facfe',
+				'gradient' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+				'info_bg' => 'linear-gradient(135deg, #f0faff 0%, #e6f7ff 100%)'
+			),
+			'ennu_life_score' => array(
+				'title' => 'Get Your ENNU Life Score',
+				'description' => 'Schedule a consultation to get your personalized ENNU Life Score and health insights.',
+				'benefits' => array(
+					'Comprehensive health assessment',
+					'Personalized ENNU Life Score',
+					'Detailed health insights',
+					'Actionable recommendations'
+				),
+				'contact_label' => 'Questions about your ENNU Life Score?',
+				'phone' => '+1-800-ENNU-LIFE',
+				'phone_display' => '(800) ENNU-LIFE',
+				'email' => 'score@ennulife.com',
+				'icon' => '📊',
+				'color' => '#fa709a',
+				'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+				'info_bg' => 'linear-gradient(135deg, #fff8fb 0%, #fef5f8 100%)'
+			),
+			'health_optimization_results' => array(
+				'title' => 'Health Optimization Results Consultation',
+				'description' => 'Discuss your health optimization assessment results with our specialists.',
+				'benefits' => array(
+					'Detailed results review',
+					'Personalized optimization plan',
+					'Treatment recommendations',
+					'Follow-up monitoring'
+				),
+				'contact_label' => 'Questions about your results?',
+				'phone' => '+1-800-ENNU-HLTH',
+				'phone_display' => '(800) ENNU-HLTH',
+				'email' => 'results@ennulife.com',
+				'icon' => '🏥',
+				'color' => '#fa709a',
+				'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+				'info_bg' => 'linear-gradient(135deg, #fff8fb 0%, #fef5f8 100%)'
+			),
+			'confidential_consultation' => array(
+				'title' => 'Confidential Consultation',
+				'description' => 'Book a confidential consultation for sensitive health matters in a secure environment.',
+				'benefits' => array(
+					'Complete confidentiality',
+					'HIPAA compliant care',
+					'Discreet treatment options',
+					'Professional medical guidance'
+				),
+				'contact_label' => 'Confidential questions?',
+				'phone' => '+1-800-ENNU-CONF',
+				'phone_display' => '(800) ENNU-CONF',
+				'email' => 'confidential@ennulife.com',
+				'icon' => '🔒',
+				'color' => '#f093fb',
+				'gradient' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+				'info_bg' => 'linear-gradient(135deg, #fef7ff 0%, #fdf2ff 100%)',
+				'extra_section' => '<div class="privacy-notice" style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border-radius: 8px; border-left: 4px solid #28a745; font-size: 0.95em;"><p><strong>🔒 Your Privacy is Protected:</strong> All consultations are completely confidential and HIPAA compliant. Your information is secure and private.</p></div>'
+			)
+		);
+
+		return $configs[ $consultation_type ] ?? null;
+	}
+
+	/**
+	 * Get user data for consultation pre-population
+	 */
+	private function get_user_data_for_consultation() {
+		$user_data = array(
+			'firstname' => '',
+			'lastname' => '',
+			'email' => '',
+			'phone' => '',
+			'assessment_results' => ''
+		);
+
+		if ( is_user_logged_in() ) {
+			$user = wp_get_current_user();
+			$user_id = $user->ID;
+
+			$user_data['firstname'] = $user->first_name;
+			$user_data['lastname'] = $user->last_name;
+			$user_data['email'] = $user->user_email;
+			$user_data['phone'] = get_user_meta( $user_id, 'billing_phone', true );
+
+			// Get assessment results for pre-population
+			$assessment_results = array();
+			$assessment_types = array( 'hair_assessment', 'ed_treatment_assessment', 'weight_loss_assessment', 'health_assessment', 'skin_assessment' );
+			
+			foreach ( $assessment_types as $type ) {
+				$score = get_user_meta( $user_id, 'ennu_' . $type . '_calculated_score', true );
+				if ( $score ) {
+					$assessment_results[] = ucwords( str_replace( '_', ' ', $type ) ) . ': ' . $score . '/10';
+				}
+			}
+
+			if ( ! empty( $assessment_results ) ) {
+				$user_data['assessment_results'] = implode( ', ', $assessment_results );
+			}
+		}
+
+		return $user_data;
 	}
 }
 // Initialize the class

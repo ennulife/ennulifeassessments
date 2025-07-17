@@ -66,6 +66,15 @@ class ENNU_Enhanced_Admin {
 			'ennu-life-settings',
 			array( $this, 'settings_page' )
 		);
+
+		add_submenu_page(
+			'ennu-life',
+			__( 'HubSpot Booking', 'ennulifeassessments' ),
+			__( 'HubSpot Booking', 'ennulifeassessments' ),
+			'manage_options',
+			'ennu-life-hubspot-booking',
+			array( $this, 'hubspot_booking_page' )
+		);
 	}
 
 	public function render_admin_dashboard_page() {
@@ -197,6 +206,214 @@ class ENNU_Enhanced_Admin {
 			submit_button( __( 'Delete Mapped Assessment Pages', 'ennulifeassessments' ), 'delete', 'ennu_delete_pages_submit' );
 			echo '</form>';
 		}
+	}
+
+	/**
+	 * Render HubSpot Booking Settings Page
+	 */
+	public function hubspot_booking_page() {
+		echo '<div class="wrap"><h1>' . __( 'HubSpot Booking Settings', 'ennulifeassessments' ) . '</h1>';
+
+		$message = '';
+		if ( isset( $_POST['submit'] ) && isset( $_POST['ennu_hubspot_nonce'] ) && wp_verify_nonce( $_POST['ennu_hubspot_nonce'], 'ennu_hubspot_update' ) ) {
+			$this->save_hubspot_settings();
+			$message = __( 'HubSpot booking settings saved successfully!', 'ennulifeassessments' );
+		}
+
+		if ( $message ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . $message . '</p></div>';
+		}
+
+		$settings = $this->get_hubspot_settings();
+		$consultation_types = $this->get_consultation_types();
+
+		echo '<form method="post" action="">';
+		wp_nonce_field( 'ennu_hubspot_update', 'ennu_hubspot_nonce' );
+
+		echo '<h2>' . esc_html__( 'HubSpot Configuration', 'ennulifeassessments' ) . '</h2>';
+		echo '<table class="form-table" role="presentation">';
+		
+		echo '<tr><th scope="row"><label for="hubspot_portal_id">' . esc_html__( 'HubSpot Portal ID', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><input type="text" id="hubspot_portal_id" name="hubspot_portal_id" value="' . esc_attr( $settings['portal_id'] ?? '' ) . '" class="regular-text" placeholder="12345678">';
+		echo '<p class="description">' . esc_html__( 'Your HubSpot portal ID (found in your HubSpot account settings)', 'ennulifeassessments' ) . '</p></td></tr>';
+
+		echo '<tr><th scope="row"><label for="hubspot_api_key">' . esc_html__( 'HubSpot API Key (Optional)', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><input type="password" id="hubspot_api_key" name="hubspot_api_key" value="' . esc_attr( $settings['api_key'] ?? '' ) . '" class="regular-text">';
+		echo '<p class="description">' . esc_html__( 'Required for advanced integrations with WP Fusion', 'ennulifeassessments' ) . '</p></td></tr>';
+
+		echo '</table>';
+
+		echo '<h2>' . esc_html__( 'Consultation Booking Embeds', 'ennulifeassessments' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Paste your HubSpot calendar embed codes for each consultation type. These will be used in the consultation shortcodes.', 'ennulifeassessments' ) . '</p>';
+
+		foreach ( $consultation_types as $type => $config ) {
+			echo '<h3>' . esc_html( $config['title'] ) . '</h3>';
+			echo '<table class="form-table" role="presentation">';
+			
+			echo '<tr><th scope="row"><label for="embed_' . esc_attr( $type ) . '">' . esc_html__( 'Calendar Embed Code', 'ennulifeassessments' ) . '</label></th>';
+			echo '<td><textarea id="embed_' . esc_attr( $type ) . '" name="embeds[' . esc_attr( $type ) . '][embed_code]" rows="6" cols="80" class="large-text code">' . esc_textarea( $settings['embeds'][ $type ]['embed_code'] ?? '' ) . '</textarea>';
+			echo '<p class="description">' . esc_html__( 'Paste the complete HubSpot calendar embed code here', 'ennulifeassessments' ) . '</p></td></tr>';
+
+			echo '<tr><th scope="row"><label for="meeting_type_' . esc_attr( $type ) . '">' . esc_html__( 'Meeting Type ID', 'ennulifeassessments' ) . '</label></th>';
+			echo '<td><input type="text" id="meeting_type_' . esc_attr( $type ) . '" name="embeds[' . esc_attr( $type ) . '][meeting_type]" value="' . esc_attr( $settings['embeds'][ $type ]['meeting_type'] ?? '' ) . '" class="regular-text" placeholder="consultation-30min">';
+			echo '<p class="description">' . esc_html__( 'The HubSpot meeting type identifier', 'ennulifeassessments' ) . '</p></td></tr>';
+
+			echo '<tr><th scope="row"><label for="pre_populate_' . esc_attr( $type ) . '">' . esc_html__( 'Pre-populate Fields', 'ennulifeassessments' ) . '</label></th>';
+			echo '<td>';
+			$pre_populate_fields = $settings['embeds'][ $type ]['pre_populate_fields'] ?? array( 'firstname', 'lastname', 'email' );
+			$available_fields = array(
+				'firstname' => 'First Name',
+				'lastname' => 'Last Name', 
+				'email' => 'Email',
+				'phone' => 'Phone',
+				'assessment_results' => 'Assessment Results'
+			);
+			foreach ( $available_fields as $field => $label ) {
+				echo '<label><input type="checkbox" name="embeds[' . esc_attr( $type ) . '][pre_populate_fields][]" value="' . esc_attr( $field ) . '" ' . checked( in_array( $field, $pre_populate_fields ), true, false ) . '> ' . esc_html( $label ) . '</label><br>';
+			}
+			echo '<p class="description">' . esc_html__( 'Select which user data to pre-populate in the booking form', 'ennulifeassessments' ) . '</p></td></tr>';
+
+			echo '</table>';
+		}
+
+		echo '<h2>' . esc_html__( 'WP Fusion Integration', 'ennulifeassessments' ) . '</h2>';
+		echo '<table class="form-table" role="presentation">';
+		
+		echo '<tr><th scope="row"><label for="wpfusion_enabled">' . esc_html__( 'Enable WP Fusion Integration', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><input type="checkbox" id="wpfusion_enabled" name="wpfusion_enabled" value="1" ' . checked( $settings['wpfusion_enabled'] ?? false, true, false ) . '>';
+		echo '<p class="description">' . esc_html__( 'Enable automatic user data sync with HubSpot via WP Fusion', 'ennulifeassessments' ) . '</p></td></tr>';
+
+		echo '<tr><th scope="row"><label for="auto_create_contact">' . esc_html__( 'Auto-Create HubSpot Contacts', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><input type="checkbox" id="auto_create_contact" name="auto_create_contact" value="1" ' . checked( $settings['auto_create_contact'] ?? false, true, false ) . '>';
+		echo '<p class="description">' . esc_html__( 'Automatically create HubSpot contacts when users complete assessments', 'ennulifeassessments' ) . '</p></td></tr>';
+
+		echo '</table>';
+
+		submit_button();
+		echo '</form>';
+
+		echo '<h2>' . esc_html__( 'Preview Consultation Pages', 'ennulifeassessments' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Use these shortcodes to display consultation booking forms on your pages:', 'ennulifeassessments' ) . '</p>';
+		echo '<table class="wp-list-table widefat fixed striped">';
+		echo '<thead><tr><th>' . esc_html__( 'Consultation Type', 'ennulifeassessments' ) . '</th><th>' . esc_html__( 'Shortcode', 'ennulifeassessments' ) . '</th><th>' . esc_html__( 'Description', 'ennulifeassessments' ) . '</th></tr></thead><tbody>';
+		
+		foreach ( $consultation_types as $type => $config ) {
+			$shortcode = 'ennu-' . str_replace( '_', '-', $type ) . '-consultation';
+			echo '<tr>';
+			echo '<td><strong>' . esc_html( $config['title'] ) . '</strong></td>';
+			echo '<td><code>[' . esc_html( $shortcode ) . ']</code></td>';
+			echo '<td>' . esc_html( $config['description'] ) . '</td>';
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+
+		echo '</div>';
+	}
+
+	/**
+	 * Get consultation types configuration
+	 */
+	private function get_consultation_types() {
+		return array(
+			'hair_restoration' => array(
+				'title' => 'Hair Restoration Consultation',
+				'description' => 'Book a consultation with hair restoration specialists',
+				'icon' => '🦱',
+				'color' => '#667eea'
+			),
+			'ed_treatment' => array(
+				'title' => 'ED Treatment Consultation', 
+				'description' => 'Book a confidential consultation for ED treatment options',
+				'icon' => '🔒',
+				'color' => '#f093fb'
+			),
+			'weight_loss' => array(
+				'title' => 'Weight Loss Consultation',
+				'description' => 'Book a consultation for personalized weight loss plans',
+				'icon' => '⚖️',
+				'color' => '#4facfe'
+			),
+			'health_optimization' => array(
+				'title' => 'Health Optimization Consultation',
+				'description' => 'Book a consultation for comprehensive health optimization',
+				'icon' => '🏥',
+				'color' => '#fa709a'
+			),
+			'skin_care' => array(
+				'title' => 'Skin Care Consultation',
+				'description' => 'Book a consultation with skincare specialists',
+				'icon' => '✨',
+				'color' => '#a8edea'
+			),
+			'general_consultation' => array(
+				'title' => 'General Health Consultation',
+				'description' => 'Book a general health consultation',
+				'icon' => '👨‍⚕️',
+				'color' => '#667eea'
+			),
+			'schedule_call' => array(
+				'title' => 'Schedule a Call',
+				'description' => 'General call scheduling for any health concerns',
+				'icon' => '📞',
+				'color' => '#4facfe'
+			),
+			'ennu_life_score' => array(
+				'title' => 'Get Your ENNU Life Score',
+				'description' => 'Book a consultation to get your personalized ENNU Life Score',
+				'icon' => '📊',
+				'color' => '#fa709a'
+			),
+			'health_optimization_results' => array(
+				'title' => 'Health Optimization Results Consultation',
+				'description' => 'Discuss your health optimization assessment results',
+				'icon' => '🏥',
+				'color' => '#fa709a'
+			),
+			'confidential_consultation' => array(
+				'title' => 'Confidential Consultation',
+				'description' => 'Book a confidential consultation for sensitive health matters',
+				'icon' => '🔒',
+				'color' => '#f093fb'
+			)
+		);
+	}
+
+	/**
+	 * Get HubSpot settings
+	 */
+	private function get_hubspot_settings() {
+		return get_option( 'ennu_hubspot_settings', array(
+			'portal_id' => '',
+			'api_key' => '',
+			'embeds' => array(),
+			'wpfusion_enabled' => false,
+			'auto_create_contact' => false
+		) );
+	}
+
+	/**
+	 * Save HubSpot settings
+	 */
+	private function save_hubspot_settings() {
+		$settings = array(
+			'portal_id' => sanitize_text_field( $_POST['hubspot_portal_id'] ?? '' ),
+			'api_key' => sanitize_text_field( $_POST['hubspot_api_key'] ?? '' ),
+			'embeds' => array(),
+			'wpfusion_enabled' => isset( $_POST['wpfusion_enabled'] ),
+			'auto_create_contact' => isset( $_POST['auto_create_contact'] )
+		);
+
+		if ( isset( $_POST['embeds'] ) && is_array( $_POST['embeds'] ) ) {
+			foreach ( $_POST['embeds'] as $type => $embed_data ) {
+				$settings['embeds'][ $type ] = array(
+					'embed_code' => wp_kses_post( $embed_data['embed_code'] ?? '' ),
+					'meeting_type' => sanitize_text_field( $embed_data['meeting_type'] ?? '' ),
+					'pre_populate_fields' => isset( $embed_data['pre_populate_fields'] ) ? array_map( 'sanitize_text_field', $embed_data['pre_populate_fields'] ) : array()
+				);
+			}
+		}
+
+		update_option( 'ennu_hubspot_settings', $settings );
 	}
 
 	private function render_page_dropdown( $slug, $label, $current_mappings, $page_options ) {

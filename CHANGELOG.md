@@ -1,6 +1,53 @@
 # ENNU Life Assessment Plugin - Changelog
 
-## [61.7.0] - 2025-01-XX
+## Version 61.8.0 - HubSpot Booking Integration
+*Date: 2024-12-19*
+
+### ✨ New Features
+- **HubSpot Booking Admin Page**: Added comprehensive admin interface for managing HubSpot calendar embeds and booking settings
+- **Consultation Shortcodes**: Created 10 new consultation shortcodes for all consultation types:
+  - `[ennu-hair-restoration-consultation]` - Hair restoration booking
+  - `[ennu-ed-treatment-consultation]` - ED treatment booking  
+  - `[ennu-weight-loss-consultation]` - Weight loss booking
+  - `[ennu-health-optimization-consultation]` - Health optimization booking
+  - `[ennu-skin-care-consultation]` - Skin care booking
+  - `[ennu-general-consultation-consultation]` - General health booking
+  - `[ennu-schedule-call-consultation]` - General call scheduling
+  - `[ennu-ennu-life-score-consultation]` - ENNU Life Score consultation
+  - `[ennu-health-optimization-results-consultation]` - Results discussion
+  - `[ennu-confidential-consultation-consultation]` - Confidential consultation
+- **User Data Pre-population**: Automatic pre-population of user data in HubSpot booking forms
+- **WP Fusion Integration Settings**: Admin controls for WP Fusion integration and contact creation
+- **Professional Consultation Pages**: Beautiful, branded consultation pages with benefits, contact info, and privacy notices
+
+### 🔧 Technical Improvements
+- **Embed Code Management**: Secure storage and management of HubSpot calendar embed codes
+- **Meeting Type Configuration**: Admin interface for configuring HubSpot meeting types
+- **Field Mapping**: Configurable pre-population of user data fields in booking forms
+- **Responsive Design**: Mobile-optimized consultation pages with professional styling
+- **Error Handling**: Graceful fallbacks when embed codes are not configured
+
+### 📋 Admin Features
+- **HubSpot Configuration**: Portal ID and API key management
+- **Embed Code Editor**: Textarea fields for pasting HubSpot calendar embed codes
+- **Pre-population Settings**: Checkbox controls for which user data to pre-populate
+- **WP Fusion Toggle**: Enable/disable WP Fusion integration features
+- **Shortcode Reference**: Admin table showing all available consultation shortcodes
+
+### 🎨 User Experience
+- **Professional Design**: Beautiful consultation pages with gradients, icons, and modern styling
+- **Benefits Display**: Clear presentation of consultation benefits and expectations
+- **Contact Information**: Prominent display of phone and email contact details
+- **Privacy Notices**: Special privacy sections for confidential consultations
+- **Mobile Responsive**: Optimized display on all device sizes
+
+### 🔒 Security & Privacy
+- **Data Sanitization**: Proper sanitization of all admin inputs
+- **Nonce Protection**: Security nonces for all admin form submissions
+- **User Data Protection**: Secure handling of user data for pre-population
+- **HIPAA Compliance**: Privacy notices for sensitive health consultations
+
+## Version 61.7.0 - Assessment Page Restructuring
 
 ### 🎯 MAJOR IMPROVEMENT: Nested Page Structure Implementation
 - **HIERARCHICAL ORGANIZATION**: Restructured all assessment pages to use proper parent-child relationships
