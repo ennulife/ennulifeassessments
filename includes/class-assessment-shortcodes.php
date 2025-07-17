@@ -1654,6 +1654,9 @@ final class ENNU_Assessment_Shortcodes {
 
 			$data = compact( 'content_data', 'bmi', 'result_content', 'score', 'matched_recs', 'assessment_type', 'category_scores' );
 
+			// Add the shortcode instance to the data so templates can use get_page_id_url
+			$data['shortcode_instance'] = $this;
+
 		ob_start();
 			ennu_load_template( 'assessment-results.php', $data );
 			return ob_get_clean();
@@ -1966,6 +1969,9 @@ final class ENNU_Assessment_Shortcodes {
 			if ( empty( $data ) ) {
 				return $this->render_error_message( __( 'Could not retrieve assessment data.', 'ennulifeassessments' ) );
 			}
+
+			// Add the shortcode instance to the data so templates can use get_page_id_url
+			$data['shortcode_instance'] = $this;
 
 			ob_start();
 			ennu_load_template( 'assessment-details-page.php', $data );
@@ -2388,6 +2394,9 @@ final class ENNU_Assessment_Shortcodes {
 			'user_assessments', 'score_history', 'height', 'weight', 'bmi', 'insights', 'health_optimization_report'
 		);
 
+		// Add the shortcode instance to the data so templates can use get_page_id_url
+		$data['shortcode_instance'] = $this;
+
 		ob_start();
 		ennu_load_template( 'user-dashboard.php', $data );
 		return ob_get_clean();
@@ -2424,6 +2433,9 @@ final class ENNU_Assessment_Shortcodes {
 		$this->_delete_manual_transient( 'ennu_results_' . $results_token );
 
 		$report_data = ENNU_Assessment_Scoring::get_health_optimization_report_data( $results_transient );
+		
+		// Add the shortcode instance to the data so templates can use get_page_id_url
+		$report_data['shortcode_instance'] = $this;
 		
 		ob_start();
 		ennu_load_template( 'health-optimization-results.php', $report_data );

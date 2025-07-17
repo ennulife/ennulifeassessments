@@ -28,8 +28,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<div class="assessment-actions-footer" style="padding-top: 15px; border-top: 1px solid var(--border-color); margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-				<a href="<?php echo esc_url( home_url( '/?page_id=189' ) ); ?>" class="action-button button-report" style="flex: 1; text-align: center; background-color: var(--accent-primary); color: #fff; padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Schedule a Call</a>
-				<a href="<?php echo esc_url( home_url( '/?page_id=190' ) ); ?>" class="action-button button-retake" style="flex: 1; text-align: center; background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Get Your ENNU Life Score</a>
+				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="action-button button-report" style="flex: 1; text-align: center; background-color: var(--accent-primary); color: #fff; padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Schedule a Call</a>
+				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'ennu-life-score' ) ); ?>" class="action-button button-retake" style="flex: 1; text-align: center; background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Get Your ENNU Life Score</a>
 			</div>
 
 			<div class="main-score-orb" data-score="<?php echo esc_attr( $ennu_life_score ?? 0 ); ?>">

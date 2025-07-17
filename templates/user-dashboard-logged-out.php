@@ -19,17 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			Please log in to view your personalized health assessments, track your progress, and access your ENNU LIFE SCORE.
 		</p>
 		
-		<div class="auth-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-			<a href="<?php echo esc_url( $login_url ); ?>" 
-			   class="action-button button-report" 
-			   style="background-color: var(--accent-primary); color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 1rem;">
-				Log In
-			</a>
-			<a href="<?php echo esc_url( $registration_url ); ?>" 
-			   class="action-button button-retake" 
-			   style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 15px 30px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 1rem;">
-				Create Account
-			</a>
+		<div class="dashboard-actions">
+			<a href="<?php echo esc_url( $login_url ); ?>" class="action-button button-primary">Log In</a>
+			<a href="<?php echo esc_url( $registration_url ); ?>" class="action-button button-secondary">Create Account</a>
 		</div>
 		
 		<div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border-color);">

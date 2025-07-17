@@ -1,6 +1,46 @@
 # ENNU Life Assessment Plugin - Changelog
 
-## [61.5.1] - 2024-12-19
+## [61.6.0] - 2025-01-XX
+
+### 🎯 MAJOR IMPROVEMENT: Dynamic URL System Implementation
+- **COMPLETE OVERHAUL**: Replaced all hardcoded page IDs with dynamic URL generation
+- **ADMIN INTEGRATION**: Added comprehensive page mapping system in ENNU Life admin settings
+- **CONSULTATION PAGES**: Added 12 new consultation and call page mappings to admin settings
+- **AUTOMATED CREATION**: Enhanced page creation system to include consultation pages
+- **TEMPLATE UPDATES**: Updated all frontend templates to use dynamic URL generation:
+  - `user-dashboard.php` - Now uses `$shortcode_instance->get_page_id_url()`
+  - `assessment-results.php` - Dynamic consultation and call links
+  - `assessment-details-page.php` - Dynamic action buttons
+  - `health-optimization-results.php` - Dynamic consultation links
+- **SHORTCODE ENHANCEMENT**: Modified template loading to pass shortcode instance for URL generation
+- **FALLBACK SYSTEM**: Maintains backward compatibility with existing page mappings
+- **SEO OPTIMIZATION**: All consultation pages include SEO-optimized titles and descriptions
+
+### 🔧 Technical Improvements
+- **URL GENERATION**: Centralized URL generation through `get_page_id_url()` method
+- **PAGE MAPPINGS**: Added consultation page mappings to `ennu_created_pages` option
+- **TEMPLATE ARCHITECTURE**: Enhanced template loading to support dynamic URL generation
+- **ADMIN INTERFACE**: Expanded admin settings to include consultation page management
+
+### 📋 New Admin Settings
+- **Consultation & Call Pages** section in ENNU Life admin
+- **Page Mapping Dropdowns** for all consultation and call pages
+- **Automated Page Creation** for consultation pages
+- **SEO-Optimized Titles** for all consultation pages
+
+### 🎨 Frontend Enhancements
+- **Dynamic Links**: All frontend links now use admin-configured pages
+- **Consistent URL Structure**: Unified URL generation across all templates
+- **Improved User Experience**: Seamless navigation between assessment and consultation pages
+
+### 🔒 Security & Performance
+- **URL Validation**: All generated URLs are properly escaped and validated
+- **Performance Optimization**: Efficient page ID lookups with fallback mechanisms
+- **Error Handling**: Graceful fallbacks when pages are not configured
+
+---
+
+## [61.5.1] - 2025-01-XX
 
 ### Fixed
 - **CRITICAL: Fixed User Dashboard Array Structure Error**: Resolved "Undefined array key 'key'" error on user dashboard after completing health optimization assessment

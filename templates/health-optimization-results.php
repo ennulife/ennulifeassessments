@@ -49,15 +49,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<p style="font-size: 1rem; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto 25px;">
 					Symptoms are subjective. To get the objective truth about what's happening inside your body, you need to test, not guess. Our comprehensive biomarker lab tests provide the definitive data you need to optimize your health.
 				</p>
-				<div class="cta-actions">
-					<a href="<?php echo esc_url( home_url( '/?page_id=810' ) ); ?>" class="action-button" style="background-color: #fff; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Purchase Biomarker Test ($599)</a>
-					<a href="<?php echo esc_url( home_url( '/?page_id=811' ) ); ?>" class="action-button" style="background-color: transparent; border: 2px solid #fff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease; margin-left: 15px;">Become a Member ($149/mo)</a>
+				<div class="action-buttons" style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'product/hair-treatment-consultation' ) ); ?>" class="action-button" style="background-color: #fff; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Purchase Consultation</a>
+					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'product/ed-treatment-consultation' ) ); ?>" class="action-button" style="background-color: transparent; border: 2px solid #fff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Learn More</a>
 				</div>
 			</div>
-
-			<div class="assessment-actions-footer" style="padding-top: 25px; display: flex; flex-direction: column; gap: 15px; align-items: center; margin-top: 20px;">
-				<p style="color: var(--text-light);">Or, you can take another assessment:</p>
-				<a href="<?php echo esc_url( home_url( '/?page_id=182' ) ); ?>" class="action-button button-retake" style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px 30px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Return to My Dashboard</a>
+			<div class="retake-section" style="text-align: center; margin-top: 30px;">
+				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'health-optimization-results' ) ); ?>" class="action-button button-retake" style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; transition: all 0.2s ease;">Retake Assessment</a>
 			</div>
 		</main>
 	</div>
