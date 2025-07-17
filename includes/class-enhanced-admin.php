@@ -140,20 +140,11 @@ class ENNU_Enhanced_Admin {
 		$this->render_page_dropdown( 'assessments', 'Assessments Landing Page (/assessments/)', $settings['page_mappings'], $page_options );
 		$this->render_page_dropdown( 'assessment-results', 'Generic Results Page', $settings['page_mappings'], $page_options );
 
-		echo '<h2>' . esc_html__( 'Consultation & Call Pages', 'ennulifeassessments' ) . '</h2>';
-		echo '<p><em>These pages handle consultation bookings and calls.</em></p>';
+		echo '<h2>' . esc_html__( 'General Consultation Pages', 'ennulifeassessments' ) . '</h2>';
+		echo '<p><em>These pages handle general consultation bookings and calls.</em></p>';
 		$this->render_page_dropdown( 'call', 'Schedule a Call Page', $settings['page_mappings'], $page_options );
 		$this->render_page_dropdown( 'ennu-life-score', 'Get Your ENNU Life Score Page', $settings['page_mappings'], $page_options );
 		$this->render_page_dropdown( 'health-optimization-results', 'Health Optimization Results Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'product/hair-treatment-consultation', 'Hair Treatment Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'product/ed-treatment-consultation', 'ED Treatment Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'book-weight-loss-consultation', 'Weight Loss Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'book-health-consultation', 'Health Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'product/skin-treatment-consultation', 'Skin Treatment Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'schedule-consultation', 'Default Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'book-hair-consultation', 'Book Hair Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'book-ed-consultation', 'Book ED Consultation Page', $settings['page_mappings'], $page_options );
-		$this->render_page_dropdown( 'book-skin-consultation', 'Book Skin Consultation Page', $settings['page_mappings'], $page_options );
 
 		echo '<h2>' . esc_html__( 'Assessment Form Pages', 'ennulifeassessments' ) . '</h2>';
 		echo '<p><em>These pages will have URLs like /assessments/hair/, /assessments/ed-treatment/, etc.</em></p>';
@@ -764,103 +755,68 @@ class ENNU_Enhanced_Admin {
 			'content' => '[ennu-health-optimization-results]',
 			'parent' => 0
 		);
-		$pages_to_create['product/hair-treatment-consultation'] = array( 
-			'title' => 'Hair Treatment Consultation | Hair Loss Solutions | ENNU Life', 
-			'content' => 'Book your hair treatment consultation with our specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['product/ed-treatment-consultation'] = array( 
-			'title' => 'ED Treatment Consultation | Erectile Dysfunction Solutions | ENNU Life', 
-			'content' => 'Book your ED treatment consultation with our specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['book-weight-loss-consultation'] = array( 
-			'title' => 'Weight Loss Consultation | Medical Weight Management | ENNU Life', 
-			'content' => 'Book your weight loss consultation with our specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['book-health-consultation'] = array( 
-			'title' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life', 
-			'content' => 'Book your health consultation with our specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['product/skin-treatment-consultation'] = array( 
-			'title' => 'Skin Treatment Consultation | Anti-Aging Skincare | ENNU Life', 
-			'content' => 'Book your skin treatment consultation with our specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['schedule-consultation'] = array( 
-			'title' => 'Schedule Consultation | Health & Wellness Experts | ENNU Life', 
-			'content' => 'Schedule your consultation with our health and wellness experts.',
-			'parent' => 0
-		);
-		$pages_to_create['book-hair-consultation'] = array( 
-			'title' => 'Book Hair Consultation | Hair Restoration Specialists | ENNU Life', 
-			'content' => 'Book your hair consultation with our hair restoration specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['book-ed-consultation'] = array( 
-			'title' => 'Book ED Consultation | Erectile Dysfunction Specialists | ENNU Life', 
-			'content' => 'Book your ED consultation with our erectile dysfunction specialists.',
-			'parent' => 0
-		);
-		$pages_to_create['book-skin-consultation'] = array( 
-			'title' => 'Book Skin Consultation | Anti-Aging Skincare Specialists | ENNU Life', 
-			'content' => 'Book your skin consultation with our anti-aging skincare specialists.',
-			'parent' => 0
-		);
 
 		// SEO-Optimized Assessment-Specific Titles
 		$seo_assessment_titles = array(
 			'hair' => array(
 				'main' => 'Hair Loss Assessment | Male Pattern Baldness Evaluation | ENNU Life',
 				'results' => 'Hair Loss Assessment Results | Personalized Hair Health Analysis | ENNU Life', 
-				'details' => 'Hair Loss Treatment Options | Detailed Hair Health Dossier | ENNU Life'
+				'details' => 'Hair Loss Treatment Options | Detailed Hair Health Dossier | ENNU Life',
+				'booking' => 'Hair Treatment Consultation | Hair Loss Solutions | ENNU Life'
 			),
 			'ed-treatment' => array(
 				'main' => 'Erectile Dysfunction Assessment | ED Treatment Evaluation | ENNU Life',
 				'results' => 'ED Assessment Results | Erectile Dysfunction Analysis | ENNU Life',
-				'details' => 'ED Treatment Options | Erectile Dysfunction Solutions Dossier | ENNU Life'
+				'details' => 'ED Treatment Options | Erectile Dysfunction Solutions Dossier | ENNU Life',
+				'booking' => 'ED Treatment Consultation | Erectile Dysfunction Solutions | ENNU Life'
 			),
 			'health-optimization' => array(
 				'main' => 'Health Optimization Assessment | Comprehensive Wellness Check | ENNU Life',
 				'results' => 'Health Optimization Results | Personalized Wellness Plan | ENNU Life',
-				'details' => 'Health Optimization Solutions | Detailed Wellness Improvement Plan | ENNU Life'
+				'details' => 'Health Optimization Solutions | Detailed Wellness Improvement Plan | ENNU Life',
+				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life'
 			),
 			'health' => array(
 				'main' => 'General Health Assessment | Complete Wellness Evaluation | ENNU Life',
 				'results' => 'Health Assessment Results | Comprehensive Wellness Analysis | ENNU Life',
-				'details' => 'Health Improvement Plan | Detailed Wellness Solutions Dossier | ENNU Life'
+				'details' => 'Health Improvement Plan | Detailed Wellness Solutions Dossier | ENNU Life',
+				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life'
 			),
 			'hormone' => array(
 				'main' => 'Hormone Assessment | Testosterone & Hormone Level Evaluation | ENNU Life',
 				'results' => 'Hormone Assessment Results | Hormone Balance Analysis | ENNU Life',
-				'details' => 'Hormone Therapy Options | Detailed Hormone Balance Solutions | ENNU Life'
+				'details' => 'Hormone Therapy Options | Detailed Hormone Balance Solutions | ENNU Life',
+				'booking' => 'Hormone Consultation | Hormone Balance Specialists | ENNU Life'
 			),
 			'menopause' => array(
 				'main' => 'Menopause Assessment | Hormone Replacement Therapy Evaluation | ENNU Life',
 				'results' => 'Menopause Assessment Results | HRT Suitability Analysis | ENNU Life',
-				'details' => 'Menopause Treatment Options | HRT Solutions Dossier | ENNU Life'
+				'details' => 'Menopause Treatment Options | HRT Solutions Dossier | ENNU Life',
+				'booking' => 'Menopause Consultation | HRT Specialists | ENNU Life'
 			),
 			'skin' => array(
 				'main' => 'Skin Health Assessment | Anti-Aging Skincare Evaluation | ENNU Life',
 				'results' => 'Skin Assessment Results | Personalized Skincare Analysis | ENNU Life',
-				'details' => 'Skin Treatment Options | Anti-Aging Skincare Solutions | ENNU Life'
+				'details' => 'Skin Treatment Options | Anti-Aging Skincare Solutions | ENNU Life',
+				'booking' => 'Skin Treatment Consultation | Anti-Aging Skincare | ENNU Life'
 			),
 			'sleep' => array(
 				'main' => 'Sleep Quality Assessment | Insomnia & Sleep Disorder Evaluation | ENNU Life',
 				'results' => 'Sleep Assessment Results | Sleep Quality Analysis | ENNU Life',
-				'details' => 'Sleep Improvement Solutions | Detailed Sleep Optimization Plan | ENNU Life'
+				'details' => 'Sleep Improvement Solutions | Detailed Sleep Optimization Plan | ENNU Life',
+				'booking' => 'Sleep Consultation | Sleep Optimization Specialists | ENNU Life'
 			),
 			'testosterone' => array(
 				'main' => 'Testosterone Assessment | Low T Evaluation & TRT Screening | ENNU Life',
 				'results' => 'Testosterone Assessment Results | Low T Analysis & TRT Evaluation | ENNU Life',
-				'details' => 'Testosterone Replacement Therapy | TRT Options & Solutions | ENNU Life'
+				'details' => 'Testosterone Replacement Therapy | TRT Options & Solutions | ENNU Life',
+				'booking' => 'Testosterone Consultation | TRT Specialists | ENNU Life'
 			),
 			'weight-loss' => array(
 				'main' => 'Weight Loss Assessment | Medical Weight Management Evaluation | ENNU Life',
 				'results' => 'Weight Loss Assessment Results | Personalized Weight Management Plan | ENNU Life',
-				'details' => 'Weight Loss Solutions | Medical Weight Management Options | ENNU Life'
+				'details' => 'Weight Loss Solutions | Medical Weight Management Options | ENNU Life',
+				'booking' => 'Weight Loss Consultation | Medical Weight Management | ENNU Life'
 			),
 			'welcome' => array(
 				'main' => 'Welcome Assessment | Health Goals & Wellness Objectives | ENNU Life'
@@ -908,6 +864,18 @@ class ENNU_Enhanced_Admin {
 				$pages_to_create["assessments/{$slug}/details"] = array(
 					'title' => $details_title, 
 					'content' => "[ennu-{$details_slug}]",
+					'parent' => "assessments/{$slug}"
+				);
+
+				// Booking Page (child of specific assessment) - SEO Optimized
+				$booking_slug = $slug . '-consultation';
+				$booking_title = isset($seo_assessment_titles[$slug]['booking'])
+					? $seo_assessment_titles[$slug]['booking']
+					: ucwords(str_replace('_', ' ', $key)) . ' Consultation | Professional Health Specialists | ENNU Life';
+				
+				$pages_to_create["assessments/{$slug}/consultation"] = array(
+					'title' => $booking_title, 
+					'content' => 'Book your consultation with our specialists to discuss your personalized treatment options.',
 					'parent' => "assessments/{$slug}"
 				);
 			}

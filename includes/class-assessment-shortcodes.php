@@ -2078,15 +2078,11 @@ final class ENNU_Assessment_Shortcodes {
 	 * @return string
 	 */
 	public function get_assessment_cta_url( $assessment_type ) {
-		$cta_links = array(
-			'hair_assessment'        => $this->get_page_id_url( 'product/hair-treatment-consultation' ),
-			'ed_treatment_assessment' => $this->get_page_id_url( 'product/ed-treatment-consultation' ),
-			'weight_loss_assessment'  => $this->get_page_id_url( 'book-weight-loss-consultation' ),
-			'health_assessment'       => $this->get_page_id_url( 'book-health-consultation' ),
-			'skin_assessment'         => $this->get_page_id_url( 'product/skin-treatment-consultation' ),
-			'default'                => $this->get_page_id_url( 'schedule-consultation' ),
-		);
-		return $cta_links[ $assessment_type ] ?? $cta_links['default'];
+		// Convert assessment type to slug format
+		$slug = str_replace( '_', '-', $assessment_type );
+		
+		// Return the nested consultation page URL
+		return $this->get_page_id_url( "assessments/{$slug}/consultation" );
 	}
 
 	/**

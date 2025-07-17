@@ -1,5 +1,51 @@
 # ENNU Life Assessment Plugin - Changelog
 
+## [61.7.0] - 2025-01-XX
+
+### 🎯 MAJOR IMPROVEMENT: Nested Page Structure Implementation
+- **HIERARCHICAL ORGANIZATION**: Restructured all assessment pages to use proper parent-child relationships
+- **ASSESSMENT-SPECIFIC CONSULTATION**: Each assessment now has its own consultation page nested under the assessment
+- **CLEAN URL STRUCTURE**: Implemented logical URL hierarchy for better SEO and user experience
+- **AUTOMATED PAGE CREATION**: Enhanced page creation system to support nested structure
+
+### 🏗️ New Page Structure
+Each assessment now has a complete nested structure:
+- **Assessment Form**: `/assessments/{assessment}/` (e.g., `/assessments/hair/`)
+- **Results Page**: `/assessments/{assessment}/results/` (e.g., `/assessments/hair/results/`)
+- **Details Page**: `/assessments/{assessment}/details/` (e.g., `/assessments/hair/details/`)
+- **Consultation Page**: `/assessments/{assessment}/consultation/` (e.g., `/assessments/hair/consultation/`)
+
+### 📋 Pages Created Per Assessment
+For each of the 10 assessments (excluding Welcome), the system creates:
+1. **Assessment Form Page** - Main assessment questionnaire
+2. **Results Page** - Assessment results and scoring
+3. **Details Page** - Comprehensive assessment dossier
+4. **Consultation Page** - Assessment-specific consultation booking
+
+### 🔧 Technical Improvements
+- **PARENT-CHILD RELATIONSHIPS**: Proper WordPress page hierarchy implementation
+- **DYNAMIC URL GENERATION**: Updated `get_assessment_cta_url()` to use nested consultation pages
+- **TEMPLATE UPDATES**: All templates now use assessment-specific consultation URLs
+- **ADMIN INTERFACE**: Simplified admin settings by removing redundant consultation page mappings
+
+### 🎨 Frontend Enhancements
+- **CONTEXTUAL CONSULTATION**: Each assessment results/details page links to its specific consultation
+- **IMPROVED NAVIGATION**: Logical flow from assessment → results → details → consultation
+- **SEO OPTIMIZATION**: Better URL structure for search engine indexing
+- **USER EXPERIENCE**: Clearer navigation paths and contextual CTAs
+
+### 📊 Total Page Count
+- **Core Pages**: 6 (Dashboard, Assessments, Results, Call, ENNU Life Score, Health Optimization Results)
+- **Assessment Pages**: 40 (4 pages × 10 assessments)
+- **Total**: 46 pages with proper hierarchical structure
+
+### 🔒 Security & Performance
+- **URL VALIDATION**: All nested URLs are properly validated and escaped
+- **PERFORMANCE**: Efficient page ID lookups with hierarchical fallbacks
+- **ERROR HANDLING**: Graceful fallbacks when nested pages are not configured
+
+---
+
 ## [61.6.0] - 2025-01-XX
 
 ### 🎯 MAJOR IMPROVEMENT: Dynamic URL System Implementation

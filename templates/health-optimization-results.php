@@ -50,12 +50,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					Symptoms are subjective. To get the objective truth about what's happening inside your body, you need to test, not guess. Our comprehensive biomarker lab tests provide the definitive data you need to optimize your health.
 				</p>
 				<div class="action-buttons" style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
-					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'product/hair-treatment-consultation' ) ); ?>" class="action-button" style="background-color: #fff; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Purchase Consultation</a>
-					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'product/ed-treatment-consultation' ) ); ?>" class="action-button" style="background-color: transparent; border: 2px solid #fff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Learn More</a>
+					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'assessments/health-optimization/consultation' ) ); ?>" class="action-button" style="background-color: #fff; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Book Consultation</a>
+					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'assessments/health-optimization' ) ); ?>" class="action-button" style="background-color: transparent; border: 2px solid #fff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Learn More</a>
 				</div>
 			</div>
 			<div class="retake-section" style="text-align: center; margin-top: 30px;">
-				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'health-optimization-results' ) ); ?>" class="action-button button-retake" style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; transition: all 0.2s ease;">Retake Assessment</a>
+				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'assessments/health-optimization' ) ); ?>" class="action-button button-retake" style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px 30px; text-decoration: none; border-radius: 50px; font-weight: 600; transition: all 0.2s ease;">Retake Assessment</a>
 			</div>
 		</main>
 	</div>
