@@ -189,10 +189,14 @@ Version: 2.0.0
 	transform: rotate(225deg);
 }
 .accordion-content {
-	/* max-height is now controlled by jQuery's slideToggle */
-	display: none;
+	max-height: 0;
 	overflow: hidden;
+	transition: max-height 0.4s ease-in-out;
 	padding: 0 15px;
+}
+.accordion-item.open .accordion-content {
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 .accordion-content .map-section {
 	padding-bottom: 15px;
@@ -308,19 +312,23 @@ Version: 2.0.0
 }
 
 .pillar-scores-grid {
-	display: flex;
-	justify-content: center;
-	gap: 20px;
-	margin-top: var(--spacing-6);
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: repeat(2, 1fr);
+	gap: 15px;
+	margin-top: var(--spacing-5);
 	position: relative;
 	z-index: 1;
-	padding: 40px 0;
+	padding: 20px 0;
+	max-width: 200px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .pillar-orb {
 	position: relative;
-	width: 90px;
-	height: 90px;
+	width: 80px;
+	height: 80px;
 	background-color: var(--card-bg);
 	border: 1px solid var(--border-color);
 	border-radius: var(--rounded-full);
@@ -605,7 +613,11 @@ Version: 2.0.0
 }
 
 /* Expanded Category Details */
-.category-details-container { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.category-details-container { 
+	max-height: 0;
+	overflow: hidden; 
+	transition: max-height 0.4s ease-in-out;
+}
 .category-details-inner { padding: 0 var(--spacing-5) var(--spacing-5); border-top: 1px solid var(--border-color); margin: 0 var(--spacing-5); }
 .category-score-list { list-style: none; padding: var(--spacing-5) 0 0 0; margin: 0; }
 .category-score-item { margin-bottom: var(--spacing-3); }

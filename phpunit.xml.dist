@@ -9,7 +9,7 @@
     >
     <testsuites>
         <testsuite name="ENNU Life Assessments Backend">
-            <directory suffix=".php">tests/backend/</directory>
+            <directory suffix=".php">/var/www/html/wp-content/plugins/ennulifeassessments/tests/backend/</directory>
         </testsuite>
     </testsuites>
 </phpunit> 

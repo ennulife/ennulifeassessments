@@ -2,12 +2,16 @@
  * ENNU Life User Dashboard JavaScript
  * This file controls all the interactivity for the "Bio-Metric Canvas" dashboard.
  */
-(function ($) {
-	'use strict';
+document.addEventListener('DOMContentLoaded', () => {
+    const dashboardEl = document.querySelector('.ennu-user-dashboard');
+    if (dashboardEl) {
+        new ENNUDashboard(dashboardEl);
+    }
+});
 
 	class ENNUDashboard {
 		constructor(dashboardElement) {
-			this.dashboard = $(dashboardElement);
+        this.dashboard = dashboardElement;
 			this.init();
 		}
 
@@ -15,96 +19,160 @@
 			this.initDetailsToggle();
 			this.initPillarHovers();
 			this.initScoreAnimation();
+			this.initPillarAnimation();
 			this.initHistoricalCharts();
 			this.initHealthMapAccordion();
 			this.initToggleAll();
 		}
 
 		initToggleAll() {
-			const toggleBtn = this.dashboard.find('#toggle-all-accordions');
-			const accordionItems = this.dashboard.find('.accordion-item');
-			if (toggleBtn.length === 0) return;
+        const toggleBtn = this.dashboard.querySelector('#toggle-all-accordions');
+        if (!toggleBtn) return;
 
-			toggleBtn.on('click', () => {
-				const isAllOpen = accordionItems.filter('.open').length === accordionItems.length;
+        const accordionItems = this.dashboard.querySelectorAll('.accordion-item');
 
-				accordionItems.each(function () {
-					const item = $(this);
-					const content = item.find('.accordion-content');
+        toggleBtn.addEventListener('click', () => {
+            const isAllOpen = this.dashboard.querySelectorAll('.accordion-item.open').length === accordionItems.length;
+
+            accordionItems.forEach(item => {
+                const content = item.querySelector('.accordion-content');
 					if (isAllOpen) {
-						item.removeClass('open');
-						content.slideUp();
+                    item.classList.remove('open');
+                    content.style.maxHeight = null;
 					} else {
-						item.addClass('open');
-						content.slideDown();
+                    item.classList.add('open');
+                    content.style.maxHeight = content.scrollHeight + "px";
 					}
 				});
 			});
 		}
 
 		initHealthMapAccordion() {
-			const accordion = this.dashboard.find('.health-map-accordion');
-			if (accordion.length === 0) return;
+        const accordion = this.dashboard.querySelector('.health-map-accordion');
+        if (!accordion) return;
 
-			accordion.on('click', '.accordion-header', function () {
-				const item = $(this).closest('.accordion-item');
-				const content = item.find('.accordion-content');
-				item.toggleClass('open');
-				content.slideToggle();
+        accordion.addEventListener('click', (event) => {
+            const header = event.target.closest('.accordion-header');
+            if (!header) return;
+
+            const item = header.closest('.accordion-item');
+            const content = item.querySelector('.accordion-content');
+            
+            item.classList.toggle('open');
+            
+            if (item.classList.contains('open')) {
+                // For a smooth transition, we set max-height from 0 to its scrollHeight
+                content.style.display = 'block'; // Make it visible to calculate scrollHeight
+                const contentHeight = content.scrollHeight + 'px';
+                content.style.display = '';
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = contentHeight;
+                });
+            } else {
+                content.style.maxHeight = '0px';
+            }
 			});
 		}
 
 		initDetailsToggle() {
-			this.dashboard.find('.assessment-list-item').each((index, item) => {
-				const $item = $(item);
-				const toggleButton = $item.find('.details-toggle-icon');
-				const detailsContainer = $item.find('.category-details-container');
-
-				toggleButton.on('click', (e) => {
-					e.stopPropagation();
-					const isExpanded = $item.attr('aria-expanded') === 'true';
-					$item.attr('aria-expanded', !isExpanded);
-					detailsContainer.slideToggle(400);
-				});
+        this.dashboard.addEventListener('click', (e) => {
+            const toggleButton = e.target.closest('.assessment-list-item .details-toggle-icon');
+            if (!toggleButton) return;
+            
+				e.preventDefault();
+				e.stopPropagation();
+				
+            const item = toggleButton.closest('.assessment-list-item');
+            const detailsContainer = item.querySelector('.category-details-container');
+				
+            const isExpanded = item.getAttribute('aria-expanded') === 'true';
+            item.setAttribute('aria-expanded', !isExpanded);
+            toggleButton.classList.toggle('active');
+            
+            if (!isExpanded) {
+                detailsContainer.style.display = 'block';
+                const contentHeight = detailsContainer.scrollHeight + 'px';
+                detailsContainer.style.display = '';
+                requestAnimationFrame(() => {
+                    detailsContainer.style.maxHeight = contentHeight;
+                });
+				} else {
+                detailsContainer.style.maxHeight = '0px';
+				}
 			});
 		}
 
 		initPillarHovers() {
-			const contextDisplay = this.dashboard.find('.pillar-context-display');
-			this.dashboard.on('mouseenter', '.pillar-orb', function () {
-				const insight = $(this).data('insight');
+        const contextDisplay = this.dashboard.querySelector('.pillar-context-display');
+        if (!contextDisplay) return;
+
+        this.dashboard.addEventListener('mouseenter', (event) => {
+            const pillarOrb = event.target.closest('.pillar-orb');
+            if (!pillarOrb) return;
+
+            const insight = pillarOrb.dataset.insight;
 				if (insight) {
-					contextDisplay.text(insight).stop().fadeIn(200);
+                contextDisplay.textContent = insight;
+                contextDisplay.style.opacity = '1';
+                contextDisplay.style.display = 'block';
 				}
-			});
-			this.dashboard.on('mouseleave', '.pillar-orb', function () {
-				contextDisplay.stop().fadeOut(200);
-			});
+        }, true);
+
+        this.dashboard.addEventListener('mouseleave', (event) => {
+            const pillarOrb = event.target.closest('.pillar-orb');
+            if (!pillarOrb) return;
+
+            contextDisplay.style.opacity = '0';
+            setTimeout(() => {
+                if (contextDisplay.style.opacity === '0') {
+                    contextDisplay.style.display = 'none';
+                }
+            }, 200);
+        }, true);
 		}
 
 		initScoreAnimation() {
-			const mainScoreOrb = this.dashboard.find('.main-score-orb');
-			if (mainScoreOrb.length > 0) {
-				const score = parseFloat(mainScoreOrb.data('score')) || 0;
-				const scoreValueElement = mainScoreOrb.find('.main-score-value');
-				const progressBar = mainScoreOrb.find('.pillar-orb-progress-bar');
+        const mainScoreOrb = this.dashboard.querySelector('.main-score-orb');
+        if (!mainScoreOrb) return;
 
-				scoreValueElement.text('0.0');
-				progressBar.css('--score-percent', 0);
+        const mainScoreInsight = this.dashboard.querySelector('.main-score-insight');
+        const score = parseFloat(mainScoreOrb.dataset.score) || 0;
+        const scoreValueElement = mainScoreOrb.querySelector('.main-score-value');
+
+        scoreValueElement.textContent = '0.0';
 
 				setTimeout(() => {
-					mainScoreOrb.addClass('loaded');
-					$({ Counter: 0 }).animate({ Counter: score }, {
-						duration: 1500,
-						easing: 'swing',
-						step: function () {
-							scoreValueElement.text(this.Counter.toFixed(1));
-						},
-						complete: function () {
-							scoreValueElement.text(score.toFixed(1));
+            mainScoreOrb.classList.add('loaded');
+            if(mainScoreInsight) mainScoreInsight.classList.add('visible');
+
+            let start = 0;
+            const duration = 1500;
+            const step = (timestamp) => {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const current = Math.min((progress / duration) * score, score);
+                scoreValueElement.textContent = current.toFixed(1);
+                if (progress < duration) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    scoreValueElement.textContent = score.toFixed(1);
 						}
-					});
+            };
+            window.requestAnimationFrame(step);
 				}, 500);
+		}
+
+		initPillarAnimation() {
+        const pillarOrbs = this.dashboard.querySelectorAll('.pillar-orb');
+			if (pillarOrbs.length > 0) {
+            pillarOrbs.forEach((orb, index) => {
+					setTimeout(() => {
+                    orb.classList.add('visible');
+						setTimeout(() => {
+                        orb.classList.add('loaded');
+						}, 300);
+                }, 700 + (index * 150));
+				});
 			}
 		}
 
@@ -162,14 +230,3 @@
 			}
 		}
 	}
-
-	function initializeDashboard() {
-		const dashboardEl = $('.ennu-user-dashboard');
-		if (dashboardEl.length > 0) {
-			new ENNUDashboard(dashboardEl);
-		}
-	}
-
-	$(document).ready(initializeDashboard);
-
-})(jQuery); 

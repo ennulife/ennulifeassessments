@@ -1,9 +1,10 @@
 <?php
 /**
  * Plugin Name: ENNU Life Assessments
- * Description: Comprehensive assessment and scoring system for ENNU Life.
- * Version: 58.0.2
- * Author: ENNU Life
+ * Plugin URI: https://ennulife.com
+ * Description: Advanced health assessment system with comprehensive user scoring
+ * Version: 61.5.1
+ * Author: ENNU Life Development Team
  * License: GPLv2 or later
  * Text Domain: ennulifeassessments
  * Domain Path:       /languages
@@ -15,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '58.0.2' );
+define( 'ENNU_LIFE_VERSION', '61.5.1' );
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -75,6 +76,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 */
 		public function init() {
 			// Load dependencies and textdomain first
+            error_log('ENNU Life Plugin: Initializing...');
 			$this->load_dependencies();
 			// $this->load_textdomain(); // This is called too early. It will be moved to the init hook.
 
@@ -83,6 +85,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			// Setup all hooks
 			$this->setup_hooks();
+            error_log('ENNU Life Plugin: Initialization Complete.');
 		}
 
 		/**
@@ -90,21 +93,37 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 */
 		private function load_dependencies() {
 			$includes = array(
-				'class-enhanced-database.php', // Only load the enhanced version
-				'class-enhanced-admin.php',    // Only load the enhanced version
+                // Core Infrastructure
+				'class-enhanced-database.php',
+				'class-enhanced-admin.php',
+                'class-ajax-security.php',
+				'class-compatibility-manager.php',
+                
+                // New Scoring Engine Architecture
+                'class-assessment-calculator.php',
+                'class-category-score-calculator.php',
+                'class-pillar-score-calculator.php',
+                'class-health-optimization-calculator.php',
+                'class-potential-score-calculator.php',
+                'class-recommendation-engine.php',
+                'class-score-completeness-calculator.php',
+                'class-ennu-life-score-calculator.php',
+                
+                // Main Orchestrator and Frontend Classes
+				'class-scoring-system.php',
 				'class-assessment-shortcodes.php',
 				'class-comprehensive-assessment-display.php',
-				'class-scoring-system.php',
 				'class-score-cache.php',
-				'class-ajax-security.php',
-				'class-compatibility-manager.php',
 			);
 
 			foreach ( $includes as $file ) {
 				$file_path = ENNU_LIFE_PLUGIN_PATH . 'includes/' . $file;
 				if ( file_exists( $file_path ) ) {
 					require_once $file_path;
-				}
+                    error_log('ENNU Life Plugin: Loaded dependency: ' . $file);
+				} else {
+                    error_log('ENNU Life Plugin: FAILED to load dependency: ' . $file);
+                }
 			}
 		}
 
@@ -122,9 +141,38 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				$this->admin = new ENNU_Enhanced_Admin();
 			}
 
-			// Initialize shortcodes - with class existence check
+					// Initialize shortcodes on init hook to ensure proper timing
+		add_action( 'init', array( $this, 'init_shortcodes' ), 5 ); // Priority 5 to run before shortcode registration
+		}
+
+		/**
+		 * Initialize shortcodes after WordPress functions are loaded
+		 */
+		public function init_shortcodes() {
 			if ( class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
 				$this->shortcodes = new ENNU_Assessment_Shortcodes();
+				error_log('ENNU Life Plugin: Initialized ENNU_Assessment_Shortcodes on plugins_loaded hook.');
+			} else {
+				error_log('ENNU Life Plugin: ERROR - ENNU_Assessment_Shortcodes class not found!');
+			}
+		}
+
+		/**
+		 * Setup shortcode hooks after shortcodes are initialized
+		 */
+		public function setup_shortcode_hooks() {
+			if ( $this->shortcodes ) {
+				error_log('ENNU Life Plugin: Setting up shortcode AJAX and frontend hooks.');
+				add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+				add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+				add_action( 'wp_ajax_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
+				add_action( 'wp_ajax_nopriv_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
+				add_action( 'wp_ajax_ennu_check_auth_state', array( $this->shortcodes, 'ajax_check_auth_state' ) );
+				add_action( 'wp_ajax_nopriv_ennu_check_auth_state', array( $this->shortcodes, 'ajax_check_auth_state' ) );
+				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_chart_scripts' ) );
+				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_results_styles' ) );
+			} else {
+				error_log('ENNU Life Plugin: ERROR - shortcodes object is still null during setup_shortcode_hooks!');
 			}
 		}
 
@@ -148,16 +196,8 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				add_action( 'edit_user_profile_update', array( $this->admin, 'save_user_assessment_fields' ) );
 			}
 
-			// Shortcode and AJAX Hooks
-			if ( $this->shortcodes ) {
-				add_action( 'init', array( $this->shortcodes, 'register_shortcodes' ) );
-				add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-				add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-				add_action( 'wp_ajax_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
-				add_action( 'wp_ajax_nopriv_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
-				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_chart_scripts' ) );
-				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_results_styles' ) );
-			}
+					// Shortcode and AJAX Hooks will be set up after shortcodes are initialized
+		add_action( 'init', array( $this, 'setup_shortcode_hooks' ), 10 ); // Priority 10 to run after shortcode init (priority 5)
 
 			// v57.1.0: Admin AJAX actions for user profile page
 			if ( is_admin() && $this->admin ) {
@@ -176,17 +216,17 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			$has_assessment_shortcode = false;
 			if ( is_a( $post, 'WP_Post' ) ) {
 				$assessment_shortcodes = array(
-					'ennu-welcome-assessment',
-					'ennu-hair-assessment',
-					'ennu-ed-treatment-assessment',
-					'ennu-weight-loss-assessment',
-					'ennu-health-assessment',
-					'ennu-skin-assessment',
-					'ennu-sleep-assessment',
-					'ennu-hormone-assessment',
-					'ennu-menopause-assessment',
-					'ennu-testosterone-assessment',
-					'ennu-health-optimization-assessment',
+					'ennu-welcome',
+					'ennu-hair',
+					'ennu-ed-treatment',
+					'ennu-weight-loss',
+					'ennu-health',
+					'ennu-skin',
+					'ennu-sleep',
+					'ennu-hormone',
+					'ennu-menopause',
+					'ennu-testosterone',
+					'ennu-health-optimization',
 				);
 				foreach ( $assessment_shortcodes as $shortcode ) {
 					if ( has_shortcode( $post->post_content, $shortcode ) ) {
@@ -198,7 +238,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			if ( $has_assessment_shortcode ) {
 				wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css', array(), ENNU_LIFE_VERSION );
-				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
+				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array(), ENNU_LIFE_VERSION, true );
 				wp_localize_script(
 					'ennu-frontend-forms',
 					'ennu_ajax',

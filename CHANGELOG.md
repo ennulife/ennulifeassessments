@@ -1,6 +1,433 @@
-# ENNU Life Assessment Plugin Changelog
+# ENNU Life Assessment Plugin - Changelog
 
-## Version 58.0.2 - 2024-08-04
+## [61.5.1] - 2024-12-19
+
+### Fixed
+- **CRITICAL: Fixed User Dashboard Array Structure Error**: Resolved "Undefined array key 'key'" error on user dashboard after completing health optimization assessment
+- **Enhanced Assessment Data Structure**: Added missing 'key' field to user assessments array structure for proper dashboard rendering
+- **Dashboard Stability**: Fixed undefined array key issues that were causing PHP warnings and potential dashboard display problems
+
+### Technical Fixes
+- **Array Structure Completion**: Updated `get_user_assessments_data()` method to include the assessment key in each assessment's data array
+- **Health Optimization Integration**: Fixed data structure mismatch that occurred after completing qualitative health optimization assessments
+- **Error Prevention**: Eliminated PHP warnings that were appearing in dashboard template when accessing assessment key data
+
+### Root Cause Resolution
+- **Missing Key Field**: The user assessments array was missing the 'key' field that the dashboard template expected to access
+- **Template Compatibility**: Dashboard template was trying to access `$assessment['key']` but the array structure didn't include this field
+- **Data Consistency**: Ensured all assessment data arrays have consistent structure regardless of assessment type (quantitative vs qualitative)
+
+## [61.5.0] - 2024-12-19
+
+### Enhanced URL Reliability
+- **MAJOR: Standardized All URLs to Page ID Format**: Converted all internal URLs from pretty permalinks to page ID format (/?page_id=XXX) for maximum compatibility across WordPress configurations
+- **Improved URL Generation**: Created centralized `get_page_id_url()` helper method for consistent URL generation throughout the plugin
+- **Enhanced Template URLs**: Updated all template files to use page ID URLs for buttons, links, and navigation elements
+
+### URL Standardization Details
+- **Dashboard Links**: All dashboard references now use `/?page_id=182` instead of `/dashboard/`
+- **Assessment Pages**: Assessment form pages use page ID format with fallback to created pages mapping
+- **Results Pages**: All results page URLs standardized to page ID format for reliability
+- **Details/Dossier Pages**: Assessment details pages use consistent page ID URL generation
+- **Navigation Elements**: Updated all action buttons, breadcrumbs, and internal links
+
+### Technical Implementation
+- **Centralized URL Helper**: New `get_page_id_url()` method handles all internal URL generation with fallbacks
+- **Page ID Mapping**: Integrated with existing `ennu_created_pages` option for dynamic page ID resolution
+- **Template Updates**: Modified all template files (assessment-results.php, user-dashboard.php, etc.) to use page ID URLs
+- **Consultation Links**: Updated all consultation booking URLs to use page ID format
+
+### Benefits
+- **WordPress Compatibility**: Works reliably across all WordPress permalink configurations
+- **Server Reliability**: Reduces dependency on mod_rewrite and permalink structure
+- **Migration Safety**: URLs remain functional during site migrations and server changes
+- **Performance**: Direct page ID lookups are faster than permalink resolution
+
+## [61.4.2] - 2024-12-19
+
+### Fixed
+- **CRITICAL: Fixed 400 Validation Error for Logged-In Users**: Resolved issue where logged-in users with complete contact info couldn't submit assessments due to missing email validation
+- **Hidden Contact Fields**: Added hidden contact fields for logged-in users to ensure required validation data is always present
+- **Smart Contact Form Enhancement**: Enhanced smart contact form to always include user contact data even when contact form is hidden
+
+### Technical Fixes
+- **Sanitization Enhancement**: Updated `sanitize_assessment_data()` to ensure logged-in users' contact info is always included in form data
+- **Hidden Field Logic**: Modified `render_smart_contact_form()` to add hidden contact fields for logged-in users regardless of contact form visibility
+- **Validation Consistency**: Ensured email and contact validation works seamlessly for both logged-in and logged-out users
+
+## [61.4.1] - 2024-12-19
+
+### Fixed
+- **IMPROVED: Authentication State Sync Reliability**: Enhanced the authentication state sync to include auth data directly in submission response instead of separate AJAX call
+- **Eliminated Timing Issues**: Fixed timing problems where separate AJAX calls for auth state could fail due to session/cookie propagation delays
+- **Enhanced Debugging**: Added comprehensive console logging for authentication state transitions and form updates
+
+### Technical Improvements
+- **Direct Response Data**: Modified `handle_assessment_submission()` to include authentication state data directly in the success response
+- **Fallback Mechanism**: Maintained separate AJAX endpoint as fallback for edge cases where response data is not available
+- **Improved Nonce Handling**: Enhanced nonce usage to prevent authentication-related submission failures
+- **State Synchronization**: All assessment forms on page update their authentication state after successful account creation
+
+## [61.4.0] - 2024-12-19
+
+### Fixed
+- **CRITICAL: Authentication State Sync After Account Creation**: Fixed issue where subsequent assessment submissions would fail after user account creation during first assessment
+- **Dynamic Authentication Detection**: Added real-time authentication state refresh to handle post-account-creation scenarios
+- **Multi-Assessment Flow**: Resolved problem where users could complete first assessment (creating account) but subsequent assessments would not submit
+
+### Authentication State Management
+- **Dynamic State Refresh**: New AJAX endpoint `ennu_check_auth_state` to refresh user authentication status in real-time
+- **Cross-Form State Sync**: After successful account creation, all assessment forms on page update their authentication state
+- **Smart Contact Detection**: Enhanced contact form logic to dynamically adjust to user's authentication status
+- **Auto-Submit Logic**: Improved auto-submission flow for logged-in users with complete contact information
+
+### Technical Implementation
+- **Authentication State API**: New `ajax_check_auth_state()` method provides current user authentication and contact info status
+- **Frontend State Updates**: JavaScript automatically refreshes authentication state after successful submissions
+- **Contact Form Intelligence**: Dynamic contact form rendering based on real-time user authentication status
+- **Session Management**: Enhanced session handling for seamless multi-assessment experiences
+
+## [61.3.0] - 2024-12-19
+
+### Smart Contact Form System
+- **Intelligent Contact Logic**: Added smart contact form system that shows different contact fields based on user login status and profile completeness
+- **Dynamic Contact Fields**: System determines which contact fields to show based on missing user information
+- **Auto-Submit Logic**: Logged-in users with complete contact info automatically submit after last question without contact form
+
+### Contact Form Intelligence
+- **Logged Out Users**: Always show full contact form (first_name, last_name, email, phone) for account creation
+- **Logged In - Complete Info**: Auto-submit after last question with no contact form shown
+- **Logged In - Missing Info**: Show only missing contact fields with pre-populated existing data
+
+### Technical Implementation
+- **Smart Detection Methods**: Added `user_needs_contact_form()`, `render_smart_contact_form()`, and `get_missing_contact_fields()` methods
+- **Enhanced JavaScript**: Updated form handling to detect auto-submit scenarios and adjust step counting accordingly
+- **Context-Aware Messaging**: Dynamic button text ("Get Your Results" vs "Complete Assessment") based on user state
+- **Responsive Contact Styling**: Added CSS styling for contact form fields with responsive design
+
+### User Experience Improvements
+- **Streamlined Flow**: Eliminates redundant contact form steps for logged-in users
+- **Progress Accuracy**: Correct step counting and progress tracking regardless of contact form visibility
+- **Better Validation**: Enhanced form validation for dynamic contact field scenarios
+- **Pre-Population**: Existing user data automatically fills missing contact fields
+
+## [61.2.0] - 2024-12-19
+
+### Fixed Assessment Form Functionality
+- **CRITICAL: Fixed Assessment Shortcode Asset Loading**: Resolved mismatch between shortcode registration (`ennu-hair`) and asset enqueuing (`ennu-hair-assessment`)
+- **Restored Form Submissions**: Fixed broken AJAX assessment submissions by correcting JavaScript conflicts and dependencies
+- **Enhanced Form Validation**: Restored client-side validation, progress indicators, and user feedback systems
+
+### JavaScript & Asset Fixes
+- **Removed Conflicting Files**: Eliminated duplicate `ennu-frontend-forms.js` file from root directory that was causing conflicts
+- **Fixed Dependencies**: Removed jQuery dependency from vanilla JavaScript implementation
+- **Restored CSS Loading**: Fixed assessment form styling that was not loading due to asset mismatch
+- **Enhanced Error Handling**: Improved form validation and error messaging
+
+### Asset Management
+- **Corrected Shortcode Names**: Updated `enqueue_frontend_scripts()` to match actual shortcode names (`ennu-hair` instead of `ennu-hair-assessment`)
+- **Streamlined File Structure**: Consolidated JavaScript files to prevent conflicts and ensure proper loading
+- **Version Consistency**: Updated asset versions to ensure cache busting and proper updates
+
+### Restored Functionality
+- **11 Assessment Types**: All assessment types (hair, ed-treatment, weight-loss, health, skin, sleep, hormone, menopause, testosterone, health-optimization, welcome) now fully functional
+- **Form Validation**: Client-side and server-side validation working correctly
+- **Progress Tracking**: Step-by-step progress indicators and navigation restored
+- **AJAX Submissions**: Seamless form submission and results handling restored
+
+## [61.1.0] - 2024-12-19
+
+### SEO Title Optimization
+- **Comprehensive SEO Title Enhancement**: Updated all assessment pages with keyword-rich, medically-focused titles optimized for search engines
+- **Medical Keyword Integration**: Added specific medical terms and treatment keywords to improve search visibility
+- **Brand Consistency**: All titles now include "| ENNU Life" suffix for brand recognition
+
+### Enhanced Page Titles
+- **Core Pages**: Updated dashboard and main pages with SEO-optimized titles including wellness journey keywords
+- **Assessment Pages**: Each assessment type now has specific medical keywords (e.g., "Hair Loss Assessment | Male Pattern Baldness Evaluation")
+- **Results Pages**: Results pages emphasize personalized analysis and health insights
+- **Details Pages**: Details/dossier pages focus on treatment options and comprehensive health solutions
+
+### Assessment-Specific SEO Improvements
+- **Hair Assessment**: "Hair Loss Assessment | Male Pattern Baldness Evaluation | ENNU Life"
+- **ED Treatment**: "Erectile Dysfunction Assessment | ED Treatment Evaluation | ENNU Life"
+- **Weight Loss**: "Weight Loss Assessment | Medical Weight Management Evaluation | ENNU Life"
+- **Hormone/Testosterone**: "Testosterone Assessment | Low T Evaluation & TRT Screening | ENNU Life"
+- **Skin Assessment**: "Skin Health Assessment | Anti-Aging Skincare Evaluation | ENNU Life"
+- **Sleep Assessment**: "Sleep Quality Assessment | Insomnia & Sleep Disorder Evaluation | ENNU Life"
+- **Menopause**: "Menopause Assessment | Hormone Replacement Therapy Evaluation | ENNU Life"
+
+### Technical Implementation
+- **Dynamic Title Generation**: Enhanced `setup_pages()` function with comprehensive SEO title mapping
+- **Fallback System**: Added fallback logic for dynamic title generation when pages are created manually
+- **All Assessment Types Covered**: Applied to all 11 assessment types with type-specific medical keywords
+
+## [61.0.0] - 2024-12-19
+
+### Added
+- **HIERARCHICAL PAGE STRUCTURE**: Implemented SEO-optimized parent/child page architecture for clean URLs
+- Added hierarchical URL structure: /assessments/hair/, /assessments/hair/results/, /assessments/hair/details/
+- Created parent pages: /dashboard/ and /assessments/ for better site organization
+- Implemented intelligent page creation order (parents first, then children) for proper hierarchy
+
+### Technical Architecture Changes
+- Redesigned admin page creation system to support WordPress parent/child relationships
+- Added parent page tracking and ID management during bulk page creation
+- Updated page creation logic to use `post_parent` for proper hierarchical structure
+- Modified admin settings display to show hierarchical URLs with clear path indicators
+- Enhanced page sorting algorithm to ensure parent pages are created before children
+
+### SEO & UX Improvements
+- Shortened URLs while maintaining descriptive structure (/assessments/hair/ vs /hair-assessment/)
+- Improved URL readability and SEO optimization with logical hierarchy
+- Added helpful URL preview text in admin settings for better user understanding
+- Created consistent navigation structure for better user experience
+
+## [60.9.0] - 2024-12-19
+
+### Fixed
+- **ADMIN PAGE CREATION/DELETION FIX**: Fixed broken auto page creation and deletion system in admin panel
+- Corrected page creation logic that was generating incorrect shortcodes for results and details pages
+- Fixed `str_replace('_assessment', '-results', $key)` bug in admin page creation system
+- Updated assessment key validation from `'welcome_assessment'` to `'welcome'` for consistency
+- Fixed admin settings display to show correct page mappings for all assessment types
+
+### Technical Improvements
+- Changed admin page creation results slug from `str_replace('_assessment', '-results', $key)` to `$slug . '-results'`
+- Changed admin page creation details slug from `str_replace('_assessment', '-assessment-details', $key)` to `$slug . '-assessment-details'`
+- Updated admin settings page display logic to use consistent slug generation
+- Fixed assessment key references throughout admin system to match current naming convention
+- Ensured admin page creation generates shortcodes that match actual registered shortcodes
+
+## [60.8.0] - 2024-12-19
+
+### Fixed
+- **CONFIG STRUCTURE FIX**: Resolved PHP warnings about null array access in assessment rendering
+- Fixed config source mismatch between shortcode registration and assessment rendering
+- Unified config usage to use `all_definitions` instead of conflicting `assessments` array
+- Added fallback values for missing config fields (title, description) to prevent null access warnings
+- Eliminated "Undefined array key" errors when accessing assessment config properties
+
+### Technical Improvements
+- Changed `render_assessment()` method to use `$this->all_definitions` instead of `$this->assessments`
+- Added config field validation with intelligent fallbacks for missing title/description
+- Ensured consistent config structure between shortcode registration and rendering processes
+- Fixed config array key mismatches between different assessment data sources
+
+## [60.7.0] - 2024-12-19
+
+### Fixed
+- **ASSESSMENT SHORTCODE CONVERSION FIX**: Fixed critical issue preventing assessment forms from rendering
+- Corrected shortcode tag to assessment key conversion that was breaking hyphenated assessment types
+- Fixed `str_replace(array('ennu-', '-'), array('', '_'), $tag)` logic that incorrectly converted hyphens to underscores
+- Now properly converts `ennu-ed-treatment` to `ed-treatment` instead of `ed_treatment`
+- Eliminated PHP warnings "Trying to access array offset on null" caused by missing config lookups
+- Fixed assessment config resolution for all hyphenated assessment types (ed-treatment, health-optimization, weight-loss)
+
+### Technical Improvements
+- Changed assessment type extraction from `str_replace(array('ennu-', '-'), array('', '_'), $tag)` to `str_replace('ennu-', '', $tag)`
+- Added comprehensive debug logging to track shortcode conversion process
+- Fixed assessment key mapping to maintain consistency with config file naming convention
+- Ensured proper config lookup for both simple (hair, health) and hyphenated (ed-treatment, health-optimization) assessment types
+
+## [60.6.0] - 2024-12-19
+
+### Fixed
+- **SHORTCODE NAMING FIX**: Fixed shortcode registration logic that was preventing results and details shortcodes from working
+- Corrected shortcode slug generation to properly create distinct shortcodes for assessment, results, and details
+- Fixed `str_replace('_assessment', '-results', $assessment_key)` logic that failed when keys don't contain '_assessment'
+- Now properly generates `ennu-hair-results` instead of incorrectly registering multiple `ennu-hair` shortcodes
+- Eliminated shortcode collision where assessment, results, and details were all registered with the same name
+
+### Technical Improvements
+- Changed results shortcode generation from `str_replace('_assessment', '-results', $key)` to `$slug . '-results'`
+- Changed details shortcode generation from `str_replace('_assessment', '-assessment-details', $key)` to `$slug . '-assessment-details'`
+- Added improved debug logging to distinguish between assessment, results, and details shortcode registration
+- Fixed shortcode registration loop to create unique shortcodes for each type
+
+## [60.5.0] - 2024-12-19
+
+### Fixed
+- **CRITICAL TIMING FIX**: Resolved hook execution order that was preventing shortcode instantiation
+- Changed shortcode initialization from `plugins_loaded` to `init` hook with proper priorities
+- Fixed AJAX hook registration timing to ensure shortcode object exists before hook setup
+- Eliminated "shortcodes object is still null" error that was blocking all functionality
+- Corrected WordPress hook sequence to prevent silent initialization failures
+
+### Technical Architecture Changes
+- Moved shortcode class instantiation to `init` hook (priority 5) for proper timing
+- Set AJAX hook registration to `init` hook (priority 10) to run after shortcode creation
+- Fixed hook priority sequence: plugins_loaded → init(5) → init(10) → shortcode registration
+- Ensured WordPress functions are available when shortcode constructor executes
+- Eliminated timing conflicts that prevented proper plugin initialization
+
+## [60.4.0] - 2024-12-19
+
+### Fixed
+- **DEFINITIVE FIX**: Resolved WordPress hook timing issue that prevented shortcode registration
+- Moved shortcode class instantiation to `plugins_loaded` hook ensuring WordPress functions are available
+- Fixed plugin initialization sequence to prevent silent failures during shortcode registration
+- Restructured AJAX hook registration to work properly with delayed shortcode initialization
+- Cleaned up debug logging after implementing definitive solution
+
+### Technical Architecture Changes
+- Implemented proper WordPress plugin loading sequence with `plugins_loaded` hook
+- Added `init_shortcodes()` method to handle delayed shortcode initialization
+- Added `setup_shortcode_hooks()` method to register AJAX hooks after shortcode initialization
+- Fixed timing dependencies between WordPress core functions and plugin initialization
+- Eliminated silent failures in shortcode registration process
+
+## [60.3.0] - 2024-12-19
+
+### Fixed
+- **Critical Fix**: Resolved shortcode registration issue that was preventing all assessment shortcodes from working
+- Added proper error handling and debugging to shortcode initialization process
+- Fixed dependency loading order to ensure scoring system is available before shortcode registration
+- Removed duplicate shortcode registration hooks that were causing conflicts
+- Added comprehensive logging to track shortcode registration process
+
+### Technical Improvements
+- Enhanced error handling in `ENNU_Assessment_Shortcodes::init()` method
+- Added class existence checks before accessing scoring system
+- Improved debugging output for troubleshooting shortcode issues
+- Streamlined initialization process to prevent hook conflicts
+
+## [60.2.0] - 2024-12-18 - Shortcode Registration Debugging
+
+### Added
+- **EXTENSIVE DEBUGGING**: Added comprehensive logging to track shortcode registration process
+- Added logging to `ENNU_Assessment_Shortcodes::init()` method to track initialization
+- Added logging to `register_shortcodes()` method to track shortcode registration
+- Added error logging in main plugin file to detect if shortcodes class is missing
+- Added count logging to verify assessment definitions are loaded properly
+
+### Technical Details
+- The debugging will help identify exactly where the shortcode registration process is failing
+- Logs will show if the shortcodes class is being initialized properly
+- Logs will show if assessment definitions are being loaded correctly
+- Logs will show which shortcodes are being registered and their counts
+
+## [60.1.0] - 2025-07-16 - Critical Method Visibility Fix
+
+### Fixed
+- **CRITICAL FIX**: Fixed `Call to undefined method ENNU_Assessment_Shortcodes::store_results_transient()` fatal error
+- Changed `store_results_transient()` method from `private` to `public` to ensure proper accessibility
+- This resolves the fatal error that was preventing assessment submissions from completing successfully
+- The method is now properly accessible within the class scope and can be called during the submission process
+
+### Technical Details
+- The error was occurring on lines 1047 and 1082 of `class-assessment-shortcodes.php`
+- The method was defined as `private` but needed to be accessible during the assessment submission flow
+- No functional changes to the method logic - only visibility modifier was updated
+
+## [60.0.0] - 2025-07-16 - The "ENNULIFE Journey" Architectural Blueprint
+
+### Added
+- **New Architectural Blueprint**: All documentation updated to reflect the new, decoupled "ENNULIFE Journey" architecture, including the new suite of calculator classes.
+- **New Core Concepts**: Documented the new concepts of the "Potential ENNU LIFE SCORE," "Health Goals Integration," the "Score Completeness Tracker," and "Gender-Conscious Questioning."
+- **New Data Model**: Outlined the new `user_meta` keys for storing the potential score, score completeness, and personalized recommendations.
+- **New UI/UX Vision**: Documented the new user dashboard features, including the potential score display, completeness bar, interactive health goals module, and unified recommendation hub.
+- **New Admin View Requirements**: Documented the need to enhance the admin dashboard to display all new user data points.
+
+### Changed
+- **Project Direction**: The project has officially evolved from a simple scoring tool into a dynamic, personalized health journey platform.
+- **Version Bump**: Plugin version formally updated to `60.0.0` to signify this major architectural and philosophical milestone.
+
+## [59.0.0] - 2024-12-18 - The Documentation Renaissance
+
+### Added
+- **Comprehensive Documentation Overhaul**: A complete rewrite and modernization of all technical and user-facing documentation to reflect the current state of the plugin.
+- **New `TECHNICAL_DEBT_REGISTER.md`**: A detailed register of all known technical debt, prioritized for future development sprints.
+- **New `SCORING_AUDIT_AND_VALIDATION.md`**: A complete audit and validation report certifying the correctness of all scoring algorithms.
+
+### Changed
+- **Updated `DEVELOPER_NOTES.md`**: Now includes a full analysis of the plugin's technical state, a list of all recent critical fixes, and a clear set of priorities for 2025.
+- **Updated `IMPLEMENTATION_ROADMAP_2025.md`**: The roadmap has been reactivated and updated with a new focus on Testing, Modernization, and Security for Q1 2025.
+- **Updated `README.md`**: Rewritten to provide a clear, professional overview of the plugin, including features, installation, and current development status.
+- **Updated `HANDOFF_DOCUMENTATION.md`**: Modernized to provide a clear handoff path for new developers, outlining the current state, critical files, and immediate next steps.
+- **Version Bump**: Plugin version formally updated to `59.0.0` to signify this major documentation and stability milestone.
+
+## [58.0.8] - 2024-12-18
+
+### Fixed
+- **Health Optimization Section**: Now always displays all health vectors, symptoms, and biomarkers regardless of assessment completion
+- Health map accordions are visible even when user hasn't taken the health optimization assessment
+- Added "Start Health Optimization" button above the accordions when assessment not completed
+- Modified `get_health_optimization_report_data` to handle empty form data gracefully
+- Improved user experience by showing all available health information upfront
+
+### Changed
+- Removed conditional hiding of health optimization content based on completion status
+- Toggle All button now always visible for better accordion navigation
+- Updated subtitle text to be contextual based on completion status
+
+## [58.0.7] - 2024-12-18
+
+### Fixed
+- **Main Score Insight Animation**: Fixed opacity issue - insight text now properly fades in with the score
+- Added `visible` class to main-score-insight during score animation sequence
+
+### Changed
+- **Pillar Scores Layout**: Redesigned to display in a 2x2 grid for better sidebar fit
+  - Changed from flex row to CSS grid with 2 columns
+  - Reduced orb size from 90px to 80px
+  - Adjusted spacing and centered the grid
+  - Maximum width set to 200px for optimal sidebar display
+
+## [58.0.6] - 2024-12-18
+
+### Fixed
+- **CRITICAL FIX**: Pillar orbs now properly animate and become visible on the user dashboard
+- Added missing `initPillarAnimation()` function to apply `visible` and `loaded` classes
+- Pillar orbs now have staggered animation for smooth appearance after main score
+- Removed all debug messages and test output from templates
+
+### Technical Details
+- The pillar orbs were being rendered in HTML but had `opacity: 0` due to missing JavaScript initialization
+- Added proper animation sequence: visible class first, then loaded class for progress bars
+- Animation timing: starts 700ms after page load with 150ms stagger between each orb
+
+## [58.0.5] - 2024-12-18
+
+### Fixed
+- Added debug output to diagnose why pillar scores aren't displaying
+- Added test messages to verify template variable availability
+- Verified pillar scores are correctly calculated (Mind: 4.2, Body: 2.6, Lifestyle: 4.1, Aesthetics: 1.3)
+- Investigating template rendering issue where pillar orbs don't appear despite data being present
+
+## [58.0.4] - 2024-12-18
+
+### Fixed
+- **CRITICAL FIX**: Pillar scores now display correctly - Fixed category mapping mismatch between assessment definitions and pillar map
+- Updated pillar map to include ALL actual categories from assessments (added 11 missing categories)
+- Categories like "Psychosocial Factors", "Timeline", "Demographics", "Vitality", etc. now properly map to pillars
+- Created recalculation script to update existing users' pillar scores
+- Debug logging added to trace pillar score calculations
+
+## [58.0.3] - 2024-12-18
+
+### Fixed
+- **Critical Fix**: Assessment details toggle functionality restored - Fixed JavaScript event delegation for assessment expansion
+- **Critical Fix**: Pillar scores now display correctly on user dashboard - Fixed calculation and display logic for users with/without completed assessments
+- **Critical Fix**: Health Optimization symptom/biomarker counts now calculate correctly - Removed hardcoded demo data that was overriding real calculations
+- **Critical Fix**: Added proper logged-out user experience with login/registration template
+- **Critical Fix**: Progress over time charts now work on assessment details pages - Added proper JavaScript data localization
+- **Critical Fix**: Fixed CSS conflict preventing assessment details from toggling - Changed from max-height transition to display none/block
+- **Critical Fix**: Fixed pillar score capitalization mismatch between storage and display
+- **Critical Fix**: Fixed health optimization symptom mapping between form keys and display values
+- **Critical Fix**: Added button type attribute to prevent form submission on toggle
+
+### Added
+- New `user-dashboard-logged-out.php` template for better UX when not authenticated
+- New `assessment-details.js` file to handle timeline charts on assessment details pages
+
+### Improved
+- Enhanced error handling for pillar score calculations
+- Better data validation for health optimization report generation
+- Improved JavaScript initialization timing for dashboard interactions
+- Consistent naming conventions across pillar score handling
+
+## [58.0.2] - 2024-12-17
 ### Fixed
 - **Catastrophic Dashboard Regression**: Restored the entire User Dashboard to its fully functional and aesthetically perfect state.
 - **Restored Pillar Orbs**: Corrected a critical HTML structural flaw in `templates/user-dashboard.php` that caused the Pillar Orbs and other main content to disappear.

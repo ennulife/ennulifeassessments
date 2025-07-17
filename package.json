@@ -1,26 +1,26 @@
 {
-  "name": "ennulifeassessments",
+  "name": "ennulife-assessments",
   "version": "1.0.0",
-  "description": "**Version:** 27.0.0 **Author:** ENNU Life Development Team **License:** Proprietary",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
+  "description": "A comprehensive assessment plugin for Ennu Life.",
+  "main": "ennu-life-plugin.php",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "wp-scripts build assets/js/ennu-admin.js assets/js/user-dashboard.js assets/js/ennu-frontend-forms.js --output-path=dist",
+    "postinstall": "bash node_modules/@wordpress/scripts/bin/install-wp-tests.sh",
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:run": "wp-env run"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ennulife/ennulifeassessments.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ennulife/ennulifeassessments/issues"
-  },
-  "homepage": "https://github.com/ennulife/ennulifeassessments#readme",
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "assessment"
+  ],
+  "author": "Ennu Life",
+  "license": "GPL-2.0-or-later",
   "devDependencies": {
-    "cypress": "^14.5.1"
+    "@wordpress/env": "^8.0.0",
+    "@wordpress/scripts": "^30.0.0",
+    "cypress": "^13.0.0"
   }
 }
