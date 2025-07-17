@@ -937,169 +937,199 @@ class ENNU_Enhanced_Admin {
 		
 		$pages_to_create = array();
 
-		// Parent Pages (created first) - SEO Optimized Titles
+		// **OPTIMAL PAGE STRUCTURE & ORDERING**
+		
+		// 1. ROOT LEVEL PAGES (Primary Navigation)
+		$pages_to_create['registration'] = array( 
+			'title' => 'Health Assessment Registration | Start Your Wellness Journey | ENNU Life', 
+			'content' => '[ennu-welcome]',
+			'parent' => 0,
+			'menu_label' => 'Get Started',
+			'menu_order' => 1
+		);
+		
 		$pages_to_create['dashboard'] = array( 
 			'title' => 'Health Assessment Dashboard | Track Your Wellness Journey | ENNU Life', 
 			'content' => '[ennu-user-dashboard]',
-			'parent' => 0
+			'parent' => 0,
+			'menu_label' => 'Dashboard',
+			'menu_order' => 2
 		);
+		
 		$pages_to_create['assessments'] = array( 
 			'title' => 'Free Health Assessments | Comprehensive Wellness Evaluations | ENNU Life', 
 			'content' => 'Choose an assessment to get started with your health journey.',
-			'parent' => 0
+			'parent' => 0,
+			'menu_label' => 'Assessments',
+			'menu_order' => 3
 		);
 
-		// Core utility page - SEO Optimized
+		// 2. CORE UTILITY PAGES
 		$pages_to_create['assessment-results'] = array( 
 			'title' => 'Health Assessment Results | Personalized Wellness Insights | ENNU Life', 
 			'content' => '[ennu-assessment-results]',
-			'parent' => 0
+			'parent' => 0,
+			'menu_label' => 'Results',
+			'menu_order' => 4
 		);
 
-		// Consultation & Call Pages - SEO Optimized
+		// 3. CONSULTATION & CALL PAGES
 		$pages_to_create['call'] = array( 
 			'title' => 'Schedule a Call | Free Health Consultation | ENNU Life', 
 			'content' => 'Schedule your free health consultation with our experts.',
-			'parent' => 0
+			'parent' => 0,
+			'menu_label' => 'Schedule Call',
+			'menu_order' => 5
 		);
+		
 		$pages_to_create['ennu-life-score'] = array( 
 			'title' => 'Get Your ENNU Life Score | Personalized Health Assessment | ENNU Life', 
 			'content' => 'Discover your personalized ENNU Life Score and health insights.',
-			'parent' => 0
-		);
-		$pages_to_create['health-optimization-results'] = array( 
-			'title' => 'Health Optimization Results | Personalized Wellness Plan | ENNU Life', 
-			'content' => '[ennu-health-optimization-results]',
-			'parent' => 0
+			'parent' => 0,
+			'menu_label' => 'ENNU Score',
+			'menu_order' => 6
 		);
 
-		// SEO-Optimized Assessment-Specific Titles
-		$seo_assessment_titles = array(
+		// **ASSESSMENT-SPECIFIC PAGES WITH OPTIMAL ORDERING**
+		
+		// SEO-Optimized Titles with Menu Labels
+		$assessment_configs = array(
 			'hair' => array(
 				'main' => 'Hair Loss Assessment | Male Pattern Baldness Evaluation | ENNU Life',
 				'results' => 'Hair Loss Assessment Results | Personalized Hair Health Analysis | ENNU Life', 
 				'details' => 'Hair Loss Treatment Options | Detailed Hair Health Dossier | ENNU Life',
-				'booking' => 'Hair Treatment Consultation | Hair Loss Solutions | ENNU Life'
+				'booking' => 'Hair Treatment Consultation | Hair Loss Solutions | ENNU Life',
+				'menu_label' => 'Hair Loss',
+				'order' => 1
 			),
 			'ed-treatment' => array(
 				'main' => 'Erectile Dysfunction Assessment | ED Treatment Evaluation | ENNU Life',
 				'results' => 'ED Assessment Results | Erectile Dysfunction Analysis | ENNU Life',
 				'details' => 'ED Treatment Options | Erectile Dysfunction Solutions Dossier | ENNU Life',
-				'booking' => 'ED Treatment Consultation | Erectile Dysfunction Solutions | ENNU Life'
-			),
-			'health-optimization' => array(
-				'main' => 'Health Optimization Assessment | Comprehensive Wellness Check | ENNU Life',
-				'results' => 'Health Optimization Results | Personalized Wellness Plan | ENNU Life',
-				'details' => 'Health Optimization Solutions | Detailed Wellness Improvement Plan | ENNU Life',
-				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life'
-			),
-			'health' => array(
-				'main' => 'General Health Assessment | Complete Wellness Evaluation | ENNU Life',
-				'results' => 'Health Assessment Results | Comprehensive Wellness Analysis | ENNU Life',
-				'details' => 'Health Improvement Plan | Detailed Wellness Solutions Dossier | ENNU Life',
-				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life'
-			),
-			'hormone' => array(
-				'main' => 'Hormone Assessment | Testosterone & Hormone Level Evaluation | ENNU Life',
-				'results' => 'Hormone Assessment Results | Hormone Balance Analysis | ENNU Life',
-				'details' => 'Hormone Therapy Options | Detailed Hormone Balance Solutions | ENNU Life',
-				'booking' => 'Hormone Consultation | Hormone Balance Specialists | ENNU Life'
-			),
-			'menopause' => array(
-				'main' => 'Menopause Assessment | Hormone Replacement Therapy Evaluation | ENNU Life',
-				'results' => 'Menopause Assessment Results | HRT Suitability Analysis | ENNU Life',
-				'details' => 'Menopause Treatment Options | HRT Solutions Dossier | ENNU Life',
-				'booking' => 'Menopause Consultation | HRT Specialists | ENNU Life'
-			),
-			'skin' => array(
-				'main' => 'Skin Health Assessment | Anti-Aging Skincare Evaluation | ENNU Life',
-				'results' => 'Skin Assessment Results | Personalized Skincare Analysis | ENNU Life',
-				'details' => 'Skin Treatment Options | Anti-Aging Skincare Solutions | ENNU Life',
-				'booking' => 'Skin Treatment Consultation | Anti-Aging Skincare | ENNU Life'
-			),
-			'sleep' => array(
-				'main' => 'Sleep Quality Assessment | Insomnia & Sleep Disorder Evaluation | ENNU Life',
-				'results' => 'Sleep Assessment Results | Sleep Quality Analysis | ENNU Life',
-				'details' => 'Sleep Improvement Solutions | Detailed Sleep Optimization Plan | ENNU Life',
-				'booking' => 'Sleep Consultation | Sleep Optimization Specialists | ENNU Life'
-			),
-			'testosterone' => array(
-				'main' => 'Testosterone Assessment | Low T Evaluation & TRT Screening | ENNU Life',
-				'results' => 'Testosterone Assessment Results | Low T Analysis & TRT Evaluation | ENNU Life',
-				'details' => 'Testosterone Replacement Therapy | TRT Options & Solutions | ENNU Life',
-				'booking' => 'Testosterone Consultation | TRT Specialists | ENNU Life'
+				'booking' => 'ED Treatment Consultation | Erectile Dysfunction Solutions | ENNU Life',
+				'menu_label' => 'ED Treatment',
+				'order' => 2
 			),
 			'weight-loss' => array(
 				'main' => 'Weight Loss Assessment | Medical Weight Management Evaluation | ENNU Life',
 				'results' => 'Weight Loss Assessment Results | Personalized Weight Management Plan | ENNU Life',
 				'details' => 'Weight Loss Solutions | Medical Weight Management Options | ENNU Life',
-				'booking' => 'Weight Loss Consultation | Medical Weight Management | ENNU Life'
+				'booking' => 'Weight Loss Consultation | Medical Weight Management | ENNU Life',
+				'menu_label' => 'Weight Loss',
+				'order' => 3
 			),
-			'welcome' => array(
-				'main' => 'Welcome Assessment | Health Goals & Wellness Objectives | ENNU Life'
+			'health-optimization' => array(
+				'main' => 'Health Optimization Assessment | Comprehensive Wellness Check | ENNU Life',
+				'results' => 'Health Optimization Assessment Results | Personalized Wellness Plan | ENNU Life',
+				'details' => 'Health Optimization Solutions | Detailed Wellness Improvement Plan | ENNU Life',
+				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life',
+				'menu_label' => 'Health Optimization',
+				'order' => 4
+			),
+			'health' => array(
+				'main' => 'General Health Assessment | Complete Wellness Evaluation | ENNU Life',
+				'results' => 'Health Assessment Results | Comprehensive Wellness Analysis | ENNU Life',
+				'details' => 'Health Improvement Plan | Detailed Wellness Solutions Dossier | ENNU Life',
+				'booking' => 'Health Consultation | Comprehensive Wellness Evaluation | ENNU Life',
+				'menu_label' => 'General Health',
+				'order' => 5
+			),
+			'testosterone' => array(
+				'main' => 'Testosterone Assessment | Low T Evaluation & TRT Screening | ENNU Life',
+				'results' => 'Testosterone Assessment Results | Low T Analysis & TRT Evaluation | ENNU Life',
+				'details' => 'Testosterone Replacement Therapy | TRT Options & Solutions | ENNU Life',
+				'booking' => 'Testosterone Consultation | TRT Specialists | ENNU Life',
+				'menu_label' => 'Testosterone',
+				'order' => 6
+			),
+			'hormone' => array(
+				'main' => 'Hormone Assessment | Testosterone & Hormone Level Evaluation | ENNU Life',
+				'results' => 'Hormone Assessment Results | Hormone Balance Analysis | ENNU Life',
+				'details' => 'Hormone Therapy Options | Detailed Hormone Balance Solutions | ENNU Life',
+				'booking' => 'Hormone Consultation | Hormone Balance Specialists | ENNU Life',
+				'menu_label' => 'Hormone Balance',
+				'order' => 7
+			),
+			'menopause' => array(
+				'main' => 'Menopause Assessment | Hormone Replacement Therapy Evaluation | ENNU Life',
+				'results' => 'Menopause Assessment Results | HRT Suitability Analysis | ENNU Life',
+				'details' => 'Menopause Treatment Options | HRT Solutions Dossier | ENNU Life',
+				'booking' => 'Menopause Consultation | HRT Specialists | ENNU Life',
+				'menu_label' => 'Menopause',
+				'order' => 8
+			),
+			'skin' => array(
+				'main' => 'Skin Health Assessment | Anti-Aging Skincare Evaluation | ENNU Life',
+				'results' => 'Skin Assessment Results | Personalized Skincare Analysis | ENNU Life',
+				'details' => 'Skin Treatment Options | Anti-Aging Skincare Solutions | ENNU Life',
+				'booking' => 'Skin Treatment Consultation | Anti-Aging Skincare | ENNU Life',
+				'menu_label' => 'Skin Care',
+				'order' => 9
+			),
+			'sleep' => array(
+				'main' => 'Sleep Quality Assessment | Insomnia & Sleep Disorder Evaluation | ENNU Life',
+				'results' => 'Sleep Assessment Results | Sleep Quality Analysis | ENNU Life',
+				'details' => 'Sleep Improvement Solutions | Detailed Sleep Optimization Plan | ENNU Life',
+				'booking' => 'Sleep Consultation | Sleep Optimization Specialists | ENNU Life',
+				'menu_label' => 'Sleep Quality',
+				'order' => 10
 			)
 		);
 
-		// Assessment Form Pages (children of /assessments/)
-		foreach ($assessment_keys as $key) {
-			$slug = str_replace('_', '-', $key);
-			
-			// Use SEO-optimized title if available, otherwise fallback to definition title with SEO enhancement
-			if (isset($seo_assessment_titles[$slug]['main'])) {
-				$title = $seo_assessment_titles[$slug]['main'];
-			} else {
-				$base_title = $all_definitions[$key]['title'] ?? ucwords(str_replace('_', ' ', $key));
-				$title = $base_title . ' | Professional Health Evaluation | ENNU Life';
-			}
+		// Create Assessment Form Pages (children of /assessments/) in optimal order
+		$ordered_assessments = array();
+		foreach ($assessment_configs as $slug => $config) {
+			$ordered_assessments[$slug] = $config['order'];
+		}
+		asort($ordered_assessments); // Sort by order
 
+		foreach ($ordered_assessments as $slug => $order) {
+			$config = $assessment_configs[$slug];
+			$key = str_replace('-', '_', $slug);
+			
 			// Form Page (child of assessments)
 			$pages_to_create["assessments/{$slug}"] = array(
-				'title' => $title, 
+				'title' => $config['main'], 
 				'content' => "[ennu-{$slug}]",
-				'parent' => "assessments"
+				'parent' => "assessments",
+				'menu_label' => $config['menu_label'],
+				'menu_order' => $order
 			);
 			
-			if ( 'welcome' !== $key ) {
-				// Results Page (child of specific assessment) - SEO Optimized
-				$results_slug = $slug . '-results';
-				$results_title = isset($seo_assessment_titles[$slug]['results']) 
-					? $seo_assessment_titles[$slug]['results']
-					: ucwords(str_replace('_', ' ', $key)) . ' Results | Personalized Health Analysis | ENNU Life';
-				
-				$pages_to_create["assessments/{$slug}/results"] = array(
-					'title' => $results_title, 
-					'content' => "[ennu-{$results_slug}]",
-					'parent' => "assessments/{$slug}"
-				);
+			// Results Page (child of specific assessment)
+			$results_slug = $slug . '-results';
+			$pages_to_create["assessments/{$slug}/results"] = array(
+				'title' => $config['results'], 
+				'content' => "[ennu-{$results_slug}]",
+				'parent' => "assessments/{$slug}",
+				'menu_label' => 'Results',
+				'menu_order' => 1
+			);
 
-				// Details Page (child of specific assessment) - SEO Optimized  
-				$details_slug = $slug . '-assessment-details';
-				$details_title = isset($seo_assessment_titles[$slug]['details'])
-					? $seo_assessment_titles[$slug]['details'] 
-					: ucwords(str_replace('_', ' ', $key)) . ' Treatment Options | Detailed Health Solutions | ENNU Life';
-				
-				$pages_to_create["assessments/{$slug}/details"] = array(
-					'title' => $details_title, 
-					'content' => "[ennu-{$details_slug}]",
-					'parent' => "assessments/{$slug}"
-				);
+			// Details Page (child of specific assessment)
+			$details_slug = $slug . '-assessment-details';
+			$pages_to_create["assessments/{$slug}/details"] = array(
+				'title' => $config['details'], 
+				'content' => "[ennu-{$details_slug}]",
+				'parent' => "assessments/{$slug}",
+				'menu_label' => 'Details',
+				'menu_order' => 2
+			);
 
-				// Booking Page (child of specific assessment) - SEO Optimized
-				$booking_slug = $slug . '-consultation';
-				$booking_title = isset($seo_assessment_titles[$slug]['booking'])
-					? $seo_assessment_titles[$slug]['booking']
-					: ucwords(str_replace('_', ' ', $key)) . ' Consultation | Professional Health Specialists | ENNU Life';
-				
-				$pages_to_create["assessments/{$slug}/consultation"] = array(
-					'title' => $booking_title, 
-					'content' => 'Book your consultation with our specialists to discuss your personalized treatment options.',
-					'parent' => "assessments/{$slug}"
-				);
-			}
+			// Booking Page (child of specific assessment)
+			$booking_slug = $slug . '-consultation';
+			$pages_to_create["assessments/{$slug}/consultation"] = array(
+				'title' => $config['booking'], 
+				'content' => 'Book your consultation with our specialists to discuss your personalized treatment options.',
+				'parent' => "assessments/{$slug}",
+				'menu_label' => 'Book Consultation',
+				'menu_order' => 3
+			);
 		}
 
 		$page_mappings = get_option( 'ennu_created_pages', array() );
 		$created_parents = array(); // Track parent page IDs
+		$menu_items_to_add = array(); // Track menu items for later addition
 
 		// Sort pages to create parents first
 		$sorted_pages = array();
@@ -1137,36 +1167,116 @@ class ENNU_Enhanced_Admin {
 				if ( $existing_page ) {
 					// If it exists, just map it
 					$page_mappings[ $slug ] = $existing_page->ID;
-					if ( $page_data['parent'] === 0 ) {
+					if ( $parent_id === 0 ) {
 						$created_parents[ $slug ] = $existing_page->ID;
 					}
 				} else {
-					// If it doesn't exist, create it
-					$page_id = wp_insert_post(
-						array(
-							'post_title'   => $page_data['title'],
-							'post_name'    => $final_slug,
-							'post_content' => $page_data['content'],
-							'post_status'  => 'publish',
-							'post_type'    => 'page',
-							'post_parent'  => $parent_id,
-						)
-					);
-					if ( $page_id > 0 ) {
+					// Create the page
+					$page_id = wp_insert_post( array(
+						'post_title'    => $page_data['title'],
+						'post_content'  => $page_data['content'],
+						'post_status'   => 'publish',
+						'post_type'     => 'page',
+						'post_parent'   => $parent_id,
+						'post_name'     => $final_slug,
+					) );
+
+					if ( $page_id && ! is_wp_error( $page_id ) ) {
 						$page_mappings[ $slug ] = $page_id;
-						if ( $page_data['parent'] === 0 ) {
+						if ( $parent_id === 0 ) {
 							$created_parents[ $slug ] = $page_id;
+						}
+						
+						// Track menu items for root pages
+						if ( $parent_id === 0 && isset( $page_data['menu_label'] ) ) {
+							$menu_items_to_add[] = array(
+								'page_id' => $page_id,
+								'title' => $page_data['menu_label'],
+								'order' => $page_data['menu_order'] ?? 999
+							);
 						}
 					}
 				}
+			}
+		}
+
+		// Save the page mappings
+		update_option( 'ennu_created_pages', $page_mappings );
+
+		// **AUTOMATIC MENU INTEGRATION**
+		$this->update_primary_menu( $menu_items_to_add );
+
+		return true;
+	}
+
+	/**
+	 * Update Primary Menu with New Pages
+	 * 
+	 * @param array $menu_items Array of menu items to add
+	 */
+	private function update_primary_menu( $menu_items ) {
+		if ( empty( $menu_items ) ) {
+			return;
+		}
+
+		// Get the primary menu location
+		$locations = get_nav_menu_locations();
+		$primary_menu_id = $locations['primary'] ?? $locations['main-menu'] ?? null;
+
+		if ( ! $primary_menu_id ) {
+			// Try to find any existing menu
+			$menus = wp_get_nav_menus();
+			if ( ! empty( $menus ) ) {
+				$primary_menu_id = $menus[0]->term_id;
 			} else {
-				// Page already exists, track it if it's a parent
-				if ( $page_data['parent'] === 0 ) {
-					$created_parents[ $slug ] = $page_mappings[ $slug ];
+				// Create a new menu if none exists
+				$menu_name = 'ENNU Life Primary Menu';
+				$menu_id = wp_create_nav_menu( $menu_name );
+				if ( ! is_wp_error( $menu_id ) ) {
+					$primary_menu_id = $menu_id;
+					// Assign to primary location if available
+					$locations = get_nav_menu_locations();
+					$locations['primary'] = $menu_id;
+					set_theme_mod( 'nav_menu_locations', $locations );
 				}
 			}
 		}
-		update_option( 'ennu_created_pages', $page_mappings );
+
+		if ( ! $primary_menu_id ) {
+			return;
+		}
+
+		// Get existing menu items to avoid duplicates
+		$existing_items = wp_get_nav_menu_items( $primary_menu_id );
+		$existing_page_ids = array();
+		foreach ( $existing_items as $item ) {
+			if ( $item->type === 'post_type' && $item->object === 'page' ) {
+				$existing_page_ids[] = $item->object_id;
+			}
+		}
+
+		// Sort menu items by order
+		usort( $menu_items, function( $a, $b ) {
+			return $a['order'] - $b['order'];
+		} );
+
+		// Add new menu items
+		foreach ( $menu_items as $item ) {
+			// Skip if page already exists in menu
+			if ( in_array( $item['page_id'], $existing_page_ids ) ) {
+				continue;
+			}
+
+			// Add the menu item
+			wp_update_nav_menu_item( $primary_menu_id, 0, array(
+				'menu-item-title' => $item['title'],
+				'menu-item-object-id' => $item['page_id'],
+				'menu-item-object' => 'page',
+				'menu-item-status' => 'publish',
+				'menu-item-type' => 'post_type',
+				'menu-item-position' => $item['order']
+			) );
+		}
 	}
 
 	private function delete_pages() {

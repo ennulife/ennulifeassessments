@@ -1,5 +1,53 @@
 # ENNU Life Assessment Plugin - Changelog
 
+## Version 61.9.0 - Enhanced Page Creation & Menu Integration
+*Date: 2024-12-19*
+
+### ✨ New Features
+- **Welcome Assessment at Root Level**: Moved welcome assessment to `/registration` for optimal user flow
+- **Automatic Menu Integration**: Pages are automatically added to primary navigation when created
+- **Short Menu Labels**: Added user-friendly menu labels while preserving SEO-optimized page titles
+- **Optimal Page Ordering**: Implemented strategic ordering for maximum user engagement
+
+### 🔧 Improvements
+- **Fixed Health Optimization Results**: Corrected title from "Health Optimization Results" to "Health Optimization Assessment Results"
+- **Enhanced Page Structure**: 
+  - Root pages: Registration, Dashboard, Assessments, Results, Schedule Call, ENNU Score
+  - Assessment pages: Nested under `/assessments/` with optimal ordering
+  - Child pages: Results, Details, and Consultation for each assessment
+- **Menu Label System**: 
+  - "Get Started" for registration page
+  - "Dashboard" for user dashboard
+  - "Assessments" for assessment landing
+  - "Results" for assessment results
+  - "Schedule Call" for consultation booking
+  - "ENNU Score" for life score page
+  - Assessment-specific labels: "Hair Loss", "ED Treatment", "Weight Loss", etc.
+
+### 📊 Optimal Assessment Ordering
+1. **Hair Loss** - Most common concern
+2. **ED Treatment** - High engagement topic
+3. **Weight Loss** - Universal health goal
+4. **Health Optimization** - Comprehensive wellness
+5. **General Health** - Broad appeal
+6. **Testosterone** - Specific hormone focus
+7. **Hormone Balance** - Related to testosterone
+8. **Menopause** - Women's health
+9. **Skin Care** - Aesthetic concerns
+10. **Sleep Quality** - Foundation of health
+
+### 🎯 Technical Enhancements
+- **Smart Menu Detection**: Automatically finds existing primary menu or creates new one
+- **Duplicate Prevention**: Prevents adding existing pages to menu
+- **Position Control**: Maintains proper menu item ordering
+- **Theme Compatibility**: Works with any WordPress theme's menu system
+- **Error Handling**: Graceful fallbacks for menu operations
+
+### 🔄 Backward Compatibility
+- Existing pages remain unchanged
+- Menu integration only adds new items, doesn't remove existing ones
+- All existing shortcodes and functionality preserved
+
 ## Version 61.8.0 - HubSpot Booking Integration
 *Date: 2024-12-19*
 
