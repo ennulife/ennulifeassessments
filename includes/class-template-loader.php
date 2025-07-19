@@ -86,6 +86,13 @@ class ENNU_Life_Template_Loader {
 					'templateKey' => $ennu_template_key,
 				)
 			);
+
+			wp_enqueue_style(
+				'ennu-logo-style',
+				ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-logo.css',
+				array(),
+				ENNU_LIFE_VERSION
+			);
 		}
 	}
 
@@ -107,6 +114,43 @@ class ENNU_Life_Template_Loader {
 
 		return '<p>Template not found: ' . esc_html( $template_name ) . '</p>';
 	}
+}
+
+/**
+ * Render the ENNU Life logo with options.
+ *
+ * @param array $args {
+ *     @type string $color   'white' or 'black'.
+ *     @type string $size    'small', 'medium', 'large', or custom px (e.g. '120px').
+ *     @type string $link    URL to link to (default: home_url('/')).
+ *     @type string $alt     Alt text for the image.
+ *     @type string $class   Extra CSS classes.
+ * }
+ */
+function ennu_render_logo( $args = array() ) {
+    $defaults = array(
+        'color' => 'white',
+        'size'  => 'medium',
+        'link'  => home_url( '/' ),
+        'alt'   => 'ENNU Life',
+        'class' => '',
+    );
+    $args = wp_parse_args( $args, $defaults );
+    $color = $args['color'] === 'black' ? 'black' : 'white';
+    $size_class = 'ennu-logo--' . esc_attr( $args['size'] );
+    $img_src = ENNU_LIFE_PLUGIN_URL . 'assets/img/ennu-logo-' . $color . '.png';
+    $classes = trim( 'ennu-logo ' . $size_class . ' ' . $args['class'] );
+    $img = sprintf(
+        '<img src="%s" alt="%s" class="%s" loading="lazy" />',
+        esc_url( $img_src ),
+        esc_attr( $args['alt'] ),
+        esc_attr( $classes )
+    );
+    if ( $args['link'] ) {
+        printf('<a href="%s" class="ennu-logo-link" aria-label="%s">%s</a>', esc_url( $args['link'] ), esc_attr( $args['alt'] ), $img );
+    } else {
+        echo $img;
+    }
 }
 
 

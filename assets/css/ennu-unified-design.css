@@ -1,0 +1,895 @@
+/*
+ENNU Life Unified Design System - "The Bio-Metric Canvas"
+Author: The World's Greatest Developer
+Version: 1.0.0
+Description: Unified luxury design system for all ENNU Life assessment templates
+*/
+
+/* ===== CSS VARIABLES ===== */
+:root {
+	/* Dark Mode (Default) */
+	--base-bg: #0d1117;
+	--card-bg: #161b22;
+	--border-color: #30363d;
+	--text-light: #c9d1d9;
+	--text-dark: #f0f6fc;
+	--text-color: #f0f6fc;
+	--text-muted: #8b949e;
+	--accent-primary: #10b981;
+	--accent-secondary: #059669;
+	--accent-color: #10b981;
+	--accent-hover: #059669;
+	--shadow-color: rgba(2, 8, 20, 0.5);
+	--star-color-1: #ffffff;
+	--star-color-2: #8b949e;
+	--gradient-start: #0d1117;
+	--gradient-end: #161b22;
+	--glass-bg: rgba(255, 255, 255, 0.05);
+	--glass-border: rgba(255, 255, 255, 0.1);
+	--spacing-1: 0.25rem;
+	--spacing-2: 0.5rem;
+	--spacing-3: 0.75rem;
+	--spacing-4: 1rem;
+	--spacing-5: 1.25rem;
+	--spacing-6: 1.5rem;
+	--rounded-md: 0.375rem;
+	--rounded-lg: 0.75rem;
+	--rounded-full: 9999px;
+	--shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+}
+
+/* Light Mode Variables */
+[data-theme="light"] {
+	--base-bg: #ffffff;
+	--card-bg: #f8fafc;
+	--border-color: #e2e8f0;
+	--text-light: #64748b;
+	--text-dark: #1e293b;
+	--text-color: #1e293b;
+	--text-muted: #64748b;
+	--accent-primary: #10b981;
+	--accent-secondary: #059669;
+	--accent-color: #10b981;
+	--accent-hover: #059669;
+	--shadow-color: rgba(0, 0, 0, 0.1);
+	--star-color-1: #1e293b;
+	--star-color-2: #64748b;
+	--gradient-start: #ffffff;
+	--gradient-end: #f8fafc;
+	--glass-bg: rgba(255, 255, 255, 0.8);
+	--glass-border: rgba(0, 0, 0, 0.1);
+}
+
+/* ===== BASE LAYOUT ===== */
+.ennu-unified-container {
+	min-height: 100vh;
+	background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+	position: relative;
+	overflow-x: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	color: var(--text-dark);
+}
+
+/* ===== STARFIELD ANIMATION ===== */
+.starfield {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: 
+		radial-gradient(2px 2px at 20px 30px, var(--star-color-1), transparent),
+		radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+		radial-gradient(1px 1px at 90px 40px, var(--star-color-1), transparent),
+		radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+		radial-gradient(2px 2px at 160px 100px, var(--star-color-2), transparent);
+	background-repeat: repeat;
+	background-size: 200px 100px;
+	animation: sparkle 20s linear infinite;
+	z-index: 1;
+	pointer-events: none;
+}
+
+@keyframes sparkle {
+	from { transform: translateY(0px); }
+	to { transform: translateY(-100px); }
+}
+
+/* ===== GRID LAYOUTS ===== */
+.ennu-grid {
+	display: grid;
+	grid-template-columns: 350px 1fr;
+	gap: 30px;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 20px;
+	position: relative;
+	z-index: 2;
+	min-height: 100vh;
+}
+
+.ennu-two-column {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 30px;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 20px;
+	position: relative;
+	z-index: 2;
+}
+
+.ennu-single-column {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 20px;
+	position: relative;
+	z-index: 2;
+}
+
+/* ===== GLASS CARDS ===== */
+.ennu-glass-card {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border-radius: 20px;
+	padding: 30px;
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--shadow-md);
+	transition: all 0.3s ease;
+}
+
+.ennu-glass-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.ennu-sidebar {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border-radius: 20px;
+	padding: 30px;
+	border: 1px solid var(--glass-border);
+	height: fit-content;
+	position: sticky;
+	top: 20px;
+	box-shadow: var(--shadow-md);
+}
+
+.ennu-main-content {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border-radius: 20px;
+	padding: 40px;
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--shadow-md);
+}
+
+/* ===== SCORE ORBS ===== */
+.ennu-score-orb {
+	position: relative;
+	width: 160px;
+	height: 160px;
+	margin: 0 auto 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ennu-score-orb svg {
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+}
+
+.ennu-score-orb-bg {
+	fill: none;
+	stroke: var(--border-color);
+	stroke-width: 3;
+}
+
+.ennu-score-orb-progress {
+	fill: none;
+	stroke: url(#scoreGradient);
+	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-dasharray: 100;
+	stroke-dashoffset: calc(100 - var(--score-percent, 0));
+	transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.ennu-score-text {
+	position: absolute;
+	text-align: center;
+	color: var(--text-dark);
+}
+
+.ennu-score-value {
+	font-size: 2.5rem;
+	font-weight: 800;
+	line-height: 1;
+	margin-bottom: 5px;
+	color: var(--accent-primary);
+}
+
+.ennu-score-label {
+	font-size: 0.9rem;
+	color: var(--text-light);
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+/* ===== PILLAR ORBS ===== */
+.ennu-pillar-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 15px;
+	margin: 20px 0;
+}
+
+.ennu-pillar-orb {
+	position: relative;
+	width: 80px;
+	height: 80px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: var(--glass-bg);
+	border: 1px solid var(--glass-border);
+	transition: all 0.3s ease;
+}
+
+.ennu-pillar-orb:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.ennu-pillar-content {
+	text-align: center;
+}
+
+.ennu-pillar-label {
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: var(--text-light);
+	margin-bottom: 2px;
+}
+
+.ennu-pillar-score {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: var(--accent-primary);
+}
+
+/* ===== TYPOGRAPHY ===== */
+.ennu-title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--text-dark);
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.ennu-subtitle {
+	font-size: 1.1rem;
+	color: var(--text-light);
+	margin-bottom: 30px;
+	text-align: center;
+	line-height: 1.6;
+}
+
+.ennu-section-title {
+	font-size: 1.3rem;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 20px;
+	position: relative;
+}
+
+.ennu-section-title::after {
+	content: '';
+	position: absolute;
+	bottom: -8px;
+	left: 0;
+	width: 40px;
+	height: 3px;
+	background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+	border-radius: 2px;
+}
+
+/* ===== BUTTONS ===== */
+.ennu-btn {
+	display: inline-block;
+	padding: 12px 24px;
+	border-radius: var(--rounded-lg);
+	font-weight: 600;
+	text-decoration: none;
+	text-align: center;
+	transition: all 0.3s ease;
+	border: none;
+	cursor: pointer;
+	font-size: 0.9rem;
+	letter-spacing: 0.5px;
+}
+
+.ennu-btn-primary {
+	background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+	color: #ffffff;
+	box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.ennu-btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.ennu-btn-secondary {
+	background: var(--card-bg);
+	color: var(--text-dark);
+	border: 1px solid var(--border-color);
+}
+
+.ennu-btn-secondary:hover {
+	background: var(--border-color);
+	transform: translateY(-1px);
+}
+
+.ennu-btn-group {
+	display: flex;
+	gap: 12px;
+	margin-top: 20px;
+}
+
+.ennu-btn-group .ennu-btn {
+	flex: 1;
+}
+
+/* ===== CARDS ===== */
+.ennu-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	padding: 25px;
+	margin-bottom: 20px;
+	transition: all 0.3s ease;
+}
+
+.ennu-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.ennu-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 15px;
+}
+
+.ennu-card-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin: 0;
+}
+
+.ennu-card-content {
+	color: var(--text-light);
+	line-height: 1.6;
+}
+
+/* ===== PROGRESS BARS ===== */
+.ennu-progress-bar {
+	width: 100%;
+	height: 8px;
+	background: var(--border-color);
+	border-radius: var(--rounded-full);
+	overflow: hidden;
+	margin: 10px 0;
+}
+
+.ennu-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+	border-radius: inherit;
+	width: var(--progress-width, 0%);
+	transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ===== LISTS ===== */
+.ennu-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ennu-list-item {
+	padding: 12px 0;
+	border-bottom: 1px solid var(--border-color);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ennu-list-item:last-child {
+	border-bottom: none;
+}
+
+.ennu-list-item-content {
+	flex: 1;
+}
+
+.ennu-list-item-title {
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 4px;
+}
+
+.ennu-list-item-description {
+	font-size: 0.9rem;
+	color: var(--text-light);
+}
+
+.ennu-list-item-score {
+	font-weight: 700;
+	color: var(--accent-primary);
+	font-size: 1.1rem;
+}
+
+/* ===== FORMS ===== */
+.ennu-form-group {
+	margin-bottom: 20px;
+}
+
+.ennu-form-label {
+	display: block;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 8px;
+}
+
+.ennu-form-input {
+	width: 100%;
+	padding: 12px 16px;
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-md);
+	background: var(--card-bg);
+	color: var(--text-dark);
+	font-size: 1rem;
+	transition: all 0.3s ease;
+}
+
+.ennu-form-input:focus {
+	outline: none;
+	border-color: var(--accent-primary);
+	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.ennu-form-select {
+	width: 100%;
+	padding: 12px 16px;
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-md);
+	background: var(--card-bg);
+	color: var(--text-dark);
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-center {
+	text-align: center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.ennu-animate-in {
+	animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.ennu-animate-delay-1 { animation-delay: 0.1s; }
+.ennu-animate-delay-2 { animation-delay: 0.2s; }
+.ennu-animate-delay-3 { animation-delay: 0.3s; }
+.ennu-animate-delay-4 { animation-delay: 0.4s; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1200px) {
+	.ennu-grid {
+		grid-template-columns: 300px 1fr;
+		gap: 20px;
+		padding: 15px;
+	}
+	
+	.ennu-two-column {
+		grid-template-columns: 1.5fr 1fr;
+		gap: 20px;
+		padding: 15px;
+	}
+}
+
+@media (max-width: 900px) {
+	.ennu-grid {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+	
+	.ennu-two-column {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+	
+	.ennu-sidebar {
+		position: static;
+		order: 2;
+	}
+	
+	.ennu-main-content {
+		order: 1;
+	}
+}
+
+@media (max-width: 768px) {
+	.ennu-grid,
+	.ennu-two-column,
+	.ennu-single-column {
+		padding: 10px;
+	}
+	
+	.ennu-glass-card,
+	.ennu-sidebar,
+	.ennu-main-content {
+		padding: 20px;
+	}
+	
+	.ennu-title {
+		font-size: 1.5rem;
+	}
+	
+	.ennu-score-orb {
+		width: 120px;
+		height: 120px;
+	}
+	
+	.ennu-score-value {
+		font-size: 2rem;
+	}
+	
+	.ennu-btn-group {
+		flex-direction: column;
+		gap: 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-grid,
+	.ennu-single-column {
+		padding: 10px;
+	}
+	
+	.ennu-glass-card,
+	.ennu-sidebar,
+	.ennu-main-content {
+		padding: 15px;
+	}
+	
+	.ennu-title {
+		font-size: 1.3rem;
+	}
+	
+	.ennu-score-orb {
+		width: 100px;
+		height: 100px;
+	}
+	
+	.ennu-score-value {
+		font-size: 1.5rem;
+	}
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+	.ennu-score-orb-progress,
+	.ennu-progress-fill,
+	.ennu-glass-card,
+	.ennu-btn {
+		transition: none;
+	}
+	
+	.starfield {
+		animation: none;
+	}
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+	:root {
+		--border-color: #ffffff;
+		--text-light: #ffffff;
+		--text-dark: #ffffff;
+		--card-bg: #000000;
+	}
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+	.starfield {
+		display: none;
+	}
+	
+	.ennu-unified-container {
+		background: #ffffff;
+		color: #000000;
+	}
+	
+	.ennu-glass-card,
+	.ennu-sidebar,
+	.ennu-main-content {
+		background: #ffffff;
+		border: 1px solid #000000;
+		box-shadow: none;
+	}
+}
+
+/* ===== CONSULTATION SPECIFIC STYLES ===== */
+.ennu-consultation-icon {
+	font-size: 80px;
+	margin-bottom: 1.5rem;
+	display: block;
+	animation: float 6s ease-in-out infinite;
+}
+
+.ennu-consultation-icon svg {
+	width: 80px;
+	height: 80px;
+	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Theme Toggle */
+.ennu-theme-toggle {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 1000;
+}
+
+.ennu-theme-btn {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border: 1px solid var(--glass-border);
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: var(--shadow-md);
+}
+
+.ennu-theme-btn:hover {
+	transform: scale(1.1);
+	box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.ennu-theme-icon {
+	width: 24px;
+	height: 24px;
+	color: var(--text-color);
+}
+
+.ennu-sun-icon {
+	display: block;
+}
+
+.ennu-moon-icon {
+	display: none;
+}
+
+[data-theme="light"] .ennu-sun-icon {
+	display: none;
+}
+
+[data-theme="light"] .ennu-moon-icon {
+	display: block;
+}
+
+@keyframes float {
+	0%, 100% { transform: translateY(0px); }
+	50% { transform: translateY(-10px); }
+}
+
+.ennu-benefits-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ennu-benefits-list li {
+	position: relative;
+	padding: 12px 0 12px 30px;
+	border-bottom: 1px solid var(--border-color);
+	color: var(--text-color);
+	font-size: 1rem;
+	line-height: 1.6;
+}
+
+.ennu-benefits-list li:last-child {
+	border-bottom: none;
+}
+
+.ennu-benefits-list li::before {
+	content: "✓";
+	position: absolute;
+	left: 0;
+	top: 12px;
+	color: var(--accent-primary);
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+.ennu-booking-embed {
+	margin-top: 20px;
+	border-radius: var(--rounded-lg);
+	overflow: hidden;
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+}
+
+.ennu-booking-placeholder {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--text-muted);
+}
+
+.ennu-placeholder-icon {
+	margin-bottom: 20px;
+	color: var(--text-muted);
+}
+
+.ennu-booking-placeholder h3 {
+	color: var(--text-dark);
+	margin-bottom: 10px;
+	font-size: 1.3rem;
+}
+
+.ennu-booking-placeholder p {
+	margin-bottom: 20px;
+	line-height: 1.6;
+}
+
+.ennu-contact-info {
+	margin-top: 20px;
+}
+
+.ennu-contact-item {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	padding: 15px 0;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.ennu-contact-item:last-child {
+	border-bottom: none;
+}
+
+.ennu-contact-icon {
+	color: var(--accent-primary);
+	flex-shrink: 0;
+}
+
+.ennu-contact-details {
+	flex: 1;
+}
+
+.ennu-contact-label {
+	font-size: 0.9rem;
+	color: var(--text-muted);
+	margin-bottom: 4px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ennu-contact-value {
+	font-size: 1rem;
+	color: var(--text-dark);
+	font-weight: 500;
+}
+
+.ennu-contact-value a {
+	color: var(--accent-primary);
+	text-decoration: none;
+	transition: color 0.3s ease;
+}
+
+.ennu-contact-value a:hover {
+	color: var(--accent-hover);
+}
+
+.ennu-extra-section {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--border-color);
+	color: var(--text-muted);
+	font-size: 0.9rem;
+	line-height: 1.6;
+}
+
+/* Responsive adjustments for consultation pages */
+@media (max-width: 768px) {
+	.ennu-theme-toggle {
+		top: 15px;
+		right: 15px;
+	}
+	
+	.ennu-theme-btn {
+		width: 45px;
+		height: 45px;
+	}
+	
+	.ennu-theme-icon {
+		width: 20px;
+		height: 20px;
+	}
+	
+	.ennu-consultation-icon {
+		font-size: 60px;
+		margin-bottom: 1rem;
+	}
+	
+	.ennu-consultation-icon svg {
+		width: 60px;
+		height: 60px;
+	}
+	
+	.ennu-benefits-list li {
+		padding: 10px 0 10px 25px;
+		font-size: 0.9rem;
+	}
+	
+	.ennu-contact-item {
+		padding: 12px 0;
+		gap: 12px;
+	}
+	
+	.ennu-contact-icon svg {
+		width: 18px;
+		height: 18px;
+	}
+} 
+
+.ennu-debug {
+	background: var(--card-bg);
+	color: var(--text-dark);
+	padding: 15px;
+	margin-bottom: 20px;
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-md);
+	font-size: 12px;
+	overflow-x: auto;
+}
+
+.ennu-error {
+	color: #ef4444;
+	background: rgba(239, 68, 68, 0.1);
+	padding: 20px;
+	border: 2px solid #ef4444;
+	border-radius: var(--rounded-md);
+	text-align: center;
+	font-weight: 600;
+	font-size: 1.1rem;
+	margin: 30px 0;
+	box-shadow: 0 2px 12px rgba(239, 68, 68, 0.08);
+} 

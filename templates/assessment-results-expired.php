@@ -20,6 +20,19 @@ $retake_url    = isset( $assessment_type ) ? ennu_life()->get_shortcodes()->get_
 	<div class="starfield"></div>
 	<div class="dossier-grid" style="grid-template-columns: 1fr; max-width: 600px; margin: auto;">
 		<main class="dossier-main-content">
+			<?php
+			if ( function_exists( 'ennu_render_logo' ) ) {
+				echo '<div class="ennu-logo-container">';
+				ennu_render_logo([
+					'color' => 'white',
+					'size' => 'medium',
+					'link' => home_url( '/' ),
+					'alt' => 'ENNU Life',
+					'class' => ''
+				]);
+				echo '</div>';
+			}
+			?>
 			<div class="ennu-results-empty-state" style="text-align: center; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--rounded-lg); padding: var(--spacing-6);">
 				<div class="empty-state-icon" style="font-size: 40px; font-weight: bold; color: #ffc107; background: rgba(255, 193, 7, 0.1); width: 80px; height: 80px; line-height: 80px; border-radius: 50%; margin: 0 auto 20px; border: 1px solid #ffc107;">!</div>
 				<h2 class="empty-state-title" style="font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 15px;">

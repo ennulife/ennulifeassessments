@@ -437,7 +437,8 @@ class ENNU_Life_Enhanced_Database {
 	 * Count completed assessments for user
 	 */
 	private function count_completed_assessments( $user_id ) {
-		$assessments = array( 'hair_assessment', 'weight_loss_assessment', 'health_assessment', 'ed_treatment_assessment', 'skin_assessment' );
+		// Exclude welcome_assessment and health_optimization_assessment from counting
+		$assessments = array( 'hair_assessment', 'weight_loss_assessment', 'health_assessment', 'ed_treatment_assessment', 'skin_assessment', 'sleep_assessment', 'hormone_assessment', 'menopause_assessment', 'testosterone_assessment' );
 		$completed   = 0;
 
 		foreach ( $assessments as $assessment ) {
@@ -454,7 +455,8 @@ class ENNU_Life_Enhanced_Database {
 	 */
 	private function update_overall_health_metrics( $user_id ) {
 		try {
-			$assessments = array( 'hair_assessment', 'weight_loss_assessment', 'health_assessment', 'ed_treatment_assessment', 'skin_assessment' );
+			// Exclude welcome_assessment and health_optimization_assessment from metrics calculation
+			$assessments = array( 'hair_assessment', 'weight_loss_assessment', 'health_assessment', 'ed_treatment_assessment', 'skin_assessment', 'sleep_assessment', 'hormone_assessment', 'menopause_assessment', 'testosterone_assessment' );
 			$total_score = 0;
 			$count       = 0;
 
@@ -519,12 +521,17 @@ class ENNU_Life_Enhanced_Database {
 	 * @return array An array of assessment history data.
 	 */
 	public function get_user_assessment_history( $user_id ) {
+		// Exclude welcome_assessment and health_optimization_assessment from history
 		$assessments = array(
 			'hair_assessment',
 			'weight_loss_assessment',
 			'health_assessment',
 			'ed_treatment_assessment',
 			'skin_assessment',
+			'sleep_assessment',
+			'hormone_assessment',
+			'menopause_assessment',
+			'testosterone_assessment',
 		);
 		$history     = array();
 

@@ -18,6 +18,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="ennu-chart-container">
+	<?php
+	if ( function_exists( 'ennu_render_logo' ) ) {
+		echo '<div class="ennu-logo-container">';
+		ennu_render_logo([
+			'color' => 'white',
+			'size' => 'medium',
+			'link' => home_url( '/' ),
+			'alt' => 'ENNU Life',
+			'class' => ''
+		]);
+		echo '</div>';
+	}
+	?>
 	<h2><?php echo esc_html( $assessment_title ); ?> - Score Breakdown</h2>
 	<p>This chart provides a visual representation of your scores across the different health categories.</p>
 	<div style="max-width: 600px; margin: 0 auto;">

@@ -1,14 +1,21 @@
-# ENNU Life Assessments WordPress Plugin
+# ENNU Life Assessment Plugin
 
-**Version:** 59.0.0  
-**Last Updated:** December 18, 2024  
-**WordPress:** 5.0+ required, 6.8+ recommended  
-**PHP:** 7.4+ required, 8.0+ recommended  
-**License:** Proprietary
+**Version:** 62.2.8
+**Author:** Luis Escobar  
+**License:** GPL v2 or later
+
+## 🚀 Latest Updates (v57.2.1)
+
+### Critical Fixes Implemented:
+- ✅ **FIXED**: Assessment pre-population - users no longer need to re-enter gender, DOB, height, weight
+- ✅ **FIXED**: Global fields display - Age, Gender, Height, Weight, BMI now properly show on dashboard  
+- ✅ **FIXED**: Light mode readability - enhanced contrast for scores and contextual text
+- ✅ **ENHANCED**: Data persistence and error handling across all assessment types
+- ✅ **IMPROVED**: User experience with seamless data flow and visual clarity
 
 ## Overview
 
-The ENNU Life Assessments plugin is a comprehensive health assessment system for WordPress that provides multiple health evaluations with sophisticated scoring algorithms, user dashboards, and administrative tools. It features a proprietary four-tier scoring hierarchy culminating in the master ENNU LIFE SCORE.
+The ENNU Life Assessment Plugin is an enterprise-grade WordPress solution that provides comprehensive health assessments with advanced scoring algorithms, personalized insights, and a beautiful user interface.
 
 ## Key Features
 
@@ -108,9 +115,19 @@ ennulifeassessments/
 │   ├── config/      # Assessment definitions and mappings
 │   └── *.php        # Core PHP classes
 ├── templates/       # Display templates
-├── documentation/   # Detailed docs
+├── docs/            # Comprehensive documentation (NEW!)
 └── tests/          # Test files (minimal coverage currently)
 ```
+
+### Documentation
+📚 **NEW**: All documentation has been reorganized into a comprehensive structure. See the [Documentation Index](docs/README.md) for complete navigation.
+
+**Quick Access:**
+- [Installation Guide](docs/01-getting-started/installation.md)
+- [Developer Notes](docs/01-getting-started/developer-notes.md)
+- [System Architecture](docs/02-architecture/system-architecture.md)
+- [Assessment Guide](docs/04-assessments/master-assessment-guide.md)
+- [Scoring System](docs/05-scoring/architecture/scoring-architecture.md)
 
 ### Key Files
 - `includes/config/assessment-definitions.php` - Single source of truth for all assessments
@@ -170,8 +187,8 @@ ennulifeassessments/
 ## Support
 
 For issues or questions:
-1. Check the `/documentation` folder
-2. Review the changelog for recent changes
+1. Check the [Documentation Index](docs/README.md) for comprehensive guides
+2. Review the [changelog](CHANGELOG.md) for recent changes
 3. Ensure you're running compatible versions of WordPress and PHP
 4. Check browser console for JavaScript errors
 
