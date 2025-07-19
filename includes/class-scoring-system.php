@@ -26,23 +26,92 @@ class ENNU_Assessment_Scoring {
 
     public static function get_all_definitions() {
 		if ( empty( self::$all_definitions ) ) {
+            $cache_key = 'ennu_assessment_definitions_v1';
+            $cached_definitions = get_transient( $cache_key );
+            
+            if ( false !== $cached_definitions && isset( $cached_definitions['definitions'] ) ) {
+                self::$all_definitions = $cached_definitions['definitions'];
+                return self::$all_definitions;
+            }
+            
             $assessment_files = glob( ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessments/*.php' );
+            $file_mod_times = array();
+            
             foreach ( $assessment_files as $file ) {
                 $assessment_key = basename( $file, '.php' );
                 self::$all_definitions[ $assessment_key ] = require $file;
+                $file_mod_times[ $file ] = filemtime( $file );
             }
+            
+            $cache_data = array(
+                'definitions' => self::$all_definitions,
+                'file_mod_times' => $file_mod_times,
+                'cached_at' => time()
+            );
+            
+            set_transient( $cache_key, $cache_data, 12 * HOUR_IN_SECONDS );
+            error_log( 'ENNU Caching: Assessment definitions loaded from files and cached' );
         }
         return self::$all_definitions;
     }
 
     public static function get_health_pillar_map() {
         if ( empty( self::$pillar_map ) ) {
+            $cache_key = 'ennu_pillar_map_v1';
+            $cached_pillar_map = get_transient( $cache_key );
+            
+            if ( false !== $cached_pillar_map && isset( $cached_pillar_map['pillar_map'] ) ) {
+                self::$pillar_map = $cached_pillar_map['pillar_map'];
+                return self::$pillar_map;
+            }
+            
             $pillar_map_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/scoring/pillar-map.php';
             if ( file_exists( $pillar_map_file ) ) {
                 self::$pillar_map = require $pillar_map_file;
+                
+                $cache_data = array(
+                    'pillar_map' => self::$pillar_map,
+                    'file_mod_time' => filemtime( $pillar_map_file ),
+                    'cached_at' => time()
+                );
+                
+                set_transient( $cache_key, $cache_data, 12 * HOUR_IN_SECONDS );
+                error_log( 'ENNU Caching: Pillar map loaded from file and cached' );
             }
         }
         return self::$pillar_map;
+    }
+
+    public static function get_health_goal_definitions() {
+        static $goal_definitions = null;
+        
+        if ( null === $goal_definitions ) {
+            $cache_key = 'ennu_health_goal_definitions_v1';
+            $cached_goals = get_transient( $cache_key );
+            
+            if ( false !== $cached_goals && isset( $cached_goals['goal_definitions'] ) ) {
+                $goal_definitions = $cached_goals['goal_definitions'];
+                return $goal_definitions;
+            }
+            
+            $goal_definitions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/scoring/health-goals.php';
+            if ( file_exists( $goal_definitions_file ) ) {
+                $goal_definitions = require $goal_definitions_file;
+                
+                $cache_data = array(
+                    'goal_definitions' => $goal_definitions,
+                    'file_mod_time' => filemtime( $goal_definitions_file ),
+                    'cached_at' => time()
+                );
+                
+                set_transient( $cache_key, $cache_data, 12 * HOUR_IN_SECONDS );
+                error_log( 'ENNU Caching: Health goal definitions loaded from file and cached' );
+            } else {
+                $goal_definitions = array();
+            }
+        }
+        
+        return $goal_definitions;
     }
 
     public static function calculate_scores_for_assessment( $assessment_type, $responses ) {
@@ -68,8 +137,7 @@ class ENNU_Assessment_Scoring {
         $all_definitions = self::get_all_definitions();
         $pillar_map = self::get_health_pillar_map();
         $health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
-        $goal_definitions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/scoring/health-goals.php';
-        $goal_definitions = file_exists($goal_definitions_file) ? require $goal_definitions_file : array();
+        $goal_definitions = self::get_health_goal_definitions();
 
         // 1. Get all category scores from all completed assessments
         $all_category_scores = array();
@@ -251,5 +319,26 @@ class ENNU_Assessment_Scoring {
 		
 		return $symptom_data;
 	}
+
+    public static function clear_configuration_cache() {
+        delete_transient( 'ennu_assessment_definitions_v1' );
+        delete_transient( 'ennu_pillar_map_v1' );
+        delete_transient( 'ennu_health_goal_definitions_v1' );
+        
+        self::$all_definitions = array();
+        self::$pillar_map = array();
+        
+        error_log( 'ENNU Caching: All configuration caches cleared' );
+        
+        return array(
+            'success' => true,
+            'message' => 'Configuration caches cleared successfully',
+            'cleared_caches' => array(
+                'assessment_definitions',
+                'pillar_map', 
+                'health_goal_definitions'
+            )
+        );
+    }
 }
 
