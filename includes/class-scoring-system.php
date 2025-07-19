@@ -141,7 +141,7 @@ class ENNU_Assessment_Scoring {
 
         // 1. Get all category scores from all completed assessments
         $all_category_scores = array();
-        foreach ( array_keys($all_definitions) as $assessment_type ) {
+        foreach ( $all_definitions as $assessment_type => $definition ) {
             if ( 'health_optimization_assessment' === $assessment_type ) continue;
             $category_scores = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', true );
             if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
@@ -229,7 +229,7 @@ class ENNU_Assessment_Scoring {
         $all_definitions = self::get_all_definitions();
         $pillar_map = self::get_health_pillar_map();
         $all_category_scores = array();
-        foreach ( array_keys($all_definitions) as $assessment_type ) {
+        foreach ( $all_definitions as $assessment_type => $definition ) {
             if ( 'health_optimization_assessment' === $assessment_type ) continue;
             $category_scores = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', true );
             if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
