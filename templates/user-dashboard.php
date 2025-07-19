@@ -9,7 +9,7 @@ if (isset($template_args) && is_array($template_args)) { extract($template_args,
 
 // Defensive checks for required variables
 if (!isset($current_user) || !is_object($current_user)) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">ERROR: $current_user is not set or not an object.</div>';
+	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__('ERROR: $current_user is not set or not an object.', 'ennulifeassessments') . '</div>';
 	return;
 }
 $age = $age ?? '';
@@ -22,7 +22,7 @@ $insights = $insights ?? array();
 $health_optimization_report = $health_optimization_report ?? array();
 $shortcode_instance = $shortcode_instance ?? null;
 if (!$shortcode_instance) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">ERROR: $shortcode_instance is not set.</div>';
+	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__('ERROR: $shortcode_instance is not set.', 'ennulifeassessments') . '</div>';
 	return;
 }
 
@@ -2387,4 +2387,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script> 
+</script>  

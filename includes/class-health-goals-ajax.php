@@ -109,6 +109,12 @@ class ENNU_Health_Goals_Ajax {
             ) );
         }
         
+        $security_validator = ENNU_Security_Validator::get_instance();
+        if ( ! $security_validator->rate_limit_check( 'update_health_goals', 10, 300 ) ) {
+            wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+            return;
+        }
+        
         if ( ! is_user_logged_in() ) {
             wp_send_json_error( array( 
                 'message' => 'User not logged in',
@@ -172,6 +178,12 @@ class ENNU_Health_Goals_Ajax {
                 'message' => 'Security check failed',
                 'code' => 'NONCE_FAILED'
             ) );
+        }
+        
+        $security_validator = ENNU_Security_Validator::get_instance();
+        if ( ! $security_validator->rate_limit_check( 'toggle_health_goal', 20, 300 ) ) {
+            wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+            return;
         }
         
         if ( ! is_user_logged_in() ) {
@@ -410,4 +422,4 @@ class ENNU_Health_Goals_Ajax {
 }
 
 // Initialize the AJAX handler
-new ENNU_Health_Goals_Ajax(); 
+new ENNU_Health_Goals_Ajax();  

@@ -960,18 +960,25 @@ final class ENNU_Assessment_Shortcodes {
 	public function handle_assessment_submission() {
 		$this->_log_submission_debug( '--- Submission process started ---' );
 
-		// 1. Security Check: Verify AJAX nonce
+		// 1. Security Check: Verify AJAX nonce and rate limiting
 		$this->_log_submission_debug( 'Verifying nonce...' );
 		check_ajax_referer( 'ennu_ajax_nonce', 'nonce' );
 		$this->_log_submission_debug( 'Nonce verified successfully.' );
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'assessment_submission', 5, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many submission attempts. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		// Future-proofing: Capture user IP for potential rate-limiting or security audits.
 		$user_ip = $_SERVER['REMOTE_ADDR'];
 		$this->_log_submission_debug( 'User IP captured.', $user_ip );
 		$this->_log_submission_debug( 'Raw POST data:', $_POST );
 
-		// 2. Get and Sanitize Data
-		$form_data = $this->sanitize_assessment_data( $_POST );
+		// 2. Get and Sanitize Data with enhanced security
+		$input_sanitizer = ENNU_Input_Sanitizer::get_instance();
+		$form_data = $input_sanitizer->sanitize_form_data( $_POST, 'assessment' );
 		$this->_log_submission_debug( 'Sanitized form data:', $form_data );
 
 		// 3. Validate Data
@@ -1279,8 +1286,14 @@ final class ENNU_Assessment_Shortcodes {
 	 * AJAX handler to check if an email exists for a non-logged-in user.
 	 */
 	public function ajax_check_email_exists() {
-		// Security check
+		// Security check with rate limiting
 		check_ajax_referer('ennu_ajax_nonce', 'nonce');
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'email_check', 20, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
 
@@ -1313,8 +1326,14 @@ final class ENNU_Assessment_Shortcodes {
 	 * Used to dynamically update frontend state after account creation.
 	 */
 	public function ajax_check_auth_state() {
-		// Security check
+		// Security check with rate limiting
 		check_ajax_referer('ennu_ajax_nonce', 'nonce');
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'auth_check', 30, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$response = array(
 			'is_logged_in' => is_user_logged_in(),
