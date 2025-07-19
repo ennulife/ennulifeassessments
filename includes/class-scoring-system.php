@@ -65,17 +65,32 @@ class ENNU_Assessment_Scoring {
     }
 
     public static function calculate_and_save_all_user_scores( $user_id, $force_recalc = false ) {
+        $start_time = microtime( true );
+        
         $all_definitions = self::get_all_definitions();
         $pillar_map = self::get_health_pillar_map();
         $health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
         $goal_definitions_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/scoring/health-goals.php';
         $goal_definitions = file_exists($goal_definitions_file) ? require $goal_definitions_file : array();
 
-        // 1. Get all category scores from all completed assessments
+        // 1. Get all category scores from all completed assessments - OPTIMIZED
         $all_category_scores = array();
+        
+        $meta_keys = array();
         foreach ( array_keys($all_definitions) as $assessment_type ) {
             if ( 'health_optimization_assessment' === $assessment_type ) continue;
-            $category_scores = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', true );
+            $meta_keys[] = 'ennu_' . $assessment_type . '_category_scores';
+        }
+        
+        $user_meta_batch = array();
+        foreach ($meta_keys as $key) {
+            $user_meta_batch[$key] = get_user_meta( $user_id, $key, true );
+        }
+        
+        foreach ( array_keys($all_definitions) as $assessment_type ) {
+            if ( 'health_optimization_assessment' === $assessment_type ) continue;
+            $meta_key = 'ennu_' . $assessment_type . '_category_scores';
+            $category_scores = $user_meta_batch[$meta_key] ?? array();
             if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
                 $all_category_scores = array_merge( $all_category_scores, $category_scores );
             }
@@ -144,7 +159,8 @@ class ENNU_Assessment_Scoring {
         
         update_user_meta( $user_id, 'ennu_life_score_history', $score_history );
         
-        error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $ennu_life_score_data['ennu_life_score'] );
+        $execution_time = microtime( true ) - $start_time;
+        error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $ennu_life_score_data['ennu_life_score'] . ' (execution time: ' . round($execution_time * 1000, 2) . 'ms)' );
     }
 
     /**
@@ -158,18 +174,39 @@ class ENNU_Assessment_Scoring {
         if ( is_array( $pillar_scores ) && ! empty( $pillar_scores ) ) {
             return $pillar_scores;
         }
+        
+        $start_time = microtime( true );
+        
         $all_definitions = self::get_all_definitions();
         $pillar_map = self::get_health_pillar_map();
         $all_category_scores = array();
+        
+        $meta_keys = array();
         foreach ( array_keys($all_definitions) as $assessment_type ) {
             if ( 'health_optimization_assessment' === $assessment_type ) continue;
-            $category_scores = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', true );
+            $meta_keys[] = 'ennu_' . $assessment_type . '_category_scores';
+        }
+        
+        $user_meta_batch = array();
+        foreach ($meta_keys as $key) {
+            $user_meta_batch[$key] = get_user_meta( $user_id, $key, true );
+        }
+        
+        foreach ( array_keys($all_definitions) as $assessment_type ) {
+            if ( 'health_optimization_assessment' === $assessment_type ) continue;
+            $meta_key = 'ennu_' . $assessment_type . '_category_scores';
+            $category_scores = $user_meta_batch[$meta_key] ?? array();
             if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
                 $all_category_scores = array_merge( $all_category_scores, $category_scores );
             }
         }
+        
         $pillar_calculator = new ENNU_Pillar_Score_Calculator( $all_category_scores, $pillar_map );
         $base_pillar_scores = $pillar_calculator->calculate();
+        
+        $execution_time = microtime( true ) - $start_time;
+        error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round($execution_time * 1000, 2) . 'ms)' );
+        
         // Save for future use
         update_user_meta( $user_id, 'ennu_average_pillar_scores', $base_pillar_scores );
         return $base_pillar_scores;
