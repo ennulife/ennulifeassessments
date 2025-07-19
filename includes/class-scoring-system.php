@@ -134,6 +134,9 @@ class ENNU_Assessment_Scoring {
     }
 
     public static function calculate_and_save_all_user_scores( $user_id, $force_recalc = false ) {
+        $performance_monitor = ENNU_Performance_Monitor::get_instance();
+        $performance_monitor->start_timer( 'scoring_calculation' );
+        
         $all_definitions = self::get_all_definitions();
         $pillar_map = self::get_health_pillar_map();
         $health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
@@ -212,7 +215,8 @@ class ENNU_Assessment_Scoring {
         
         update_user_meta( $user_id, 'ennu_life_score_history', $score_history );
         
-        error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $ennu_life_score_data['ennu_life_score'] );
+        $metrics = $performance_monitor->end_timer( 'scoring_calculation' );
+        error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $ennu_life_score_data['ennu_life_score'] . ' (execution time: ' . round($metrics['execution_time'] * 1000, 2) . 'ms, memory: ' . round($metrics['memory_usage'] / 1024, 2) . 'KB)' );
     }
 
     /**
