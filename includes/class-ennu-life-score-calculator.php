@@ -18,11 +18,15 @@ class ENNU_Life_Score_Calculator {
     private $user_id;
     private $base_pillar_scores;
     private $all_definitions;
+    private $health_goals;
+    private $goal_definitions;
 
-    public function __construct( $user_id, $base_pillar_scores, $all_definitions ) {
+    public function __construct( $user_id, $base_pillar_scores, $all_definitions, $health_goals = array(), $goal_definitions = array() ) {
         $this->user_id = $user_id;
         $this->base_pillar_scores = $base_pillar_scores;
         $this->all_definitions = $all_definitions;
+        $this->health_goals = $health_goals;
+        $this->goal_definitions = $goal_definitions;
         error_log("EnnuLifeScoreCalculator: Instantiated for user ID {$user_id}.");
     }
 

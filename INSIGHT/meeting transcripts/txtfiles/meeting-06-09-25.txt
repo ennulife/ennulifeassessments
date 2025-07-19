@@ -1,0 +1,649 @@
+Call with Ted
+Ted: [00:00:00] Okay. Um, so to bring you up to speed, um, we own medical offices, medical clinics that do a lot of it.
+It started out as HRT, you know, like hormones and stuff like that. Mm-hmm. Antiaging. Mm-hmm. And, and, um, it's
+really morphed into like a full concierge care. Um, um, what we noticed was as adult age, there's other issues, you
+know, high, high blood pressure mm-hmm.
+Ted: Di diabetes, et cetera, et cetera, that we had to treat and take care of. Mm-hmm. But before we were able to
+optimize everything else, so, so instead of having to send them off to another physician, you know, we, you know, we.
+You know, that could take weeks, right? We, we are like, well, hell, we're trained to do all that.
+Ted: So, so, so we, we [00:01:00] basically become their specialist, like their pri pri primary care, um, doc and
+mm-hmm. And so, um, you know, it's, it's kind of like an elite Level me membership where we take care of everything
+from your vitamins, minerals, hormones, um, all your lab levels, you know, all the pri primary care type stuff.
+Ted: Um, if, if somebody needs any kind of medication, whether it's, um, I mean everything mm-hmm. From like a
+DHD to weight loss meds to whatever, um, you know, we'll, we'll. Prescribe that. So, and we, we have a story, it's kind
+of cool. Um, we, we use a data mining software called Tab, tab, tab Tableau, which quite frankly [00:02:00] might,
+eventually, probably will get replaced by some kind of ai.
+Ted: Mm-hmm. Um, it, it, it essentially takes all the lab values and all the other database things that we know about
+this individual and at their very first baseline, what we call it, the baseline meeting mm-hmm. Prior to, prior to them
+starting. Mm-hmm. It says, Hey, hey, this is where you're at and this is what you need to do to become optimal.
+Ted: You know, and so we, we basically track their pro progress mm-hmm. Throughout, throughout. I mean, could be
+the rest of their, their, their lives. I mean, we, we started this company about 13 years ago. Mm-hmm. Um, and, and
+so, you know, we've taken care of a lot of folks and, and there there's been folks that are, that are with us for, you
+know, 10, 12, 12 years.
+Ted: So. [00:03:00] Gotcha, gotcha. Um, so like in short, like
+Luis: you try to like, uh, centralize all the verticals, right? Instead of like, uh, like,
+Ted: oh, so, so, so, so, so all that care is really done under the medical side. Mm-hmm. What, what, what we have
+vertically integrated is the compound far, far pharmacy that we own. Gotcha. So they basically, all the specialized
+meds get, gets made by, by them.
+Ted: Mm-hmm. And then same, same day, it'll get shipped out to, to wherever that. Her person lives. So
+Luis: yeah, man, this stuff is, uh, this is, this is really interesting, man. Um, actually, this kind of stuff has been really
+catching my eye lately. I, I've been seeing a lot of, uh, some new like clinics here in Miami that are popping up that
+are like this, or it's like, you know, it's very, uh, personalized [00:04:00] health, essentially, right?
+Luis: Um, and it, correct. Yeah. People, people really want that, right? People are tired of all this, uh, cookie cutter
+stuff that your, your traditional medicine is giving you. Um, so like I, I, I can see that there's a trend in that markets.
+'cause I keep seeing more and more of these companies. Um, that's,
+Ted: yeah. The, the, the challenge is, you know, uh, so, so I like what you're saying.
+Ted: I'm not sure that I'm seeing necessarily the same trend. I mean, I'm kind of fighting two different issues, so.
+Mm-hmm. One, one, when we first started, we were really some of the first to like do it because mm-hmm. You know,
+back, back in the day it was, oh my god, li like hormones, they're gonna give you this and that.
+Ted: Mm-hmm. They're gonna kill you. They're gonna give you a heart attack. Mm-hmm. And, you know, everything
+
+that we knew to be true is finally coming out and saying, oh [00:05:00] wait, no, no, no. Yeah, you're right. Optimal
+levels are healthy. They, they won't harm you. You know? I mean, so like, everything is now privy to be true and, and
+so that's great.
+Ted: Um, but there's more competition now. Mm-hmm. So, I mean, like, we, we were, we were one of the fastest
+growing companies in the, up in our area in probably the, the four, five state area. Nice. For like, for like seven years,
+but then 2020 happened, and then along comes telehealth, right? Mm-hmm. And, and so, so everybody's able, or
+feels like now all, all of a sudden they have access to the internet, they can diagnose themselves, they can just get
+what they want over the internet by, you know, o ordering online or Yeah.
+Ted: Ace synchronous, ace synchronous form from a physician. Yeah. And they might get [00:06:00] bits and. Pieces
+of it. So it is kind of like the Amazon of medicine, right? I mean, it's kind of like, yeah, it's fast, easy, cheap, but is it
+good? Y you know, I mean, and it's like, it, it, it sucks because people will take cheap and fast.
+Ted: Sometimes many times over. Good. Right. You know, and especially now when everybody's trying to pinch
+pennies, inflation, yeah. Et cetera, et cetera. It's like, man, you know, not only do you have more people in the space
+doing it. Mm-hmm. Mm-hmm. Now, now you are, you are competing with literally everybody because the DEA
+changed the way physicians are allowed to do health screening, so.
+Ted: Mm-hmm. Now, now they, they could do a telehealth call, right? Yeah. And they could have, they, they could
+have somebody literally, you know, touch their own throat and say, okay, do, do you, do you feel any, any, you know,
+whatever hard it is, [00:07:00] or, you know, whatev, whatever it is. And I'm like, you know, how does somebody get,
+get, give themself?
+Ted: You know, a physical Right. You know? Yeah. So, so I mean, it's, it's, but, but, but, but they had to do it during
+2020, right? Because, because a, a lot of clinics were sh shut, shut down, and folks still needed access to their
+medicine, so, yeah. Yeah. So, so I don't know if the DA is going to kind of, especially on controlled substances.
+Ted: Okay. So like test testosterone and like Adderall, all of those things are con, are, are, are what's considered a
+controlled substance. Yeah. So, so, so those re require a, a, like an actual physical exam. Well, all that would change,
+of course, during, during 2020. So I, unless the DEA reverts back to the way it was, which I don't see them doing it
+because,
+Luis: not an, I don't think the administration, [00:08:00] I think.
+Ted: Well, no, definitely not. Not in this one. And probably not even on the other side. Yeah. Because it's giving, it's
+giving access to, to poor, poor folks, you know, and stuff that, that they can't drive. Yeah. Two hours, you know, that,
+that, that, that, you know, say in eastern Kentucky Right. That they, they can't drive two hours to see a physician.
+Ted: Yeah. You know? So, so, so it is helpful in many ca cases. Yeah. But it's harmful, it's harmful to us who had
+already made the investment in brick and mortar offices, you know, and all that. Yeah,
+Luis: for sure. Man. It's
+Ted: like, well, fuck, I mean, it's hard for us to compete mm-hmm. With, with a doc doctor working out of his ho
+Luis: Yeah.
+Ted: Out of his house. Y you know, so, um, so we've, we've had to really, I. And, um, um, you know, so, so we're,
+we're doing [00:09:00] a lot of. To telehealth too. I mean, yeah. So I mean, that, that's, yeah. I mean, you know, you,
+you just gotta pivot and it makes sense for a lot of the existing clients that we already know. You know, it is like, look,
+d if you don't want to come in, you don't want to drive, drive in, hell just take, take the call anyway.
+Ted: Right. You know, I mean, so, um. Although there, there are still some folks that enjoy coming in and that, that
+
+kind kind of thing. But that's, so then, then we, we also do aesthetics. So we, we do a lot of non-invasive type type
+stuff like fillers and tox and, and, and that kind of thing. And that, that is a growing market.
+Ted: Mm-hmm. I mean, it's already been a big market for girls, but even for like men and skincare mm-hmm. And all
+that. Mm-hmm. Um, you know, it, no, nobody wants to look older. Right. So, so, so, so [00:10:00] it's become a pretty
+big, big thing. So, so, so that's a. A good, good thing. And that that's, that's not something that you could do via
+telehealth.
+Ted: So,
+Luis: um, not necessarily, not at all. And then, um, I guess the other thing that comes to mind is not necessarily like
+telehealth or like the same, you know, kind of care you would get in person, but like, uh, optimized insight or
+optimized health. Like, I don't know, do some companies that come to mind, I don't know if you've heard of, uh,
+function Health?
+Luis: Yes.
+Ted: Right. Both function, function and Life Force Life are, are both, both really good examples of a national
+competitor. In fact, lifeforce all of their graphs, all of their grids. Mm-hmm. Like all of their health metrics mm-hmm.
+Came, right, came right from our story. I, I kid you not everything that I developed 12 year, year, [00:11:00] years ago,
+their exact thing, it, it came from, from what I designed.
+Ted: Oh, wow. So, yeah, I mean, so I, I mean, I'm not saying that they copied me, I'm just saying that we, we've been
+doing it for that long. So, so, yeah. I mean, it's cool. Li Lifeforce is doing it the right way and they're, they're all
+telehealth,
+Luis: so, so I actually did some work with, uh, Peter Diamandis, like couple years ago.
+Luis: Um, helped him with some marketing campaigns for a book. Um, but, um, yeah, I mean the, the, him, him and
+Tony Robinson, they had, they made an investment in. Lifeforce, I believe so, yeah. And then, yeah, there's, um, you
+know, there's a, what's this called? 10 x and you know, he, he did, um, function. So yeah, that, that, that's that.
+Luis: I guess those are the kind of companies that have caught my eye. Right. So that's,
+Ted: yeah. Well, RI Ryan, [00:12:00] Ryan, Heidi both work for 10 x, right?
+Luis: That's correct. That's correct. Yeah.
+Ted: Yeah, yeah, yeah. Yeah. So I, I mean, yeah, they're, they're doing shit, right, I assume, I mean mm-hmm. I don't
+know that. 10 XI, I mean, they seem to be all over the place.
+Ted: Yeah. I mean, like they're, they're doing everything from, you know, health ranked terrain, exercise physiology to
+mm-hmm. You know, supplements to whatever. We're a little bit, probably more narrow, both focused on the medical
+side, but Yeah. Um, so what, but, but they, they, they do a lot of really cool shit too.
+Ted: So,
+Luis: so what's your, your, your company called?
+Ted: It's called ENNU. It's pronounced Anu. Anu Got it. Anu, yeah. It was 25 5. Again, do.com. So two five again.com.
+That's still up, but it, but it's, but it's a new do [00:13:00] co.co.
+Luis: New do co. Let's do that now. Yeah. Got it. Yeah.
+
+Ted: Yeah, so it's a shitty site. Honestly, we're, we're redoing it, but, um, um, I can send you the social links too.
+Ted: We have a, we, we have an aesthetic site, social, and we have a, a more medical
+Luis: Yeah,
+Ted: social as well. Um, so just to
+Luis: give you some, uh, uh, uh, insight on like what, you know, what I do, what, what I'm really special at and what I,
+you know, what my strengths are. Uh, essentially, I, I, I work right now at the CTO level, right?
+Luis: For, uh, three different companies. Um, primarily right now my focus is with, uh, this, uh, algorithmic trading
+company. I'm serving as a CTO. And basically I just oversee all the, anything, technology and marketing and all the
+initiatives in that direction. Um, and then I also have a, a file links, and that's where we just generate agency services,
+essentially for clients, right?
+Luis: I mean, I, I've been, you know, building [00:14:00] websites and helping online businesses for almost 20 years
+now. Huh, okay. Started when I was 14, building websites and just that evolved to building apps and then consulting
+and then, um, you know, eventually starting my own, you know, side hustles that became, you know, their own, um,
+uh, partnerships with other partners.
+Luis: Um, there's lots of course, that's kind of like a fun side gig.
+Ted: Yeah, yeah, yeah,
+Luis: yeah, man. But, uh, basically, um, yeah, uh, really, you know, my focus is really in technology and marketing,
+right? The, the, the bridge, um, at those two roads. And right now with ai, um, that's like heavily what I do. I'm a, I'm a
+full stack developer.
+Luis: I have a, you know, full stack development, uh, background. I used to, you know, build apps, you know,
+traditionally by hand. Um, yeah. Yeah.
+Ted: Yeah. That, that's, that. That's awesome.
+Luis: Yeah. But yeah, I mean, now I still do like, and now I, [00:15:00] I build them even better and faster and I mean,
+it's really incredible what's happened in the last six, 12 months.
+Luis: It's like, I, I got a whole new set of superpowers essentially. Um,
+Ted: yeah. No shit. Thanks. Thank you. Ai. Yeah.
+Luis: Yeah. That was cool. Um, and so like, yeah, man, I mean, every, every couple weeks I'm, I'm like, you know,
+implementing something, you know, pretty groundbreaking at, at one of my companies. Um, especially right now with
+just, uh, everything that's changing with content creation and, um, automation.
+Luis: Um. Increasing the output of our current team, right? Instead of having to hire, uh, more sales reps who can
+just duplicate the output of our current ones. Um,
+Ted: yeah, man. Yeah, for sure.
+Luis: Enhancing the user experience, right, of like the, the, the, the consumer, right? Like really just, uh, being able to
+prototype, you know, new ideas for like, how the user flow should be, the marketing flow should be, how the user
+experience should be, um, getting some feedback [00:16:00] like really quickly.
+Luis: And then, um, I doing a ideation, design development and, uh, deployment, like in a fraction of the time that
+
+where there used to be, you know, um, yeah.
+Ted: Yeah.
+Luis: Sorry. So,
+Ted: so on the marketing side, like how much experience do you have, if any, with like Cubs, Spott.
+Luis: Oh, that's my bread and butter, man. I'm talking my language.
+Ted: Is it really Okay. Because, because we are literally in the middle of like an implementation with them and, and a
+lot of the workflows and stuff are being built, built out. But I know my team, I. Is kind of, I, I mean, we're going at a
+pace, but not anywhere near at the pace that we want, and we're just looking for some basic shit.
+Ted: I mean mm-hmm. Like, that's really where I think, I mean, there's so many areas where we can improve, but I
+mean, we have so many years and so much financial, I mean, I mean so much patient data. [00:17:00] Mm-hmm.
+Mm-hmm. And, and I mean that, I just think we just, the me messaging and our marketing efforts could just be so
+much better.
+Ted: I mean,
+Luis: absolutely. Um, absolutely, man. I mean, um, like there's just like a. Before, yeah, you should always be
+personalizing your messages. And in the past we used to like personalize messages, but these were like set in stone
+templates, right? They were like static templates. Um, now we still use static templates, but we're more and more
+using just this autonomous AI that's basically, uh, responding Right.
+Luis: Um, in a, in a personalized manner. Right? But it's, it's not a template, it's just autonomously speaking back to
+the, to the lead. It's,
+Ted: that's awesome. Yeah. That's awesome. And is it sending them a text, uh, of, of, of like what, like what, what,
+what, what are the different forms of communication? Yeah,
+Luis: so we use all channels, right?
+Luis: Uh, yeah, we do like an omnichannel approach. [00:18:00] So the HubSpot is the, the, the king of CRMs. I've
+been using them for almost, well, 10 years, maybe more. Um. I bought into them when they used to charge like 20
+KA license, but now they're, they've gone really mass market and they, they've really taken the industry and, you
+know, they're undisputed the champs, I would say.
+Luis: Um, okay,
+Ted: good. Well, I, I, I'm glad because the guy that, that I hired, um, it didn't work out, but, but that was the
+recommendation that he had about a year ago. Yeah. So we ended up going with it. It's just the implementation's
+been really, really slow. So
+Luis: it's a really sophisticated CRM, um, it has a ton of bells and whistles depending on what, what license you
+have.
+Luis: Right. But if you have like, you know, all the features, there's so much you can do, um, you actually don't need
+to use it all. Right. And you, you want to try to like really fine tune it and, and customize it to you. [00:19:00] There's a
+lot of like, uh, I don't know, HubSpot, like there. Uh, templates and workflows. You can just like, I guess buy and
+import, but like, none of that stuff ever works.
+Luis: You really gotta like, yeah. The best way to really dial in a, a marketing campaign right, is you, it first starts
+
+organic, like you really do, you know, put some energy into it and fine tune it and split test it. And once you have that
+really dialed in, then you turn on the Evergreen campaign. And I mean, we do that, we do that first phase.
+Luis: That usually takes like, you know, a couple weeks to a couple months, depending on how intricate it is. But then
+after we have that dialed in, that campaign runs, we have campaigns that have been running for three years, four
+years. I mean, we tweak 'em here and there, but like they're, nothing really has to change, you know, we know it
+already worked.
+Ted: Right. Don't, don't break what's not broken or, or don't go fix what's not broken. Right, right, right, right, right.
+Luis: Yeah.
+Ted: Shit. Okay. That's all right. Well, cool.
+Luis: Really testing and split testing and getting those [00:20:00] numbers dialed in. Right. So like, and then
+HubSpot's amazing, but it's even more amazing when you integrate the right services with it, right?
+Luis: Uh, like what, well, one example of like how HubSpot is the industry leaders right now, Chad, GTP released a,
+a new update where it's integrating with only certain. CRMs. Actually, the only CRM is HubSpot. The only CRM open
+AI is integrating, which is HubSpot. Ah, uh, Google also has a native integration with Google Gemini.
+Luis: Um, so HubSpot is been ready for ai and it's, it's well, uh, prepared for like, any of those connections. Right? So
+we have open AI connected to our HubSpot. Additionally, we have a phone service of voiceover IP called Air Call.
+They're the best in class for voiceover ip,
+Ted: I think. I think we're actually using them.
+Ted: Or, or, or they're, yes. Somehow we're integrating. So somehow we're using, uh, I know that, that mm-hmm.
+Service has been presented to us. Yeah. Okay. Cool. [00:21:00]
+Luis: And then, um. For texting, there's another service, right? 'cause I'm, I'm a big, big believer that like, um, there's
+companies out there that say they do it all.
+Luis: They do one stop shop. Uh, I like working, sometimes I like working with those companies, but it's not too often.
+I, I, when it comes to technology, I like to work with companies that specialize on one thing really well, right? Yeah. So
+like, their call just does really good voice, um, and text, uh, calling. They do texting as well.
+Luis: Um, but then there's another one called Intercom that, that does a lot of our omnichannel stuff. So if somebody
+sends a DM on Instagram, uh. Then goes to our websites, uh, we can respond to them through, you know, the, our
+live chat or, you know, our automated calling system. We will call them from Aircall. Uh, the transcript will get, you
+know, transcribed and gets sent to another AI called grainy ai.
+Luis: That transcript gets like a, a score of how good the sales closer did on that call. [00:22:00] Right? And then the
+manager, shut the fuck out. Yeah, shut the fuck out. The manager that's awesome. Gets that data immediately. It's all
+sent to our Slack where we, you know, uh, the executive team can like, review it. Yeah. Um, it also goes to the sales
+closer so that he can make improvements.
+Luis: It'll tell him, Hey, you know, you, you could have, uh, uh, slowed down your cadence here. Um, you were right.
+You weren't very clear on the, on the proposition at this point. Um, here's how you can do better or, so, like, that's an
+example of improving the output of our sales team. Right. Just by giving them more insight into.
+Luis: What they're, you know, they're, they're good at what, they're not good at what, you know, script works best for
+them, for what kind of client, right? So like all these things we, you know, we've always known and we try to like,
+
+acquire that data and insight as much as possible, but like it's a process, right?
+Luis: But now AI just making it a lot more feasible, right? Um, as long as you got the right team and the [00:23:00]
+right manager to oversee these things, right? Um, it, it, it really does open so many doors. Um, especially just if, if you
+have all this data that is, I mean, that is, uh, a gold mine right there, right? Uh, all that.
+Luis: Well,
+Ted: that's it. I mean, that, that is kind of it, right? Finding what, what, what is, um, you know, what, what data, and I
+mean like when you and I were talking about, you know, you were talking about how AI could impact us in ways that I
+wasn't even thinking it was like. Quite frankly, two steps ahead of where I was even thinking.
+Ted: So, I mean, it's awesome.
+Luis: Um, so like, right, right now, like what I'm really focused on right now is, uh, building these AI agents. So, um,
+essentially these are AI agent employees. Uh, we, we, we have a, a, a marketing AI agent, a social media AI agent, a
+copywriting AI agent. Right? So whenever I need some, a new [00:24:00] headline or a new idea for a script, I'll
+mm-hmm.
+Luis: Start a conversation with my copywriting agent. You get me and my copywriting agent has all the knowledge
+from my HubSpot. It has, it has all the transcripts of every phone call my, my team has had. So That's awesome.
+Yeah. You know, so it, it'll, it knows exactly what to do, you know, so it, yeah, we, we we're trying to like.
+Luis: Create also like assistance. So we also do have a, a, a project manager and a, and a client success manager
+and a sales director. So, uh, these guys also have their own like assistant AI agents who, who kind of, you know,
+they, they know their schedule, they know their meetings, they know, you know, what reports that or, or, so they just
+help 'em be more productive essentially.
+Luis: Um,
+Ted: so when, when, when you, when you said if you have the right guy overseeing this, it makes it obviously much
+better. Of course. But [00:25:00] give me an example of what qualities you would see that individual needing to have.
+Luis: Well, I mean, um, the, the overseeing would be like your, I mean, I'm, you have a manager, I'm, I'm guessing
+right now, right?
+Luis: Well, like, like A
+Ted: CMO kind of thing.
+Luis: Like a, yeah. Cm Well, I'm, no, I mean like, you want also your, your. Your entry level sales rep, you want him to
+have, um, some, like, you want him to also be engaging with these ais, right? Because it's gonna help him. Mm-hmm.
+And all the way up the chain to, to your CMO. Um, definitely just, you know, have, you know, experience with, with the
+traditional, like project management tools like Asana, HubSpot, slack.
+Luis: Mm-hmm. Right. As long as they're, you know, uh, fluent in using those apps, then, you know, having AI
+assisting them is just gonna make them even faster or more effective. [00:26:00]
+Ted: I think they're, they're using. Click up for like different, like tasks and sprints mm-hmm. And stuff. Um mm-hmm.
+Um, that, that one I know for sure.
+Ted: I, I oversee kind of everything, so, you know, I am aware of most, but not, I'm certainly not, um, ma master of
+anything, so. Gotcha. Um, you know, I, I just know that we need. You know, we need serious help to kind of get back,
+get back the, the business that we have or had. I mean, we, we need to be able to adapt, um, much quicker than I
+
+feel like we are.
+Luis: Yeah, well, I mean, you, you said, uh, you know, um, lifeforce and, and, and these other guys are like your, your
+NA national competitors, and I mean, that's, that's pretty exciting to me. That's kind of like, uh, of my alley. I tend to, I
+don't work [00:27:00] necessarily with startups. I, I work really like with companies that who are like, are scale up, like
+call, right?
+Luis: Yeah. That, that have all the right ingredients, um, you know, have the right team, have the right product. Um,
+at, at, at that point is where I can really, you know, provide value. Right. Um. You know, Ted, I, I, I was, uh,
+considering, you know, how, how I could help you, right? And like, uh, I feel like, uh, maybe I can just really put some
+more thought into this, right?
+Luis: Because I, I was just gonna send you some links and let you do some research, but, you know, there, there is,
+uh, actually some possibility that, that I could, uh, put together like a proposal for you on just like coming in, like at a
+consulting, uh, you know, basis. Even if it's on a per meeting basis or, or on a per project basis, we can just kind of
+iron out those details.
+Luis: I mean, I think I know exactly what you're looking for and it's not a, it's not a, it's know instant thing that
+happens overnight. These, these things take time, right? Yeah. But if you plan it out properly, [00:28:00] um, you, the
+execution time can, can really be shortened if, if it's well thought out, right? Um, you know, choosing the wrong
+software can really set you back.
+Ted: Yeah. No, no doubt. But it does sound like we're already on the right path. I mean, as far as software goes.
+Yeah. Yeah. Um, yeah. Yeah. So, um, you know, I'd love to probably just set up a, I mean, would, would you wanna
+meet with, or, or at least have a Zoom call with, you know, one or two of the folks that, that would know most of the
+answers that you're, that, that you might have questions to?
+Ted: Yeah, what I'm
+Luis: thinking is, uh, yeah, if I can, you know, get a little bit more insight, right? We can do one more meeting, a
+Zoom meeting and, um, and okay, give me just a little bit more of the meat and potatoes, right? Um, I could, you
+know, sit down, you know, I can provide you a, a, an, an audit essentially, [00:29:00] right?
+Luis: Um, and, and. Put together a, a strategy, uh, you know, not necessarily just one strategy. It's usually multiple
+strategies. Right. Um, just like a, a long, a long, there's a, there's a long-term overarching picture, right. That's, that's
+what I try to help my clients achieve. Right. Right. What, what is that ultimate goal, right?
+Luis: And what are the milestones in between to get us there? Um, mm-hmm. So, you know, doing that audit will help
+me, uh, fully understand everything. Right? Yeah. But I think I gotta just like, without, even without you telling me
+more, I have already enough information to really put together a plan for you. And this is what I meant.
+Luis: I mean, it's, it's, it's the same thing. I, I do the same thing for all the businesses. They all need the same exact
+thing. They're, you know, it's, uh, what
+Ted: you're saying that I'm not special? What, what the fuck? Come on man. You
+Luis: are special man. You are. Of course. I'm just kidding. But, you know, I'm kidding. That's actually where a lot of
+businesses like.
+Luis: Kind of hiccup and like they try [00:30:00] to get creative and, and you really gotta wanna stick to the
+fundamentals, like get those fundamentals out then.
+Ted: No, I, I totally agree, man. Keep it simple, you know? I mean, yeah. Keep it simple. My, my, my fear is my, my
+team is so buried. I. Just getting stuff out mm-hmm. That they're missing, that they're missing out on, on kind of the
+
+new tools that are out there already.
+Ted: Mm-hmm. That can, that can, that could help them, you know? Mm-hmm. I mean, like where, where, where,
+where, that's exactly where, where you're at, right? I mean, you know, you're, you are, you are, you're already using
+these tools. You're already aware of these, these tools. Yeah. You know, you know, and so why, why have us wait a
+couple years to get to the point where you're already at?
+Ted: So, no. So, yeah. I mean, exactly. So, so yeah. I mean, if you wanna put something together, fine. If you want to,
+uh, if you want, want, want me to set up a Zoom or a teams meeting, uh, with some of them later [00:31:00] this
+week, I could, I mean, I think a 30 minute conversation with them might not be bad, but, but, but, but, um, um, if you
+already think you have a pretty good handle on it, I mean, that's fine.
+Ted: Whatever, so,
+Luis: no. Yeah. I think, um. Can you tell me about your team? Like, so you have a CMO, you have a CTO, you have
+a,
+Ted: so we, we, we, we let the the CMO go. Um, okay. He was from Lima per, okay. Um, he hired several folks that
+he had worked with prior and they are still. On the team. Um, um, uh, so, so yeah, we, we have graphic designers, so
+social media con content.
+Ted: We have a social media manager, Uhhuh. Um, we, we, we have a 20 year vet agency vet that is a digital, um,
+[00:32:00] you know, Google expert, um, SEO, um, and meta meta buyer expert. Mm-hmm. Um, and so they're,
+they're integrating all of that into HubSpot now. Mm-hmm. So we can track, so we can track the ad spin and the ad
+efficacy.
+Ted: Um, um, his name is Brian. Mm-hmm. So say Brian, Marissa Elda, and then, then our team in. Peru is Theo.
+Mm-hmm. Zaina, um, Renzo is more of the tech, tech guy. Mm-hmm. Um, um, probably somebody that you would
+speak the same language with. Got it. Um, and then we have ano another, another guy, uh, Steven Bennett, um, who
+works in our office as well.
+Ted: Um, and he's more the data. I mean, he's kind of the catchall. Mm-hmm. You know, he, he's the kid that, that
+A-C-A-C-T and, you know, didn't miss a question and got it. He got [00:33:00] paid to go to college, you know, I mean,
+he's, he, he, he's off the chart. Smart. And, and what's good is he's been with us now for a couple years, young kid.
+Ted: And he knows everything. I mean, like meaning that he, he knows everything that we're trying to do. Mm-hmm.
+And I think he could probably better explain it than me, to be honest. So, um, so, so, so really, really sharp, sharp,
+sharp team. I mean, and everyone in office. Yeah. Yeah. Yeah. Everyone's in office except for Theo Zaina and Zo
+Luis: Gotcha.
+Luis: Who are overseas. Yeah. That's cool, man.
+Ted: Yeah. Yeah. Um, so I, I mean, it's a lightweight team. I mean, we're not back backed by like, any equity. It's just
+me. Mm-hmm. You know, so, so, um, it's a self-funded thing and, and, um, um, it's been fun, but I mean, you know,
+the. Pivot is huge, right? I mean, you know, we, you know, we, [00:34:00] we grew so fast by taking all the different
+membership levels that we had.
+Ted: Mm-hmm. And we just combined it all down to one and we said, look, you don't have to make a de decision. It's
+a one price thing. And for one price, you get everything. Well, I mean, that sounds great. And we, we, we grew super
+fast. But now, you know, I mean, everybody can pick and choose, you know, fast, easy, cheap, you know, and, and,
+uh, um, so, so, you know, we, we, we have to make a decision, really, right?
+Ted: I mean mm-hmm. Do we compete in that space or, or do, do we, do we stand out by being more, more, um, uh,
+
+more thorough, you know, better, more high. Concierge. Mm-hmm. So we, we also own a site called uh, tripods.com.
+It's like the
+Luis: tripods,
+Ted: tri tripods try TRY pons [00:35:00] PONC e.com. It, it's, it's, what you see up there now is really just a beta site,
+but, but it's a, it's, it's, it's gonna compete with like, himss himss, you know, it is like an a asynchronous type offering.
+Ted: Oh. You know, where you fill, fill out forms and, and they, they just either get approved or not based on the forms
+that they fill out. So, um, so that, that's really just a part. Pharmacy mm-hmm. Play, right? I mean, you know, that, that
+would just be a low, low cost, high, high volume type type thing. So. Got it. So we, we, we were rolling that out to
+really catch the folks that didn't want everything, you know, that, that didn't want to pay four or 5,000 do dollars a year.
+Ted: Mm-hmm. You know, um, you know, that they just wanted, or, or at least they think that they want just one thing.
+Mm-hmm. Um, so we, we were gonna, [00:36:00] you know, do that kind of thing under a different brand mm-hmm.
+And try, try to keep our main brand
+Luis: mm-hmm.
+Ted: You know, try, try to keep that intact. Mm-hmm. So
+Luis: I. So, um, and then Nu but, so the flagship product of Nu is, uh, is the membership, right?
+Luis: Yes. Yeah. Yep. Got it. And, um, how many members? Well, it's really the
+Ted: assessment, so it's, the assessment is really the product that I think you want people to focus on. Mm-hmm. It's,
+it's almost exactly, I mean, I'm telling you.
+Ted: How I did it. I mean, li li li Lifeforce says for 5 99, you can buy the onetime. Mm-hmm. Di di diagnostic, right?
+Yeah. They give you the plan. Or for 3 49, you, you can join [00:37:00] and will create you, you know, yada, yada,
+yada. So, I mean, they, they've done it right. Um, and so we're, we're like really selling the knowledge of being able
+to, to tell you where you're at now, and the know of knowing what to do when things change.
+Ted: So as you get older, you know, your body changes, right? Mm-hmm. Well, your, your regular physician has no
+fucking clue what to do. Yeah. So, so I mean, like, like that's where we specialize. I mean, you know, and, and, um,
+um, that, that's the difference between us and everybody else. And, you know, we have. Peptide the therapy and, um,
+I really want to get into the D-D-D-D-N-A and the me me Yeah.
+Ted: And the methylation too. Um, I know 10 x is doing a lot. Yeah, man. Yeah,
+Luis: man. I mean, so yeah. There's a ton of like room for growth there, right? And so, yep, yep. Once you have the
+technology and the [00:38:00] marketing and the processes all dialed in, um, with, with one of, you know, the, one of
+the verticals you call 'em, right?
+Luis: It's, it's becomes really easy to establish the other ones, right? Just 'cause it's, it's gonna utilize the same
+systems. Right. And, and the, the marketing will just, you know, work off each other. One, one brand supplements the
+other in a sense. Um, yeah.
+Ted: Yeah.
+Luis: That's the holy grail. Um, I'm, so, I'm curious how, how many members do you have?
+Ted: Um, full-time. Me, me, me members. We have about half of what we had, so we dwindled down to about 1800.
+
+Luis: 1800.
+Ted: So yeah, I mean, it was close to 4,000 full-time.
+Luis: Yeah.
+Ted: So
+Luis: that's, well, that's churn, that's churn for you, right? It's just us.
+Ted: Well, it, it, it's just, it's our, see, it's our inability to fill the bucket. The, the, the [00:39:00] churn has stayed about
+the same.
+Ted: Mm-hmm. It's just that our inability to fill the bucket because of the competitive space. And, or, I mean, see, our
+biggest channel was like live radio. Mm-hmm. TT tv. Well, shit, nobody listens to the live radio anymore. Nobody
+watches TV anymore, so, so yeah. I mean, like literally 2020 or, or since 2018 to 2022 mm-hmm.
+Ted: We were going, we were, we were going through a Titanic shift mm-hmm. Where whereas our competitors had,
+had the, had really the benefit of the social channels already being there and the DEA changing the laws. Mm-hmm.
+It was kind of a, it, it was a perfect time mm-hmm. For someone to start a telehealth mm-hmm.
+Ted: Company. But it was a horrible [00:40:00] time for someone like us who has all these brick and mortar facilities
+and the costs there to try to. Pivot overnight. Mm-hmm. You know? Mm-hmm. So, so, so, so anyway, we're we, we've
+gotten on the other end of it and now, now we're ready to, um, you know Yeah. Get back in the game as you are.
+Luis: So, uh, uh, I'm, I'm just looking at the website right now. Um, there's, there's like so many ideas that are flowing
+through my mind right now, actually. Um, what, what's the story behind the name Eno
+Ted: there? So, it's not meant to be anything, actually, it was an abstract name. I mean, um, you know, so, so the
+idea was, um, it could be something or not, nothing at all.
+Ted: Um, you know, but it's, um, we, we had to get away from the 25 5 again gateway, quite frankly. 'cause Huh?
+Luis: You said gateway. [00:41:00]
+Ted: No, I said we had to get away. Oh, get
+Luis: away
+Ted: from, from 25 again or so, we thought, because a lot of our clients on the aesthetic side held, they were only 26,
+27, 25, 24. You know, so, so, so, so the, it was never meant to be an age thing necessarily.
+Ted: 25 again. The reason I named the company, that was because at age 25, you are thought to be optimal.
+Mm-hmm. All your hormone levels, your vi vitamin levels, um, the, the, the cells in your body are, are thought to be
+the healthiest at about that age. So, so 25 5 again really meant, I mean, it was age specific, but it was really more
+health wise.
+Ted: Mm-hmm. You know, so it didn't mean that, hey, we're gonna take a, a, a 50-year-old guy to make him 25 again.
+Mm-hmm. It meant, [00:42:00] but it does mean that we can safely and effectively change his internal chemistry
+mm-hmm. To that of a 25, 5-year-old, you know, and, and I mean, quite frankly, I'm in better shape now than I was
+when I was 38, you know, so.
+Ted: Yeah, man. So, um, um, you know, yeah. I mean, it, it, it's awesome.
+Luis: So that's awesome. Awesome. So, um, what about, um, your, um, your, uh, what's, what's the demographic?
+
+Like, what's the target audience? What's your ideal customer?
+Ted: You know, the average age is 45 to 51. Mm-hmm. I mean, if you were to say average, I mean, it dips down to 28
+on the medical side, it could be anywhere from 30 to 65.
+Ted: Yeah. You know, mu much over 65, you have a fixed income type issue. [00:43:00] Um, now you're, you're
+talking about mar markets up here, right? I mean, where, so yeah, it's not, it's a much different market where, where,
+where we're at, down, down there, you know? Um, is the majority
+Luis: of your members localized? Like Yeah, yeah,
+Ted: yeah, yeah, yeah, yeah, because we, we were based.
+Ted: Brick and mortar. Mm-hmm. So we're, we're really only advertising Kentucky, Indiana, and Ohio.
+Luis: Okay. So you are getting like, uh, like a growing number of people who are just like, uh, not localized there.
+Ted: Right. So, so, so we, we are beginning, but we have not broadcast telehealth much. Um, but our pharmacy's
+already licensed in 20 states.
+Ted: Um, we're looking to do a deal with, uh, do, do doctor, uh, that has, that she's in [00:44:00] already. So we, we
+have the ability to just. Almost flip the switch. I, I, I mean, like, like if you said, Hey Ted, I'm ready to go. We can, we
+can effectively serve, serve ads to, to, you know, I mean, 'cause out of all the states there's probably 30 that may,
+may, may make sense, right?
+Ted: So, so I, I mean, um, um, yeah, I mean, we, we, we have the ability to, to scale quick. We, we have a very small
+call center. I mean, we only have three, three girls. Um, but quite frankly, I mean, our competitors don't even have a
+phone number, you know? Mm-hmm. They're, they're using, they're using their call center more for customer service.
+Ted: I mean, whereas, you know, look, if your website can't convince somebody that's already dealing with a current
+pain, right? I mean, then, you know, [00:45:00]
+Luis: yeah.
+Ted: Lifeforce and hims and hers does a really good job of of, of just saying, look, sign up here. Sign up now. I mean,
+yeah. You know, um, if you guys are missing me
+Luis: now, just to be frank, um, on the lab.
+Luis: Yeah. I mean, and like I was asking about the brand name just 'cause, um, I, I, I am like very big on branding,
+right? Uh, I did have a, mm-hmm. Like a, prior to my, my current agency, we had like a company called Aesthetics
+Designs. Um, so we're really like focused on like the, uh, beautiful design, uh, really like engaging, uh, user flows,
+right?
+Luis: Mm-hmm. The smallest like little like thing can, like, really make the difference between like a, a, a 2%
+conversion or a 3% conversion. Um, yep. And, and, um, branding, uh, you know, getting the messaging really dialed
+in, getting that mission statement. Uh, and, uh, the. [00:46:00] Just the, the essence of the brand, right. Making sure
+that that's really well communicated.
+Luis: Right. Um, life force is incredible. I mean, that sounds like Yes. Yes. I love it. Um, you know, things like that, that
+those really nail it on the head. I, I love it when there's one Ford Health, like, you know, moving forward. Um, you
+know, uh, there's another one called Advisory, I think it is. It's a, it's like they're coming off, like I get an advisory panel
+of doctors helping me.
+
+Luis: Um mm-hmm. You know, so, um, we can definitely keep working with, you know, I'm not against it. Um, but
+we'll come up with some catchy, um. Branding campaigns, right. Where mm-hmm. Maybe the, the, it's a landing page
+specifically targeting women and then they're, you can have like a, well,
+Ted: so, so that's what, what we're doing.
+Ted: I mean, that, that's exactly, so, so they'll, they, they, they'll be able to show you [00:47:00] the, the, the wi wire
+frame of, of the new site. Yeah. Which, which basically makes, you know, men, women, and then like it basically. I
+think it, it, it'll be much more clear and flow with what you're Yeah. Thinking if I will. But, but I mean, but, but, but, but,
+but just to let you know, we're, we're not married.
+Ted: I mean, we are married to some, some things, but, but mm-hmm. But, but, but it's important for you to know that
+I'm open to all ideas. Yeah. So, yeah. Yeah, you
+Luis: could definitely, you know, make a big difference in the marketing. Right. And it's not really a big deal.
+Companies do this all the time, right? So it could be an advertisement for, uh, I don't know, I'm just female force.com
+or female life force.com or, or feminine health.com or something else, right?
+Luis: And then when you land on it, you know, the, the, the branding really resonates with that, you know, female.
+And then somewhere, you know, in the branding it'll [00:48:00] say Female force, uh, powered by Eno or, or
+something along those lines, right?
+Ted: Yeah. So, so we, they've moved to a new man and a new. Woman. Mm-hmm. And we own both those domains.
+Ted: Not, not that we would market that, but I mean, of course, male oriented ads you would land on a male Yeah.
+Page, you know, you, you know, I mean, so, so I mean, we've contemplated already much of that, and I think you
+would see it in our mar marketing. Fantastic. So, um, but yeah, but, but, but, but, but, but dude, we, we are a long,
+long way from being great.
+Ted: So, so, so, yeah. I mean, any, any help is, yeah, certainly echo.
+Luis: What is the majority of your marketing or advertising efforts? Is it, is it Facebook? No, it's
+Ted: probably, I'd say it's probably se 70% [00:49:00] digital now. Uh, Google, and then probably, um, the other paid,
+paid wise. The other 30% would be social me, you know, meta.
+Ted: Okay. So do you know what your, is
+Luis: by any chance the, what is the, uh, uh, return on ad spend? Uh, roas.
+Ted: I, I don't, um, but, but historically, um, our mar our direct marketing costs have been around 15%.
+Luis: Okay. So, got it. And, um, do you know how much you're spending on ads like daily or, or monthly?
+Ted: I don't, not off hand.
+Ted: I mean, um, I know it's more than I wanted to, especially, um, but yeah,
+Luis: so, and Right. What's the user experience like? Uh, it's like, do, do you have an app or is it all like a [00:50:00]
+website and a web, like a web portal? A members area.
+Ted: Yeah. Web, web portal. Um, and I think they're doing a lot with HubSpot as well, so.
+Ted: Mm-hmm. Um, we don't, don't have an app. Um, and that, that might be something that, that I wanna look at
+doing. I mean, you know, be, be being able to pull up all your labs and your charts and Yeah. Being able to
+
+graphically show somebody's health and what, what their. Ages versus their by, by bi lot. Lot. Yeah.
+Ted: Logical age would be awesome. You know, so
+Luis: like, I love that stuff, like, just like the visualization of data, right? Like I, I mean, I, I uploaded my blood work the
+other day to, to, uh, charge a TP, right? And it just gave me a ton of insight, right? Haha. Cool. Yeah. Yeah. Having, I
+think of, uh, forward health and, uh, uh, life force, it, they have an app, right.[00:51:00]
+Luis: Um, and from the screenshots, I, it looks like a really beautiful app. It just looks, it's cool to see your data like
+that in that way. Yeah. Um, do, are the Apple Health app also, like, you know, it has like all your health metrics in it,
+right? So you can very quickly just, uh, export, import that stuff to your own, you know, the Enu app essentially.
+Luis: But I think that would definitely, uh, that's low hanging fruit. That, that's definitely gonna be in my list of
+recommendations. Um, just get a, get a quick app up and running and then, um, you know, it. It, it could be simple at
+first and then it, it, it'll keep evolving. Right? Um, yeah. But then, and then the other, uh, I guess thing that's kind of
+like top of mind, low hanging fruit is do, do you have an affiliate program?
+Luis: Do you have like an, an influencer campaign? So,
+Ted: so they're working with, um, so, so we have a Referral Pro program, which is our influencer, and then we have
+an affiliate where they're, they're actually paid, [00:52:00] so, so, um, and they're working with a HubSpot login to
+implement that. So, um. You know, it might be great for you to give them some insight on that too.
+Luis: Yeah, yeah. No, I'm gonna, so the way I, you know, what I'm considering is just doing a, a, a full top to bottom
+audit, right? From all your technology, all your systems, all your processes, um, all your marketing, uh, and then just,
+um, you know, I can give you, you know, my, my advice on just what I think is best for you on, on the short term and
+on the long term, right.
+Luis: I can, um, you know, come, um, at a, at an advisory level, right, and just tell you, you know, what, what, what I
+believe you guys should do and how to do it. Um, or I can also come in, uh. More of about, uh, you know, executing
+all these different initiatives. Right. Um, sure. Um, you know, it would have to, you know, I have to really just put
+together like the schedule, right?[00:53:00]
+Luis: Um, I tend to work in, you know, these sprints, right? Or we'll, we'll, we'll do the heavy lifting for like three
+months, right? And then things will kind of like, they can simmer down. Sometimes they ramp up even more. Yeah.
+But, um, it's, that's usually, you know, a good workflow. Good. We do a good four, six week sprint, right?
+Luis: We, we achieve x, y, Z goals and then we move on to the next milestone, and then right six months down the
+line, we got a ton of things done.
+Ted: Okay. Well, I mean, um, you know, my, my biggest thing right now is always I. Cash flow, right? I mean, so
+mm-hmm. I, I just need, need to be able to, to keep the cash flow going.
+Ted: Um, that, that, that's what's important to current Yeah. Current operations. So,
+Luis: yeah's, what I'm curious about your return on ad spend, right? So if, if that's, you know, I would like to like, you
+know, take a deep dive at your numbers, [00:54:00] um, and then get an understanding of how much, you know, I
+don't
+Ted: think we have enough historical See that, that's the problem.
+Ted: I mean, we, we didn't have we, that, that was the problem with, with the CMO that we had before. She never
+took the time to properly connect the, a lot of the uh, uh, um, meta and Google. Business to together, so you couldn't
+
+see the lifecycle and you really couldn't match a lot of the, um, you know, acquisition costs, that kind of thing, so.
+Ted: Mm-hmm. Um, I mean, you, you, you can mm-hmm. But, but, but, but it just wasn't as, you know, I mean, like,
+you should be able to see it. Day by day. Right. I mean, it should be instantaneous. Yeah. So, yeah. Um, um, but, but
+yeah, I mean, we, we can look at it. I think May was probably our first [00:55:00] month and it, it was a horrible month,
+but, but it was our first month where the new guy had much more rain on the cost and knew what he was doing.
+Ted: Got it. Um, got it. So, so at least that part's good. At least we didn't spend 70, 80 grand more than we should
+have in a month. Yeah. Um, for nothing. Nothing at all. So, no. Um, yeah, we, we, we can't afford to do that.
+Luis: No. Yeah. So for sure if, if low hanging fruit is just Yeah. Dialing in your, you know, your ads, um, getting some,
+some good retargeting, right.
+Luis: That those are like the simplest ways to like really improve the return on ad spend. Um, and, and really getting
+that targeting down with HubSpot, right? Identifying those like key markers that like, um, HubSpot has its own AI
+actually, and it does a really good job of like, uh, coming up with this likelihood to close percentage, likelihood to
+[00:56:00] close.
+Luis: Yeah. Or, and, and if you really dial in the, the, the data points that, that, that make up a, a qualified buyer, um,
+and then you feed that data back to Facebook, back to Google, back to TikTok, um, and, and, and empower your,
+your affiliates with, you know, you, you want to really like, make it a, you know, I, I, I've worked with a ton of affiliates
+in all different kinds of industries and then, um, they, you know, they really.
+Luis: Want something that is, uh, proven right, where they know that they're gonna push it to their audience and, and
+they are gonna get, you know, their returns that they're looking for. Um, that it's, it's, it's streamlined. It's, it's, uh, you
+know, some, a product that they would use themselves. Um, so like making this beautiful app, for example.
+Luis: Um, and then, um, making an affiliate portal where the affiliate logs in, they can see how much money they're
+making. They [00:57:00] can see, um, videos and images that they can like very quickly download, copy and paste
+and post, like, don't, don't make them do any work. They're very lazy. Um,
+Ted: no, you're right. You're, you're exactly right.
+Ted: And they have to understand what the company's about, what it's from. They, they have to believe in the
+mission. Mm-hmm. It's got gotta be clear. Mm-hmm. But, but you're right. They're gonna want a, they're bonus
+Luis: program. Like if, if you get, you know Yeah. Five signups in one day, you, you activate this bonus and, and you
+get a free trip if you do a hundred k in sales.
+Ted: Right, right, right. No, 1000%, man. Yeah.
+Luis: So I, I also helped build, uh, this Instagram account called Millionaire Mentor with my partner Jason. And that,
+that account, um, is a, has like little over 10 million followers and, but it, it's really, um, uh, uh, uh, how do I put it? It,
+it's able [00:58:00] to connect us with a lot of influencers.
+Luis: Um, we, we do a lot of brand deals. We do a lot of, uh, uh, cam shoutout campaigns for, you know, different
+kinds of products and services. Right. So I can definitely, well let, let's get to
+Ted: that point, man. We gotta get, we gotta get to that point where we can be showcase.
+Luis: I could present this affiliate program already.
+Luis: I can think of like, uh, 10 people who, who would probably, you know, I know they, I mean, they, they just wanna
+see that it's a, it's a solid product and it's gonna make good returns for them, right? Yeah. And, um, they, they have
+
+huge followings on Instagram and, and TikTok and whatnot. And YouTube too is huge. If you're not doing YouTube,
+definitely do YouTube and it post on Facebook.
+Luis: Right now, posting on Facebook is, uh, underrated. But it's, it's coming back. Facebook is making it come back.
+Okay. Um, there's a ton of ideas I got for you, brother. I really, uh, I, I really, uh, enjoy building businesses. It's
+something I've been passionate about. [00:59:00] Oh,
+Ted: me too, man. I, I mean, I, I, I geek out over that shit.
+Ted: Yeah. So, um, so, alright, well, hey, if you recorded this call, would, would you mind like transcribing this,
+throwing this into chat and Of course. And just kind of like summarizing it 'cause I'd like to share it with, with, uh,
+some of the team just so they know kind of what, what we talked about.
+Luis: Yeah, yeah, absolutely.
+Luis: Uh, uh, my AI is gonna take this right as soon as we hang up and give me a bunch of ideas as well.
+Ted: Alright. Well just, just, uh, tell me when you're available next and I'll be glad to set up that, that Zoom or teams, if
+that's the next step.
+Luis: Let me put some ideas together. I really feel like this is, this call was super insightful and I kind of got almost
+everything I need really to, to, okay.
+Luis: Okay. Let me, uh, put some thought into this and I think, uh, tomorrow afternoon I can shoot you an update and
+then we can schedule a [01:00:00] time then, um, could be as early as tomorrow or, or sometime this week. Um,
+yeah. And then, yeah, let's, let's man, you know, success loves speed, right? And that's right, right now with ai, it it's,
+it's no joke.
+Luis: People like the, the whole getting left behind thing is, is it's really scary actually. Like, uh, well,
+Ted: but, but it's scary or it's exciting, right? I mean, you know, and it's like, fuck, I'm on, I'm on the exciting camp. So
+Yeah. Like, I, I don't wanna run from it 'cause I know it's coming. I mean, you know, so it's like, man, embrace it.
+Ted: How do you support it? You know, it's like, I mean, how, how can, how can we become better and not be scared
+of it? You know? I mean, um, how can you, you know, so that's,
+Luis: how can you provide like, I don't know, ai, how can you throw AI in the mix? How can you get it like an e new AI
+that, I don't know, communicates with your [01:01:00] clients and gives them personalized insight?
+Luis: Kind of like talking to strategy TP. That I,
+Ted: I think we, we have, we, we have like tens of thousands of medical records and results that we could say, Hey,
+a, a a 42-year-old lady just like you, you know, usually has these issues. Mm-hmm. And it could be any one of these,
+I mean, it could have a really insightful conversation with somebody that gives them hope.
+Ted: Mm-hmm. You know, you know, prior to coming in you, you know, because I think a lot, lot of times the girls on
+the phone that, that make these outbound calls or even take the inbound calls, I think they're almost talking folks out
+of it. Right. I mean, because really their only job is to get them in. I mean, get them in, get their blood test.
+Ted: Because, because, because, because people believe what their blood says, right? Mm-hmm. I mean, I mean
+like, because it's right there. It's right in. Front of you, so there's no [01:02:00] guesswork, right? I mean mm-hmm.
+So, I mean, we can show, I mean, and dude, we know how to do what I mean, we are the best at it. Mm-hmm. So,
+mm-hmm.
+
+Ted: Um, you know, so, so that, that's our bread and butter. I, I just think, um, we need to be able to communicate
+better, faster, um, and do it smarter.
+Luis: So yeah, man. Absolutely. You got the right idea, and I think I know exactly what you need, brother. Let me, uh,
+get right back to you. Um, I think I know exactly, you know, how to approach this in a, in a way that's, uh, makes
+sense for both of us.
+Luis: Right. Um, okay. Uh, obviously, you know, it's not something that, that I can, you know, I have to put a certain
+amount of time into this. Um, but, uh, you'd be surprised how much I can do in a couple hours. Um, SPK,
+Ted: yeah.
+Luis: And I, um, I, I like to, you know, if we have a really good, competent team, you know, around us, uh, a really
+sharp, you know, sales guy, really sharp marketing guy, really sharp, you know, uh, just overall operations guy.
+Luis: I think you [01:03:00] mentioned a few of them already and they sound like, sounds like you got the right stuff. It
+makes my job a lot easier. Um,
+Ted: yeah, this, this would de definitely, I think be a very positive. You know, sign for for them too, you know?
+Mm-hmm. I think working with someone that has had experience in the ai Yeah.
+Ted: And the, and the tech, tech side. Yeah. And especially, and especially since you, you, you, you enjoy HubSpot.
+They, they will love to hear that. Yeah. Because then they, they will feel like all this work and effort that they've put
+forward to learning it Yeah. Hasn't been in vain, you know? So, so that's good.
+Luis: Cool.
+Luis: And like, um, you know, just as long as they're open to learning, you know, if they're coachable and, and willing
+to change their ways, I, I, I tend to come into an organization and cause some disruption. I'm not gonna lie.
+Ted: No, that's good though. Because I do it every day. But, but yeah. I mean, [01:04:00] but, but, but it's good though
+because it's a young team.
+Ted: Yeah. So I always build teams with, I try to pick smart. Folks that are young, and if they're not young, they're
+youthful in spirit. Meaning, you know, they, they're, they aren't hardened by life. Right? I mean, cool. Um, so, so yeah,
+that, that we, we share the same, same thing. So,
+Luis: awesome brother. Alright my man. Okay.
+Luis: Alright
+Ted: man.
+Luis: Have a good night. Thank you.
+
+

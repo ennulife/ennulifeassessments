@@ -490,3 +490,425 @@ class ENNUAssessmentForm {
     }
 }
 
+// ===== SIGNUP PAGE FUNCTIONALITY =====
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize signup page functionality
+    initSignupPage();
+});
+
+function initSignupPage() {
+    const signupContainer = document.querySelector('.ennu-signup-container');
+    if (!signupContainer) return;
+
+    // Smooth scroll for anchor links
+    initSmoothScrolling();
+    
+    // Product card interactions
+    initProductCards();
+    
+    // Contact form handling
+    initContactForm();
+    
+    // Intersection Observer for animations
+    initScrollAnimations();
+    
+    // Mobile menu toggle
+    initMobileMenu();
+}
+
+function initSmoothScrolling() {
+    const links = document.querySelectorAll('a[href^="#"]');
+    
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                const offsetTop = targetElement.offsetTop - 100;
+                
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+function initProductCards() {
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        // Add click handler for product selection
+        const ctaButton = card.querySelector('.btn');
+        if (ctaButton) {
+            ctaButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const productName = card.querySelector('h3').textContent;
+                const productPrice = card.querySelector('.price').textContent;
+                
+                // Show selection confirmation
+                showProductSelection(productName, productPrice);
+                
+                // Track selection (for analytics)
+                trackProductSelection(productName);
+            });
+        }
+        
+        // Add hover effects
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+}
+
+function showProductSelection(productName, productPrice) {
+    // Create modal for product selection
+    const modal = document.createElement('div');
+    modal.className = 'ennu-product-modal';
+    modal.innerHTML = `
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Selected: ${productName}</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>You've selected <strong>${productName}</strong> for <strong>${productPrice}</strong></p>
+                    <p>Our team will contact you within 24 hours to complete your registration.</p>
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="proceedWithSelection('${productName}')">Proceed</button>
+                        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .ennu-product-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            z-index: 1001;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
+    document.body.appendChild(modal);
+    
+    // Close modal functionality
+    modal.querySelector('.modal-close').addEventListener('click', closeModal);
+    modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+}
+
+function closeModal() {
+    const modal = document.querySelector('.ennu-product-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function proceedWithSelection(productName) {
+    // Here you would integrate with your payment system
+    // For now, we'll show a success message
+    
+    const modal = document.querySelector('.ennu-product-modal');
+    if (modal) {
+        modal.querySelector('.modal-content').innerHTML = `
+            <div class="modal-header">
+                <h3>Thank You!</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 3rem; color: #48bb78; margin-bottom: 1rem;">✓</div>
+                    <h4>Selection Confirmed</h4>
+                    <p>You've selected <strong>${productName}</strong></p>
+                    <p>Our team will contact you within 24 hours to complete your registration and payment.</p>
+                    <p>Check your email for confirmation details.</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Track successful selection
+    trackSuccessfulSelection(productName);
+}
+
+function initContactForm() {
+    const contactForm = document.querySelector('.ennu-contact-form');
+    if (!contactForm) return;
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        // Basic validation
+        if (!data.name || !data.email || !data.message) {
+            showNotification('Please fill in all required fields.', 'error');
+            return;
+        }
+        
+        if (!isValidEmail(data.email)) {
+            showNotification('Please enter a valid email address.', 'error');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        
+        // Simulate form submission (replace with actual AJAX call)
+        setTimeout(() => {
+            showNotification('Thank you! We\'ll get back to you soon.', 'success');
+            this.reset();
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
+    });
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `ennu-notification ennu-notification-${type}`;
+    notification.textContent = message;
+    
+    // Add notification styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .ennu-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: notificationSlideIn 0.3s ease-out;
+        }
+        
+        .ennu-notification-success {
+            background: #48bb78;
+        }
+        
+        .ennu-notification-error {
+            background: #f56565;
+        }
+        
+        .ennu-notification-info {
+            background: #4299e1;
+        }
+        
+        @keyframes notificationSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    `;
+    
+    if (!document.querySelector('#ennu-notification-styles')) {
+        style.id = 'ennu-notification-styles';
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements for animation
+    const animatedElements = document.querySelectorAll('.process-step, .product-card, .contact-item');
+    animatedElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+}
+
+function initMobileMenu() {
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    }
+}
+
+// Analytics tracking functions
+function trackProductSelection(productName) {
+    // Track product selection for analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'select_content', {
+            content_type: 'product',
+            item_id: productName.toLowerCase().replace(/\s+/g, '_')
+        });
+    }
+    
+    // Console log for development
+    console.log('Product selected:', productName);
+}
+
+function trackSuccessfulSelection(productName) {
+    // Track successful product selection
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'purchase', {
+            transaction_id: 'temp_' + Date.now(),
+            value: productName.includes('Membership') ? 199 : 299,
+            currency: 'USD',
+            items: [{
+                item_id: productName.toLowerCase().replace(/\s+/g, '_'),
+                item_name: productName,
+                price: productName.includes('Membership') ? 199 : 299,
+                quantity: 1
+            }]
+        });
+    }
+    
+    // Console log for development
+    console.log('Successful selection:', productName);
+}
+
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Handle window resize
+window.addEventListener('resize', debounce(() => {
+    // Reinitialize responsive elements if needed
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(card => {
+        if (window.innerWidth <= 768) {
+            card.style.transform = 'none';
+        }
+    });
+}, 250));
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Page is hidden, pause animations if needed
+        document.body.classList.add('page-hidden');
+    } else {
+        // Page is visible again
+        document.body.classList.remove('page-hidden');
+    }
+});
+

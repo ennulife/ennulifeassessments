@@ -148,7 +148,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 </style>
 
-<div class="wrap ennu-analytics-dashboard">
+<div class="wrap ennu-analytics-dashboard ennu-logo-pattern-bg">
+	<?php
+	if ( function_exists( 'ennu_render_logo' ) ) {
+		echo '<div class="ennu-logo-container">';
+		ennu_render_logo([
+			'color' => 'black',
+			'size' => 'medium',
+			'link' => admin_url('admin.php?page=ennu-life'),
+			'alt' => 'ENNU Life',
+			'class' => ''
+		]);
+		echo '</div>';
+	}
+	?>
 	<h1>Executive Health Summary</h1>
 
 	<div class="analytics-hero">

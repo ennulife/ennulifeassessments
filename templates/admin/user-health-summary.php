@@ -76,7 +76,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 </style>
 
-<div class="ennu-health-summary">
+<div class="ennu-health-summary ennu-logo-pattern-bg">
+	<?php
+	if ( function_exists( 'ennu_render_logo' ) ) {
+		echo '<div class="ennu-logo-container">';
+		ennu_render_logo([
+			'color' => 'black',
+			'size' => 'medium',
+			'link' => admin_url('admin.php?page=ennu-life'),
+			'alt' => 'ENNU Life',
+			'class' => ''
+		]);
+		echo '</div>';
+	}
+	?>
 	<h2><?php echo esc_html( $user->display_name ); ?>'s Health Summary</h2>
 	<div class="summary-grid">
 		<div class="summary-score-display">

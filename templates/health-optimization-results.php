@@ -1,64 +1,184 @@
 <?php
 /**
- * Template for the Health Optimization (Symptom Qualification) Results Page
+ * Template for displaying health optimization results
  *
- * This template displays a non-scored, text-based report that outlines the user's
- * triggered Health Optimization Vectors and provides clear next steps.
- *
- * @package ENNU_Life
- * @version 60.0.0
+ * @version 62.1.57
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$report_data = $report_data ?? array();
+$symptom_data = $symptom_data ?? array();
 ?>
 
-<div class="ennu-user-dashboard">
+<div class="ennu-unified-container">
 	<div class="starfield"></div>
-	<div class="dossier-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: auto;">
-		<main class="dossier-main-content">
-			<div class="dossier-header" style="text-align: center; margin-bottom: 40px;">
-				<h1 style="font-size: 2.5rem; color: #fff; font-weight: 700;">Your Symptom Analysis is Complete</h1>
-				<p class="ai-narrative" style="font-size: 1.1rem; color: var(--text-light); max-width: 650px; margin: 15px auto 0;">
-					Based on the symptoms you've reported, we've identified the following key areas of your health that may require further investigation. This report will guide you on what to discuss with a healthcare professional or investigate further with biomarker testing.
+	
+	<div class="ennu-single-column">
+		<!-- Header -->
+		<div class="ennu-animate-in">
+			<h1 class="ennu-title">Health Optimization Report</h1>
+			<p class="ennu-subtitle">
+				Your comprehensive health analysis and personalized optimization recommendations.
 				</p>
 			</div>
 
-			<?php if ( ! empty( $triggered_vectors ) ) : ?>
-				<div class="category-card recommendations-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-					<h3 style="font-size: 1.25rem; font-weight: 600; color: #fff; margin: 0 0 20px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">Triggered Health Optimization Vectors</h3>
-					<ul style="list-style: none; padding: 0; margin: 0; color: var(--text-light);">
-						<?php foreach ( $triggered_vectors as $vector => $symptoms ) : ?>
-							<li style="margin-bottom: 15px; padding-left: 25px; position: relative;">
-								<span style="position: absolute; left: 0; top: 5px; color: var(--accent-primary); font-size: 1.2rem;">→</span>
-								<strong style="color: var(--text-dark);"><?php echo esc_html( $vector ); ?>:</strong> Was triggered by your responses for "<?php echo esc_html( implode( '", "', $symptoms ) ); ?>".
-							</li>
+		<!-- Health Map Overview -->
+		<div class="ennu-card ennu-animate-in ennu-animate-delay-1">
+			<h2 class="ennu-section-title">Health Map Overview</h2>
+			<div class="ennu-health-map-grid">
+				<?php if ( isset( $report_data['vectors'] ) && is_array( $report_data['vectors'] ) ) : ?>
+					<?php foreach ( $report_data['vectors'] as $index => $vector ) : ?>
+						<div class="ennu-vector-card" data-color-index="<?php echo esc_attr( $index ); ?>">
+							<div class="ennu-card-header">
+								<h3 class="ennu-card-title"><?php echo esc_html( $vector['name'] ); ?></h3>
+								<div class="ennu-vector-score"><?php echo esc_html( $vector['score'] ?? 'N/A' ); ?></div>
+							</div>
+							<div class="ennu-card-content">
+								<p><?php echo esc_html( $vector['description'] ?? '' ); ?></p>
+								
+								<?php if ( isset( $vector['symptoms'] ) && ! empty( $vector['symptoms'] ) ) : ?>
+									<div class="ennu-symptom-section">
+										<h4>Symptoms Identified</h4>
+										<ul class="ennu-symptom-list">
+											<?php foreach ( $vector['symptoms'] as $symptom ) : ?>
+												<li class="ennu-symptom-item"><?php echo esc_html( $symptom ); ?></li>
 						<?php endforeach; ?>
 					</ul>
 				</div>
-			<?php else : ?>
-				<div class="category-card" style="text-align: center;">
-					<h3 style="font-size: 1.25rem; font-weight: 600; color: #fff; margin: 0 0 20px 0;">No Major Vectors Triggered</h3>
-					<p style="font-size: 1rem; color: var(--text-light);">Based on your responses, you haven't indicated any major symptom patterns that align with our Health Optimization Vectors. This is a great sign!</p>
+								<?php endif; ?>
+								
+								<?php if ( isset( $vector['biomarkers'] ) && ! empty( $vector['biomarkers'] ) ) : ?>
+									<div class="ennu-biomarker-section">
+										<h4>Recommended Biomarkers</h4>
+										<ul class="ennu-biomarker-list">
+											<?php foreach ( $vector['biomarkers'] as $biomarker ) : ?>
+												<li class="ennu-biomarker-item"><?php echo esc_html( $biomarker ); ?></li>
+											<?php endforeach; ?>
+										</ul>
 				</div>
 			<?php endif; ?>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</div>
+		</div>
 
-			<div class="category-card cta-card" style="background: linear-gradient(145deg, var(--accent-secondary), var(--accent-primary)); border-radius: 12px; padding: 30px; margin-top: 30px; text-align: center;">
-				<h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 15px 0;">The Next Step: See The Full Picture</h3>
-				<p style="font-size: 1rem; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto 25px;">
-					Symptoms are subjective. To get the objective truth about what's happening inside your body, you need to test, not guess. Our comprehensive biomarker lab tests provide the definitive data you need to optimize your health.
-				</p>
-				<div class="cta-actions">
-					<a href="<?php echo esc_url( home_url( '/?page_id=810' ) ); ?>" class="action-button" style="background-color: #fff; color: #000; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease;">Purchase Biomarker Test ($599)</a>
-					<a href="<?php echo esc_url( home_url( '/?page_id=811' ) ); ?>" class="action-button" style="background-color: transparent; border: 2px solid #fff; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.2s ease; margin-left: 15px;">Become a Member ($149/mo)</a>
+		<!-- Action Plan -->
+		<?php if ( isset( $report_data['action_plan'] ) && ! empty( $report_data['action_plan'] ) ) : ?>
+			<div class="ennu-card ennu-animate-in ennu-animate-delay-2">
+				<h2 class="ennu-section-title">Your Action Plan</h2>
+				<div class="ennu-list">
+					<?php foreach ( $report_data['action_plan'] as $action ) : ?>
+						<div class="ennu-list-item">
+							<div class="ennu-list-item-content">
+								<div class="ennu-list-item-description">
+									<span style="color: var(--accent-primary); margin-right: 8px;">→</span>
+									<?php echo esc_html( $action ); ?>
+								</div>
+							</div>
+						</div>
+					<?php endforeach; ?>
 				</div>
 			</div>
+		<?php endif; ?>
 
-			<div class="assessment-actions-footer" style="padding-top: 25px; display: flex; flex-direction: column; gap: 15px; align-items: center; margin-top: 20px;">
-				<p style="color: var(--text-light);">Or, you can take another assessment:</p>
-				<a href="<?php echo esc_url( home_url( '/?page_id=182' ) ); ?>" class="action-button button-retake" style="background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px 30px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Return to My Dashboard</a>
+		<!-- Next Steps -->
+		<div class="ennu-card ennu-animate-in ennu-animate-delay-3">
+			<h2 class="ennu-section-title">Next Steps</h2>
+			<div class="ennu-card-content">
+				<p>Based on your health optimization assessment, we recommend scheduling a consultation with our health specialists to discuss your personalized treatment plan and biomarker testing options.</p>
 			</div>
-		</main>
+			<div class="ennu-btn-group">
+				<a href="<?php echo esc_url( get_page_id_url( 'book-health-optimization-consultation' ) ); ?>" class="ennu-btn ennu-btn-primary">
+					Book Health Optimization Consultation
+				</a>
+				<a href="<?php echo esc_url( get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+					View Dashboard
+				</a>
+			</div>
+		</div>
 	</div>
 </div> 
+
+<style>
+/* Additional specific styles for health optimization results */
+.ennu-health-map-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.ennu-vector-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	padding: 20px;
+	transition: all 0.3s ease;
+}
+
+.ennu-vector-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+}
+
+.ennu-vector-card[data-color-index="0"] { border-left: 4px solid #34d399; }
+.ennu-vector-card[data-color-index="1"] { border-left: 4px solid #60a5fa; }
+.ennu-vector-card[data-color-index="2"] { border-left: 4px solid #f472b6; }
+.ennu-vector-card[data-color-index="3"] { border-left: 4px solid #facc15; }
+.ennu-vector-card[data-color-index="4"] { border-left: 4px solid #a78bfa; }
+.ennu-vector-card[data-color-index="5"] { border-left: 4px solid #fb923c; }
+
+.ennu-vector-score {
+	font-weight: 700;
+	color: var(--accent-primary);
+	font-size: 1.1rem;
+}
+
+.ennu-symptom-section,
+.ennu-biomarker-section {
+	margin-top: 15px;
+}
+
+.ennu-symptom-section h4,
+.ennu-biomarker-section h4 {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 8px;
+}
+
+.ennu-symptom-list,
+.ennu-biomarker-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ennu-symptom-item,
+.ennu-biomarker-item {
+	font-size: 0.85rem;
+	color: var(--text-light);
+	margin-bottom: 4px;
+	padding-left: 15px;
+	position: relative;
+}
+
+.ennu-symptom-item::before,
+.ennu-biomarker-item::before {
+	content: '•';
+	position: absolute;
+	left: 0;
+	color: var(--accent-primary);
+}
+
+@media (max-width: 768px) {
+	.ennu-health-map-grid {
+		grid-template-columns: 1fr;
+	}
+}
+</style> 

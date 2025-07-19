@@ -1,0 +1,74 @@
+/* ENNU Life Logo Styles */
+
+.ennu-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 30px 0 20px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.ennu-logo {
+  max-width: 200px;
+  height: auto;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+.ennu-logo--small { max-width: 100px; }
+.ennu-logo--medium { max-width: 200px; }
+.ennu-logo--large { max-width: 300px; }
+.ennu-logo:hover { opacity: 0.85; }
+
+.ennu-logo-link {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+.ennu-logo-link:hover { text-decoration: none; }
+
+/* Step Repeat Pattern Background */
+.ennu-logo-pattern-bg {
+  position: relative;
+  overflow: hidden;
+}
+.ennu-logo-pattern-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('../img/ennu-logo-white.png');
+  background-repeat: repeat;
+  background-size: 100px auto;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+.ennu-logo-pattern-bg--dark::before {
+  background-image: url('../img/ennu-logo-black.png');
+  opacity: 0.06;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ennu-logo { max-width: 150px; }
+  .ennu-logo--small { max-width: 80px; }
+  .ennu-logo--medium { max-width: 150px; }
+  .ennu-logo--large { max-width: 200px; }
+  .ennu-logo-pattern-bg::before { background-size: 60px auto; }
+  
+  .ennu-logo-container {
+    padding: 20px 0 15px 0;
+  }
+}
+@media (max-width: 480px) {
+  .ennu-logo { max-width: 100px; }
+  .ennu-logo--small { max-width: 60px; }
+  .ennu-logo--medium { max-width: 100px; }
+  .ennu-logo--large { max-width: 150px; }
+  .ennu-logo-pattern-bg::before { background-size: 40px auto; }
+  
+  .ennu-logo-container {
+    padding: 15px 0 10px 0;
+  }
+} 

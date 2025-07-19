@@ -6,7 +6,7 @@
  * is handled in the `render_detailed_results_page` method in the
  * `ENNU_Assessment_Shortcodes` class.
  *
- * @version 52.0.0
+ * @version 62.1.57
  * @see ENNU_Assessment_Shortcodes::render_detailed_results_page()
  */
 
@@ -15,102 +15,170 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="ennu-user-dashboard">
+<div class="ennu-unified-container">
 	<div class="starfield"></div>
-	<div class="dossier-grid">
-		<aside class="dossier-sidebar">
-			<div class="user-info-header">
-				<h2><?php echo esc_html( $current_user->first_name . ' ' . $current_user->last_name ); ?></h2>
-				<div class="user-vitals">
-					<span>Age: <?php echo esc_html( $age ); ?></span>
-					<span>Gender: <?php echo esc_html( $gender ); ?></span>
+	
+	<div class="ennu-grid">
+		<!-- Sidebar -->
+		<aside class="ennu-sidebar">
+			<!-- Logo -->
+			<?php if ( function_exists( 'ennu_render_logo' ) ) : ?>
+				<div class="ennu-logo-container" style="text-align: center; margin-bottom: 30px;">
+					<?php
+					ennu_render_logo([
+						'color' => 'white',
+						'size' => 'medium',
+						'link' => home_url( '/' ),
+						'alt' => 'ENNU Life',
+						'class' => ''
+					]);
+					?>
+				</div>
+			<?php endif; ?>
+
+			<!-- User Info -->
+			<div class="ennu-glass-card">
+				<h3 class="ennu-section-title">Your Profile</h3>
+				<div class="ennu-card-content">
+					<p><strong><?php echo esc_html( $current_user->first_name . ' ' . $current_user->last_name ); ?></strong></p>
+					<p>Age: <?php echo esc_html( $age ); ?></p>
+					<p>Gender: <?php echo esc_html( $gender ); ?></p>
 				</div>
 			</div>
 
-			<div class="main-score-orb" data-score="<?php echo esc_attr( $score ?? 0 ); ?>" style="margin-bottom: 20px;">
-				<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-					<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-					<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $score ?? 0 ) * 10 ); ?>;"></circle>
+			<!-- Main Score Orb -->
+			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ?? 0 ); ?>">
+				<svg viewBox="0 0 36 36">
+					<defs>
+						<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+							<stop offset="0%" stop-color="var(--accent-primary)"/>
+							<stop offset="100%" stop-color="var(--accent-secondary)"/>
+						</linearGradient>
+					</defs>
+					<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
+					<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $score ?? 0 ) * 10 ); ?>;"></circle>
 				</svg>
-				<div class="main-score-text">
-					<div class="main-score-value">0.0</div>
-					<div class="main-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Score</div>
+				<div class="ennu-score-text">
+					<div class="ennu-score-value"><?php echo esc_html( number_format( $score ?? 0, 1 ) ); ?></div>
+					<div class="ennu-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Score</div>
 				</div>
 			</div>
 
-			<div class="pillar-scores-grid" style="padding: 20px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
-				<?php
-				if ( is_array( $pillar_scores ) ) {
-					foreach ( $pillar_scores as $pillar => $pillar_score ) {
-						$has_data     = ! empty( $pillar_score );
-						$pillar_class = esc_attr( strtolower( $pillar ) );
-						?>
-						<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" data-insight="<?php echo esc_attr( $insights['pillars'][ $pillar ] ?? '' ); ?>" style="width: 70px; height: 70px;">
-							<div class="pillar-orb-content">
-								<div class="pillar-orb-label" style="font-size: 0.7rem;"><?php echo esc_html( $pillar ); ?></div>
-								<div class="pillar-orb-score" style="font-size: 1.1rem;"><?php echo $has_data ? esc_html( number_format( $pillar_score, 1 ) ) : '-'; ?></div>
+			<!-- Pillar Scores -->
+			<?php if ( is_array( $pillar_scores ) && ! empty( $pillar_scores ) ) : ?>
+				<div class="ennu-glass-card">
+					<h3 class="ennu-section-title">Pillar Scores</h3>
+					<div class="ennu-pillar-grid">
+						<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
+							<?php
+							$has_data = ! empty( $pillar_score );
+							$pillar_class = esc_attr( strtolower( $pillar ) );
+							?>
+							<div class="ennu-pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>">
+								<div class="ennu-pillar-content">
+									<div class="ennu-pillar-label"><?php echo esc_html( $pillar ); ?></div>
+									<div class="ennu-pillar-score"><?php echo $has_data ? esc_html( number_format( $pillar_score, 1 ) ) : '-'; ?></div>
+								</div>
 							</div>
-						</div>
-						<?php
-					}
-				}
-				?>
-			</div>
-			<div class="pillar-context-display"></div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
 
-			<div class="assessment-actions-footer" style="padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-				<a href="<?php echo esc_url( home_url( '/?page_id=189' ) ); ?>" class="action-button button-report" style="flex: 1; text-align: center; background-color: var(--accent-primary); color: #fff; padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Schedule a Call</a>
-				<a href="<?php echo esc_url( home_url( '/?page_id=190' ) ); ?>" class="action-button button-retake" style="flex: 1; text-align: center; background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Get Your ENNU Life Score</a>
-				<hr style="border-color: var(--border-color); width: 50%; margin: 10px auto;">
-				<a href="<?php echo esc_url( $dashboard_url ); ?>" class="action-button button-retake" style="flex: 1; text-align: center; background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">View My Dashboard</a>
-				<a href="<?php echo esc_url( $retake_url ); ?>" class="action-button button-retake" style="flex: 1; text-align: center; background-color: var(--card-bg); color: var(--text-light); border: 1px solid var(--border-color); padding: 10px; text-decoration: none; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s ease; font-size: 0.9rem;">Retake Assessment</a>
+			<!-- Action Buttons -->
+			<div class="ennu-btn-group">
+				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type_slug . '_assessment' ) ); ?>" class="ennu-btn ennu-btn-primary">
+					Book Consultation
+				</a>
+				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'ennu-life-score' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+					Get Your ENNU Life Score
+				</a>
 			</div>
 		</aside>
 
-		<main class="dossier-main-content">
-			<div class="dossier-header">
-				<h1>Your <?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Dossier</h1>
-				<p class="ai-narrative">
+		<!-- Main Content -->
+		<main class="ennu-main-content">
+			<!-- Header -->
+			<div class="ennu-animate-in">
+				<h1 class="ennu-title">Your <?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Dossier</h1>
+				<p class="ennu-subtitle">
 					<strong><?php echo esc_html( $result_content['title'] ); ?>:</strong>
 					<?php echo esc_html( $result_content['summary'] ); ?>
 				</p>
 			</div>
 
-			<div class="journey-timeline-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-				<h3 style="font-size: 16px; font-weight: 600; color: #fff; margin: 0 0 15px 0;">Progress Over Time</h3>
-				<div class="timeline-chart-container" style="height: 250px;">
+			<!-- Progress Timeline -->
+			<div class="ennu-card ennu-animate-in ennu-animate-delay-1">
+				<h2 class="ennu-section-title">Progress Over Time</h2>
+				<div class="ennu-chart-container" style="height: 250px;">
 					<canvas id="assessmentTimelineChart"></canvas>
 				</div>
 			</div>
 
-			<div class="category-card recommendations-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
-				<h3 style="font-size: 16px; font-weight: 600; color: #fff; margin: 0 0 15px 0;">Personalized Recommendations</h3>
-				<ul style="list-style: none; padding: 0; margin: 0; color: var(--text-light);">
-					<?php foreach ( $result_content['recommendations'] as $rec ) : ?>
-						<li style="margin-bottom: 10px; padding-left: 20px; position: relative;">
-							<span style="position: absolute; left: 0; top: 5px; color: var(--accent-primary);">✓</span>
-							<?php echo esc_html( $rec ); ?>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-
-			<div class="deep-dive-grid">
-				<?php foreach ( $category_scores as $category => $cat_score ) : ?>
-					<div class="category-card" style="--score: <?php echo esc_attr( $cat_score ); ?>">
-						<div class="category-info">
-							<span class="category-name"><?php echo esc_html( $category ); ?></span>
-							<span class="category-score-value"><?php echo esc_html( number_format( $cat_score, 1 ) ); ?> / 10</span>
-						</div>
-						<div class="category-bar-bg">
-							<div class="bar-fill"></div>
-						</div>
-						<div class="category-explanation">
-							<p><?php echo esc_html( $deep_dive_content[ $category ]['explanation'] ?? '' ); ?></p>
-						</div>
+			<!-- Recommendations -->
+			<?php if ( isset( $result_content['recommendations'] ) && ! empty( $result_content['recommendations'] ) ) : ?>
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-2">
+					<h2 class="ennu-section-title">Personalized Recommendations</h2>
+					<div class="ennu-list">
+						<?php foreach ( $result_content['recommendations'] as $rec ) : ?>
+							<div class="ennu-list-item">
+								<div class="ennu-list-item-content">
+									<div class="ennu-list-item-description">
+										<span style="color: var(--accent-primary); margin-right: 8px;">✓</span>
+										<?php echo esc_html( $rec ); ?>
+									</div>
+								</div>
+							</div>
+						<?php endforeach; ?>
 					</div>
-				<?php endforeach; ?>
-			</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Category Deep Dive -->
+			<?php if ( ! empty( $category_scores ) ) : ?>
+				<div class="ennu-animate-in ennu-animate-delay-3">
+					<h2 class="ennu-section-title">Category Analysis</h2>
+					<div class="ennu-category-grid">
+						<?php foreach ( $category_scores as $category => $cat_score ) : ?>
+							<div class="ennu-card">
+								<div class="ennu-card-header">
+									<h3 class="ennu-card-title"><?php echo esc_html( $category ); ?></h3>
+									<div class="ennu-list-item-score"><?php echo esc_html( number_format( $cat_score, 1 ) ); ?>/10</div>
+								</div>
+								<div class="ennu-progress-bar">
+									<div class="ennu-progress-fill" style="--progress-width: <?php echo esc_attr( ( $cat_score / 10 ) * 100 ); ?>%"></div>
+								</div>
+								<div class="ennu-card-content">
+									<p><?php echo esc_html( $deep_dive_content[ $category ]['explanation'] ?? '' ); ?></p>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
 		</main>
 	</div>
-</div> 
+</div>
+
+<style>
+/* Additional specific styles for assessment details */
+.ennu-category-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.ennu-chart-container {
+	position: relative;
+	background: var(--card-bg);
+	border-radius: var(--rounded-md);
+	padding: 20px;
+}
+
+@media (max-width: 768px) {
+	.ennu-category-grid {
+		grid-template-columns: 1fr;
+	}
+}
+</style> 
