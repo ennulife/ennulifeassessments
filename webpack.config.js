@@ -17,6 +17,23 @@ module.exports = (env, argv) => {
             'user-dashboard-styles': './assets/css/user-dashboard.css'
         },
         
+        devServer: {
+            static: {
+                directory: path.join(__dirname, 'dist'),
+            },
+            compress: true,
+            port: 9000,
+            hot: true,
+            open: false,
+            watchFiles: ['assets/**/*', 'templates/**/*'],
+            client: {
+                overlay: {
+                    errors: true,
+                    warnings: false,
+                },
+            },
+        },
+        
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename: 'js/[name].min.js',
@@ -74,7 +91,9 @@ module.exports = (env, argv) => {
                         compress: {
                             drop_console: isProduction,
                             drop_debugger: isProduction,
-                            pure_funcs: isProduction ? ['console.log', 'console.info', 'console.debug'] : []
+                            pure_funcs: isProduction ? ['console.log', 'console.info', 'console.debug'] : [],
+                            dead_code: true,
+                            unused: true
                         },
                         mangle: isProduction,
                         format: {
@@ -95,7 +114,10 @@ module.exports = (env, argv) => {
                                 discardDuplicates: true,
                                 discardEmpty: true,
                                 mergeRules: true,
-                                minifySelectors: true
+                                minifySelectors: true,
+                                autoprefixer: { add: true },
+                                calc: true,
+                                reduceIdents: true
                             }
                         ]
                     }
@@ -110,17 +132,28 @@ module.exports = (env, argv) => {
                         test: /[\\/]node_modules[\\/]/,
                         name: 'vendors',
                         chunks: 'all',
-                        priority: 10
+                        priority: 10,
+                        reuseExistingChunk: true
                     },
                     styles: {
                         name: 'styles',
                         test: /\.css$/,
                         chunks: 'all',
                         enforce: true,
-                        priority: 20
+                        priority: 20,
+                        reuseExistingChunk: true
+                    },
+                    common: {
+                        name: 'common',
+                        minChunks: 2,
+                        chunks: 'all',
+                        priority: 5,
+                        reuseExistingChunk: true
                     }
                 }
-            }
+            },
+            usedExports: true,
+            sideEffects: false
         },
         
         devtool: isProduction ? 'source-map' : 'eval-source-map',

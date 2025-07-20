@@ -37,9 +37,67 @@ class ENNU_REST_API {
             'permission_callback' => array( $this, 'check_read_permission' )
         ) );
         
+        register_rest_route( $this->namespace, '/assessments/(?P<assessment_type>[a-zA-Z0-9-_]+)', array(
+            'methods' => 'GET',
+            'callback' => array( $this, 'get_assessment_details' ),
+            'permission_callback' => array( $this, 'check_read_permission' )
+        ) );
+        
         register_rest_route( $this->namespace, '/users/(?P<id>\d+)/scores', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_user_scores' ),
+            'permission_callback' => array( $this, 'check_user_permission' ),
+            'args' => array(
+                'id' => array(
+                    'validate_callback' => function( $param ) {
+                        return is_numeric( $param );
+                    }
+                )
+            )
+        ) );
+        
+        register_rest_route( $this->namespace, '/users/(?P<id>\d+)/health-goals', array(
+            'methods' => array('GET', 'POST', 'PUT'),
+            'callback' => array( $this, 'handle_health_goals' ),
+            'permission_callback' => array( $this, 'check_user_permission' ),
+            'args' => array(
+                'id' => array(
+                    'validate_callback' => function( $param ) {
+                        return is_numeric( $param );
+                    }
+                )
+            )
+        ) );
+        
+        register_rest_route( $this->namespace, '/users/(?P<id>\d+)/biomarkers', array(
+            'methods' => 'GET',
+            'callback' => array( $this, 'get_user_biomarkers' ),
+            'permission_callback' => array( $this, 'check_user_permission' ),
+            'args' => array(
+                'id' => array(
+                    'validate_callback' => function( $param ) {
+                        return is_numeric( $param );
+                    }
+                )
+            )
+        ) );
+        
+        register_rest_route( $this->namespace, '/users/(?P<id>\d+)/biomarkers', array(
+            'methods' => 'POST',
+            'callback' => array( $this, 'update_user_biomarkers' ),
+            'permission_callback' => array( $this, 'check_manage_permission' ),
+            'args' => array(
+                'id' => array(
+                    'validate_callback' => function( $param ) {
+                        return is_numeric( $param );
+                    }
+                )
+            )
+        ) );
+        
+        register_rest_route( $this->namespace, '/users/(?P<id>\d+)/scores/recalculate', array(
+            'methods' => 'POST',
+            'callback' => array( $this, 'recalculate_user_scores' ),
             'permission_callback' => array( $this, 'check_user_permission' ),
             'args' => array(
                 'id' => array(
@@ -64,19 +122,172 @@ class ENNU_REST_API {
         $assessments = array(
             'welcome' => array(
                 'name' => 'Welcome Assessment',
-                'description' => 'Initial health assessment'
+                'description' => 'Initial health assessment',
+                'status' => 'active'
             ),
             'hair' => array(
                 'name' => 'Hair Assessment',
-                'description' => 'Hair health and scalp analysis'
+                'description' => 'Hair health and scalp analysis',
+                'status' => 'active'
             ),
             'health' => array(
-                'name' => 'Health Assessment',
-                'description' => 'Comprehensive health evaluation'
+                'name' => 'General Health Assessment',
+                'description' => 'Comprehensive health evaluation',
+                'status' => 'active'
+            ),
+            'weight_loss' => array(
+                'name' => 'Weight Loss Assessment',
+                'description' => 'Weight management evaluation',
+                'status' => 'active'
+            ),
+            'skin' => array(
+                'name' => 'Skin Assessment',
+                'description' => 'Skin health analysis',
+                'status' => 'active'
+            ),
+            'sleep' => array(
+                'name' => 'Sleep Assessment',
+                'description' => 'Sleep quality evaluation',
+                'status' => 'active'
+            ),
+            'hormone' => array(
+                'name' => 'Hormone Assessment',
+                'description' => 'Hormonal health evaluation',
+                'status' => 'active'
+            ),
+            'menopause' => array(
+                'name' => 'Menopause Assessment',
+                'description' => 'Menopause-specific health evaluation',
+                'status' => 'active'
+            ),
+            'testosterone' => array(
+                'name' => 'Testosterone Assessment',
+                'description' => 'Testosterone level evaluation',
+                'status' => 'active'
+            ),
+            'ed_treatment' => array(
+                'name' => 'ED Treatment Assessment',
+                'description' => 'Erectile dysfunction evaluation',
+                'status' => 'active'
+            ),
+            'health_optimization' => array(
+                'name' => 'Health Optimization Assessment',
+                'description' => 'Comprehensive optimization evaluation',
+                'status' => 'active'
             )
         );
         
         return rest_ensure_response( $assessments );
+    }
+    
+    /**
+     * Get assessment details
+     */
+    public function get_assessment_details( $request ) {
+        $assessment_type = $request->get_param('assessment_type');
+        
+        $assessment_details = array(
+            'type' => $assessment_type,
+            'questions' => array(),
+            'scoring_categories' => array(),
+            'pillar_mappings' => array()
+        );
+        
+        return rest_ensure_response( $assessment_details );
+    }
+    
+    /**
+     * Handle health goals
+     */
+    public function handle_health_goals( $request ) {
+        $user_id = (int) $request['id'];
+        $method = $request->get_method();
+        
+        if ( $method === 'GET' ) {
+            $health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
+            if ( ! $health_goals ) {
+                $health_goals = array();
+            }
+            return rest_ensure_response( $health_goals );
+        }
+        
+        if ( $method === 'POST' || $method === 'PUT' ) {
+            $health_goals_data = $request->get_json_params();
+            
+            if ( ! $health_goals_data ) {
+                return new WP_Error( 'invalid_data', 'Invalid health goals data provided', array( 'status' => 400 ) );
+            }
+            
+            $updated = update_user_meta( $user_id, 'ennu_global_health_goals', $health_goals_data );
+            
+            if ( $updated ) {
+                do_action( 'ennu_health_goals_updated', $user_id, $health_goals_data );
+                return rest_ensure_response( array( 'success' => true, 'message' => 'Health goals updated successfully' ) );
+            } else {
+                return new WP_Error( 'update_failed', 'Failed to update health goals', array( 'status' => 500 ) );
+            }
+        }
+        
+        return new WP_Error( 'method_not_allowed', 'Method not allowed', array( 'status' => 405 ) );
+    }
+    
+    /**
+     * Get user biomarkers
+     */
+    public function get_user_biomarkers( $request ) {
+        $user_id = (int) $request['id'];
+        
+        $biomarkers = get_user_meta( $user_id, 'ennu_biomarker_data', true );
+        if ( ! $biomarkers ) {
+            $biomarkers = array();
+        }
+        
+        return rest_ensure_response( $biomarkers );
+    }
+    
+    /**
+     * Update user biomarkers
+     */
+    public function update_user_biomarkers( $request ) {
+        $user_id = (int) $request['id'];
+        $biomarker_data = $request->get_json_params();
+        
+        if ( ! $biomarker_data ) {
+            return new WP_Error( 'invalid_data', 'Invalid biomarker data provided', array( 'status' => 400 ) );
+        }
+        
+        $updated = update_user_meta( $user_id, 'ennu_biomarker_data', $biomarker_data );
+        
+        if ( $updated ) {
+            do_action( 'ennu_biomarkers_updated', $user_id, $biomarker_data );
+            return rest_ensure_response( array( 'success' => true, 'message' => 'Biomarkers updated successfully' ) );
+        } else {
+            return new WP_Error( 'update_failed', 'Failed to update biomarkers', array( 'status' => 500 ) );
+        }
+    }
+    
+    /**
+     * Recalculate user scores
+     */
+    public function recalculate_user_scores( $request ) {
+        $user_id = (int) $request['id'];
+        
+        if ( class_exists( 'ENNU_Assessment_Scoring' ) ) {
+            $scoring_system = new ENNU_Assessment_Scoring();
+            $result = $scoring_system->calculate_and_save_all_user_scores( $user_id );
+            
+            if ( $result ) {
+                return rest_ensure_response( array(
+                    'success' => true, 
+                    'message' => 'Scores recalculated successfully',
+                    'scores' => $result
+                ) );
+            } else {
+                return new WP_Error( 'calculation_failed', 'Failed to recalculate scores', array( 'status' => 500 ) );
+            }
+        }
+        
+        return new WP_Error( 'scoring_unavailable', 'Scoring system not available', array( 'status' => 503 ) );
     }
     
     /**
