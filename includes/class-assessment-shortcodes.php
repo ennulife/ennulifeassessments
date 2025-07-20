@@ -1161,11 +1161,14 @@ final class ENNU_Assessment_Shortcodes {
 				if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
 					ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
 					$this->_log_submission_debug( 'Centralized symptoms updated.' );
-					
-					// Trigger assessment completion hook for other systems
-					do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
 				}
-
+				
+				// Trigger assessment completion hook with detailed data
+				do_action( 'ennu_assessment_completed', $user_id, array(
+					'assessment_type' => $form_data['assessment_type'],
+					'form_data' => $form_data,
+					'timestamp' => current_time( 'mysql' )
+				) );
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
 
@@ -1961,10 +1964,11 @@ final class ENNU_Assessment_Shortcodes {
 				'score'                => $score,
 				'category_scores'      => $results_transient['category_scores'] ?? array(),
 				'result_content'       => $result_content,
-				'matched_recs'         => array(), // This can be enhanced later
+				'matched_recs'         => array(),
 				'details_button_url'   => $details_button_url,
 				'dashboard_button_url' => $dashboard_button_url,
 				'retake_url'           => $retake_url,
+				'enable_real_time_updates' => true,
 			);
 
 			// Load the template with the correctly structured data

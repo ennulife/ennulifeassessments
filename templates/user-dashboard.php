@@ -3,41 +3,6 @@
  * Template for the user assessment dashboard - "The Bio-Metric Canvas"
  */
 if ( ! defined( 'ABSPATH' ) ) {
-<<<<<<< HEAD
-	exit;
-}
-if (isset($template_args) && is_array($template_args)) { extract($template_args, EXTR_SKIP); }
-
-// Defensive checks for required variables
-if (!isset($current_user) || !is_object($current_user)) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">ERROR: $current_user is not set or not an object.</div>';
-	return;
-}
-$age = $age ?? '';
-$gender = $gender ?? '';
-$height = $height ?? null;
-$weight = $weight ?? null;
-$bmi = $bmi ?? null;
-$user_assessments = $user_assessments ?? array();
-$insights = $insights ?? array();
-$health_optimization_report = $health_optimization_report ?? array();
-$shortcode_instance = $shortcode_instance ?? null;
-if (!$shortcode_instance) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">ERROR: $shortcode_instance is not set.</div>';
-	return;
-}
-
-// Define user ID and display name
-$user_id = $current_user->ID ?? 0;
-$first_name = isset($current_user->first_name) ? $current_user->first_name : '';
-$last_name = isset($current_user->last_name) ? $current_user->last_name : '';
-$display_name = trim($first_name . ' ' . $last_name);
-if (empty($display_name)) {
-	$display_name = $current_user->display_name ?? $current_user->user_login ?? 'User';
-}
-||||||| f31b4df
-	exit; }
-=======
 	exit;
 }
 if (isset($template_args) && is_array($template_args)) { extract($template_args, EXTR_SKIP); }
@@ -69,10 +34,8 @@ $display_name = trim($first_name . ' ' . $last_name);
 if (empty($display_name)) {
 	$display_name = $current_user->display_name ?? $current_user->user_login ?? 'User';
 }
->>>>>>> origin/main
 ?>
 <div class="ennu-user-dashboard">
-<<<<<<< HEAD
 	<!-- Four-Engine Scoring Breakdown -->
 	<div class="ennu-scoring-engines" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px;">
 		<h3 style="margin-bottom: 20px; color: var(--text-primary);">Your Four-Engine Scoring Breakdown</h3>
@@ -158,46 +121,6 @@ if (empty($display_name)) {
 					<svg class="toggle-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
 					</svg>
-||||||| f31b4df
-	<div class="starfield"></div>
-
-	<div class="dashboard-main-grid">
-		<aside class="dashboard-sidebar">
-			<div class="user-info-header">
-				<h2><?php echo esc_html( $current_user->first_name . ' ' . $current_user->last_name ); ?></h2>
-				<div class="user-vitals">
-					<span>Age: <?php echo esc_html( $age ); ?></span>
-					<span>Gender: <?php echo esc_html( $gender ); ?></span>
-					<?php if ( $height ) : ?>
-						<span>Height: <?php echo esc_html( $height ); ?></span>
-					<?php endif; ?>
-					<?php if ( $weight ) : ?>
-						<span>Weight: <?php echo esc_html( $weight ); ?></span>
-					<?php endif; ?>
-					<?php if ( $bmi ) : ?>
-						<span>BMI: <?php echo esc_html( $bmi ); ?></span>
-					<?php endif; ?>
-=======
-	<!-- Light/Dark Mode Toggle -->
-	<div class="theme-toggle-container">
-		<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">
-			<div class="toggle-track">
-				<div class="toggle-thumb">
-					<svg class="toggle-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="5"/>
-						<line x1="12" y1="1" x2="12" y2="3"/>
-						<line x1="12" y1="21" x2="12" y2="23"/>
-						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-						<line x1="1" y1="12" x2="3" y2="12"/>
-						<line x1="21" y1="12" x2="23" y2="12"/>
-						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-					</svg>
-					<svg class="toggle-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-					</svg>
->>>>>>> origin/main
 				</div>
 			</div>
 		</button>
@@ -845,7 +768,6 @@ if (empty($display_name)) {
 						</div>
 					</div>
 					
-<<<<<<< HEAD
 					<!-- Tab 2: My Symptoms -->
 					<div id="tab-my-symptoms" class="my-story-tab-content">
 						<div class="symptoms-container">
@@ -1333,7 +1255,9 @@ if (empty($display_name)) {
 					<?php if ( ! $is_completed && $health_opt_assessment ) : ?>
 						<div class="empty-state-actions" style="margin: 15px 0;">
 							<a href="<?php echo esc_url( $health_opt_assessment['url'] ); ?>" class="action-button button-report" style="width: 100%; text-align: center;">Start Health Optimization</a>
-=======
+						</div>
+					<?php endif; ?>
+					
 					<!-- Tab 2: My Symptoms -->
 					<div id="tab-my-symptoms" class="my-story-tab-content">
 						<div class="symptoms-container">
@@ -1853,7 +1777,6 @@ if (empty($display_name)) {
 									</div>
 								</div>
 							</div>
->>>>>>> origin/main
 						</div>
 					</div>
 					
@@ -2932,7 +2855,6 @@ if (empty($display_name)) {
 
 </main>
 	</div>
-<<<<<<< HEAD
 </div>
 
 <script>
@@ -3021,10 +2943,397 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>   
-||||||| f31b4df
-</div> 
-=======
+</script>
+
+<!-- Additional CSS for new dashboard tabs -->
+<style>
+.biomarker-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.biomarker-card {
+	background: var(--card-bg);
+	border-radius: 8px;
+	padding: 20px;
+	border-left: 4px solid #ddd;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.biomarker-card.biomarker-optimal {
+	border-left-color: #28a745;
+}
+
+.biomarker-card.biomarker-suboptimal {
+	border-left-color: #ffc107;
+}
+
+.biomarker-card.biomarker-poor {
+	border-left-color: #dc3545;
+}
+
+.biomarker-card h4 {
+	margin: 0 0 15px 0;
+	color: var(--text-dark);
+	font-size: 1.1rem;
+}
+
+.biomarker-values {
+	margin-bottom: 10px;
+}
+
+.biomarker-values .current-value,
+.biomarker-values .target-value {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.biomarker-values .label {
+	font-weight: 600;
+	color: var(--text-light);
+	margin-right: 8px;
+}
+
+.biomarker-values .value {
+	font-weight: 700;
+	color: var(--text-dark);
+}
+
+.test-date {
+	font-size: 0.9rem;
+	color: var(--text-light);
+	margin-bottom: 10px;
+}
+
+.status-indicator {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.status-indicator.status-optimal {
+	background: #d4edda;
+	color: #155724;
+}
+
+.status-indicator.status-suboptimal {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.status-indicator.status-poor {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.no-data-message {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--text-light);
+}
+
+.score-comparison {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 30px;
+	margin: 30px 0;
+	flex-wrap: wrap;
+}
+
+.current-score-card,
+.new-life-score-card {
+	text-align: center;
+	padding: 20px;
+	border-radius: 12px;
+	background: var(--card-bg);
+	border: 2px solid var(--border-color);
+	min-width: 180px;
+}
+
+.new-life-score-card {
+	border-color: #28a745;
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9f7ef 100%);
+}
+
+.score-display {
+	font-size: 3rem;
+	font-weight: 700;
+	color: var(--primary-color);
+	margin: 10px 0;
+}
+
+.score-display.new-life {
+	color: #28a745;
+}
+
+.score-label {
+	font-size: 0.9rem;
+	color: var(--text-light);
+	font-weight: 600;
+}
+
+.arrow-improvement {
+	text-align: center;
+}
+
+.improvement-arrow {
+	font-size: 2rem;
+	color: #28a745;
+	font-weight: 700;
+}
+
+.improvement-text {
+	display: block;
+	margin-top: 10px;
+}
+
+.improvement-value {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #28a745;
+}
+
+.improvement-percent {
+	display: block;
+	font-size: 0.9rem;
+	color: var(--text-light);
+}
+
+.transformation-plan {
+	margin-top: 40px;
+}
+
+.targets-overview {
+	margin: 20px 0;
+}
+
+.targets-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 15px;
+	margin-top: 15px;
+}
+
+.target-item {
+	background: var(--card-bg);
+	padding: 15px;
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
+}
+
+.biomarker-name {
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 8px;
+}
+
+.target-progress {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.target-progress .current {
+	color: var(--text-light);
+}
+
+.target-progress .arrow {
+	color: #28a745;
+	font-weight: 700;
+}
+
+.target-progress .target {
+	color: #28a745;
+	font-weight: 600;
+}
+
+.next-steps {
+	margin-top: 30px;
+	padding: 20px;
+	background: var(--card-bg);
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
+}
+
+.next-steps ul {
+	margin: 15px 0;
+	padding-left: 20px;
+}
+
+.next-steps li {
+	margin-bottom: 8px;
+	color: var(--text-dark);
+}
+
+.no-new-life-data {
+	text-align: center;
+	padding: 40px 20px;
+}
+
+.no-new-life-data ul {
+	text-align: left;
+	display: inline-block;
+	margin: 20px 0;
+}
+</style>
+
+<!-- Tab 3: My Biomarkers -->
+<div id="tab-my-biomarkers" class="my-story-tab-content">
+	<div class="biomarkers-overview">
+		<div class="biomarkers-header">
+			<h3 class="tab-section-title">My Biomarkers</h3>
+			<p class="tab-subtitle">Track your lab results and doctor recommendations</p>
+		</div>
+		
+		<?php
+		$biomarker_data = get_user_meta( $user_id, 'ennu_biomarker_data', true ) ?: array();
+		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
+		
+		if ( ! empty( $biomarker_data ) ) {
+			echo '<div class="biomarker-grid">';
+			foreach ( $biomarker_data as $biomarker => $data ) {
+				$current_value = $data['value'];
+				$target_value = $doctor_targets[ $biomarker ] ?? null;
+				$status = $data['status'] ?? 'unknown';
+				$unit = $data['unit'] ?? '';
+				$test_date = $data['test_date'] ?? $data['import_date'] ?? '';
+				
+				echo '<div class="biomarker-card biomarker-' . esc_attr( $status ) . '">';
+				echo '<h4>' . esc_html( $data['name'] ?? ucwords( str_replace( '_', ' ', $biomarker ) ) ) . '</h4>';
+				echo '<div class="biomarker-values">';
+				echo '<div class="current-value">';
+				echo '<span class="label">Current:</span>';
+				echo '<span class="value">' . esc_html( $current_value ) . ' ' . esc_html( $unit ) . '</span>';
+				echo '</div>';
+				if ( $target_value ) {
+					echo '<div class="target-value">';
+					echo '<span class="label">Target:</span>';
+					echo '<span class="value">' . esc_html( $target_value ) . ' ' . esc_html( $unit ) . '</span>';
+					echo '</div>';
+				}
+				echo '</div>';
+				if ( $test_date ) {
+					echo '<div class="test-date">Tested: ' . esc_html( date( 'M j, Y', strtotime( $test_date ) ) ) . '</div>';
+				}
+				echo '<div class="status-indicator status-' . esc_attr( $status ) . '">' . esc_html( ucfirst( $status ) ) . '</div>';
+				echo '</div>';
+			}
+			echo '</div>';
+		} else {
+			echo '<div class="no-data-message">';
+			echo '<h4>No Lab Data Available</h4>';
+			echo '<p>Complete your lab tests to see biomarker results here. Contact your healthcare provider to get started with comprehensive testing.</p>';
+			echo '<a href="#" class="ennu-btn ennu-btn-primary">Book Lab Consultation</a>';
+			echo '</div>';
+		}
+		?>
+	</div>
+</div>
+
+<!-- Tab 4: My New Life -->
+<div id="tab-my-new-life" class="my-story-tab-content">
+	<div class="new-life-overview">
+		<div class="new-life-header">
+			<h3 class="tab-section-title">My New Life</h3>
+			<p class="tab-subtitle">Your potential health transformation with doctor recommendations</p>
+		</div>
+		
+		<?php
+		$current_score = get_user_meta( $user_id, 'ennu_life_score', true ) ?: 0;
+		$new_life_score = get_user_meta( $user_id, 'ennu_new_life_score', true );
+		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
+		
+		if ( ! $new_life_score && ! empty( $doctor_targets ) ) {
+			if ( class_exists( 'ENNU_New_Life_Score_Calculator' ) ) {
+				$health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true ) ?: array();
+				$new_life_calculator = new ENNU_New_Life_Score_Calculator( $user_id, $pillar_scores, $health_goals );
+				$new_life_score = $new_life_calculator->calculate();
+			}
+		}
+		
+		if ( $new_life_score ) {
+			$improvement = $new_life_score - $current_score;
+			$improvement_percentage = $current_score > 0 ? ( $improvement / $current_score ) * 100 : 0;
+			?>
+			
+			<div class="score-comparison">
+				<div class="current-score-card">
+					<h4>Current ENNU LIFE Score</h4>
+					<div class="score-display"><?php echo esc_html( number_format( $current_score, 1 ) ); ?></div>
+					<div class="score-label">Your Health Today</div>
+				</div>
+				
+				<div class="arrow-improvement">
+					<div class="improvement-arrow">→</div>
+					<div class="improvement-text">
+						<span class="improvement-value">+<?php echo esc_html( number_format( $improvement, 1 ) ); ?></span>
+						<span class="improvement-percent">(+<?php echo esc_html( number_format( $improvement_percentage, 1 ) ); ?>%)</span>
+					</div>
+				</div>
+				
+				<div class="new-life-score-card">
+					<h4>Your New Life Score</h4>
+					<div class="score-display new-life"><?php echo esc_html( number_format( $new_life_score, 1 ) ); ?></div>
+					<div class="score-label">Your Health Potential</div>
+				</div>
+			</div>
+			
+			<div class="transformation-plan">
+				<h4>Your Transformation Roadmap</h4>
+				<?php if ( ! empty( $doctor_targets ) ) : ?>
+					<div class="targets-overview">
+						<p>Based on your lab results, your doctor has set <?php echo count( $doctor_targets ); ?> target values to help you achieve your New Life Score:</p>
+						<div class="targets-grid">
+							<?php foreach ( $doctor_targets as $biomarker => $target_value ) : 
+								$current_data = $biomarker_data[ $biomarker ] ?? null;
+								$current_value = $current_data['value'] ?? 'Not tested';
+								$unit = $current_data['unit'] ?? '';
+							?>
+								<div class="target-item">
+									<div class="biomarker-name"><?php echo esc_html( ucwords( str_replace( '_', ' ', $biomarker ) ) ); ?></div>
+									<div class="target-progress">
+										<span class="current"><?php echo esc_html( $current_value ); ?></span>
+										<span class="arrow">→</span>
+										<span class="target"><?php echo esc_html( $target_value . ' ' . $unit ); ?></span>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endif; ?>
+				
+				<div class="next-steps">
+					<h5>Recommended Next Steps:</h5>
+					<ul>
+						<li>Follow your personalized treatment plan</li>
+						<li>Schedule regular follow-up consultations</li>
+						<li>Retake assessments to track progress</li>
+						<li>Monitor biomarker improvements</li>
+					</ul>
+					<a href="#" class="ennu-btn ennu-btn-primary">Book Follow-up Consultation</a>
+				</div>
+			</div>
+			
+		<?php } else { ?>
+			<div class="no-new-life-data">
+				<h4>Unlock Your New Life Score</h4>
+				<p>To see your health transformation potential, you need:</p>
+				<ul>
+					<li>Complete lab testing with biomarker results</li>
+					<li>Doctor-recommended target values</li>
+					<li>Personalized treatment plan</li>
+				</ul>
+				<p>Book a consultation with our health optimization specialists to get started on your transformation journey.</p>
+				<a href="#" class="ennu-btn ennu-btn-primary">Start Your Transformation</a>
+			</div>
+		<?php } ?>
+	</div>
 </div>
 
 <script>
@@ -3113,5 +3422,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>  
->>>>>>> origin/main
+</script>           

@@ -756,9 +756,12 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
                 'class-pillar-score-calculator.php',
                 'class-health-optimization-calculator.php',
                 'class-potential-score-calculator.php',
+                'class-new-life-score-calculator.php',
                 'class-recommendation-engine.php',
                 'class-score-completeness-calculator.php',
                 'class-ennu-life-score-calculator.php',
+                'class-biomarker-admin.php',
+                'class-wp-fusion-integration.php',
                 
 <<<<<<< HEAD
                 // Four-Engine Scoring Symphony Implementation
