@@ -5741,6 +5741,8 @@ a:hover {
 		font-size: 1rem;
 	}
 }
+
+.pillar-progress-bar {
 	overflow: hidden;
 	margin-bottom: 8px;
 }
@@ -10334,4 +10336,5 @@ a:hover {
 [data-theme="light"] .new-life-overview {
     background: #ffffff;
     border-color: #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
