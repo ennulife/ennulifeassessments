@@ -1,4 +1,4 @@
-# ENNU Life Plugin v27.0.0 - Installation Guide
+# ENNU Life Plugin v62.2.9 - Installation Guide
 
 ## 🚀 **Quick Installation**
 
@@ -14,7 +14,7 @@
 ```bash
 # Method 1: WordPress Admin Upload
 1. Go to Plugins > Add New > Upload Plugin
-2. Choose ennu-life-v27.0.0.zip
+2. Choose ennu-life-v62.2.9.zip
 3. Click "Install Now"
 4. Click "Activate Plugin"
 
@@ -55,7 +55,7 @@
 
 3. **Upload Plugin File**
    - Click `Choose File`
-   - Select `ennu-life-v27.0.0.zip`
+   - Select `ennu-life-v62.2.9.zip`
    - Click `Install Now`
 
 4. **Activate Plugin**

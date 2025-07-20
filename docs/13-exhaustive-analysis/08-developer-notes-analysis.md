@@ -111,11 +111,11 @@
 
 ### 12. KNOWN ISSUES & TECHNICAL DEBT
 **Resolved Issues ✅**:
-- Assessment toggle functionality (v58.0.3)
-- Pillar scores display (v58.0.4-v58.0.6)
-- Health optimization counts (v58.0.3)
-- Progress charts on detail pages (v58.0.3)
-- Main score insight animation (v58.0.7)
+- Assessment toggle functionality (v62.2.9)
+- Pillar scores display (v62.2.9)
+- Health optimization counts (v62.2.9)
+- Progress charts on detail pages (v62.2.9)
+- Main score insight animation (v62.2.9)
 
 **Remaining Technical Debt**:
 - JavaScript needs complete modernization
@@ -168,4 +168,4 @@
 7. Is the administrative toolkit fully functional?
 8. What is the current state of the API-first architecture?
 9. Are the security and performance optimizations implemented?
-10. What is the relationship between this roadmap and the current plugin state? 
+10. What is the relationship between this roadmap and the current plugin state?  

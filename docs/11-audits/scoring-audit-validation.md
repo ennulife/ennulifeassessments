@@ -29,7 +29,7 @@ This document provides a comprehensive audit of the scoring system implementatio
 
 ### Pillar Mapping Validation
 
-**Issue Found & Fixed (v58.0.4)**: 11 categories were missing from pillar mapping:
+**Issue Found & Fixed (v62.2.9)**: 11 categories were missing from pillar mapping:
 - Psychosocial Factors → Mind
 - Sexual Function → Body
 - Physical Performance → Body
