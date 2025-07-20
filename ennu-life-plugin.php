@@ -106,6 +106,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-enhanced-admin.php',
                 'class-ajax-security.php',
 				'class-compatibility-manager.php',
+				'class-security-validator.php',
+				'class-data-access-control.php',
+				'class-template-security.php',
+				'class-input-sanitizer.php',
+				'class-csrf-protection.php',
                 
                 // Biomarker Management System
                 'class-biomarker-manager.php',

@@ -1750,6 +1750,12 @@ class ENNU_Enhanced_Admin {
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 		}
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'admin_recalculate_scores', 3, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		if ( ! $user_id ) {
@@ -1778,6 +1784,12 @@ class ENNU_Enhanced_Admin {
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 		}
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'admin_clear_data', 2, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		if ( ! $user_id ) {
@@ -1799,6 +1811,12 @@ class ENNU_Enhanced_Admin {
 		check_ajax_referer( 'ennu_admin_nonce', 'nonce' );
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+		}
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'admin_clear_single', 5, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
 		}
 
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
