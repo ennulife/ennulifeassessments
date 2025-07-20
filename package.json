@@ -7,7 +7,11 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "build": "wp-scripts build assets/js/ennu-admin.js assets/js/user-dashboard.js assets/js/ennu-frontend-forms.js --output-path=dist",
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
+    "build:watch": "webpack --mode=development --watch",
+    "build:analyze": "webpack --mode=production --analyze",
+    "optimize": "npm run build && npm run test",
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "env:run": "wp-env run",
@@ -22,8 +26,18 @@
   "author": "Ennu Life",
   "license": "GPL-2.0-or-later",
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
     "@wordpress/env": "^8.0.0",
     "@wordpress/scripts": "^30.0.0",
-    "cypress": "^13.0.0"
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.2",
+    "cypress": "^13.0.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "postcss-loader": "^8.1.1",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1"
   }
 }

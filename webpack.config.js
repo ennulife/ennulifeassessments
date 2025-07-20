@@ -14,9 +14,7 @@ module.exports = (env, argv) => {
             'assessment-details': './assets/js/assessment-details.js',
             'health-goals-manager': './assets/js/health-goals-manager.js',
             'ennu-admin-enhanced': './assets/js/ennu-admin-enhanced.js',
-            'main-styles': './assets/css/ennu-life-plugin.css',
-            'admin-styles': './assets/css/ennu-admin-enhanced.css',
-            'biomarker-styles': './assets/css/biomarker-admin.css'
+            'user-dashboard-styles': './assets/css/user-dashboard.css'
         },
         
         output: {
@@ -74,19 +72,52 @@ module.exports = (env, argv) => {
                 new TerserPlugin({
                     terserOptions: {
                         compress: {
-                            drop_console: isProduction
+                            drop_console: isProduction,
+                            drop_debugger: isProduction,
+                            pure_funcs: isProduction ? ['console.log', 'console.info', 'console.debug'] : []
+                        },
+                        mangle: isProduction,
+                        format: {
+                            comments: false
                         }
-                    }
+                    },
+                    extractComments: false
                 }),
-                new CssMinimizerPlugin()
+                new CssMinimizerPlugin({
+                    minimizerOptions: {
+                        preset: [
+                            'default',
+                            {
+                                discardComments: { removeAll: true },
+                                normalizeWhitespace: true,
+                                colormin: true,
+                                convertValues: true,
+                                discardDuplicates: true,
+                                discardEmpty: true,
+                                mergeRules: true,
+                                minifySelectors: true
+                            }
+                        ]
+                    }
+                })
             ],
             splitChunks: {
                 chunks: 'all',
+                minSize: 20000,
+                maxSize: 244000,
                 cacheGroups: {
                     vendor: {
                         test: /[\\/]node_modules[\\/]/,
                         name: 'vendors',
-                        chunks: 'all'
+                        chunks: 'all',
+                        priority: 10
+                    },
+                    styles: {
+                        name: 'styles',
+                        test: /\.css$/,
+                        chunks: 'all',
+                        enforce: true,
+                        priority: 20
                     }
                 }
             }
