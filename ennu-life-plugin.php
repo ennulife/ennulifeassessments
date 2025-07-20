@@ -1,22 +1,24 @@
 <?php
 /**
  * Plugin Name: ENNU Life Assessments
- * Plugin URI: https://ennulife.com
- * Description: Advanced health assessment system with comprehensive user scoring
+ * Plugin URI: https://ennulife.com/plugin
+ * Description: Comprehensive health assessment system with Four-Engine scoring, biomarker integration, and personalized health insights for WordPress.
  * Version: 62.2.9
  * Requires at least: 5.0
- * Tested up to: 6.4
+ * Tested up to: 6.8.2
  * Requires PHP: 7.4
  * Author: Luis Escobar
  * Author URI: https://ennulife.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ennulifeassessments
+ * Text Domain: ennu-life-assessments
  * Domain Path: /languages
  * Network: false
- * 
- * @package ENNU_Life
+ *
+ * @package ENNU_Life_Assessments
  * @version 62.2.9
+ * @author Luis Escobar
+ * @license GPL v2 or later
  * 
  * CHANGELOG:
  * 
@@ -704,9 +706,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 */
 		private function __construct() {
 			// Register activation/deactivation hooks
-			register_activation_hook( __FILE__, array( $this, 'activate' ) );
-			register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
-			register_uninstall_hook( __FILE__, array( 'ENNU_Life_Enhanced_Plugin', 'uninstall' ) );
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+		register_uninstall_hook( __FILE__, array( 'ENNU_Life_Plugin', 'uninstall' ) );
 
 			// Load dependencies and initialize the plugin on `plugins_loaded`
 			add_action( 'plugins_loaded', array( $this, 'init' ) );
@@ -1005,7 +1007,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 */
 		public function load_textdomain() {
 			if ( function_exists( 'load_plugin_textdomain' ) ) {
-				load_plugin_textdomain( 'ennulifeassessments', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+				load_plugin_textdomain( 'ennu-life-assessments', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 			}
 		}
 
@@ -1040,6 +1042,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			if ( function_exists( 'flush_rewrite_rules' ) ) {
 				flush_rewrite_rules();
 			}
+			
+			wp_clear_scheduled_hook( 'ennu_daily_cleanup' );
+			wp_clear_scheduled_hook( 'ennu_weekly_reports' );
 		}
 
 		/**
