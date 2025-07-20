@@ -3,7 +3,6 @@
  * This file controls all the interactivity for the "Bio-Metric Canvas" dashboard.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('ENNU Dashboard: DOM loaded, initializing components...');
     
     const dashboardEl = document.querySelector('.ennu-user-dashboard');
     if (dashboardEl) {
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize My Story Tabs independently to ensure they work
     const storyTabsManager = new MyStoryTabsManager();
-    console.log('ENNU Dashboard: My Story Tabs Manager initialized');
 });
 
 /**
@@ -39,23 +37,18 @@ class MyStoryTabsManager {
     }
     
     initialize() {
-        console.log('ENNU Dashboard: Initializing My Story tabs...');
         this.tabContainer = document.querySelector('.my-story-tabs');
         
         if (!this.tabContainer) {
-            console.error('ENNU Dashboard: My Story tabs container not found (.my-story-tabs)');
             return;
         }
         
-        console.log('ENNU Dashboard: Found tab container:', this.tabContainer);
         
         this.tabLinks = this.tabContainer.querySelectorAll('.my-story-tab-nav a');
         this.tabContents = this.tabContainer.querySelectorAll('.my-story-tab-content');
         
-        console.log('ENNU Dashboard: Found', this.tabLinks.length, 'tab links and', this.tabContents.length, 'tab contents');
         
         if (this.tabLinks.length === 0 || this.tabContents.length === 0) {
-            console.error('ENNU Dashboard: No tabs or content found');
             return;
         }
         
@@ -65,7 +58,6 @@ class MyStoryTabsManager {
         // Ensure first tab is active by default
         this.activateFirstTab();
         
-        console.log('ENNU Dashboard: My Story tabs initialized successfully with', this.tabLinks.length, 'tabs');
     }
     
     activateFirstTab() {
@@ -100,20 +92,16 @@ class MyStoryTabsManager {
                 }, 50);
                 
                 this.activeTab = firstTabId.substring(1);
-                console.log('ENNU Dashboard: Activated first tab:', this.activeTab);
             }
         }
     }
     
     setupEventListeners() {
-        console.log('ENNU Dashboard: Setting up event listeners for', this.tabLinks.length, 'tabs');
         
         this.tabLinks.forEach((link, index) => {
-            console.log('ENNU Dashboard: Setting up listeners for tab', index, 'with href:', link.getAttribute('href'));
             
             // Click event
             link.addEventListener('click', (e) => {
-                console.log('ENNU Dashboard: Tab clicked:', link.getAttribute('href'));
                 e.preventDefault();
                 this.switchToTab(link.getAttribute('href'));
             });
@@ -121,7 +109,6 @@ class MyStoryTabsManager {
             // Keyboard events
             link.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                    console.log('ENNU Dashboard: Tab activated via keyboard:', link.getAttribute('href'));
                     e.preventDefault();
                     this.switchToTab(link.getAttribute('href'));
                 } else if (e.key === 'ArrowRight') {
@@ -137,18 +124,15 @@ class MyStoryTabsManager {
         // Add event listeners for switch-tab buttons within tab content
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('switch-tab') || e.target.closest('.switch-tab')) {
-                console.log('ENNU Dashboard: Switch-tab button clicked');
                 e.preventDefault();
                 const button = e.target.classList.contains('switch-tab') ? e.target : e.target.closest('.switch-tab');
                 const targetTab = button.getAttribute('data-tab');
                 if (targetTab) {
-                    console.log('ENNU Dashboard: Switching to tab via button:', targetTab);
                     this.switchToTab('#' + targetTab);
                 }
             }
         });
         
-        console.log('ENNU Dashboard: Event listeners setup complete');
     }
     
     addAccessibilityAttributes() {
@@ -174,7 +158,6 @@ class MyStoryTabsManager {
     }
     
     switchToTab(targetId) {
-        console.log('ENNU Dashboard: Switching to tab:', targetId);
         
         if (!targetId.startsWith('#')) {
             targetId = '#' + targetId;
@@ -182,11 +165,9 @@ class MyStoryTabsManager {
         
         const targetContent = document.querySelector(targetId);
         if (!targetContent) {
-            console.warn('ENNU Dashboard: Target tab content not found:', targetId);
             return;
         }
         
-        console.log('ENNU Dashboard: Found target content:', targetContent);
         
         // Remove active class from all tabs and contents
         this.tabLinks.forEach(link => {
@@ -225,7 +206,6 @@ class MyStoryTabsManager {
         // Update active tab reference
         this.activeTab = targetId.substring(1);
         
-        console.log('ENNU Dashboard: Successfully switched to tab:', targetId);
     }
     
     navigateToNextTab(direction) {
@@ -497,7 +477,6 @@ class ENNUDashboard {
 	initHistoricalCharts() {
 		// Check if Chart.js is available
 		if (typeof Chart === 'undefined') {
-			console.warn('ENNU Dashboard: Chart.js not available, skipping charts');
 			return;
 		}
 
@@ -701,10 +680,8 @@ class ENNUDashboard {
 
 	// Enhanced method for assessment card interactions
 	initAssessmentCardInteractions() {
-		console.log('ENNU Dashboard: Initializing assessment card interactions...');
 		
 		const assessmentCards = this.dashboard.querySelectorAll('.assessment-card');
-		console.log('ENNU Dashboard: Found', assessmentCards.length, 'assessment cards');
 		
 		assessmentCards.forEach(card => {
 			// Add hover effects
@@ -722,8 +699,6 @@ class ENNUDashboard {
 				button.addEventListener('click', (e) => {
 					const action = button.textContent.trim();
 					const assessmentTitle = card.querySelector('.assessment-title').textContent;
-					console.log(`Assessment action: ${action} for ${assessmentTitle}`);
-					// Here you could add analytics tracking
 				});
 			});
 		});
@@ -734,33 +709,26 @@ class ENNUDashboard {
 			const breakdownBtn = e.target.closest('.btn-breakdown');
 			
 			if (recommendationsBtn) {
-				console.log('ENNU Dashboard: Recommendations button clicked');
 				e.preventDefault();
 				this.toggleSection(recommendationsBtn, 'recommendations-section');
 			}
 			
 			if (breakdownBtn) {
-				console.log('ENNU Dashboard: Breakdown button clicked');
 				e.preventDefault();
 				this.toggleSection(breakdownBtn, 'breakdown-section');
 			}
 		});
-		
-		console.log('ENNU Dashboard: Assessment card interactions initialized');
 	}
 	
 	toggleSection(button, sectionClass) {
-		console.log('ENNU Dashboard: Toggling section:', sectionClass);
 		
 		const assessmentCard = button.closest('.assessment-card');
 		const section = assessmentCard.querySelector('.' + sectionClass);
 		
 		if (!section) {
-			console.warn('ENNU Dashboard: Section not found:', sectionClass);
 			return;
 		}
 		
-		console.log('ENNU Dashboard: Found section:', section);
 		
 		// Toggle button active state
 		button.classList.toggle('active');
@@ -769,8 +737,6 @@ class ENNUDashboard {
 		const isExpanded = section.classList.contains('expanded');
 		
 		if (!isExpanded) {
-			// Expanding the section
-			console.log('ENNU Dashboard: Expanding section');
 			section.style.display = 'block';
 			section.classList.remove('hidden');
 			
@@ -784,8 +750,6 @@ class ENNUDashboard {
 				this.animateProgressBars(section, 'in');
 			}
 		} else {
-			// Collapsing the section
-			console.log('ENNU Dashboard: Collapsing section');
 			// Animate progress bars out first (if it's a breakdown section)
 			if (sectionClass === 'breakdown-section') {
 				this.animateProgressBars(section, 'out');
@@ -844,7 +808,6 @@ class ENNUDashboard {
 
 	// Enhanced initialization
 	init() {
-		console.log('ENNU Dashboard: Initializing dashboard components...');
 		this.initDetailsToggle();
 		this.initContextualText();
 		this.initScoreAnimation();
@@ -854,7 +817,6 @@ class ENNUDashboard {
 		this.initToggleAll();
 		this.initAssessmentCardInteractions();
 		this.initProgressBarAnimation();
-		this.initThemeToggle(); // Call the new method here
-		console.log('ENNU Dashboard: All components initialized');
+		this.initThemeToggle();
 	}
 }

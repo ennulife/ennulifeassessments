@@ -307,7 +307,6 @@ class ENNUUserDashboard {
             }
         })
         .catch(error => {
-            console.error('Failed to update score:', error);
         });
     }
 

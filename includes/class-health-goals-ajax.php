@@ -4,7 +4,7 @@
  * Handles AJAX requests for health goals functionality with enhanced security
  *
  * @package ENNU_Life
- * @version 62.1.24
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -907,4 +907,4 @@ new ENNU_Health_Goals_Ajax();
             ENNU_Scoring_System::calculate_and_save_all_user_scores( $user_id );
         }
     }
-}   
+}     

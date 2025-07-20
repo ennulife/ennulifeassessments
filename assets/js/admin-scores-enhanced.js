@@ -666,7 +666,6 @@
             
             // Log to console in debug mode
             if (this.config.debugMode) {
-                console.error('ENNU Error:', errorEntry);
             }
         },
         

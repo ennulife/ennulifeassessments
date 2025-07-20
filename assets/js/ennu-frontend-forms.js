@@ -51,7 +51,6 @@ class ENNUAssessmentForm {
         if (autoSubmitFlag && autoSubmitFlag.value === '1') {
             // User has complete contact info - enable auto submission after last real question
             this.autoSubmitReady = true;
-            console.log('ENNU Assessment: Auto-submission enabled for user with complete contact info');
         } else {
             this.autoSubmitReady = false;
         }
@@ -102,7 +101,6 @@ class ENNUAssessmentForm {
         
         // If this is the last question and auto-submit is ready, submit immediately
         if (isLastQuestion && this.autoSubmitReady && !isContactForm) {
-            console.log('ENNU Assessment: Auto-submitting after last question (no contact form needed)');
             this.submitForm();
             return;
         }
@@ -126,7 +124,6 @@ class ENNUAssessmentForm {
         
         // Check if we're at the last real question and auto-submit is ready
         if (nextStep >= this.totalSteps && this.autoSubmitReady) {
-            console.log('ENNU Assessment: Reached end with auto-submit ready - submitting automatically');
             this.submitForm();
             return;
         }
@@ -136,7 +133,6 @@ class ENNUAssessmentForm {
             this.showQuestion(nextStep);
         } else {
             // Should not happen with proper contact form logic, but safety check
-            console.log('ENNU Assessment: Reached end without auto-submit - this should not happen');
             this.submitForm();
         }
     }
@@ -308,31 +304,24 @@ class ENNUAssessmentForm {
         .then(data => {
             if (data && data.success === true) {
                 if (data.data && data.data.redirect_url) {
-                    console.log('ENNU Assessment: Successful submission, checking for auth state data...');
                     
                     // Check if auth state data is included in the response
                     if (data.data.auth_state) {
-                        console.log('ENNU Assessment: Auth state data received in response', data.data.auth_state);
                         // Use the auth state data directly from the response
                         this.updateAllFormsAuthState(data.data.auth_state);
                         
                         // Add a small delay to ensure DOM updates are complete
                         setTimeout(() => {
-                            console.log('ENNU Assessment: Redirecting to', data.data.redirect_url);
                             window.location.href = data.data.redirect_url;
                         }, 100);
                     } else {
-                        console.log('ENNU Assessment: No auth state in response, making separate AJAX call...');
                         // Fallback to separate AJAX call if auth state not in response
                         this.refreshAuthenticationState().then((authState) => {
-                            console.log('ENNU Assessment: Auth state refresh complete', authState);
                             // Add a small delay to ensure DOM updates are complete
                             setTimeout(() => {
-                                console.log('ENNU Assessment: Redirecting to', data.data.redirect_url);
                                 window.location.href = data.data.redirect_url;
                             }, 100);
                         }).catch((error) => {
-                            console.error('ENNU Assessment: Auth state refresh failed, redirecting anyway', error);
                             // Redirect even if auth state refresh fails
                             window.location.href = data.data.redirect_url;
                         });
@@ -346,7 +335,6 @@ class ENNUAssessmentForm {
             }
         })
         .catch(error => {
-            console.error('Submission Error:', error);
             this.showError(this.form, 'An unexpected error occurred. Please try again.');
         })
         .finally(() => {
@@ -360,7 +348,6 @@ class ENNUAssessmentForm {
      * This handles the case where a user creates an account during submission
      */
     refreshAuthenticationState() {
-        console.log('ENNU Assessment: Starting authentication state refresh...');
         
         return fetch(ennu_ajax.ajax_url, {
             method: 'POST',
@@ -373,28 +360,23 @@ class ENNUAssessmentForm {
             })
         })
         .then(response => {
-            console.log('ENNU Assessment: Auth state response received', response);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('ENNU Assessment: Auth state data received', data);
             if (data && data.success) {
                 const authState = data.data;
-                console.log('ENNU Assessment: Authentication state refreshed', authState);
                 
                 // Update all assessment forms on the page with new auth state
                 this.updateAllFormsAuthState(authState);
                 return authState;
             } else {
-                console.warn('ENNU Assessment: Auth state check failed', data);
                 return null;
             }
         })
         .catch(error => {
-            console.error('ENNU Assessment: Could not refresh auth state', error);
             // Silently fail - this is not critical for the primary submission flow
             return null;
         });
@@ -406,10 +388,8 @@ class ENNUAssessmentForm {
     updateAllFormsAuthState(authState) {
         // Find all assessment forms on the page
         const allForms = document.querySelectorAll('.ennu-assessment form');
-        console.log(`ENNU Assessment: Found ${allForms.length} forms to update with auth state`, authState);
         
         allForms.forEach((form, index) => {
-            console.log(`ENNU Assessment: Updating form ${index + 1} with auth state`);
             
             // Update auto-submit flag
             let autoSubmitFlag = form.querySelector('input[name="auto_submit_ready"]');
@@ -418,36 +398,28 @@ class ENNUAssessmentForm {
                 autoSubmitFlag.type = 'hidden';
                 autoSubmitFlag.name = 'auto_submit_ready';
                 form.appendChild(autoSubmitFlag);
-                console.log(`ENNU Assessment: Created auto_submit_ready flag for form ${index + 1}`);
             }
             const oldValue = autoSubmitFlag.value;
             autoSubmitFlag.value = authState.auto_submit_ready ? '1' : '0';
-            console.log(`ENNU Assessment: Updated auto_submit_ready from "${oldValue}" to "${autoSubmitFlag.value}" for form ${index + 1}`);
             
             // Update contact form visibility if needed
             const contactSlide = form.querySelector('.question-slide[data-is-contact-form]');
             if (contactSlide) {
-                console.log(`ENNU Assessment: Found contact slide for form ${index + 1}`);
                 if (authState.needs_contact_form) {
                     contactSlide.style.display = '';
-                    console.log(`ENNU Assessment: Showing contact form for form ${index + 1}`);
                     // Update missing fields in contact form
                     this.updateContactFormFields(contactSlide, authState);
                 } else {
                     contactSlide.style.display = 'none';
-                    console.log(`ENNU Assessment: Hiding contact form for form ${index + 1}`);
                 }
             } else {
-                console.log(`ENNU Assessment: No contact slide found for form ${index + 1}`);
             }
             
             // Update form instance auto-submit status if it exists
             if (form.ennuFormInstance) {
                 const oldAutoSubmit = form.ennuFormInstance.autoSubmitReady;
                 form.ennuFormInstance.autoSubmitReady = authState.auto_submit_ready;
-                console.log(`ENNU Assessment: Updated form instance auto-submit from ${oldAutoSubmit} to ${authState.auto_submit_ready} for form ${index + 1}`);
             } else {
-                console.log(`ENNU Assessment: No form instance found for form ${index + 1}`);
             }
         });
     }
@@ -854,7 +826,6 @@ function trackProductSelection(productName) {
     }
     
     // Console log for development
-    console.log('Product selected:', productName);
 }
 
 function trackSuccessfulSelection(productName) {
@@ -874,7 +845,6 @@ function trackSuccessfulSelection(productName) {
     }
     
     // Console log for development
-    console.log('Successful selection:', productName);
 }
 
 // Utility functions

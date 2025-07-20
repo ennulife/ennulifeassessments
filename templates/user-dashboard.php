@@ -371,8 +371,8 @@ if (empty($display_name)) {
 						?>
 						<div class="goals-summary">
 							<div class="goals-counter">
-								<span class="selected-count"><?php echo $selected_count; ?></span> of 
-								<span class="total-count"><?php echo $total_count; ?></span> goals selected
+								<span class="selected-count"><?php echo esc_html( $selected_count ); ?></span> of 
+								<span class="total-count"><?php echo esc_html( $total_count ); ?></span> goals selected
 							</div>
 							<?php if ( $selected_count > 0 ) : ?>
 								<div class="goals-boost-indicator">
@@ -572,7 +572,7 @@ if (empty($display_name)) {
 											?>
 											<?php if (!empty($assessment_icon)) : ?>
 												<div class="assessment-icon">
-													<?php echo $assessment_icon; ?>
+													<?php echo wp_kses_post( $assessment_icon ); ?>
 												</div>
 											<?php endif; ?>
 											<h3 class="assessment-title"><?php echo esc_html( $assessment['label'] ?? ucwords( str_replace( '_', ' ', $assessment['key'] ?? 'Assessment' ) ) ); ?></h3>
@@ -1106,11 +1106,11 @@ if (empty($display_name)) {
 								
 								<div class="symptoms-stats">
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo $total_symptoms; ?></div>
+										<div class="stat-number"><?php echo esc_html( $total_symptoms ); ?></div>
 										<div class="stat-label">Total Symptoms Reported</div>
 									</div>
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo count($official_symptoms); ?></div>
+										<div class="stat-number"><?php echo esc_html( count($official_symptoms) ); ?></div>
 										<div class="stat-label">Symptom Categories</div>
 									</div>
 									<div class="symptom-stat-card">
@@ -1640,11 +1640,11 @@ if (empty($display_name)) {
 								
 								<div class="symptoms-stats">
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo $total_symptoms; ?></div>
+										<div class="stat-number"><?php echo esc_html( $total_symptoms ); ?></div>
 										<div class="stat-label">Total Symptoms Reported</div>
 									</div>
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo count($official_symptoms); ?></div>
+										<div class="stat-number"><?php echo esc_html( count($official_symptoms) ); ?></div>
 										<div class="stat-label">Symptom Categories</div>
 									</div>
 									<div class="symptom-stat-card">
@@ -1982,15 +1982,15 @@ if (empty($display_name)) {
 								<div class="biomarker-summary">
 									<div class="summary-stats">
 										<div class="summary-stat">
-											<div class="stat-number"><?php echo $total_biomarkers; ?></div>
+											<div class="stat-number"><?php echo esc_html( $total_biomarkers ); ?></div>
 											<div class="stat-label">Core Biomarkers</div>
 										</div>
 										<div class="summary-stat warning">
-											<div class="stat-number"><?php echo $abnormal_count; ?></div>
+											<div class="stat-number"><?php echo esc_html( $abnormal_count ); ?></div>
 											<div class="stat-label">Abnormal Values</div>
 										</div>
 										<div class="summary-stat critical">
-											<div class="stat-number"><?php echo $critical_count; ?></div>
+											<div class="stat-number"><?php echo esc_html( $critical_count ); ?></div>
 											<div class="stat-label">Critical Issues</div>
 										</div>
 										<div class="summary-stat">
@@ -2094,7 +2094,7 @@ if (empty($display_name)) {
 										</svg>
 										<h4>Critical Health Issues Detected</h4>
 									</div>
-									<p>You have <?php echo $critical_count; ?> critical biomarker values that require immediate attention. These issues are likely contributing to your symptoms and overall health concerns.</p>
+									<p>You have <?php echo esc_html( $critical_count ); ?> critical biomarker values that require immediate attention. These issues are likely contributing to your symptoms and overall health concerns.</p>
 									<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 											<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -3422,4 +3422,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>             
+</script>                 

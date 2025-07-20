@@ -12,13 +12,11 @@
 	function initializeTimelineChart() {
 		const ctx = document.getElementById('assessmentTimelineChart');
 		if (!ctx || typeof Chart === 'undefined') {
-			console.error('Chart.js not loaded or canvas element not found');
 			return;
 		}
 
 		// Check if we have the localized data
 		if (typeof assessmentDetailsData === 'undefined' || !assessmentDetailsData.scoreHistory) {
-			console.error('Assessment timeline data not available');
 			return;
 		}
 
@@ -114,4 +112,4 @@
 		});
 	}
 
-})();   
+})();     

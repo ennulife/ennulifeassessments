@@ -4,7 +4,7 @@
  * Modern API endpoints for external integrations
  *
  * @package ENNU_Life
- * @version 62.1.67
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

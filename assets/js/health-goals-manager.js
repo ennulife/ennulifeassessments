@@ -33,7 +33,6 @@ class HealthGoalsManager {
         this.createUpdateButton();
         this.addGoalAttributes();
         
-        console.log('ENNU Health Goals Manager: Initialized with', this.originalGoals.size, 'original goals');
     }
     
     /**
@@ -158,7 +157,6 @@ class HealthGoalsManager {
         
         const goalId = pill.dataset.goalId;
         if (!goalId) {
-            console.warn('ENNU Health Goals: No goal ID found for pill', pill);
             return;
         }
         
@@ -181,7 +179,6 @@ class HealthGoalsManager {
         // Add visual feedback
         this.addPillFeedback(pill);
         
-        console.log('ENNU Health Goals: Toggled goal', goalId, 'to', !isCurrentlySelected);
     }
     
     /**
@@ -329,7 +326,6 @@ class HealthGoalsManager {
         this.isUpdating = true;
         const goalsArray = Array.from(this.currentGoals);
         
-        console.log('ENNU Health Goals: Updating goals to:', goalsArray);
         
         // Show loading state
         this.setUpdateButtonLoading(true);
@@ -366,7 +362,6 @@ class HealthGoalsManager {
             .catch(error => {
                 this.isUpdating = false;
                 this.setUpdateButtonLoading(false);
-                console.error('ENNU Health Goals: Network error:', error);
                 this.handleUpdateError({ 
                     message: ennuHealthGoalsAjax?.messages?.network_error || 'Network error occurred' 
                 });
@@ -379,7 +374,6 @@ class HealthGoalsManager {
                 'Unable to update goals: AJAX configuration missing',
                 'error'
             );
-            console.error('ENNU Health Goals: ennuHealthGoalsAjax not defined');
         }
     }
     
@@ -422,7 +416,6 @@ class HealthGoalsManager {
         this.hideUpdateButton();
         this.clearChangedIndicators();
         
-        console.log('ENNU Health Goals: Successfully updated to:', data.goals);
         
         // Refresh page if needed for score update
         if (data.redirect_needed) {
@@ -445,7 +438,6 @@ class HealthGoalsManager {
         const message = data?.message || ennuHealthGoalsAjax?.messages?.error || 'Failed to update health goals';
         this.notificationSystem.show(message, 'error');
         
-        console.error('ENNU Health Goals: Update failed:', data);
         
         // Revert visual changes
         this.revertVisualChanges();
@@ -596,7 +588,6 @@ class NotificationSystem {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('.health-goals-grid')) {
-        console.log('ENNU Health Goals: Initializing manager...');
         window.ennuHealthGoalsManager = new HealthGoalsManager();
     }
-}); 
+});  

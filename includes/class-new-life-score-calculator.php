@@ -4,7 +4,7 @@
  * Calculates aspirational scores based on doctor-recommended biomarker targets
  *
  * @package ENNU_Life
- * @version 62.1.67
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -4,7 +4,7 @@
  * WCAG 2.1 AA compliance features
  *
  * @package ENNU_Life
- * @version 62.2.8
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

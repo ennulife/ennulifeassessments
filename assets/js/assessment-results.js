@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 	if (typeof Chart === 'undefined') {
-		console.error('Chart.js not loaded.');
 		return;
 	}
 	const ctx = document.getElementById('ennuRadarChart');
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	if (typeof ennuResultsData === 'undefined' || !ennuResultsData.chart_labels || !ennuResultsData.chart_data) {
-		console.error('Chart data not available.');
 		return;
 	}
 
@@ -30,4 +28,4 @@ document.addEventListener('DOMContentLoaded', function() {
 			plugins: { legend: { display: false } }
 		}
 	});
-}); 
+});  

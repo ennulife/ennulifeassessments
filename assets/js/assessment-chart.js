@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 	if (typeof Chart === 'undefined') {
-		console.error('Chart.js is not loaded. Cannot render chart.');
 		if (document.querySelector('.ennu-chart-container')) {
 			document.querySelector('.ennu-chart-container').innerHTML += '<p>Error loading chart. Please refresh or contact support.</p>';
 		}
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	if (typeof ennuChartData === 'undefined' || !ennuChartData.labels || !ennuChartData.data) {
-		console.error('Chart data is not available.');
 		return;
 	}
 
@@ -60,4 +58,4 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 	});
-}); 
+});  

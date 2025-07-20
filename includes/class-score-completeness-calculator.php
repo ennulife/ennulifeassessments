@@ -5,7 +5,7 @@
  * This class is responsible for calculating the "Score Completeness" percentage.
  *
  * @package ENNU_Life
- * @version 60.0.0
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -63,4 +63,4 @@ class ENNU_Score_Completeness_Calculator {
         error_log("ScoreCompletenessCalculator: Final completeness score: {$final_score}");
         return $final_score;
     }
-} 
+}  

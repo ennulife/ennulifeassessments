@@ -4,7 +4,7 @@
  * Ensures 100% WordPress.org standards compliance
  *
  * @package ENNU_Life
- * @version 62.2.8
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

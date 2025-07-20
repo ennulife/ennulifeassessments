@@ -298,7 +298,6 @@ class ENNUAssessmentForm {
             }
         })
         .catch(error => {
-            console.error('Failed to save progress:', error);
         });
     }
 
@@ -329,7 +328,6 @@ class ENNUAssessmentForm {
             }
         })
         .catch(error => {
-            console.error('Failed to load progress:', error);
         });
     }
 
