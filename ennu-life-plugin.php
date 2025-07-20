@@ -620,6 +620,26 @@
  * - UPDATED: All documentation to reflect current functionality
  * 
  * 57.2.0 - Previous version with health goals and assessment improvements
+||||||| f31b4df
+ * Description: Advanced health assessment system with comprehensive user scoring
+ * Version: 61.5.1
+ * Author: ENNU Life Development Team
+ * License: GPLv2 or later
+ * Text Domain: ennulifeassessments
+ * Domain Path:       /languages
+=======
+ * Description: Comprehensive health assessment system with advanced scoring, user dashboards, health goal tracking, and biomarker management.
+ * Version: 62.7.3
+ * Author: ENNU Life
+ * Author URI: https://ennulife.com
+ * Text Domain: ennu-life
+ * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+>>>>>>> origin/main
  */
 
 // Prevent direct access
@@ -628,7 +648,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
+<<<<<<< HEAD
 define( 'ENNU_LIFE_VERSION', '62.1.24' );
+||||||| f31b4df
+define( 'ENNU_LIFE_VERSION', '61.5.1' );
+=======
+define( 'ENNU_LIFE_VERSION', '62.7.3' );
+>>>>>>> origin/main
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -641,6 +667,8 @@ if ( function_exists( 'plugin_dir_url' ) ) {
 } else {
 	define( 'ENNU_LIFE_PLUGIN_URL', '' );
 }
+
+// Biomarker management classes are now loaded in load_dependencies()
 
 // Main plugin class - with class existence check
 if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
@@ -711,6 +739,16 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-enhanced-admin.php',
                 'class-ajax-security.php',
 				'class-compatibility-manager.php',
+				'class-security-validator.php',
+				'class-data-access-control.php',
+				'class-template-security.php',
+				'class-input-sanitizer.php',
+				'class-csrf-protection.php',
+                
+                // Biomarker Management System
+                'class-biomarker-manager.php',
+                'class-lab-import-manager.php',
+                'class-smart-recommendation-engine.php',
                 
                 // New Scoring Engine Architecture
                 'class-assessment-calculator.php',
@@ -725,16 +763,30 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
                 'class-biomarker-admin.php',
                 'class-wp-fusion-integration.php',
                 
+<<<<<<< HEAD
+                // Four-Engine Scoring Symphony Implementation
+                'class-intentionality-engine.php',
+                'class-qualitative-engine.php',
+                'class-objective-engine.php',
+                'class-biomarker-manager.php',
+                'class-biomarker-ajax.php',
+                'class-health-goals-ajax.php',
+                'migrations/health-goals-migration.php',
+                
+||||||| f31b4df
+=======
                 // Intentionality Engine (Phase 1 Implementation)
                 'class-intentionality-engine.php',
                 'class-health-goals-ajax.php',
                 'migrations/health-goals-migration.php',
                 
+>>>>>>> origin/main
                 // Main Orchestrator and Frontend Classes
 				'class-scoring-system.php',
 				'class-assessment-shortcodes.php',
 				'class-comprehensive-assessment-display.php',
 				'class-score-cache.php',
+				'class-centralized-symptoms-manager.php',
 			);
 
 			foreach ( $includes as $file ) {
@@ -825,15 +877,50 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				add_action( 'edit_user_profile', array( $this->admin, 'show_user_assessment_fields' ) );
 				add_action( 'personal_options_update', array( $this->admin, 'save_user_assessment_fields' ) );
 				add_action( 'edit_user_profile_update', array( $this->admin, 'save_user_assessment_fields' ) );
+<<<<<<< HEAD
 				
 				// v57.1.0: Admin AJAX actions for user profile page
+||||||| f31b4df
+			}
+
+					// Shortcode and AJAX Hooks will be set up after shortcodes are initialized
+		add_action( 'init', array( $this, 'setup_shortcode_hooks' ), 10 ); // Priority 10 to run after shortcode init (priority 5)
+
+			// v57.1.0: Admin AJAX actions for user profile page
+			if ( is_admin() && $this->admin ) {
+=======
+				
+				// v62.7.0: Biomarker Management Tab Integration
+				add_action( 'show_user_profile', array( $this->admin, 'add_biomarker_management_tab' ) );
+				add_action( 'edit_user_profile', array( $this->admin, 'add_biomarker_management_tab' ) );
+				
+				// v57.1.0: Admin AJAX actions for user profile page
+>>>>>>> origin/main
 				add_action( 'wp_ajax_ennu_recalculate_all_scores', array( $this->admin, 'handle_recalculate_all_scores' ) );
 				add_action( 'wp_ajax_ennu_clear_all_assessment_data', array( $this->admin, 'handle_clear_all_assessment_data' ) );
 				add_action( 'wp_ajax_ennu_clear_single_assessment_data', array( $this->admin, 'handle_clear_single_assessment_data' ) );
+<<<<<<< HEAD
 				
 				error_log('ENNU Life Plugin: Admin hooks registered successfully');
 			} else {
 				error_log('ENNU Life Plugin: ERROR - Admin instance is null, cannot register admin hooks!');
+||||||| f31b4df
+=======
+				
+				// v62.5.0: Centralized Symptoms Management AJAX actions
+				add_action( 'wp_ajax_ennu_update_centralized_symptoms', array( $this->admin, 'handle_update_centralized_symptoms' ) );
+				add_action( 'wp_ajax_ennu_populate_centralized_symptoms', array( $this->admin, 'handle_populate_centralized_symptoms' ) );
+				add_action( 'wp_ajax_ennu_clear_symptom_history', array( $this->admin, 'handle_clear_symptom_history' ) );
+				add_action( 'wp_ajax_ennu_test_ajax', array( $this->admin, 'handle_test_ajax' ) );
+				
+				// v62.7.0: Biomarker Management AJAX actions
+				add_action( 'wp_ajax_ennu_import_lab_results', array( $this->admin, 'ajax_import_lab_results' ) );
+				add_action( 'wp_ajax_ennu_save_biomarker', array( $this->admin, 'ajax_save_biomarker' ) );
+				
+				error_log('ENNU Life Plugin: Admin hooks registered successfully');
+			} else {
+				error_log('ENNU Life Plugin: ERROR - Admin instance is null, cannot register admin hooks!');
+>>>>>>> origin/main
 			}
 
 			// Shortcode and AJAX Hooks will be set up after shortcodes are initialized
@@ -1073,4 +1160,30 @@ function ennu_load_template( $template_name, $data = array() ) {
 		include $template_path;
 	}
 }
+
+/*
+ * CHANGELOG
+ * 
+ * ## [62.6.0] - 2024-01-15
+ * 
+ * ### Changed
+ * - **Simplified Admin Interface**: Replaced multiple management buttons with single "Recalculate Centralized Symptoms" button
+ * - **Automatic Symptom Centralization**: Symptoms are now automatically centralized when assessments are completed (both quantitative and qualitative)
+ * - **No Admin Intervention Required**: Removed manual populate, update, and clear history buttons - system works automatically
+ * 
+ * ### Added
+ * - **Automatic Processing**: Added automatic symptom centralization for qualitative assessments
+ * - **Streamlined UI**: Cleaner admin interface with only essential recalculation functionality
+ * - **Assessment Completion Hooks**: Added hooks for other systems to respond to assessment completion
+ * 
+ * ## [62.5.0] - 2024-01-15
+ * 
+ * ### Added
+ * - **Admin Symptoms Tab**: Added comprehensive centralized symptoms tab to WordPress admin user profile
+ * - **Symptom Management**: Added populate, update, and clear history buttons for symptom management
+ * - **Enhanced UI**: Professional admin interface with summary statistics, analytics, and organized symptom display
+ * - **AJAX Handlers**: Added secure AJAX handlers for symptom management operations
+ * - **JavaScript Integration**: Enhanced admin JavaScript with proper event handling and error management
+ * - **Debug Tools**: Created comprehensive debugging scripts for troubleshooting admin functionality
+ */
 

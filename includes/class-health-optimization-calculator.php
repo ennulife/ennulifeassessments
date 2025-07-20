@@ -81,7 +81,7 @@ class ENNU_Health_Optimization_Calculator {
         $biomarker_map = $this->mappings['vector_to_biomarker_map'] ?? array();
 
         $recommended_biomarkers = array();
-        foreach (array_keys($triggered_vectors) as $vector) {
+        foreach ($triggered_vectors as $vector => $data) {
             if (isset($biomarker_map[$vector])) {
                 $recommended_biomarkers = array_merge($recommended_biomarkers, $biomarker_map[$vector]);
                 error_log("HealthOptimizationCalculator: Vector '{$vector}' recommends biomarkers: " . implode(', ', $biomarker_map[$vector]));
@@ -163,4 +163,4 @@ class ENNU_Health_Optimization_Calculator {
 
         return $mappings;
     }
-} 
+}  

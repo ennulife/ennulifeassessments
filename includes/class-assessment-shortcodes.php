@@ -960,18 +960,25 @@ final class ENNU_Assessment_Shortcodes {
 	public function handle_assessment_submission() {
 		$this->_log_submission_debug( '--- Submission process started ---' );
 
-		// 1. Security Check: Verify AJAX nonce
+		// 1. Security Check: Verify AJAX nonce and rate limiting
 		$this->_log_submission_debug( 'Verifying nonce...' );
 		check_ajax_referer( 'ennu_ajax_nonce', 'nonce' );
 		$this->_log_submission_debug( 'Nonce verified successfully.' );
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'assessment_submission', 5, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many submission attempts. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		// Future-proofing: Capture user IP for potential rate-limiting or security audits.
 		$user_ip = $_SERVER['REMOTE_ADDR'];
 		$this->_log_submission_debug( 'User IP captured.', $user_ip );
 		$this->_log_submission_debug( 'Raw POST data:', $_POST );
 
-		// 2. Get and Sanitize Data
-		$form_data = $this->sanitize_assessment_data( $_POST );
+		// 2. Get and Sanitize Data with enhanced security
+		$input_sanitizer = ENNU_Input_Sanitizer::get_instance();
+		$form_data = $input_sanitizer->sanitize_form_data( $_POST, 'assessment' );
 		$this->_log_submission_debug( 'Sanitized form data:', $form_data );
 
 		// 3. Validate Data
@@ -1109,6 +1116,15 @@ final class ENNU_Assessment_Shortcodes {
 				error_log( 'ENNU Assessments - Email Notification Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
 			}
 
+			// Update centralized symptoms for qualitative assessments too
+			if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+				ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
+				$this->_log_submission_debug( 'Centralized symptoms updated for qualitative assessment.' );
+				
+				// Trigger assessment completion hook for other systems
+				do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
+			}
+
 			$redirect_url = $this->get_thank_you_url( 'health_optimization_assessment', $results_token );
 			$this->_log_submission_debug( 'Qualitative flow complete. Sending redirect URL.', $redirect_url );
 			
@@ -1141,12 +1157,18 @@ final class ENNU_Assessment_Shortcodes {
 				ENNU_Assessment_Scoring::calculate_and_save_all_user_scores( $user_id );
 				$this->_log_submission_debug( 'All master user scores calculated and saved.' );
 
+				// Update centralized symptoms
+				if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+					ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
+					$this->_log_submission_debug( 'Centralized symptoms updated.' );
+				}
+				
+				// Trigger assessment completion hook with detailed data
 				do_action( 'ennu_assessment_completed', $user_id, array(
 					'assessment_type' => $form_data['assessment_type'],
 					'form_data' => $form_data,
 					'timestamp' => current_time( 'mysql' )
 				) );
-
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
 
@@ -1267,8 +1289,14 @@ final class ENNU_Assessment_Shortcodes {
 	 * AJAX handler to check if an email exists for a non-logged-in user.
 	 */
 	public function ajax_check_email_exists() {
-		// Security check
+		// Security check with rate limiting
 		check_ajax_referer('ennu_ajax_nonce', 'nonce');
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'email_check', 20, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
 
@@ -1301,8 +1329,14 @@ final class ENNU_Assessment_Shortcodes {
 	 * Used to dynamically update frontend state after account creation.
 	 */
 	public function ajax_check_auth_state() {
-		// Security check
+		// Security check with rate limiting
 		check_ajax_referer('ennu_ajax_nonce', 'nonce');
+		
+		$security_validator = ENNU_Security_Validator::get_instance();
+		if ( ! $security_validator->rate_limit_check( 'auth_check', 30, 300 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests. Please wait before trying again.' ), 429 );
+			return;
+		}
 
 		$response = array(
 			'is_logged_in' => is_user_logged_in(),

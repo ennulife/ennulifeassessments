@@ -1,10 +1,10 @@
 <?php
 /**
- * Pillar Map Configuration
- * Maps assessment categories to their corresponding pillars
+ * Pillar Mapping Configuration
+ * Maps assessment categories to health pillars for scoring calculations
  *
  * @package ENNU_Life
- * @version 62.1.67
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,60 +13,98 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 return array(
     'Mind' => array(
-        'stress_management',
-        'mental_clarity',
-        'cognitive_function',
-        'emotional_wellbeing',
-        'anxiety_levels',
-        'depression_indicators',
-        'mood_stability',
-        'mental_resilience',
-        'focus_concentration',
-        'memory_function',
-        'psychological_health'
+        'categories' => array(
+            'cognitive_function',
+            'mental_clarity',
+            'focus_concentration',
+            'memory_recall',
+            'mood_stability',
+            'stress_management',
+            'anxiety_levels',
+            'depression_indicators',
+            'emotional_regulation',
+            'sleep_quality',
+            'brain_fog',
+            'mental_energy'
+        ),
+        'weight' => 0.25,
+        'description' => 'Cognitive function, mental clarity, mood, and psychological well-being'
     ),
     
     'Body' => array(
-        'physical_fitness',
-        'cardiovascular_health',
-        'strength_endurance',
-        'energy_levels',
-        'metabolic_health',
-        'hormonal_balance',
-        'immune_function',
-        'digestive_health',
-        'sexual_health',
-        'physical_symptoms',
-        'body_composition',
-        'vital_signs',
-        'biomarkers'
+        'categories' => array(
+            'cardiovascular_health',
+            'metabolic_function',
+            'hormonal_balance',
+            'immune_function',
+            'digestive_health',
+            'muscle_strength',
+            'bone_density',
+            'joint_health',
+            'energy_levels',
+            'physical_endurance',
+            'recovery_rate',
+            'inflammation_markers',
+            'blood_sugar_regulation',
+            'thyroid_function',
+            'adrenal_function',
+            'reproductive_health'
+        ),
+        'weight' => 0.35,
+        'description' => 'Physical health, organ function, hormonal balance, and bodily systems'
     ),
     
     'Lifestyle' => array(
-        'sleep_quality',
-        'nutrition_habits',
-        'exercise_routine',
-        'work_life_balance',
-        'social_connections',
-        'stress_factors',
-        'daily_habits',
-        'environmental_factors',
-        'substance_use',
-        'lifestyle_choices',
-        'time_management',
-        'self_care_practices'
+        'categories' => array(
+            'exercise_frequency',
+            'nutrition_quality',
+            'sleep_patterns',
+            'stress_levels',
+            'social_connections',
+            'work_life_balance',
+            'substance_use',
+            'environmental_toxins',
+            'daily_habits',
+            'self_care_practices',
+            'time_management',
+            'goal_achievement',
+            'lifestyle_satisfaction'
+        ),
+        'weight' => 0.25,
+        'description' => 'Daily habits, lifestyle choices, and environmental factors'
     ),
     
     'Aesthetics' => array(
-        'skin_health',
-        'hair_health',
-        'body_image',
-        'appearance_satisfaction',
-        'aesthetic_concerns',
-        'cosmetic_health',
-        'physical_appearance',
-        'beauty_wellness',
-        'aesthetic_goals',
-        'visual_health_indicators'
+        'categories' => array(
+            'skin_health',
+            'hair_quality',
+            'body_composition',
+            'physical_appearance',
+            'self_confidence',
+            'body_image',
+            'aesthetic_satisfaction',
+            'aging_indicators',
+            'facial_health',
+            'posture_alignment',
+            'muscle_definition',
+            'weight_management'
+        ),
+        'weight' => 0.15,
+        'description' => 'Physical appearance, skin health, body composition, and aesthetic confidence'
+    ),
+    
+    'calculation_settings' => array(
+        'normalization_method' => 'weighted_average',
+        'min_categories_required' => 2,
+        'category_weight_distribution' => 'equal',
+        'outlier_handling' => 'cap_at_percentile_95'
+    ),
+    
+    'fallback_mappings' => array(
+        'general_health' => 'Body',
+        'wellness' => 'Lifestyle',
+        'appearance' => 'Aesthetics',
+        'mental_health' => 'Mind',
+        'default' => 'Body'
     )
 );

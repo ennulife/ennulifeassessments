@@ -1,10 +1,10 @@
 <?php
 /**
  * Health Goals Configuration
- * Defines health goals, their pillar mappings, boost rules, and definitions
+ * Defines available health goals and their properties for the Intentionality Engine
  *
  * @package ENNU_Life
- * @version 62.1.67
+ * @version 62.2.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,180 +12,129 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 return array(
-    'goal_to_pillar_map' => array(
-        'energy' => array(
-            'primary_pillar' => 'Body',
-            'secondary_pillar' => 'Lifestyle',
-            'boost_percentage' => 0.05
-        ),
-        'strength' => array(
-            'primary_pillar' => 'Body',
-            'secondary_pillar' => 'Mind',
-            'boost_percentage' => 0.05
-        ),
-        'sleep' => array(
-            'primary_pillar' => 'Lifestyle',
-            'secondary_pillar' => 'Body',
-            'boost_percentage' => 0.05
-        ),
-        'stress' => array(
-            'primary_pillar' => 'Mind',
-            'secondary_pillar' => 'Lifestyle',
-            'boost_percentage' => 0.05
-        ),
-        'focus' => array(
-            'primary_pillar' => 'Mind',
-            'secondary_pillar' => 'Lifestyle',
-            'boost_percentage' => 0.05
-        ),
-        'confidence' => array(
-            'primary_pillar' => 'Mind',
-            'secondary_pillar' => 'Aesthetics',
-            'boost_percentage' => 0.05
-        ),
-        'weight' => array(
-            'primary_pillar' => 'Body',
-            'secondary_pillar' => 'Aesthetics',
-            'boost_percentage' => 0.05
-        ),
-        'skin' => array(
-            'primary_pillar' => 'Aesthetics',
-            'secondary_pillar' => 'Body',
-            'boost_percentage' => 0.05
-        ),
-        'hair' => array(
-            'primary_pillar' => 'Aesthetics',
-            'secondary_pillar' => 'Body',
-            'boost_percentage' => 0.05
-        ),
-        'libido' => array(
-            'primary_pillar' => 'Body',
-            'secondary_pillar' => 'Mind',
-            'boost_percentage' => 0.05
-        ),
-        'longevity' => array(
-            'primary_pillar' => 'Body',
-            'secondary_pillar' => 'Lifestyle',
-            'boost_percentage' => 0.05
-        )
-    ),
-
-    'boost_rules' => array(
-        'max_boost_per_pillar' => 0.15,
-        'cumulative' => false,
-        'application_method' => 'multiplicative'
-    ),
-
     'goal_definitions' => array(
-        'energy' => array(
-            'label' => 'Energy & Vitality',
-            'description' => 'Increase daily energy levels and reduce fatigue',
-            'icon' => 'energy-icon',
-            'category' => 'physical',
-            'pillar_bonus' => array(
-                'Body' => 0.05,
-                'Lifestyle' => 0.03
-            )
+        'weight_loss' => array(
+            'name' => 'Weight Loss',
+            'description' => 'Achieve and maintain healthy weight',
+            'pillar_boosts' => array(
+                'Body' => 0.15,
+                'Lifestyle' => 0.10
+            ),
+            'priority' => 1
         ),
-        'strength' => array(
-            'label' => 'Strength & Fitness',
-            'description' => 'Build muscle strength and improve physical fitness',
-            'icon' => 'strength-icon',
-            'category' => 'physical',
-            'pillar_bonus' => array(
-                'Body' => 0.05,
-                'Mind' => 0.02
-            )
+        'muscle_gain' => array(
+            'name' => 'Muscle Gain',
+            'description' => 'Build lean muscle mass and strength',
+            'pillar_boosts' => array(
+                'Body' => 0.20,
+                'Lifestyle' => 0.05
+            ),
+            'priority' => 1
         ),
-        'sleep' => array(
-            'label' => 'Sleep Quality',
+        'energy_boost' => array(
+            'name' => 'Energy Boost',
+            'description' => 'Increase daily energy and vitality',
+            'pillar_boosts' => array(
+                'Body' => 0.10,
+                'Mind' => 0.10,
+                'Lifestyle' => 0.15
+            ),
+            'priority' => 2
+        ),
+        'better_sleep' => array(
+            'name' => 'Better Sleep',
             'description' => 'Improve sleep quality and duration',
-            'icon' => 'sleep-icon',
-            'category' => 'lifestyle',
-            'pillar_bonus' => array(
-                'Lifestyle' => 0.05,
-                'Body' => 0.03
-            )
+            'pillar_boosts' => array(
+                'Mind' => 0.15,
+                'Lifestyle' => 0.10
+            ),
+            'priority' => 2
         ),
-        'stress' => array(
-            'label' => 'Stress Management',
-            'description' => 'Reduce stress levels and improve mental resilience',
-            'icon' => 'stress-icon',
-            'category' => 'mental',
-            'pillar_bonus' => array(
-                'Mind' => 0.05,
-                'Lifestyle' => 0.03
-            )
+        'stress_reduction' => array(
+            'name' => 'Stress Reduction',
+            'description' => 'Manage and reduce daily stress levels',
+            'pillar_boosts' => array(
+                'Mind' => 0.20,
+                'Lifestyle' => 0.05
+            ),
+            'priority' => 1
         ),
-        'focus' => array(
-            'label' => 'Mental Focus',
-            'description' => 'Enhance concentration and cognitive performance',
-            'icon' => 'focus-icon',
-            'category' => 'mental',
-            'pillar_bonus' => array(
-                'Mind' => 0.05,
-                'Lifestyle' => 0.02
-            )
+        'improved_focus' => array(
+            'name' => 'Improved Focus',
+            'description' => 'Enhance mental clarity and concentration',
+            'pillar_boosts' => array(
+                'Mind' => 0.15,
+                'Body' => 0.05
+            ),
+            'priority' => 2
         ),
-        'confidence' => array(
-            'label' => 'Confidence & Self-Esteem',
-            'description' => 'Build confidence and improve self-image',
-            'icon' => 'confidence-icon',
-            'category' => 'mental',
-            'pillar_bonus' => array(
-                'Mind' => 0.05,
-                'Aesthetics' => 0.03
-            )
+        'hormone_balance' => array(
+            'name' => 'Hormone Balance',
+            'description' => 'Optimize hormonal health and function',
+            'pillar_boosts' => array(
+                'Body' => 0.15,
+                'Mind' => 0.10,
+                'Aesthetics' => 0.05
+            ),
+            'priority' => 1
         ),
-        'weight' => array(
-            'label' => 'Weight Management',
-            'description' => 'Achieve and maintain optimal body weight',
-            'icon' => 'weight-icon',
-            'category' => 'physical',
-            'pillar_bonus' => array(
-                'Body' => 0.05,
-                'Aesthetics' => 0.03
-            )
+        'heart_health' => array(
+            'name' => 'Heart Health',
+            'description' => 'Improve cardiovascular health and function',
+            'pillar_boosts' => array(
+                'Body' => 0.20,
+                'Lifestyle' => 0.10
+            ),
+            'priority' => 1
         ),
-        'skin' => array(
-            'label' => 'Skin Health',
-            'description' => 'Improve skin appearance and health',
-            'icon' => 'skin-icon',
-            'category' => 'aesthetic',
-            'pillar_bonus' => array(
-                'Aesthetics' => 0.05,
-                'Body' => 0.02
-            )
-        ),
-        'hair' => array(
-            'label' => 'Hair Health',
-            'description' => 'Enhance hair growth and appearance',
-            'icon' => 'hair-icon',
-            'category' => 'aesthetic',
-            'pillar_bonus' => array(
-                'Aesthetics' => 0.05,
-                'Body' => 0.02
-            )
-        ),
-        'libido' => array(
-            'label' => 'Sexual Health',
-            'description' => 'Improve libido and sexual wellness',
-            'icon' => 'libido-icon',
-            'category' => 'physical',
-            'pillar_bonus' => array(
-                'Body' => 0.05,
-                'Mind' => 0.03
-            )
+        'immune_support' => array(
+            'name' => 'Immune Support',
+            'description' => 'Strengthen immune system function',
+            'pillar_boosts' => array(
+                'Body' => 0.15,
+                'Lifestyle' => 0.05
+            ),
+            'priority' => 2
         ),
         'longevity' => array(
-            'label' => 'Longevity & Anti-Aging',
+            'name' => 'Longevity',
             'description' => 'Promote healthy aging and longevity',
-            'icon' => 'longevity-icon',
-            'category' => 'lifestyle',
-            'pillar_bonus' => array(
-                'Body' => 0.05,
-                'Lifestyle' => 0.03
-            )
+            'pillar_boosts' => array(
+                'Body' => 0.10,
+                'Mind' => 0.10,
+                'Lifestyle' => 0.15,
+                'Aesthetics' => 0.05
+            ),
+            'priority' => 3
+        ),
+        'aesthetic_improvement' => array(
+            'name' => 'Aesthetic Improvement',
+            'description' => 'Enhance physical appearance and confidence',
+            'pillar_boosts' => array(
+                'Aesthetics' => 0.20,
+                'Body' => 0.05
+            ),
+            'priority' => 2
+        ),
+        'sexual_health' => array(
+            'name' => 'Sexual Health',
+            'description' => 'Improve sexual function and satisfaction',
+            'pillar_boosts' => array(
+                'Body' => 0.15,
+                'Mind' => 0.05,
+                'Aesthetics' => 0.05
+            ),
+            'priority' => 1
         )
+    ),
+    'boost_limits' => array(
+        'max_per_pillar' => 0.25,
+        'max_total_boost' => 0.50,
+        'non_cumulative' => true
+    ),
+    'goal_priorities' => array(
+        1 => 'Primary Goals',
+        2 => 'Secondary Goals', 
+        3 => 'Long-term Goals'
     )
 );
