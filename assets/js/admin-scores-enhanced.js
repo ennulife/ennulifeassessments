@@ -107,19 +107,19 @@
         bindEvents: function() {
             try {
                 // Recalculate scores button
-                $(document).on('click', '#ennu-recalculate-scores', this.handleRecalculateScores.bind(this));
-                
-                // Export data button
-                $(document).on('click', '#ennu-export-data', this.handleExportData.bind(this));
-                
-                // Sync HubSpot button
-                $(document).on('click', '#ennu-sync-hubspot', this.handleSyncHubSpot.bind(this));
-                
-                // Clear cache button
-                $(document).on('click', '#ennu-clear-cache', this.handleClearCache.bind(this));
-                
-                // Clear user data button
-                $(document).on('click', '#ennu-clear-data', this.handleClearUserData.bind(this));
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'ennu-recalculate-scores') {
+                        this.handleRecalculateScores(e);
+                    } else if (e.target.id === 'ennu-export-data') {
+                        this.handleExportData(e);
+                    } else if (e.target.id === 'ennu-sync-hubspot') {
+                        this.handleSyncHubSpot(e);
+                    } else if (e.target.id === 'ennu-clear-cache') {
+                        this.handleClearCache(e);
+                    } else if (e.target.id === 'ennu-clear-data') {
+                        this.handleClearUserData(e);
+                    }
+                });
 
                 // Global error handler for unhandled promise rejections
                 window.addEventListener('unhandledrejection', this.handleUnhandledRejection.bind(this));
@@ -336,14 +336,19 @@
             attempt = attempt || 1;
             const self = this;
             
-            return $.ajax({
-                url: this.ajaxUrl,
-                type: 'POST',
-                data: data,
-                timeout: this.config.requestTimeout,
-                dataType: 'json'
-            }).fail(function(xhr, status, error) {
-                if (attempt < self.config.maxRetries && self.shouldRetry(xhr, status)) {
+            return fetch(this.ajaxUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            }).catch(error => {
+                if (attempt < self.config.maxRetries && self.shouldRetry(error)) {
                     self.log(`Retrying AJAX request for ${action} (attempt ${attempt + 1}/${self.config.maxRetries})`);
                     
                     // Exponential backoff
@@ -651,16 +656,17 @@
                     return;
                 }
                 
-                $.ajax({
-                    url: this.ajaxUrl,
-                    type: 'POST',
-                    data: {
+                fetch(this.ajaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
                         action: 'ennu_log_client_error',
                         nonce: this.nonce,
                         error_data: JSON.stringify(errorData)
-                    },
-                    timeout: 5000
-                }).fail(function() {
+                    })
+                }).catch(() => {
                     // Silently fail - don't create error loops
                 });
                 

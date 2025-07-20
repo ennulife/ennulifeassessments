@@ -1,132 +1,198 @@
-jQuery(document).ready(function($) {
+document.addEventListener('DOMContentLoaded', function() {
     
-    $('.nav-tab').on('click', function(e) {
-        e.preventDefault();
-        var target = $(this).attr('href');
-        
-        $('.nav-tab').removeClass('nav-tab-active');
-        $(this).addClass('nav-tab-active');
-        
-        $('.tab-content').removeClass('active');
-        $(target).addClass('active');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('href');
+            
+            navTabs.forEach(t => t.classList.remove('nav-tab-active'));
+            this.classList.add('nav-tab-active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const targetElement = document.querySelector(target);
+            if (targetElement) {
+                targetElement.classList.add('active');
+            }
+        });
     });
     
-    $('input[name="import_method"]').on('change', function() {
-        if ($(this).val() === 'csv') {
-            $('.csv-upload-row').show();
-            $('.manual-entry-section').hide();
-        } else {
-            $('.csv-upload-row').hide();
-            $('.manual-entry-section').show();
+    const importMethodInputs = document.querySelectorAll('input[name="import_method"]');
+    importMethodInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+            const csvUploadRow = document.querySelector('.csv-upload-row');
+            const manualEntrySection = document.querySelector('.manual-entry-section');
+            
+            if (this.value === 'csv') {
+                if (csvUploadRow) csvUploadRow.style.display = 'block';
+                if (manualEntrySection) manualEntrySection.style.display = 'none';
+            } else {
+                if (csvUploadRow) csvUploadRow.style.display = 'none';
+                if (manualEntrySection) manualEntrySection.style.display = 'block';
+            }
+        });
+    });
+    
+    const addBiomarkerBtn = document.getElementById('add-biomarker-entry');
+    if (addBiomarkerBtn) {
+        addBiomarkerBtn.addEventListener('click', function() {
+            const template = document.querySelector('.biomarker-entry');
+            if (template) {
+                const clone = template.cloneNode(true);
+                clone.querySelectorAll('input, select').forEach(input => input.value = '');
+                const container = document.getElementById('biomarker-entries');
+                if (container) {
+                    container.appendChild(clone);
+                }
+            }
+        });
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-biomarker-entry')) {
+            const entries = document.querySelectorAll('.biomarker-entry');
+            if (entries.length > 1) {
+                const entry = e.target.closest('.biomarker-entry');
+                if (entry) {
+                    entry.remove();
+                }
+            }
         }
     });
     
-    $('#add-biomarker-entry').on('click', function() {
-        var template = $('.biomarker-entry').first().clone();
-        template.find('input, select').val('');
-        $('#biomarker-entries').append(template);
-    });
-    
-    $(document).on('click', '.remove-biomarker-entry', function() {
-        if ($('.biomarker-entry').length > 1) {
-            $(this).closest('.biomarker-entry').remove();
-        }
-    });
-    
-    $('#ennu-lab-import-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        var formData = new FormData(this);
-        formData.append('action', 'ennu_import_lab_data');
-        formData.append('nonce', ennuBiomarkerAdmin.nonce);
-        
-        var submitBtn = $(this).find('input[type="submit"]');
-        var originalText = submitBtn.val();
-        submitBtn.val('Importing...').prop('disabled', true);
-        
-        $.ajax({
-            url: ennuBiomarkerAdmin.ajaxurl,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.success) {
-                    showMessage('success', response.data.message);
-                    if (response.data.errors && response.data.errors.length > 0) {
-                        showMessage('error', 'Some errors occurred: ' + response.data.errors.join(', '));
+    const labImportForm = document.getElementById('ennu-lab-import-form');
+    if (labImportForm) {
+        labImportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'ennu_import_lab_data');
+            formData.append('nonce', ennuBiomarkerAdmin.nonce);
+            
+            const submitBtn = this.querySelector('input[type="submit"]');
+            const originalText = submitBtn.value;
+            submitBtn.value = 'Importing...';
+            submitBtn.disabled = true;
+            
+            fetch(ennuBiomarkerAdmin.ajaxurl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('success', data.data.message);
+                    if (data.data.errors && data.data.errors.length > 0) {
+                        showMessage('error', 'Some errors occurred: ' + data.data.errors.join(', '));
                     }
                 } else {
-                    showMessage('error', response.data.message || 'Import failed');
+                    showMessage('error', data.data.message || 'Import failed');
                 }
-            },
-            error: function() {
+            })
+            .catch(() => {
                 showMessage('error', 'Network error occurred');
-            },
-            complete: function() {
-                submitBtn.val(originalText).prop('disabled', false);
-            }
+            })
+            .finally(() => {
+                submitBtn.value = originalText;
+                submitBtn.disabled = false;
+            });
         });
-    });
+    }
     
-    $('#targets-user-select').on('change', function() {
-        var userId = $(this).val();
-        if (userId) {
-            loadUserBiomarkers(userId);
-            $('#doctor-targets-section').show();
-        } else {
-            $('#doctor-targets-section').hide();
-        }
-    });
-    
-    $('#ennu-doctor-targets-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        var formData = $(this).serialize();
-        formData += '&action=ennu_save_doctor_targets&nonce=' + ennuBiomarkerAdmin.nonce;
-        
-        var submitBtn = $(this).find('input[type="submit"]');
-        var originalText = submitBtn.val();
-        submitBtn.val('Saving...').prop('disabled', true);
-        
-        $.post(ennuBiomarkerAdmin.ajaxurl, formData, function(response) {
-            if (response.success) {
-                showMessage('success', response.data.message);
+    const targetsUserSelect = document.getElementById('targets-user-select');
+    if (targetsUserSelect) {
+        targetsUserSelect.addEventListener('change', function() {
+            const userId = this.value;
+            const doctorTargetsSection = document.getElementById('doctor-targets-section');
+            
+            if (userId) {
+                loadUserBiomarkers(userId);
+                if (doctorTargetsSection) {
+                    doctorTargetsSection.style.display = 'block';
+                }
             } else {
-                showMessage('error', response.data.message || 'Save failed');
+                if (doctorTargetsSection) {
+                    doctorTargetsSection.style.display = 'none';
+                }
             }
-        }).fail(function() {
-            showMessage('error', 'Network error occurred');
-        }).always(function() {
-            submitBtn.val(originalText).prop('disabled', false);
         });
-    });
+    }
+    
+    const doctorTargetsForm = document.getElementById('ennu-doctor-targets-form');
+    if (doctorTargetsForm) {
+        doctorTargetsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'ennu_save_doctor_targets');
+            formData.append('nonce', ennuBiomarkerAdmin.nonce);
+            
+            const submitBtn = this.querySelector('input[type="submit"]');
+            const originalText = submitBtn.value;
+            submitBtn.value = 'Saving...';
+            submitBtn.disabled = true;
+            
+            fetch(ennuBiomarkerAdmin.ajaxurl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('success', data.data.message);
+                } else {
+                    showMessage('error', data.data.message || 'Save failed');
+                }
+            })
+            .catch(() => {
+                showMessage('error', 'Network error occurred');
+            })
+            .finally(() => {
+                submitBtn.value = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
     
     function loadUserBiomarkers(userId) {
-        $('#targets-container').html('<div class="loading-spinner"></div>');
+        const targetsContainer = document.getElementById('targets-container');
+        if (targetsContainer) {
+            targetsContainer.innerHTML = '<div class="loading-spinner"></div>';
+        }
         
-        $.post(ennuBiomarkerAdmin.ajaxurl, {
-            action: 'ennu_get_user_biomarkers',
-            user_id: userId,
-            nonce: ennuBiomarkerAdmin.nonce
-        }, function(response) {
-            if (response.success) {
-                renderTargetsForm(response.data.biomarkers, response.data.targets);
+        const formData = new FormData();
+        formData.append('action', 'ennu_get_user_biomarkers');
+        formData.append('user_id', userId);
+        formData.append('nonce', ennuBiomarkerAdmin.nonce);
+        
+        fetch(ennuBiomarkerAdmin.ajaxurl, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTargetsForm(data.data.biomarkers, data.data.targets);
             } else {
-                $('#targets-container').html('<p>Error loading biomarkers</p>');
+                if (targetsContainer) {
+                    targetsContainer.innerHTML = '<p>Error loading biomarkers</p>';
+                }
             }
-        }).fail(function() {
-            $('#targets-container').html('<p>Network error occurred</p>');
+        })
+        .catch(() => {
+            if (targetsContainer) {
+                targetsContainer.innerHTML = '<p>Network error occurred</p>';
+            }
         });
     }
     
     function renderTargetsForm(biomarkers, existingTargets) {
-        var html = '';
+        let html = '';
         
         if (biomarkers && Object.keys(biomarkers).length > 0) {
-            for (var biomarker in biomarkers) {
-                var data = biomarkers[biomarker];
-                var currentTarget = existingTargets[biomarker] || '';
+            for (const biomarker in biomarkers) {
+                const data = biomarkers[biomarker];
+                const currentTarget = existingTargets[biomarker] || '';
                 
                 html += '<div class="target-input-group">';
                 html += '<label>' + (data.name || biomarker.replace(/_/g, ' ')) + ' (' + (data.unit || '') + ')</label>';
@@ -138,19 +204,28 @@ jQuery(document).ready(function($) {
             html = '<p>No biomarker data found for this user. Import lab data first.</p>';
         }
         
-        $('#targets-container').html(html);
+        const targetsContainer = document.getElementById('targets-container');
+        if (targetsContainer) {
+            targetsContainer.innerHTML = html;
+        }
     }
     
     function showMessage(type, message) {
-        var messageClass = type === 'success' ? 'success-message' : 'error-message';
-        var messageHtml = '<div class="' + messageClass + '">' + message + '</div>';
+        const messageClass = type === 'success' ? 'success-message' : 'error-message';
+        const messageHtml = '<div class="' + messageClass + '">' + message + '</div>';
         
-        $('.wrap').prepend(messageHtml);
-        
-        setTimeout(function() {
-            $('.' + messageClass).fadeOut(function() {
-                $(this).remove();
-            });
-        }, 5000);
+        const wrap = document.querySelector('.wrap');
+        if (wrap) {
+            wrap.insertAdjacentHTML('afterbegin', messageHtml);
+            
+            setTimeout(function() {
+                const messageElement = document.querySelector('.' + messageClass);
+                if (messageElement) {
+                    messageElement.style.opacity = '0';
+                    messageElement.style.transition = 'opacity 0.3s';
+                    setTimeout(() => messageElement.remove(), 300);
+                }
+            }, 5000);
+        }
     }
 });

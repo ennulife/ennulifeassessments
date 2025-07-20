@@ -155,6 +155,8 @@ class ENNU_Health_Goals_Ajax {
      * Handle bulk health goals update
      */
     public function handle_update_health_goals() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         // Security checks
         if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_health_goals_nonce' ) ) {
             wp_send_json_error( array( 
@@ -220,6 +222,8 @@ class ENNU_Health_Goals_Ajax {
      * Handle single health goal toggle
      */
     public function handle_toggle_health_goal() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         // Security checks
         if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_health_goals_nonce' ) ) {
             wp_send_json_error( array( 
@@ -236,11 +240,27 @@ class ENNU_Health_Goals_Ajax {
         }
         
         $user_id = get_current_user_id();
-        $goal_to_toggle = sanitize_text_field( $_POST['goal'] );
-        $action = sanitize_text_field( $_POST['action'] ); // 'add' or 'remove'
         
-        // Validate action
-        if ( ! in_array( $action, array( 'add', 'remove' ) ) ) {
+        if ( empty( $_POST['goal'] ) || empty( $_POST['action'] ) ) {
+            wp_send_json_error( array( 
+                'message' => 'Missing required parameters',
+                'code' => 'MISSING_PARAMS'
+            ) );
+        }
+        
+        $goal_to_toggle = sanitize_text_field( $_POST['goal'] );
+        $action = sanitize_text_field( $_POST['action'] );
+        
+        // Validate goal format (alphanumeric with underscores only)
+        if ( ! preg_match( '/^[a-zA-Z0-9_]+$/', $goal_to_toggle ) ) {
+            wp_send_json_error( array( 
+                'message' => 'Invalid goal format',
+                'code' => 'INVALID_GOAL_FORMAT'
+            ) );
+        }
+        
+        // Validate action with strict whitelist
+        if ( ! in_array( $action, array( 'add', 'remove' ), true ) ) {
             wp_send_json_error( array( 
                 'message' => 'Invalid action specified',
                 'code' => 'INVALID_ACTION'
@@ -464,29 +484,7 @@ class ENNU_Health_Goals_Ajax {
 }
 
 // Initialize the AJAX handler
-new ENNU_Health_Goals_Ajax(); 
-||||||| f31b4df
-=======
-<?php
-/**
- * Health Goals AJAX Handler
- * Manages interactive health goals updates with secure AJAX endpoints
- *
- * @package ENNU_Life
- * @version 62.1.67
- * @author The World's Greatest WordPress Developer
- */
-
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
-
-class ENNU_Health_Goals_Ajax {
-    
-    public function __construct() {
-        add_action( 'wp_ajax_ennu_update_health_goals', array( $this, 'handle_update_health_goals' ) );
-        add_action( 'wp_ajax_nopriv_ennu_update_health_goals', array( $this, 'handle_update_health_goals' ) );
-        add_action( 'wp_ajax_ennu_toggle_health_goal', array( $this, 'handle_toggle_health_goal' ) );
+new ENNU_Health_Goals_Ajax();
         add_action( 'wp_ajax_nopriv_ennu_toggle_health_goal', array( $this, 'handle_toggle_health_goal' ) );
         
         // Enqueue scripts and localize AJAX data
@@ -909,4 +907,4 @@ class ENNU_Health_Goals_Ajax {
             ENNU_Scoring_System::calculate_and_save_all_user_scores( $user_id );
         }
     }
-}     
+}   
