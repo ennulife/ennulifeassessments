@@ -74,12 +74,9 @@
         
         // Check for required dependencies
         checkDependencies: function() {
-            const required = ['jQuery', 'ennuAdminEnhanced'];
+            const required = ['ennuAdminEnhanced'];
             const missing = [];
             
-            if (typeof $ === 'undefined' || typeof $.fn.jquery === 'undefined') {
-                missing.push('jQuery');
-            }
             
             if (typeof ennuAdminEnhanced === 'undefined') {
                 missing.push('ennuAdminEnhanced localization object');
@@ -137,10 +134,28 @@
         // Initialize components
         initializeComponents: function() {
             try {
-                // Initialize tooltips if available
-                if ($.fn.tooltip) {
-                    $('.ennu-enhanced-admin-container [title]').tooltip();
-                }
+                // Initialize tooltips with vanilla JavaScript
+                const tooltipElements = document.querySelectorAll('.ennu-enhanced-admin-container [title]');
+                tooltipElements.forEach(function(element) {
+                    element.addEventListener('mouseenter', function() {
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'ennu-tooltip';
+                        tooltip.textContent = this.getAttribute('title');
+                        document.body.appendChild(tooltip);
+                        this.setAttribute('data-original-title', this.getAttribute('title'));
+                        this.removeAttribute('title');
+                    });
+                    element.addEventListener('mouseleave', function() {
+                        const tooltip = document.querySelector('.ennu-tooltip');
+                        if (tooltip) {
+                            tooltip.remove();
+                        }
+                        if (this.getAttribute('data-original-title')) {
+                            this.setAttribute('title', this.getAttribute('data-original-title'));
+                            this.removeAttribute('data-original-title');
+                        }
+                    });
+                });
                 
                 // Initialize progress animations
                 this.animateProgressBars();
@@ -159,12 +174,17 @@
         setupErrorMonitoring: function() {
             const self = this;
             
-            // Monitor AJAX errors
-            $(document).ajaxError(function(event, xhr, settings, error) {
-                if (settings.url && settings.url.indexOf('ennu_') !== -1) {
-                    self.handleAjaxError(xhr, 'error', error, settings);
-                }
-            });
+            // Monitor fetch errors - vanilla JavaScript replacement for ajaxError
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args)
+                    .catch(function(error) {
+                        if (args[0] && args[0].indexOf && args[0].indexOf('ennu_') !== -1) {
+                            self.handleAjaxError(null, 'error', error, { url: args[0] });
+                        }
+                        throw error;
+                    });
+            };
             
             // Monitor console errors
             const originalConsoleError = console.error;
@@ -186,7 +206,7 @@
             e.preventDefault();
             
             try {
-                const $button = $(e.currentTarget);
+                const button = e.currentTarget;
                 const userId = this.getUserId();
                 
                 if (!userId) {
@@ -196,7 +216,7 @@
                 
                 this.performAjaxOperation('recalculate_scores', {
                     user_id: userId
-                }, $button, this.strings.recalculating || 'Recalculating scores...');
+                }, button, this.strings.recalculating || 'Recalculating scores...');
                 
             } catch (error) {
                 this.handleError('Recalculate scores failed: ' + error.message, 'RECALCULATE_ERROR', error);
@@ -208,7 +228,7 @@
             e.preventDefault();
             
             try {
-                const $button = $(e.currentTarget);
+                const button = e.currentTarget;
                 const userId = this.getUserId();
                 
                 if (!userId) {
@@ -218,7 +238,7 @@
                 
                 this.performAjaxOperation('export_user_data', {
                     user_id: userId
-                }, $button, this.strings.exporting || 'Exporting data...', this.handleExportSuccess.bind(this));
+                }, button, this.strings.exporting || 'Exporting data...', this.handleExportSuccess.bind(this));
                 
             } catch (error) {
                 this.handleError('Export data failed: ' + error.message, 'EXPORT_ERROR', error);
@@ -230,7 +250,7 @@
             e.preventDefault();
             
             try {
-                const $button = $(e.currentTarget);
+                const button = e.currentTarget;
                 const userId = this.getUserId();
                 
                 if (!userId) {
@@ -240,7 +260,7 @@
                 
                 this.performAjaxOperation('sync_hubspot', {
                     user_id: userId
-                }, $button, this.strings.syncing || 'Syncing with HubSpot...');
+                }, button, this.strings.syncing || 'Syncing with HubSpot...');
                 
             } catch (error) {
                 this.handleError('HubSpot sync failed: ' + error.message, 'HUBSPOT_ERROR', error);
@@ -252,12 +272,12 @@
             e.preventDefault();
             
             try {
-                const $button = $(e.currentTarget);
+                const button = e.currentTarget;
                 const userId = this.getUserId();
                 
                 this.performAjaxOperation('clear_cache', {
                     user_id: userId || 0
-                }, $button, this.strings.clearing_cache || 'Clearing cache...');
+                }, button, this.strings.clearing_cache || 'Clearing cache...');
                 
             } catch (error) {
                 this.handleError('Clear cache failed: ' + error.message, 'CACHE_ERROR', error);
@@ -273,8 +293,8 @@
             }
 
             try {
-                const $button = $(e.currentTarget);
-                const userId = $button.data('user-id');
+                const button = e.currentTarget;
+                const userId = button.dataset.userId;
 
                 if (!userId) {
                     this.showNotification(this.strings.error || 'User ID not found', 'error');
@@ -283,7 +303,7 @@
 
                 this.performAjaxOperation('clear_user_data', {
                     user_id: userId
-                }, $button, 'Clearing data...', function() {
+                }, button, 'Clearing data...', function() {
                     location.reload();
                 });
 
@@ -293,7 +313,7 @@
         },
 
         // Bulletproof AJAX operation with retry mechanism
-        performAjaxOperation: function(action, data, $button, loadingMessage, successCallback) {
+        performAjaxOperation: function(action, data, button, loadingMessage, successCallback) {
             if (this.state.isProcessing) {
                 this.showNotification('Another operation is in progress. Please wait.', 'warning');
                 return;
@@ -308,25 +328,25 @@
             this.state.isProcessing = true;
             
             // Prepare request data
-            const requestData = $.extend({
+            const requestData = Object.assign({
                 action: 'ennu_' + action,
                 nonce: this.nonce
             }, data);
             
             // Show loading state
-            this.setButtonLoading($button, true, loadingMessage);
+            this.setButtonLoading(button, true, loadingMessage);
             this.showNotification(loadingMessage, 'loading');
             
             // Perform AJAX request with retry
             this.ajaxWithRetry(requestData, action)
-                .done((response) => {
-                    this.handleAjaxSuccess(response, $button, successCallback);
+                .then((response) => {
+                    this.handleAjaxSuccess(response, button, successCallback);
                 })
-                .fail((xhr, status, error) => {
-                    this.handleAjaxError(xhr, status, error, { data: requestData });
-                    this.setButtonLoading($button, false);
+                .catch((error) => {
+                    this.handleAjaxError(error.xhr, error.status, error.error, { data: requestData });
+                    this.setButtonLoading(button, false);
                 })
-                .always(() => {
+                .finally(() => {
                     this.state.isProcessing = false;
                 });
         },
@@ -377,7 +397,7 @@
         },
         
         // Handle AJAX success
-        handleAjaxSuccess: function(response, $button, successCallback) {
+        handleAjaxSuccess: function(response, button, successCallback) {
             try {
                 this.setButtonLoading($button, false);
                 
@@ -494,25 +514,25 @@
         },
         
         // Set button loading state
-        setButtonLoading: function($button, loading, message) {
+        setButtonLoading: function(button, loading, message) {
             if (loading) {
-                $button.prop('disabled', true)
-                       .addClass('ennu-loading')
-                       .data('original-text', $button.text())
-                       .html('<span class="dashicons dashicons-update-alt"></span> ' + (message || 'Loading...'));
+                button.disabled = true;
+                button.classList.add('ennu-loading');
+                button.dataset.originalText = button.textContent;
+                button.innerHTML = '<span class="dashicons dashicons-update-alt"></span> ' + (message || 'Loading...');
             } else {
-                $button.prop('disabled', false)
-                       .removeClass('ennu-loading')
-                       .html($button.data('original-text') || $button.text());
+                button.disabled = false;
+                button.classList.remove('ennu-loading');
+                button.innerHTML = button.dataset.originalText || button.textContent;
             }
         },
         
         // Show notification with auto-hide
         showNotification: function(message, type, duration) {
             try {
-                const $status = $('#ennu-operation-status');
+                const statusElement = document.getElementById('ennu-operation-status');
                 
-                if ($status.length === 0) {
+                if (!statusElement) {
                     return;
                 }
                 
@@ -550,10 +570,12 @@
         // Animate progress bars
         animateProgressBars: function() {
             try {
-                $('.ennu-progress-bar').each(function() {
-                    const $bar = $(this);
-                    const width = $bar.css('width');
-                    $bar.css('width', '0').animate({ width: width }, 1000);
+                const progressBars = document.querySelectorAll('.ennu-progress-bar');
+                progressBars.forEach(function(bar) {
+                    const width = getComputedStyle(bar).width;
+                    bar.style.width = '0';
+                    bar.style.transition = 'width 1000ms';
+                    setTimeout(() => bar.style.width = width, 10);
                 });
             } catch (error) {
                 this.log('Progress bar animation failed: ' + error.message, 'warning');
@@ -565,9 +587,9 @@
             try {
                 // This would typically make an AJAX call to get current cache status
                 // For now, we'll just update the display based on existing data
-                const $indicator = $('.ennu-cache-indicator');
-                if ($indicator.hasClass('active')) {
-                    $indicator.addClass('pulse');
+                const indicator = document.querySelector('.ennu-cache-indicator');
+                if (indicator && indicator.classList.contains('active')) {
+                    indicator.classList.add('pulse');
                 }
             } catch (error) {
                 this.log('Cache status update failed: ' + error.message, 'warning');
@@ -602,9 +624,9 @@
             }
             
             if (!userId) {
-                const $userIdField = $('#user_id');
-                if ($userIdField.length) {
-                    userId = $userIdField.val();
+                const userIdField = document.getElementById('user_id');
+                if (userIdField) {
+                    userId = userIdField.value;
                 }
             }
             
@@ -710,12 +732,12 @@
     };
     
     // Initialize when document is ready
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
         ENNU.init();
     });
     
     // Expose ENNU object globally for debugging
     window.ENNUAdminEnhanced = ENNU;
     
-})(jQuery);
+})();
 

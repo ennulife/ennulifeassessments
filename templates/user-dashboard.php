@@ -350,7 +350,7 @@ if (empty($display_name)) {
 								 aria-label="<?php echo esc_attr( $goal['label'] . ( $goal['selected'] ? ' - Currently selected' : ' - Click to select' ) ); ?>"
 								 title="<?php echo esc_attr( $goal['description'] ?? $goal['label'] ); ?>">
 								<div class="goal-pill-icon" aria-hidden="true">
-									<?php echo $goal['icon']; ?>
+									<?php echo wp_kses_post( $goal['icon'] ); ?>
 								</div>
 								<span class="goal-pill-text"><?php echo esc_html( $goal['label'] ); ?></span>
 								<span class="goal-pill-check <?php echo $goal['selected'] ? 'visible' : ''; ?>" aria-hidden="true">
@@ -3422,4 +3422,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>           
+</script>             
