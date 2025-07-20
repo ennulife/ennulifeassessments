@@ -93,7 +93,7 @@
         // Load configuration from WordPress localization
         loadConfig: function() {
             if (typeof ennuAdminEnhanced !== 'undefined') {
-                this.config = $.extend(this.config, ennuAdminEnhanced.security || {});
+                this.config = Object.assign(this.config, ennuAdminEnhanced.security || {});
                 this.strings = ennuAdminEnhanced.strings || {};
                 this.ajaxUrl = ennuAdminEnhanced.ajaxurl;
                 this.nonce = ennuAdminEnhanced.nonce;
