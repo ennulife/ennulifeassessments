@@ -5,11 +5,14 @@
   "main": "ennu-life-plugin.php",
   "scripts": {
     "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "build": "wp-scripts build assets/js/ennu-admin.js assets/js/user-dashboard.js assets/js/ennu-frontend-forms.js --output-path=dist",
-    "postinstall": "bash node_modules/@wordpress/scripts/bin/install-wp-tests.sh",
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
-    "env:run": "wp-env run"
+    "env:run": "wp-env run",
+    "test:php": "npx wp-env run tests-wordpress vendor/bin/phpunit",
+    "test:php:coverage": "npx wp-env run tests-wordpress vendor/bin/phpunit --coverage-html coverage-php"
   },
   "keywords": [
     "wordpress",
