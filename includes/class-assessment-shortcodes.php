@@ -960,7 +960,21 @@ final class ENNU_Assessment_Shortcodes {
 	public function handle_assessment_submission() {
 		$this->_log_submission_debug( '--- Submission process started ---' );
 
-		// 1. Security Check: Verify AJAX nonce and rate limiting
+		$security_result = ENNU_AJAX_Security::validate_ajax_request( array(
+			'action' => 'ennu_submit_assessment',
+			'capability' => 'read',
+			'rate_limit' => array(
+				'requests' => 10,
+				'window' => 300
+			)
+		) );
+		
+		if ( is_wp_error( $security_result ) ) {
+			wp_send_json_error( array(
+				'message' => $security_result->get_error_message(),
+				'code' => $security_result->get_error_code()
+			) );
+		}
 		$this->_log_submission_debug( 'Verifying nonce...' );
 		check_ajax_referer( 'ennu_ajax_nonce', 'nonce' );
 		$this->_log_submission_debug( 'Nonce verified successfully.' );

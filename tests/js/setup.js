@@ -55,3 +55,14 @@ const sessionStorageMock = {
     clear: jest.fn()
 };
 global.sessionStorage = sessionStorageMock;
+
+global.ajaxurl = '/wp-admin/admin-ajax.php';
+
+Object.defineProperty(window, 'location', {
+    value: {
+        href: 'http://localhost'
+    },
+    writable: true
+});
+
+global.fetch = jest.fn();

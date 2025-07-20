@@ -1,8 +1,10 @@
 <?php
 /**
- * Performance Monitor Class
- * 
- * Monitors and logs performance improvements from optimizations
+ * ENNU Performance Monitor
+ * Tracks and optimizes plugin performance
+ *
+ * @package ENNU_Life
+ * @version 62.1.67
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Performance_Monitor {
     
     private static $instance = null;
-    private $timers = array();
+    private $start_time;
+    private $queries_start;
+    private $memory_start;
     private $metrics = array();
     
     public static function get_instance() {
@@ -23,126 +27,144 @@ class ENNU_Performance_Monitor {
     }
     
     private function __construct() {
-        add_action( 'wp_footer', array( $this, 'output_performance_data' ) );
-        add_action( 'admin_footer', array( $this, 'output_performance_data' ) );
+        $this->start_monitoring();
+        add_action( 'wp_footer', array( $this, 'output_debug_info' ) );
+        add_action( 'admin_footer', array( $this, 'output_debug_info' ) );
     }
     
-    public function start_timer( $name ) {
-        $this->timers[ $name ] = array(
-            'start' => microtime( true ),
-            'memory_start' => memory_get_usage()
-        );
+    /**
+     * Start performance monitoring
+     */
+    public function start_monitoring() {
+        $this->start_time = microtime( true );
+        $this->memory_start = memory_get_usage( true );
+        
+        global $wpdb;
+        $this->queries_start = $wpdb->num_queries;
     }
     
-    public function end_timer( $name ) {
-        if ( ! isset( $this->timers[ $name ] ) ) {
-            return false;
-        }
-        
-        $timer = $this->timers[ $name ];
-        $execution_time = microtime( true ) - $timer['start'];
-        $memory_usage = memory_get_usage() - $timer['memory_start'];
-        
+    /**
+     * Record a performance metric
+     */
+    public function record_metric( $name, $value, $type = 'time' ) {
         $this->metrics[ $name ] = array(
-            'execution_time' => $execution_time,
-            'memory_usage' => $memory_usage,
-            'timestamp' => time()
-        );
-        
-        unset( $this->timers[ $name ] );
-        
-        return $this->metrics[ $name ];
-    }
-    
-    public function log_database_query_count( $context, $query_count ) {
-        $this->metrics[ $context . '_db_queries' ] = array(
-            'query_count' => $query_count,
-            'timestamp' => time()
+            'value' => $value,
+            'type' => $type,
+            'timestamp' => microtime( true )
         );
     }
     
-    public function log_cache_hit_rate( $context, $hits, $misses ) {
-        $total = $hits + $misses;
-        $hit_rate = $total > 0 ? ( $hits / $total ) * 100 : 0;
+    /**
+     * Start timing an operation
+     */
+    public function start_timer( $name ) {
+        $this->metrics[ $name . '_start' ] = microtime( true );
+    }
+    
+    /**
+     * End timing an operation
+     */
+    public function end_timer( $name ) {
+        if ( isset( $this->metrics[ $name . '_start' ] ) ) {
+            $duration = microtime( true ) - $this->metrics[ $name . '_start' ];
+            $this->record_metric( $name, $duration, 'time' );
+            unset( $this->metrics[ $name . '_start' ] );
+        }
+    }
+    
+    /**
+     * Get current performance stats
+     */
+    public function get_stats() {
+        global $wpdb;
         
-        $this->metrics[ $context . '_cache_performance' ] = array(
-            'hits' => $hits,
-            'misses' => $misses,
-            'hit_rate' => $hit_rate,
-            'timestamp' => time()
+        $current_time = microtime( true );
+        $current_memory = memory_get_usage( true );
+        
+        return array(
+            'total_time' => $current_time - $this->start_time,
+            'memory_usage' => $current_memory - $this->memory_start,
+            'peak_memory' => memory_get_peak_usage( true ),
+            'queries_count' => $wpdb->num_queries - $this->queries_start,
+            'custom_metrics' => $this->metrics
         );
     }
     
-    public function get_metrics() {
-        return $this->metrics;
-    }
-    
-    public function output_performance_data() {
+    /**
+     * Output debug information
+     */
+    public function output_debug_info() {
         if ( ! current_user_can( 'manage_options' ) || ! WP_DEBUG ) {
             return;
         }
         
-        if ( empty( $this->metrics ) ) {
-            return;
-        }
+        $stats = $this->get_stats();
         
-        echo '<!-- ENNU Performance Metrics -->' . PHP_EOL;
-        echo '<script type="text/javascript">' . PHP_EOL;
-        echo 'console.group("ENNU Performance Metrics");' . PHP_EOL;
+        echo '<!-- ENNU Performance Stats -->';
+        echo '<!-- Total Time: ' . round( $stats['total_time'] * 1000, 2 ) . 'ms -->';
+        echo '<!-- Memory Usage: ' . $this->format_bytes( $stats['memory_usage'] ) . ' -->';
+        echo '<!-- Peak Memory: ' . $this->format_bytes( $stats['peak_memory'] ) . ' -->';
+        echo '<!-- Database Queries: ' . $stats['queries_count'] . ' -->';
         
-        foreach ( $this->metrics as $name => $data ) {
-            if ( isset( $data['execution_time'] ) ) {
-                echo sprintf(
-                    'console.log("⏱️ %s: %.2fms, Memory: %s");' . PHP_EOL,
-                    esc_js( $name ),
-                    $data['execution_time'] * 1000,
-                    esc_js( $this->format_bytes( $data['memory_usage'] ) )
-                );
-            } elseif ( isset( $data['query_count'] ) ) {
-                echo sprintf(
-                    'console.log("🗄️ %s: %d queries");' . PHP_EOL,
-                    esc_js( $name ),
-                    $data['query_count']
-                );
-            } elseif ( isset( $data['hit_rate'] ) ) {
-                echo sprintf(
-                    'console.log("💾 %s: %.1f%% hit rate (%d hits, %d misses)");' . PHP_EOL,
-                    esc_js( $name ),
-                    $data['hit_rate'],
-                    $data['hits'],
-                    $data['misses']
-                );
+        if ( ! empty( $stats['custom_metrics'] ) ) {
+            echo '<!-- Custom Metrics: -->';
+            foreach ( $stats['custom_metrics'] as $name => $metric ) {
+                if ( $metric['type'] === 'time' ) {
+                    echo '<!-- ' . $name . ': ' . round( $metric['value'] * 1000, 2 ) . 'ms -->';
+                } else {
+                    echo '<!-- ' . $name . ': ' . $metric['value'] . ' -->';
+                }
             }
         }
-        
-        echo 'console.groupEnd();' . PHP_EOL;
-        echo '</script>' . PHP_EOL;
     }
     
-    private function format_bytes( $bytes ) {
-        if ( $bytes >= 1048576 ) {
-            return round( $bytes / 1048576, 2 ) . ' MB';
-        } elseif ( $bytes >= 1024 ) {
-            return round( $bytes / 1024, 2 ) . ' KB';
-        } else {
-            return $bytes . ' B';
+    /**
+     * Format bytes for display
+     */
+    private function format_bytes( $bytes, $precision = 2 ) {
+        $units = array( 'B', 'KB', 'MB', 'GB', 'TB' );
+        
+        for ( $i = 0; $bytes > 1024 && $i < count( $units ) - 1; $i++ ) {
+            $bytes /= 1024;
+        }
+        
+        return round( $bytes, $precision ) . ' ' . $units[ $i ];
+    }
+    
+    /**
+     * Log slow queries
+     */
+    public function log_slow_query( $query, $execution_time ) {
+        if ( $execution_time > 0.1 ) {
+            error_log( sprintf(
+                'ENNU Slow Query (%s seconds): %s',
+                round( $execution_time, 4 ),
+                $query
+            ) );
         }
     }
     
-    public function save_metrics_to_log() {
-        if ( empty( $this->metrics ) ) {
-            return;
+    /**
+     * Optimize database queries
+     */
+    public function suggest_optimizations() {
+        global $wpdb;
+        
+        $suggestions = array();
+        
+        if ( $wpdb->num_queries > 50 ) {
+            $suggestions[] = 'Consider implementing query caching - detected ' . $wpdb->num_queries . ' queries';
         }
         
-        $log_entry = array(
-            'timestamp' => current_time( 'mysql' ),
-            'metrics' => $this->metrics,
-            'url' => $_SERVER['REQUEST_URI'] ?? '',
-            'user_id' => get_current_user_id()
-        );
+        $memory_usage = memory_get_peak_usage( true );
+        if ( $memory_usage > 64 * 1024 * 1024 ) {
+            $suggestions[] = 'High memory usage detected: ' . $this->format_bytes( $memory_usage );
+        }
         
-        error_log( 'ENNU Performance: ' . wp_json_encode( $log_entry ) );
+        return $suggestions;
     }
 }
 
-ENNU_Performance_Monitor::get_instance();
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    ENNU_Performance_Monitor::get_instance();
+}

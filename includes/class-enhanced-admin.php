@@ -1070,9 +1070,23 @@ class ENNU_Enhanced_Admin {
 	 * Save HubSpot settings
 	 */
 	private function save_hubspot_settings() {
+		// Enhanced validation for HubSpot settings
+		$portal_id = sanitize_text_field( $_POST['hubspot_portal_id'] ?? '' );
+		$api_key = sanitize_text_field( $_POST['hubspot_api_key'] ?? '' );
+		
+		// Validate portal ID format (should be numeric)
+		if ( ! empty( $portal_id ) && ! ctype_digit( $portal_id ) ) {
+			wp_die( 'Invalid HubSpot Portal ID format. Must be numeric.' );
+		}
+		
+		// Validate API key format (basic length and character validation)
+		if ( ! empty( $api_key ) && ( strlen( $api_key ) < 20 || ! preg_match( '/^[a-zA-Z0-9\-_]+$/', $api_key ) ) ) {
+			wp_die( 'Invalid HubSpot API key format.' );
+		}
+		
 		$settings = array(
-			'portal_id' => sanitize_text_field( $_POST['hubspot_portal_id'] ?? '' ),
-			'api_key' => sanitize_text_field( $_POST['hubspot_api_key'] ?? '' ),
+			'portal_id' => $portal_id,
+			'api_key' => $api_key,
 			'embeds' => array(),
 			'wpfusion_enabled' => isset( $_POST['wpfusion_enabled'] ),
 			'auto_create_contact' => isset( $_POST['auto_create_contact'] )
@@ -2037,6 +2051,7 @@ class ENNU_Enhanced_Admin {
 	// --- v57.1.0: AJAX Handlers for Admin Actions ---
 
 	public function handle_recalculate_all_scores() {
+		ENNU_AJAX_Security::validate_ajax_request();
 		check_ajax_referer( 'ennu_admin_nonce', 'nonce' );
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
@@ -2071,6 +2086,7 @@ class ENNU_Enhanced_Admin {
 	}
 
 	public function handle_clear_all_assessment_data() {
+		ENNU_AJAX_Security::validate_ajax_request();
 		check_ajax_referer( 'ennu_admin_nonce', 'nonce' );
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
@@ -2099,6 +2115,7 @@ class ENNU_Enhanced_Admin {
 	}
 
 	public function handle_clear_single_assessment_data() {
+		ENNU_AJAX_Security::validate_ajax_request();
 		check_ajax_referer( 'ennu_admin_nonce', 'nonce' );
 		if ( ! current_user_can( 'edit_users' ) ) {
 			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
@@ -2216,7 +2233,43 @@ class ENNU_Enhanced_Admin {
 		
 		foreach ( $global_keys as $key ) {
 			if ( isset( $_POST[ $key ] ) ) {
-				$value_to_save = is_array( $_POST[ $key ] ) ? array_map( 'sanitize_text_field', $_POST[ $key ] ) : sanitize_text_field( $_POST[ $key ] );
+				$raw_value = $_POST[ $key ];
+				
+				// Enhanced validation based on field type
+				if ( is_array( $raw_value ) ) {
+					$value_to_save = array_map( 'sanitize_text_field', $raw_value );
+					// Validate array values based on key
+					if ( $key === 'ennu_global_health_goals' ) {
+						$valid_goals = array( 'weight_loss', 'muscle_gain', 'energy_boost', 'sleep_improvement', 'stress_reduction', 'hormone_balance', 'skin_health', 'hair_health', 'cognitive_function', 'longevity', 'athletic_performance' );
+						$value_to_save = array_intersect( $value_to_save, $valid_goals );
+					}
+				} else {
+					$value_to_save = sanitize_text_field( $raw_value );
+					
+					switch ( $key ) {
+						case 'ennu_global_gender':
+							if ( ! in_array( $value_to_save, array( 'male', 'female', 'other' ), true ) ) {
+								continue 2; // Skip invalid gender values
+							}
+							break;
+						case 'ennu_global_height_feet':
+							if ( ! is_numeric( $value_to_save ) || $value_to_save < 3 || $value_to_save > 8 ) {
+								continue 2; // Skip invalid height values
+							}
+							break;
+						case 'ennu_global_height_inches':
+							if ( ! is_numeric( $value_to_save ) || $value_to_save < 0 || $value_to_save > 11 ) {
+								continue 2; // Skip invalid inch values
+							}
+							break;
+						case 'ennu_global_weight':
+							if ( ! is_numeric( $value_to_save ) || $value_to_save < 50 || $value_to_save > 1000 ) {
+								continue 2; // Skip unrealistic weight values
+							}
+							break;
+					}
+				}
+				
 				update_user_meta( $user_id, $key, $value_to_save );
 				error_log('ENNU Enhanced Admin: Saved global field ' . $key . ' = ' . print_r($value_to_save, true));
 			} elseif ( $key === 'ennu_global_health_goals' ) { // If no checkboxes are checked, save an empty array.
@@ -2270,13 +2323,13 @@ class ENNU_Enhanced_Admin {
 			$query                 = $wpdb->prepare( "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} WHERE meta_key IN ($placeholders) AND meta_value != ''", $meta_keys );
 			$stats['active_users'] = (int) $wpdb->get_var( $query );
 		}
-		$stats['monthly_assessments'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key LIKE 'ennu_%_calculated_score' AND meta_value != '' AND CAST(meta_value AS SIGNED) > 0 AND user_id IN (SELECT ID FROM {$wpdb->users} WHERE user_registered >= DATE_SUB(NOW(), INTERVAL 1 MONTH))" );
+		$stats['monthly_assessments'] = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key LIKE %s AND meta_value != '' AND CAST(meta_value AS SIGNED) > 0 AND user_id IN (SELECT ID FROM {$wpdb->users} WHERE user_registered >= DATE_SUB(NOW(), INTERVAL 1 MONTH))", 'ennu_%_calculated_score' ) );
 		return $stats;
 	}
 
 	private function display_recent_assessments_table() {
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT u.ID, u.user_login, u.user_email, um.meta_value as score, REPLACE(REPLACE(um.meta_key, 'ennu_', ''), '_calculated_score', '') as assessment_type FROM {$wpdb->usermeta} um JOIN {$wpdb->users} u ON um.user_id = u.ID WHERE um.meta_key LIKE 'ennu_%_calculated_score' AND um.meta_value != '' ORDER BY um.umeta_id DESC LIMIT 10" );
+		$results = $wpdb->get_results( $wpdb->prepare( "SELECT u.ID, u.user_login, u.user_email, um.meta_value as score, REPLACE(REPLACE(um.meta_key, 'ennu_', ''), '_calculated_score', '') as assessment_type FROM {$wpdb->usermeta} um JOIN {$wpdb->users} u ON um.user_id = u.ID WHERE um.meta_key LIKE %s AND um.meta_value != '' ORDER BY um.umeta_id DESC LIMIT 10", 'ennu_%_calculated_score' ) );
 		if ( empty( $results ) ) {
 			echo '<p>' . esc_html__( 'No recent assessment submissions found.', 'ennulifeassessments' ) . '</p>';
 			return; }

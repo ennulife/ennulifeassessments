@@ -246,6 +246,8 @@ class ENNU_Biomarker_Admin {
     }
     
     public function handle_lab_data_import() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         check_ajax_referer( 'ennu_biomarker_admin_nonce', 'nonce' );
         
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -255,8 +257,17 @@ class ENNU_Biomarker_Admin {
         $user_id = intval( $_POST['user_id'] ?? 0 );
         $import_method = sanitize_text_field( $_POST['import_method'] ?? '' );
         
-        if ( ! $user_id ) {
+        if ( ! $user_id || $user_id <= 0 ) {
             wp_send_json_error( array( 'message' => 'Invalid user ID.' ) );
+        }
+        
+        if ( ! get_userdata( $user_id ) ) {
+            wp_send_json_error( array( 'message' => 'User does not exist.' ) );
+        }
+        
+        $allowed_import_methods = array( 'csv', 'manual' );
+        if ( ! in_array( $import_method, $allowed_import_methods, true ) ) {
+            wp_send_json_error( array( 'message' => 'Invalid import method.' ) );
         }
         
         if ( $import_method === 'csv' ) {
@@ -274,6 +285,8 @@ class ENNU_Biomarker_Admin {
     }
     
     public function handle_doctor_targets() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         check_ajax_referer( 'ennu_biomarker_admin_nonce', 'nonce' );
         
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -491,6 +504,8 @@ class ENNU_Biomarker_Admin {
     }
     
     public function handle_biomarker_data_save() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         check_ajax_referer( 'ennu_biomarker_admin_nonce', 'nonce' );
         
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -501,6 +516,8 @@ class ENNU_Biomarker_Admin {
     }
     
     public function handle_get_user_biomarkers() {
+        ENNU_AJAX_Security::validate_ajax_request();
+        
         check_ajax_referer( 'ennu_biomarker_admin_nonce', 'nonce' );
         
         if ( ! current_user_can( 'manage_options' ) ) {
