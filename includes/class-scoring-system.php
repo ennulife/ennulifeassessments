@@ -85,12 +85,57 @@ class ENNU_Assessment_Scoring {
         $pillar_calculator = new ENNU_Pillar_Score_Calculator( $all_category_scores, $pillar_map );
         $base_pillar_scores = $pillar_calculator->calculate();
 
-        // 3. Apply Intentionality Engine (Goal Alignment Boost) - NEW!
-        $final_pillar_scores = $base_pillar_scores;
+        // 3. Apply Qualitative Engine (Symptom Penalties) - NEW!
+        $qualitative_adjusted_scores = $base_pillar_scores;
+        $qualitative_data = array();
+        
+        if ( class_exists( 'ENNU_Qualitative_Engine' ) ) {
+            $user_symptoms = self::get_symptom_data_for_user( $user_id );
+            $all_symptoms = array();
+            
+            foreach ( $user_symptoms as $assessment_type => $symptoms ) {
+                if ( is_array( $symptoms ) ) {
+                    $all_symptoms = array_merge( $all_symptoms, $symptoms );
+                }
+            }
+            
+            if ( ! empty( $all_symptoms ) ) {
+                $qualitative_engine = new ENNU_Qualitative_Engine( $all_symptoms );
+                $qualitative_adjusted_scores = $qualitative_engine->apply_pillar_integrity_penalties( $base_pillar_scores );
+                $qualitative_data = array(
+                    'penalty_log' => $qualitative_engine->get_penalty_log(),
+                    'penalty_summary' => $qualitative_engine->get_penalty_summary(),
+                    'user_explanation' => $qualitative_engine->get_user_explanation(),
+                );
+                
+                error_log( 'ENNU Scoring: Applied Qualitative Engine penalties for user ' . $user_id );
+            }
+        }
+
+        $objective_adjusted_scores = $qualitative_adjusted_scores;
+        $objective_data = array();
+        
+        if ( class_exists( 'ENNU_Objective_Engine' ) ) {
+            $user_biomarkers = get_user_meta( $user_id, 'ennu_biomarker_data', true );
+            
+            if ( ! empty( $user_biomarkers ) && is_array( $user_biomarkers ) ) {
+                $objective_engine = new ENNU_Objective_Engine( $user_biomarkers );
+                $objective_adjusted_scores = $objective_engine->apply_biomarker_actuality_adjustments( $qualitative_adjusted_scores );
+                $objective_data = array(
+                    'adjustment_log' => $objective_engine->get_adjustment_log(),
+                    'adjustment_summary' => $objective_engine->get_adjustment_summary(),
+                    'user_explanation' => $objective_engine->get_user_explanation(),
+                );
+                
+                error_log( 'ENNU Scoring: Applied Objective Engine adjustments for user ' . $user_id );
+            }
+        }
+
+        $final_pillar_scores = $objective_adjusted_scores;
         $intentionality_data = array();
         
         if ( !empty( $health_goals ) && !empty( $goal_definitions ) && class_exists( 'ENNU_Intentionality_Engine' ) ) {
-            $intentionality_engine = new ENNU_Intentionality_Engine( $health_goals, $goal_definitions, $base_pillar_scores );
+            $intentionality_engine = new ENNU_Intentionality_Engine( $health_goals, $goal_definitions, $objective_adjusted_scores );
             $final_pillar_scores = $intentionality_engine->apply_goal_alignment_boost();
             $intentionality_data = array(
                 'boost_log' => $intentionality_engine->get_boost_log(),
@@ -103,27 +148,28 @@ class ENNU_Assessment_Scoring {
             error_log( 'ENNU Scoring: Skipped Intentionality Engine - missing goals, definitions, or class' );
         }
 
-        // 4. Calculate Final ENNU Life Score with goal-boosted pillars
+        // 6. Calculate Final ENNU Life Score with all engine adjustments
         $ennu_life_score_calculator = new ENNU_Life_Score_Calculator( $user_id, $final_pillar_scores, $health_goals, $goal_definitions );
         $ennu_life_score_data = $ennu_life_score_calculator->calculate();
         
-        // 5. Save the results including intentionality data
         update_user_meta( $user_id, 'ennu_life_score', $ennu_life_score_data['ennu_life_score'] );
         update_user_meta( $user_id, 'ennu_pillar_score_data', $ennu_life_score_data['pillar_score_data'] );
         update_user_meta( $user_id, 'ennu_average_pillar_scores', $ennu_life_score_data['average_pillar_scores'] );
+        update_user_meta( $user_id, 'ennu_qualitative_data', $qualitative_data );
+        update_user_meta( $user_id, 'ennu_objective_data', $objective_data );
         update_user_meta( $user_id, 'ennu_intentionality_data', $intentionality_data );
 
-        // 6. Calculate and Save Potential Score
+        // 8. Calculate and Save Potential Score
         $potential_score_calculator = new ENNU_Potential_Score_Calculator( $final_pillar_scores, $health_goals, $goal_definitions );
         $potential_score = $potential_score_calculator->calculate();
         update_user_meta( $user_id, 'ennu_potential_life_score', $potential_score );
 
-        // 7. Calculate and Save Score Completeness
+        // 9. Calculate and Save Score Completeness
         $completeness_calculator = new ENNU_Score_Completeness_Calculator( $user_id, $all_definitions );
         $completeness_score = $completeness_calculator->calculate();
         update_user_meta( $user_id, 'ennu_score_completeness', $completeness_score );
         
-        // 8. Update score history for tracking
+        // 10. Update score history for tracking
         $score_history = get_user_meta( $user_id, 'ennu_life_score_history', true );
         if ( ! is_array( $score_history ) ) {
             $score_history = array();
@@ -135,6 +181,8 @@ class ENNU_Assessment_Scoring {
             'timestamp' => time(),
             'goal_boost_applied' => !empty( $intentionality_data['boost_summary']['boosts_applied'] ),
             'goals_count' => count( $health_goals ),
+            'symptom_penalties_applied' => !empty( $qualitative_data['penalty_summary']['penalties_applied'] ),
+            'biomarker_adjustments_applied' => !empty( $objective_data['adjustment_summary']['adjustments_applied'] ),
         );
         
         // Keep only last 50 entries

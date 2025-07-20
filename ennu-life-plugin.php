@@ -722,8 +722,12 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
                 'class-score-completeness-calculator.php',
                 'class-ennu-life-score-calculator.php',
                 
-                // Intentionality Engine (Phase 1 Implementation)
+                // Four-Engine Scoring Symphony Implementation
                 'class-intentionality-engine.php',
+                'class-qualitative-engine.php',
+                'class-objective-engine.php',
+                'class-biomarker-manager.php',
+                'class-biomarker-ajax.php',
                 'class-health-goals-ajax.php',
                 'migrations/health-goals-migration.php',
                 

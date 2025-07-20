@@ -36,6 +36,72 @@ if (empty($display_name)) {
 }
 ?>
 <div class="ennu-user-dashboard">
+	<!-- Four-Engine Scoring Breakdown -->
+	<div class="ennu-scoring-engines" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px;">
+		<h3 style="margin-bottom: 20px; color: var(--text-primary);">Your Four-Engine Scoring Breakdown</h3>
+		
+		<div class="engine-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+				<h4 style="color: var(--accent-color); margin-bottom: 10px;">1. Quantitative Engine</h4>
+				<p style="font-size: 14px; margin-bottom: 8px;">Base assessment scores from your completed evaluations</p>
+				<?php 
+				$base_score = get_user_meta( $user_id, 'ennu_life_score', true );
+				echo '<p style="font-weight: bold;">Current Score: ' . esc_html( $base_score ? round( $base_score, 1 ) : 'N/A' ) . '</p>';
+				?>
+			</div>
+			
+			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+				<h4 style="color: var(--accent-color); margin-bottom: 10px;">2. Qualitative Engine</h4>
+				<?php 
+				$qualitative_data = get_user_meta( $user_id, 'ennu_qualitative_data', true );
+				if ( ! empty( $qualitative_data['penalty_summary'] ) ) {
+					$summary = $qualitative_data['penalty_summary'];
+					echo '<p style="font-size: 14px;">Symptoms analyzed: ' . esc_html( $summary['total_symptoms'] ) . '</p>';
+					if ( ! empty( $summary['pillars_penalized'] ) ) {
+						echo '<p style="font-size: 14px;">Pillars affected: ' . esc_html( implode( ', ', $summary['pillars_penalized'] ) ) . '</p>';
+					}
+					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $qualitative_data['user_explanation'] ?? '' ) . '</p>';
+				} else {
+					echo '<p style="font-size: 14px;">No symptom penalties applied</p>';
+					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Complete Health Assessment</a></p>';
+				}
+				?>
+			</div>
+			
+			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+				<h4 style="color: var(--accent-color); margin-bottom: 10px;">3. Objective Engine</h4>
+				<?php 
+				$objective_data = get_user_meta( $user_id, 'ennu_objective_data', true );
+				if ( ! empty( $objective_data['adjustment_summary'] ) ) {
+					$summary = $objective_data['adjustment_summary'];
+					echo '<p style="font-size: 14px;">Biomarkers analyzed: ' . esc_html( $summary['total_biomarkers'] ) . '</p>';
+					echo '<p style="font-size: 14px;">Adjustments applied: ' . esc_html( $summary['adjustments_applied'] ) . '</p>';
+					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $objective_data['user_explanation'] ?? '' ) . '</p>';
+				} else {
+					echo '<p style="font-size: 14px;">No biomarker data available</p>';
+					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Upload Lab Results</a></p>';
+				}
+				?>
+			</div>
+			
+			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+				<h4 style="color: var(--accent-color); margin-bottom: 10px;">4. Intentionality Engine</h4>
+				<?php 
+				$intentionality_data = get_user_meta( $user_id, 'ennu_intentionality_data', true );
+				if ( ! empty( $intentionality_data['boost_summary'] ) ) {
+					$summary = $intentionality_data['boost_summary'];
+					echo '<p style="font-size: 14px;">Goals aligned: ' . esc_html( $summary['total_goals'] ) . '</p>';
+					echo '<p style="font-size: 14px;">Boosts applied: ' . esc_html( $summary['boosts_applied'] ) . '</p>';
+					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $intentionality_data['user_explanation'] ?? '' ) . '</p>';
+				} else {
+					echo '<p style="font-size: 14px;">No goal alignment boosts</p>';
+					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Set Health Goals</a></p>';
+				}
+				?>
+			</div>
+		</div>
+	</div>
+
 	<!-- Light/Dark Mode Toggle -->
 	<div class="theme-toggle-container">
 		<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">
@@ -2343,4 +2409,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script> 
+</script>   

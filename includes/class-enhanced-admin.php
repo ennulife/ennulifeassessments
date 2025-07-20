@@ -14,7 +14,112 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Enhanced_Admin {
 
 	public function __construct() {
-		// Hooks are managed from the main plugin file.
+		add_action( 'admin_menu', array( $this, 'add_biomarker_admin_pages' ) );
+	}
+
+	public function add_biomarker_admin_pages() {
+		add_submenu_page(
+			'ennu-life',
+			'Biomarker Management',
+			'Lab Data',
+			'manage_options',
+			'ennu-biomarker-management',
+			array( $this, 'render_biomarker_management_page' )
+		);
+	}
+	
+	public function render_biomarker_management_page() {
+		if ( isset( $_POST['import_lab_data'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'import_lab_data' ) ) {
+			$user_id = intval( $_POST['user_id'] );
+			$lab_data = $this->parse_lab_data_input( $_POST['lab_data'] );
+			
+			$result = ENNU_Biomarker_Manager::import_lab_results( $user_id, $lab_data );
+			
+			if ( is_wp_error( $result ) ) {
+				echo '<div class="notice notice-error"><p>' . esc_html( $result->get_error_message() ) . '</p></div>';
+			} else {
+				echo '<div class="notice notice-success"><p>Lab data imported successfully!</p></div>';
+			}
+		}
+		
+		if ( isset( $_POST['add_recommendations'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'add_doctor_recommendations' ) ) {
+			$user_id = intval( $_POST['user_id'] );
+			$recommendations = array(
+				'biomarker_targets' => $this->parse_lab_data_input( $_POST['biomarker_targets'] ),
+				'lifestyle_advice' => sanitize_textarea_field( $_POST['lifestyle_advice'] )
+			);
+			
+			$result = ENNU_Biomarker_Manager::add_doctor_recommendations( $user_id, $recommendations );
+			
+			if ( is_wp_error( $result ) ) {
+				echo '<div class="notice notice-error"><p>' . esc_html( $result->get_error_message() ) . '</p></div>';
+			} else {
+				echo '<div class="notice notice-success"><p>Doctor recommendations added successfully!</p></div>';
+			}
+		}
+		
+		?>
+		<div class="wrap">
+			<h1>Biomarker Management</h1>
+			
+			<h2>Import Lab Data</h2>
+			<form method="post" action="">
+				<?php wp_nonce_field( 'import_lab_data' ); ?>
+				
+				<table class="form-table">
+					<tr>
+						<th scope="row">User ID</th>
+						<td><input type="number" name="user_id" required /></td>
+					</tr>
+					<tr>
+						<th scope="row">Lab Data (JSON)</th>
+						<td>
+							<textarea name="lab_data" rows="10" cols="50" placeholder='{"Total_Testosterone": {"value": 650, "unit": "ng/dL", "test_date": "2024-01-15"}}'></textarea>
+							<p class="description">Enter lab data in JSON format</p>
+						</td>
+					</tr>
+				</table>
+				
+				<p class="submit">
+					<input type="submit" name="import_lab_data" class="button-primary" value="Import Lab Data" />
+				</p>
+			</form>
+			
+			<h2>Doctor Recommendations</h2>
+			<form method="post" action="">
+				<?php wp_nonce_field( 'add_doctor_recommendations' ); ?>
+				
+				<table class="form-table">
+					<tr>
+						<th scope="row">User ID</th>
+						<td><input type="number" name="user_id" required /></td>
+					</tr>
+					<tr>
+						<th scope="row">Biomarker Targets (JSON)</th>
+						<td>
+							<textarea name="biomarker_targets" rows="5" cols="50" placeholder='{"Total_Testosterone": 700, "Vitamin_D": 50}'></textarea>
+							<p class="description">Enter target values for biomarkers</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">Lifestyle Advice</th>
+						<td>
+							<textarea name="lifestyle_advice" rows="5" cols="50" placeholder="Recommended lifestyle changes..."></textarea>
+						</td>
+					</tr>
+				</table>
+				
+				<p class="submit">
+					<input type="submit" name="add_recommendations" class="button-primary" value="Add Recommendations" />
+				</p>
+			</form>
+		</div>
+		<?php
+	}
+	
+	private function parse_lab_data_input( $input ) {
+		$data = json_decode( stripslashes( $input ), true );
+		return is_array( $data ) ? $data : array();
 	}
 
 	/**
