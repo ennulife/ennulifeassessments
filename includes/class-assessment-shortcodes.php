@@ -1924,10 +1924,11 @@ final class ENNU_Assessment_Shortcodes {
 				'score'                => $score,
 				'category_scores'      => $results_transient['category_scores'] ?? array(),
 				'result_content'       => $result_content,
-				'matched_recs'         => array(), // This can be enhanced later
+				'matched_recs'         => array(),
 				'details_button_url'   => $details_button_url,
 				'dashboard_button_url' => $dashboard_button_url,
 				'retake_url'           => $retake_url,
+				'enable_real_time_updates' => true,
 			);
 
 			// Load the template with the correctly structured data
