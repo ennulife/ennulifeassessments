@@ -1141,6 +1141,12 @@ final class ENNU_Assessment_Shortcodes {
 				ENNU_Assessment_Scoring::calculate_and_save_all_user_scores( $user_id );
 				$this->_log_submission_debug( 'All master user scores calculated and saved.' );
 
+				do_action( 'ennu_assessment_completed', $user_id, array(
+					'assessment_type' => $form_data['assessment_type'],
+					'form_data' => $form_data,
+					'timestamp' => current_time( 'mysql' )
+				) );
+
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
 
