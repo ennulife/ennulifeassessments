@@ -1,0 +1,399 @@
+/**
+ * ENNU Mobile Optimization Styles
+ * Enhanced mobile experience and responsive design
+ */
+
+/* Mobile-First Base Styles */
+@media screen and (max-width: 768px) {
+    
+    /* Layout Adjustments */
+    .ennu-container {
+        padding: 0 16px;
+        max-width: 100%;
+    }
+    
+    .ennu-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .ennu-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    /* Typography */
+    .ennu-title {
+        font-size: 1.75rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    
+    .ennu-subtitle {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+    
+    /* Cards */
+    .ennu-card {
+        margin-bottom: 16px;
+        border-radius: 12px;
+        padding: 20px;
+    }
+    
+    .ennu-glass-card {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    /* Buttons */
+    .ennu-btn {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 1rem;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        min-height: 48px;
+        touch-action: manipulation;
+    }
+    
+    .ennu-btn-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .ennu-btn-group .ennu-btn {
+        width: 100%;
+        margin: 0;
+    }
+    
+    /* Forms */
+    .ennu-form-row {
+        flex-direction: column;
+    }
+    
+    .ennu-form-group {
+        margin-bottom: 20px;
+    }
+    
+    .ennu-form-control {
+        width: 100%;
+        padding: 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 8px;
+        min-height: 48px;
+    }
+    
+    .ennu-form-label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    
+    /* Navigation */
+    .ennu-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 12px 0;
+        z-index: 1000;
+    }
+    
+    .ennu-nav-list {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    
+    .ennu-nav-item {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .ennu-nav-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        text-decoration: none;
+        color: #6c757d;
+        font-size: 0.75rem;
+        min-height: 48px;
+        justify-content: center;
+    }
+    
+    .ennu-nav-link.active {
+        color: #3498db;
+    }
+    
+    .ennu-nav-icon {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+    }
+    
+    /* Dashboard Specific */
+    .ennu-dashboard-header {
+        padding: 20px 0;
+        text-align: center;
+    }
+    
+    .ennu-score-orb {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 30px;
+    }
+    
+    .ennu-pillar-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+    
+    .ennu-pillar-orb {
+        padding: 20px;
+        min-height: 120px;
+    }
+    
+    /* Health Goals */
+    .ennu-health-goals-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .goal-pill {
+        padding: 16px 12px;
+        border-radius: 12px;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .goal-pill-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 8px;
+    }
+    
+    .goal-pill-text {
+        font-size: 0.875rem;
+        line-height: 1.2;
+    }
+    
+    /* Assessment Forms */
+    .ennu-assessment-form {
+        padding: 20px 0;
+    }
+    
+    .ennu-question-group {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .ennu-question-title {
+        font-size: 1.125rem;
+        margin-bottom: 16px;
+        line-height: 1.3;
+    }
+    
+    .ennu-radio-group,
+    .ennu-checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .ennu-radio-item,
+    .ennu-checkbox-item {
+        padding: 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .ennu-radio-item:hover,
+    .ennu-checkbox-item:hover {
+        border-color: #3498db;
+        background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .ennu-radio-item.selected,
+    .ennu-checkbox-item.selected {
+        border-color: #3498db;
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+    
+    /* Progress Indicators */
+    .ennu-progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+    
+    .ennu-progress-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 20px 0;
+    }
+    
+    .ennu-progress-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #e9ecef;
+        transition: background-color 0.2s ease;
+    }
+    
+    .ennu-progress-dot.active {
+        background: #3498db;
+    }
+    
+    .ennu-progress-dot.completed {
+        background: #28a745;
+    }
+    
+    /* Modals and Overlays */
+    .ennu-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .ennu-modal-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+    }
+    
+    .ennu-modal-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 8px;
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Touch Interactions */
+    .touch-friendly {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px 16px;
+    }
+    
+    .swipe-enabled {
+        touch-action: pan-x;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Loading States */
+    .ennu-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+    }
+    
+    .ennu-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+}
+
+/* Tablet Styles */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .ennu-dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+    
+    .ennu-pillar-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .ennu-health-goals-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .ennu-btn-group {
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .ennu-btn-group .ennu-btn {
+        width: auto;
+        min-width: 200px;
+    }
+}
+
+/* Landscape Phone */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .ennu-nav {
+        position: static;
+        background: transparent;
+        border: none;
+        padding: 8px 0;
+    }
+    
+    .ennu-nav-list {
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .ennu-nav-link {
+        flex-direction: row;
+        gap: 8px;
+        min-height: auto;
+    }
+    
+    .ennu-nav-icon {
+        margin-bottom: 0;
+    }
+}

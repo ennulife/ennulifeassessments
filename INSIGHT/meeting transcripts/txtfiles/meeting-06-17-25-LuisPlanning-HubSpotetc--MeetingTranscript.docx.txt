@@ -1,0 +1,4761 @@
+﻿0:0:5.61 --> 0:0:8.581
+Luis Escobar
+Sure. Let me start, I guess by sharing putting up those notes.
+0:0:12.561 --> 0:0:25.761
+Luis Escobar
+You know the the right now what I was able to like do over the last, you know, 24 hours is they were like extract all the you know existing content that you have inside of your your website on WordPress right.
+0:0:26.651 --> 0:0:28.611
+Luis Escobar
+And just do a little.
+0:0:30.241 --> 0:0:42.481
+Luis Escobar
+Also extraction of like some of the custom fields you have in there, some of the user flows, some of the engagements you have try to like come together with like a new approach for the website, right?
+0:0:43.641 --> 0:0:46.921
+Luis Escobar
+I did like the the fake news that that Brian provided, right.
+0:0:46.921 --> 0:0:49.41
+Luis Escobar
+So I also use that as a nice reference.
+0:0:50.801 --> 0:0:53.921
+Luis Escobar
+I did begin doing some competitive research.
+0:0:54.281 --> 0:0:56.161
+Luis Escobar
+I think more on the the national level.
+0:0:57.511 --> 0:1:2.431
+Luis Escobar
+Share the document there. That compares the new to live course.
+0:1:2.471 --> 0:1:5.951
+Luis Escobar
+And then there's another one that compares the new to.
+0:1:7.481 --> 0:1:9.361
+Luis Escobar
+All right. My life force to ten of its competitors.
+0:1:12.301 --> 0:1:14.301
+Luis Escobar
+Where that came across also.
+0:1:20.301 --> 0:1:20.781
+Basement
+I didn't.
+0:1:21.181 --> 0:1:22.221
+Basement
+I didn't get that.
+0:1:22.221 --> 0:1:23.101
+Basement
+Did you get that?
+0:1:24.911 --> 0:1:26.671
+Basement
+I saw it, but I don't.
+0:1:26.671 --> 0:1:28.31
+Basement
+Who did you send that to?
+0:1:29.601 --> 0:1:30.881
+Luis Escobar
+I shared it on teams.
+0:1:32.321 --> 0:1:34.801
+Luis Escobar
+In in a group that I I added a few of us too.
+0:1:33.761 --> 0:1:34.321
+Basement
+He's.
+0:1:36.641 --> 0:1:39.361
+Luis Escobar
+But it's fine. I'll share it again.
+0:1:36.841 --> 0:1:41.521
+Basement
+Oh, Oh yeah, it's on teams here in the group chat. OK OK.
+0:1:43.31 --> 0:1:44.911
+Basement
+I'm the only one here without.
+0:1:47.31 --> 0:1:47.711
+Basement
+A laptop.
+0:1:47.991 --> 0:1:49.791
+Basement
+So sorry.
+0:1:51.391 --> 0:1:53.911
+Basement
+I have a pen and 500 pieces of paper, right?
+0:1:53.911 --> 0:1:55.951
+Basement
+I have a pen and paper.
+0:1:56.71 --> 0:1:58.271
+Basement
+I'm killing drakes so.
+0:2:1.281 --> 0:2:2.601
+Luis Escobar
+Gonna share my screen.
+0:2:8.721 --> 0:2:9.441
+Luis Escobar
+That's gonna be.
+0:2:23.241 --> 0:2:24.41
+Basement
+Hope everything is OK.
+0:2:25.941 --> 0:2:26.141
+Basement
+Hello.
+0:2:32.611 --> 0:2:33.571
+Basement
+Did this.
+0:2:34.381 --> 0:2:35.21
+Basement
+Permit planning.
+0:2:35.21 --> 0:2:35.901
+Basement
+Go on today.
+0:2:37.391 --> 0:2:37.551
+Basement
+OK.
+0:2:37.551 --> 0:2:38.591
+Basement
+So so you all.
+0:2:39.111 --> 0:2:40.511
+Basement
+Who all was involved in that?
+0:2:42.951 --> 0:2:56.911
+Basement
+Pretty much the whole marketing team, but we outlined everything, all of the main projects and then everyone's going in and adding their sub tasks and then Brian's gonna go in and put due dates in, OK. And what was Louis part of that?
+0:2:57.351 --> 0:3:3.591
+Basement
+No, it was more of just like internal organization for what based off of what we talked about.
+0:3:4.421 --> 0:3:7.261
+Basement
+So like the list that we made. Yeah. Yeah. OK.
+0:3:7.541 --> 0:3:10.461
+Basement
+Yeah, I don't know if you've heard that.
+0:3:10.461 --> 0:3:18.781
+Basement
+Have him look at it until we have like due dates and all the subtasks in and then Brian corrects me if I'm wrong.
+0:3:18.781 --> 0:3:19.821
+Basement
+But then we were gonna.
+0:3:21.471 --> 0:3:23.191
+Basement
+Tell Louis it was finished, right?
+0:3:25.101 --> 0:3:26.221
+Brian Hyatt
+That's correct, yes.
+0:3:26.691 --> 0:3:27.51
+Basement
+Yeah.
+0:3:27.861 --> 0:3:32.861
+Basement
+Once we get like everything organized and then bring him into that conversation.
+0:3:40.91 --> 0:3:42.51
+Basement
+But Louis, you already have access to click up.
+0:3:42.51 --> 0:3:42.971
+Basement
+I think so.
+0:3:43.171 --> 0:3:44.891
+Basement
+You can obviously look at it at any time.
+0:3:57.221 --> 0:3:59.941
+Basement
+Your mic's off. Just FYI think.
+0:4:7.981 --> 0:4:8.21
+Brian Hyatt
+S.
+0:4:14.271 --> 0:4:14.751
+Luis Escobar
+That better.
+0:4:14.751 --> 0:4:17.191
+Luis Escobar
+Can you hear me now? All right.
+0:4:15.601 --> 0:4:16.961
+Basement
+Yep, Yep.
+0:4:19.311 --> 0:4:22.751
+Luis Escobar
+Yeah, I I was inside of Clickup and I'm following along.
+0:4:22.791 --> 0:4:28.71
+Luis Escobar
+You know, so we can do a deep dive into all those sprints.
+0:4:28.71 --> 0:4:39.391
+Luis Escobar
+Exact I think you know, once we have this new 1.0 version of the of the site and and some of the the foundational things inside of our HubSpot, everything will come in line.
+0:4:41.611 --> 0:4:45.211
+Luis Escobar
+What I did do is just like preliminary like research.
+0:4:45.211 --> 0:4:46.291
+Luis Escobar
+Right on these competitors.
+0:4:46.291 --> 0:4:52.91
+Luis Escobar
+So my life force function health inside tracker, my rec health own health. Next health.
+0:4:53.671 --> 0:4:56.591
+Luis Escobar
+Biome Thrive Lab defi medical any of these?
+0:4:59.261 --> 0:5:0.61
+Luis Escobar
+So familiar.
+0:5:0.421 --> 0:5:3.301
+Basement
+Yeah. Yeah, yeah, yeah. Almost all of them.
+0:5:3.91 --> 0:5:3.251
+Luis Escobar
+OK.
+0:5:4.181 --> 0:5:4.541
+Luis Escobar
+Great.
+0:5:5.861 --> 0:5:8.861
+Luis Escobar
+But yeah, I mean it's it seems like these are some.
+0:5:10.351 --> 0:5:12.511
+Luis Escobar
+National you know, a players, right?
+0:5:14.191 --> 0:5:17.951
+Luis Escobar
+You should, you know, try to pay attention to emulate or or.
+0:5:19.591 --> 0:5:22.511
+Luis Escobar
+See, you know what we like from them and and replicate it right there.
+0:5:22.511 --> 0:5:24.631
+Luis Escobar
+There's a lot to like from my life force.
+0:5:25.31 --> 0:5:28.151
+Luis Escobar
+I think we've got a few like conversations about that, right?
+0:5:31.181 --> 0:5:32.941
+Luis Escobar
+Just down to the branding, right?
+0:5:33.141 --> 0:5:35.981
+Luis Escobar
+And branding is something I also wanna talk about in this meeting.
+0:5:37.551 --> 0:5:41.911
+Luis Escobar
+Theeno.cothe.co is really it's just not working.
+0:5:43.901 --> 0:5:45.381
+Luis Escobar
+It needs to be a.com.
+0:5:48.61 --> 0:5:49.941
+Luis Escobar
+I know you guys have several domains.
+0:5:52.71 --> 0:5:57.751
+Luis Escobar
+I did do some some research and I found a newlife.com is available.
+0:6:0.771 --> 0:6:2.411
+Luis Escobar
+Ennulive.com.
+0:6:4.621 --> 0:6:8.701
+Luis Escobar
+I feel like that could be a a the main domain right now.
+0:6:8.941 --> 0:6:12.541
+Luis Escobar
+I know one of your competitors optimize U global for example.
+0:6:12.581 --> 0:6:17.421
+Luis Escobar
+They have their main HQ website. It seems like optimized use centers.
+0:6:18.541 --> 0:6:24.781
+Luis Escobar
+Then they have like individual sites for each location really, which is also a very smart idea, and we should do the same.
+0:6:26.791 --> 0:6:34.311
+Luis Escobar
+But there should be a a synergy between all the websites and and life or of course enu brings it together.
+0:6:34.311 --> 0:6:36.431
+Luis Escobar
+It's just. Can we buy the.com?
+0:6:36.431 --> 0:6:36.791
+Luis Escobar
+Have we?
+0:6:36.951 --> 0:6:38.671
+Luis Escobar
+Have you guys made an attempt?
+0:6:39.481 --> 0:6:45.921
+Basement
+Yeah, we were at around 30,000, I think, which I thought was which I thought was high, so.
+0:6:43.51 --> 0:6:43.371
+Luis Escobar
+OK.
+0:6:47.671 --> 0:6:52.231
+Basement
+And and quite frankly, I wasn't at that time that much in love with the name anyway.
+0:6:48.211 --> 0:6:48.731
+Luis Escobar
+You could try.
+0:6:52.231 --> 0:6:54.311
+Basement
+So it was kind of.
+0:6:56.501 --> 0:6:57.21
+Basement
+Oh yeah.
+0:6:58.721 --> 0:6:59.441
+Luis Escobar
+I don't know.
+0:6:59.561 --> 0:7:1.401
+Luis Escobar
+I mean, I'm not against it at first.
+0:7:1.401 --> 0:7:3.761
+Luis Escobar
+I told you, I think we need a drastic.
+0:7:5.271 --> 0:7:12.271
+Luis Escobar
+Brand facelift, but I mean the more I thought about it the you know it's it's not bad. Actually the logo's not bad.
+0:7:12.271 --> 0:7:16.391
+Luis Escobar
+You guys did a good job actually with the the icon design.
+0:7:18.271 --> 0:7:22.471
+Luis Escobar
+Maybe the the color schemes need to be adjusted?
+0:7:22.951 --> 0:7:27.631
+Luis Escobar
+Maybe the the font of the Ennu needs to be adjusted, right?
+0:7:29.51 --> 0:7:40.851
+Luis Escobar
+So we can continue paying on this and I think adding the word life, you know it just also my life force.com is you know, I know exactly what I'm getting when I when I land on that website or just thinking about the domain.
+0:7:44.111 --> 0:7:48.871
+Luis Escobar
+You really have to think from like a direct marketing direct to consumer perspective, right?
+0:7:49.711 --> 0:7:52.271
+Luis Escobar
+It's it's split second decisions, right that that.
+0:7:54.581 --> 0:7:57.421
+Luis Escobar
+My life force like it makes perfect sense.
+0:7:56.991 --> 0:8:3.711
+Basement
+Brian, Brian. Brian, did you you have access to our domain?
+0:7:58.951 --> 0:7:59.551
+Luis Escobar
+You know.
+0:8:4.761 --> 0:8:5.841
+Basement
+Purchasing on.
+0:8:8.671 --> 0:8:9.151
+Basement
+Enam.
+0:8:10.941 --> 0:8:11.821
+Basement
+Is there something?
+0:8:11.861 --> 0:8:13.421
+Basement
+Are you on the road now, I guess.
+0:8:13.891 --> 0:8:14.291
+Brian Hyatt
+Yeah.
+0:8:15.281 --> 0:8:20.761
+Luis Escobar
+So I went ahead and just bought that domain in your-life.com before anybody else does.
+0:8:18.431 --> 0:8:18.871
+Basement
+OK.
+0:8:21.431 --> 0:8:21.591
+Basement
+OK.
+0:8:22.471 --> 0:8:24.471
+Luis Escobar
+I bought it through Cloudfair.
+0:8:24.471 --> 0:8:25.711
+Luis Escobar
+Do you guys have a cloud fair account?
+0:8:27.171 --> 0:8:27.651
+Basement
+Now.
+0:8:28.471 --> 0:8:29.271
+Luis Escobar
+OK so.
+0:8:29.451 --> 0:8:29.491
+Renzo Mogrovejo
+I.
+0:8:29.931 --> 0:8:33.811
+Renzo Mogrovejo
+I created one for for tripones.
+0:8:31.681 --> 0:8:32.81
+Luis Escobar
+Yeah.
+0:8:34.571 --> 0:8:35.11
+Luis Escobar
+OK.
+0:8:35.531 --> 0:8:38.171
+Luis Escobar
+Well, I think I'll just use this new one, right.
+0:8:38.171 --> 0:8:43.891
+Luis Escobar
+It'll be our our main Calvert account. Calculate will service our our our DNS provider.
+0:8:45.351 --> 0:8:48.471
+Luis Escobar
+Also help with optimizing the cyber speed and security.
+0:8:45.431 --> 0:8:45.831
+Renzo Mogrovejo
+OK.
+0:8:50.431 --> 0:8:58.711
+Luis Escobar
+So and then furthermore has like a really like seamless integration with Google Workspace, which is another thing I would like to establish on this call.
+0:8:50.911 --> 0:8:51.551
+Renzo Mogrovejo
+You got it? Yeah.
+0:9:0.591 --> 0:9:1.871
+Luis Escobar
+And the the.
+0:9:3.591 --> 0:9:8.631
+Luis Escobar
+Hosting that, we're gonna be using just for like this initial launch, right?
+0:9:9.261 --> 0:9:10.501
+Luis Escobar
+It's a reliable host.
+0:9:12.31 --> 0:9:16.431
+Luis Escobar
+No, we're not gonna be, you know, launching the members portal on Friday.
+0:9:16.671 --> 0:9:18.631
+Luis Escobar
+We don't need to be HIPAA compliant on Friday.
+0:9:20.271 --> 0:9:25.431
+Luis Escobar
+When it comes to being HIPAA compliant, we'll we'll utilize a A HIPAA compliant server, right?
+0:9:25.431 --> 0:9:27.871
+Luis Escobar
+But right now we're just launching this this marketing website.
+0:9:31.431 --> 0:9:39.471
+Luis Escobar
+Ted, I think I just need to connect with someone to, to or send them the link so they can put a payment method on file.
+0:9:40.361 --> 0:9:40.721
+Basement
+Jump.
+0:9:43.421 --> 0:9:47.181
+Basement
+Just send out the Trent or myself.
+0:9:49.61 --> 0:9:49.781
+Luis Escobar
+OK, on it.
+0:9:53.781 --> 0:10:0.781
+Luis Escobar
+And the other thing is, I started drafting a few ideas of mockups for what the website can look like.
+0:10:10.41 --> 0:10:14.641
+Basement
+In a world so competitive.
+0:10:16.711 --> 0:10:24.911
+Basement
+You know, you were able to instantly see 15 different folks that that all purport.
+0:10:25.31 --> 0:10:30.151
+Basement
+I mean, the biggest concern is how do we stand out, right?
+0:10:30.151 --> 0:10:32.631
+Basement
+I mean like 'cause we we are not.
+0:10:34.391 --> 0:10:37.511
+Basement
+Life force. You know, we're we're not them.
+0:10:37.901 --> 0:10:40.821
+Basement
+I mean, we do so much more.
+0:10:42.831 --> 0:10:48.31
+Basement
+So, so, but yet people may not care that we do more.
+0:10:49.711 --> 0:10:52.311
+Basement
+People you know, so I really need your take on that.
+0:10:54.431 --> 0:10:55.71
+Basement
+Yeah. So.
+0:10:54.991 --> 0:11:1.191
+Luis Escobar
+Yeah. No, I mean the the fact that you guys do more is actually it should make it easier to to stand out, right?
+0:11:1.591 --> 0:11:4.951
+Luis Escobar
+However, sometimes less is more, right?
+0:11:5.631 --> 0:11:11.591
+Luis Escobar
+So we really gotta dial in our, our, our messaging, right.
+0:11:14.341 --> 0:11:25.901
+Luis Escobar
+Not just the the logo, the domain, but like the the catch phrase. The the mission statement, the every word on this website needs to be really well thought out.
+0:11:27.711 --> 0:11:30.351
+Luis Escobar
+You know, the copywriters are like some of the unsung heroes.
+0:11:30.471 --> 0:11:32.511
+Luis Escobar
+I mean, AI is really good right now.
+0:11:32.511 --> 0:11:34.71
+Luis Escobar
+I'm not gonna lie, but.
+0:11:36.1 --> 0:11:41.201
+Luis Escobar
+Have a person with copywriting background behind AI is is that really brilliant?
+0:11:36.421 --> 0:11:36.581
+Basement
+OK.
+0:11:43.421 --> 0:11:46.381
+Luis Escobar
+Just putting together, you know the right words, right?
+0:11:46.541 --> 0:11:47.461
+Luis Escobar
+Not too much, not too little.
+0:11:50.181 --> 0:11:51.821
+Luis Escobar
+You know, we, I know you guys offer a lot.
+0:11:51.821 --> 0:11:53.541
+Luis Escobar
+It's it's a ton, which is great actually.
+0:11:53.541 --> 0:11:56.701
+Luis Escobar
+It's gonna do wonders for our our SEO, right?
+0:11:56.701 --> 0:12:3.501
+Luis Escobar
+Every single one of these factors should have its own page and and associated funnel essentially.
+0:12:6.231 --> 0:12:11.311
+Luis Escobar
+You have a ton of reviews that we gotta really just capitalize on more and better in better ways.
+0:12:14.201 --> 0:12:16.481
+Luis Escobar
+So this is one of the ideas that I have.
+0:12:16.481 --> 0:12:27.321
+Luis Escobar
+This is more like a wireframe idea, but the the goal here is to achieve something that that that's like luxurious right? That's a premium.
+0:12:27.881 --> 0:12:29.1
+Basement
+Designer brand.
+0:12:29.151 --> 0:12:30.671
+Luis Escobar
+So designer brand correct.
+0:12:30.831 --> 0:12:30.951
+Basement
+Yep.
+0:12:33.451 --> 0:12:37.731
+Luis Escobar
+Yeah, we're gonna have separate landing pages. Of course, for like man.
+0:12:39.271 --> 0:12:42.71
+Luis Escobar
+Feminine power and you know different ways to resonate with them.
+0:12:43.791 --> 0:12:45.431
+Luis Escobar
+Right now what I want to just.
+0:12:47.351 --> 0:12:50.71
+Luis Escobar
+Those up by Friday is kind of like a border plate, right?
+0:12:50.71 --> 0:12:55.431
+Luis Escobar
+That I think it it should be very similar to what my life force is doing.
+0:12:55.871 --> 0:12:56.511
+Luis Escobar
+I mean what?
+0:12:57.231 --> 0:13:0.31
+Luis Escobar
+What is your guys take on this website overall?
+0:13:5.101 --> 0:13:9.741
+Basement
+The space like I hate things. I hate things that are cluttered.
+0:13:6.681 --> 0:13:6.881
+Luis Escobar
+Mm hmm.
+0:13:9.981 --> 0:13:15.261
+Basement
+I love the way I love the design of it. The space? Yeah.
+0:13:10.401 --> 0:13:10.601
+Luis Escobar
+Mm hmm.
+0:13:14.831 --> 0:13:15.31
+Luis Escobar
+Mm hmm.
+0:13:17.571 --> 0:13:17.771
+Luis Escobar
+Mm hmm.
+0:13:22.61 --> 0:13:28.301
+Basement
+It's very evident that they focused not only on on, you know.
+0:13:30.271 --> 0:13:30.591
+Basement
+Living.
+0:13:33.271 --> 0:13:41.831
+Basement
+Longer, but they show you how to live better while you live longer. And I think that's part of our value as well, so.
+0:13:43.921 --> 0:13:47.601
+Luis Escobar
+Yeah, and. And you know this, this app, they're already like, you know.
+0:13:49.71 --> 0:13:50.991
+Luis Escobar
+Prepping you for this idea that you're gonna have it in hand.
+0:13:54.351 --> 0:13:55.751
+Luis Escobar
+Right. And this breakdown right here.
+0:13:55.231 --> 0:13:56.551
+Basement
+Oh, my God. That's what we did.
+0:13:58.71 --> 0:13:58.911
+Basement
+That is legit what we did.
+0:13:59.641 --> 0:13:59.881
+Luis Escobar
+Yeah.
+0:14:1.971 --> 0:14:2.371
+Luis Escobar
+Great.
+0:14:4.351 --> 0:14:6.631
+Luis Escobar
+Do you guys have some good stuff on your site too?
+0:14:6.751 --> 0:14:13.671
+Luis Escobar
+You know, we're gonna use a lot of it. Just needs to be presented in a better format, better fonts, better styling.
+0:14:18.571 --> 0:14:33.771
+Luis Escobar
+The imagery these these videos, they they make a big impact on the bringing the website to life. I believe we have a a Shutterstock account if I can have access to that too, I'm gonna start creating a folder of kinds of assets.
+0:14:33.771 --> 0:14:34.651
+Luis Escobar
+I think we should start.
+0:14:36.111 --> 0:14:36.671
+Luis Escobar
+Using.
+0:14:36.421 --> 0:14:41.181
+Basement
+Purposely do they purposely on the main site?
+0:14:42.911 --> 0:14:44.191
+Basement
+Remain gender.
+0:14:45.781 --> 0:14:51.781
+Basement
+Agnostic. Basically, they're showing men and women both. I mean because.
+0:14:50.41 --> 0:14:50.241
+Luis Escobar
+Mm hmm.
+0:14:53.471 --> 0:14:56.751
+Basement
+The promise that they offer really does change, right?
+0:14:56.751 --> 0:14:59.991
+Basement
+We're we're adding life to your years, you know.
+0:15:2.111 --> 0:15:3.631
+Basement
+So so I like that.
+0:15:5.471 --> 0:15:6.511
+Basement
+For for us.
+0:15:8.501 --> 0:15:10.501
+Basement
+It's not as easy, right?
+0:15:10.501 --> 0:15:19.741
+Basement
+Because we have aesthetics we, you know, we, we we have a different language that we speak. When when we're talking about aesthetics.
+0:15:21.261 --> 0:15:22.381
+Basement
+Possibly right.
+0:15:22.741 --> 0:15:28.901
+Basement
+Aesthetics for some men could be off putting when, when, when what they want is muscle mass.
+0:15:29.141 --> 0:15:31.981
+Basement
+They want energy, sex, drive, whatever.
+0:15:31.981 --> 0:15:44.821
+Basement
+And you see, you know, and you see 25 five year olds getting faith facials, you know? So, so that dichotomy, I think makes sense for us.
+0:15:37.201 --> 0:15:37.721
+Luis Escobar
+Yeah.
+0:15:40.381 --> 0:15:40.901
+Luis Escobar
+So.
+0:15:45.101 --> 0:15:46.901
+Basement
+But they don't have to deal with that.
+0:15:45.261 --> 0:15:45.461
+Luis Escobar
+Mm hmm.
+0:15:46.901 --> 0:15:47.461
+Basement
+You know, I mean.
+0:15:48.231 --> 0:15:52.311
+Basement
+Like I think part of their part of the beauty of their site and their company.
+0:15:53.461 --> 0:15:56.461
+Basement
+Is the ability to hone in on and.
+0:15:57.21 --> 0:15:57.221
+Luis Escobar
+Mm hmm.
+0:15:58.431 --> 0:16:3.511
+Basement
+Focus on they don't have to worry about the gender necessarily, you know.
+0:16:7.1 --> 0:16:8.881
+Luis Escobar
+So on the home page, right?
+0:16:12.761 --> 0:16:19.681
+Luis Escobar
+I just typed in this into the browser, right my life force.com so it just took me to the home page. Which. Yeah, you're right, it is.
+0:16:20.361 --> 0:16:22.601
+Luis Escobar
+You know it's neutral, right?
+0:16:22.601 --> 0:16:24.561
+Luis Escobar
+It's inviting for for everyone, right?
+0:16:24.921 --> 0:16:29.81
+Luis Escobar
+Then I I went to Google and I typed in live my life force for men.
+0:16:29.441 --> 0:16:31.961
+Luis Escobar
+I clicked on the first ad and it brought me here.
+0:16:32.561 --> 0:16:34.41
+Luis Escobar
+Add life to your ears.
+0:16:34.521 --> 0:16:36.961
+Luis Escobar
+Here's like a, you know, older, gentle.
+0:16:37.991 --> 0:16:38.751
+Luis Escobar
+Man surfing.
+0:16:39.311 --> 0:16:40.191
+Luis Escobar
+That's amazing.
+0:16:41.121 --> 0:16:44.321
+Luis Escobar
+Right. That's one way to add live tiriards.
+0:16:46.131 --> 0:16:48.51
+Basement
+As long as you don't get eat by shark.
+0:16:46.411 --> 0:16:46.891
+Luis Escobar
+I don't really.
+0:16:47.811 --> 0:16:50.451
+Luis Escobar
+I don't even know what you're selling, but I want it.
+0:16:50.671 --> 0:16:51.71
+Basement
+Yeah.
+0:16:52.321 --> 0:16:55.41
+Luis Escobar
+Yeah, I want to go surfing too.
+0:17:0.411 --> 0:17:1.331
+Basement
+Need a video?
+0:17:0.531 --> 0:17:4.451
+Luis Escobar
+Right, the product matters, of course the product matters, right?
+0:17:3.351 --> 0:17:3.551
+Basement
+Steve.
+0:17:4.851 --> 0:17:7.891
+Luis Escobar
+But it's, you know, these everyone's visual right.
+0:17:8.491 --> 0:17:9.851
+Luis Escobar
+We're all making snap decisions.
+0:17:11.271 --> 0:17:11.911
+Luis Escobar
+Based on what we're seeing.
+0:17:14.191 --> 0:17:15.751
+Luis Escobar
+Now you got my attention.
+0:17:15.751 --> 0:17:16.911
+Luis Escobar
+And now I'm gonna read this.
+0:17:17.311 --> 0:17:18.791
+Luis Escobar
+You know fine print here.
+0:17:25.661 --> 0:17:33.621
+Luis Escobar
+These are publications on 3rd party websites that also is important.
+0:17:34.181 --> 0:17:35.541
+Luis Escobar
+Do we have some of that already?
+0:17:36.981 --> 0:17:38.341
+Basement
+I mean, we did.
+0:17:36.991 --> 0:17:37.871
+Luis Escobar
+Like news outlets.
+0:17:38.581 --> 0:17:45.541
+Basement
+We we did with the previous brand for for sure. I mean you know.
+0:17:48.231 --> 0:17:48.351
+Basement
+CNN.
+0:17:48.391 --> 0:17:53.31
+Basement
+ESPNNBC you know that.
+0:17:53.31 --> 0:17:53.951
+Basement
+That kind of thing.
+0:17:54.791 --> 0:17:55.231
+Luis Escobar
+OK.
+0:17:56.31 --> 0:18:10.151
+Luis Escobar
+Yeah, I'll connect those with some like PR guys that I know that that can help us and also some like online services that some new AI services that are doing all the mitigating for you, all the brokering for you.
+0:18:10.151 --> 0:18:14.871
+Luis Escobar
+It's a bunch of middle men, just like trying to like, you know, upsell these publications.
+0:18:15.991 --> 0:18:17.231
+Luis Escobar
+You just need to get to the source.
+0:18:23.251 --> 0:18:24.491
+Luis Escobar
+Across that bridge, when you get there.
+0:18:24.491 --> 0:18:26.371
+Luis Escobar
+But yeah, and then I.
+0:18:26.181 --> 0:18:29.21
+Basement
+What you could put in there though are.
+0:18:30.671 --> 0:18:42.791
+Basement
+The memberships that we do have, which is with the the medical Board or the endocrin society, the American Anti aging, you know what I mean.
+0:18:40.531 --> 0:18:40.731
+Luis Escobar
+Mm hmm.
+0:18:42.831 --> 0:18:44.391
+Basement
+Other trust marks?
+0:18:44.391 --> 0:18:45.311
+Basement
+You know, so.
+0:18:45.741 --> 0:18:45.941
+Luis Escobar
+Mm hmm.
+0:18:49.921 --> 0:18:50.321
+Luis Escobar
+Oh.
+0:18:51.621 --> 0:19:4.301
+Luis Escobar
+You know, we can definitely build upon that for sure. And and to to the point you were making earlier, right, that you know, how do we stand out when we do so much more than life force actually, right?
+0:19:5.831 --> 0:19:10.871
+Luis Escobar
+You know how? How can we condense everything that we do into, like different categories, right?
+0:19:12.551 --> 0:19:18.231
+Luis Escobar
+Insomnia and fatigue reduce libido and brain fog, irritability and sadness.
+0:19:19.911 --> 0:19:21.751
+Luis Escobar
+And I'm sure they offer a lot more than this.
+0:19:22.821 --> 0:19:28.541
+Luis Escobar
+Right. The symptoms we treat, but there has to be a reason why they chose these five, right?
+0:19:28.81 --> 0:19:31.961
+Basement
+Yeah, I mean, those are the five, those are probably.
+0:19:33.471 --> 0:19:49.711
+Basement
+The only thing that isn't on there, but would probably be related to fatigue would be you know, I want to wake up and feel like I've got energy, you know? But but but but weight gain energy.
+0:19:46.421 --> 0:19:46.621
+Luis Escobar
+Mm hmm.
+0:19:51.511 --> 0:19:52.431
+Basement
+Are the two biggest.
+0:19:54.391 --> 0:19:55.431
+Basement
+For girls, for sure.
+0:19:57.71 --> 0:19:57.231
+Basement
+Women.
+0:19:58.61 --> 0:19:58.261
+Luis Escobar
+Mm hmm.
+0:19:59.221 --> 0:19:59.741
+Basement
+So.
+0:20:1.321 --> 0:20:1.561
+Luis Escobar
+OK.
+0:20:5.461 --> 0:20:9.581
+Luis Escobar
+So yeah, I mean right, right now the website has a lot of content.
+0:20:12.451 --> 0:20:16.91
+Luis Escobar
+However, I think we got to get more content created, right?
+0:20:16.241 --> 0:20:19.601
+Luis Escobar
+But I like to, I guess, establish that content creation project.
+0:20:21.91 --> 0:20:21.371
+Luis Escobar
+And and.
+0:20:22.641 --> 0:20:24.281
+Luis Escobar
+And the project manager.
+0:20:25.771 --> 0:20:31.171
+Luis Escobar
+So we can just start tackling which are the high priority landing pages that we want published ASAP.
+0:20:43.91 --> 0:20:45.131
+Luis Escobar
+And then the the lead magnets, right?
+0:20:45.131 --> 0:20:47.11
+Luis Escobar
+What? What are the the lead magnets that?
+0:20:48.491 --> 0:20:49.131
+Luis Escobar
+That we're gonna start promoting.
+0:20:50.811 --> 0:20:52.531
+Luis Escobar
+I understand you had like a Wellness.
+0:20:54.371 --> 0:20:56.971
+Luis Escobar
+Wellness blueprint assessment, right?
+0:21:0.411 --> 0:21:3.371
+Luis Escobar
+Here we we have like one that was replicated by the AI.
+0:21:3.371 --> 0:21:6.131
+Luis Escobar
+That's kind of asking the same questions.
+0:21:9.331 --> 0:21:10.891
+Luis Escobar
+Primary Wellness school elevate.
+0:21:10.891 --> 0:21:14.171
+Luis Escobar
+Energy and vitality optimize sleep and recovery.
+0:21:15.91 --> 0:21:18.291
+Luis Escobar
+Enhance mental clarity and focus on its hormones.
+0:21:18.291 --> 0:21:21.51
+Luis Escobar
+Naturally achieve ideal body composition.
+0:21:21.91 --> 0:21:23.451
+Luis Escobar
+Revitalize intimate Wellness.
+0:21:24.11 --> 0:21:26.131
+Luis Escobar
+Embrace longevity and anti aging.
+0:21:26.331 --> 0:21:28.11
+Luis Escobar
+Maximize athletic performance.
+0:21:28.571 --> 0:21:35.891
+Luis Escobar
+Maybe we should let them multi select like multiple or maybe just one, but based on that selection, right, we're gonna put them in a bucket.
+0:21:36.611 --> 0:21:40.371
+Luis Escobar
+And work in the cater the marketing you know to those needs.
+0:21:40.801 --> 0:21:42.641
+Luis Escobar
+It's right. You wanna speak to their pains?
+0:21:44.831 --> 0:21:45.151
+Luis Escobar
+Oh yeah.
+0:21:47.281 --> 0:21:53.121
+Luis Escobar
+If if there I need you to levels are low or if your sleep quality is average right.
+0:21:53.121 --> 0:21:58.761
+Luis Escobar
+Well, all these factors will come into play into you know how we market to these individuals.
+0:22:0.71 --> 0:22:1.991
+Luis Escobar
+You don't want to bombard them with questions, right?
+0:22:1.991 --> 0:22:5.551
+Luis Escobar
+It's kind of like, not really a fan of these super long questionnaires.
+0:22:6.971 --> 0:22:8.451
+Luis Escobar
+At first, we were gonna keep it simple.
+0:22:8.451 --> 0:22:11.51
+Luis Escobar
+We're just gonna ask for your name, e-mail and phone number.
+0:22:11.51 --> 0:22:14.11
+Luis Escobar
+I already know why you're here. 'cause you clicked on this ad.
+0:22:15.601 --> 0:22:16.1
+Luis Escobar
+But.
+0:22:16.561 --> 0:22:22.241
+Luis Escobar
+A little bit further down the journey, once we have a little more trust with them, we can start asking all these questions.
+0:22:23.871 --> 0:22:24.191
+Luis Escobar
+No. Well.
+0:22:25.921 --> 0:22:33.841
+Luis Escobar
+Getting conversions, you know, at a steady you know, you know, high percentage it it does.
+0:22:33.841 --> 0:22:39.601
+Luis Escobar
+It'll trickle down if we have a high conversion rate at the lead source and the lead qualification then.
+0:22:41.211 --> 0:22:43.91
+Luis Escobar
+And encourage a high conversion at the sales point.
+0:22:57.911 --> 0:23:4.271
+Luis Escobar
+In regards to the the current state of like HubSpot, it's, it's actually pretty healthy, right?
+0:23:4.431 --> 0:23:7.851
+Luis Escobar
+I I was asking earlier if are all the calls being recorded.
+0:23:10.721 --> 0:23:15.321
+Luis Escobar
+All those sales calls are the customer support calls, yeah.
+0:23:12.931 --> 0:23:13.891
+Ximena Livia
+I think so.
+0:23:19.441 --> 0:23:23.441
+Basement
+I remember hearing that they were, but to be honest with you, I'm not positive. Brian, do you know?
+0:23:24.351 --> 0:23:25.751
+Brian Hyatt
+Yeah. Yeah, they are.
+0:23:25.751 --> 0:23:28.471
+Brian Hyatt
+And there's transcriptions as well.
+0:24:9.921 --> 0:24:14.81
+Luis Escobar
+Yeah, you do have transcripts and calls, OK.
+0:24:17.571 --> 0:24:17.691
+Luis Escobar
+Umm.
+0:24:19.461 --> 0:24:21.941
+Luis Escobar
+So yeah, I'm gonna extract a lot of that too, right?
+0:24:21.941 --> 0:24:23.981
+Luis Escobar
+And then start putting together.
+0:24:25.411 --> 0:24:30.451
+Luis Escobar
+Some more resources that that's gonna help the AI agents the the live chat agents.
+0:24:32.371 --> 0:24:34.291
+Luis Escobar
+I noticed you guys don't have one on your website, do you?
+0:24:36.151 --> 0:24:38.271
+Brian Hyatt
+No, we did have one.
+0:24:38.781 --> 0:24:38.981
+Luis Escobar
+Mm hmm.
+0:24:39.31 --> 0:24:39.751
+Brian Hyatt
+That was.
+0:24:39.751 --> 0:24:41.551
+Brian Hyatt
+I don't know when it was installed, but.
+0:24:42.31 --> 0:24:42.231
+Luis Escobar
+Mm hmm.
+0:24:43.51 --> 0:24:43.411
+Brian Hyatt
+It was.
+0:24:43.531 --> 0:24:44.571
+Brian Hyatt
+It was kind of rough.
+0:24:45.601 --> 0:24:46.1
+Luis Escobar
+Who is rob?
+0:24:46.211 --> 0:24:51.891
+Brian Hyatt
+Didn't look good and the results that we were getting from it was they were pretty bad.
+0:24:51.521 --> 0:24:51.961
+Luis Escobar
+Yeah.
+0:24:53.741 --> 0:24:54.501
+Luis Escobar
+No, I hear you.
+0:24:54.541 --> 0:24:58.221
+Luis Escobar
+Not the the the new ones are are actually rather good.
+0:24:58.221 --> 0:25:1.421
+Luis Escobar
+The one I'm gonna recommend we use is called intercom.
+0:25:4.1 --> 0:25:4.121
+Luis Escobar
+Umm.
+0:25:6.461 --> 0:25:10.421
+Luis Escobar
+It used to be actually pretty pricey, but they really changed it.
+0:25:10.701 --> 0:25:13.861
+Luis Escobar
+Now no ticket subscription.
+0:25:15.491 --> 0:25:22.931
+Luis Escobar
+We just need 1C right now and then we need the AI agent to start this building more and more.
+0:25:24.571 --> 0:25:34.411
+Luis Escobar
+Backlog and and knowledge base and so that's that brings me to my next point which is the knowledge base that that Google sorry that Dropbox you shared with me yesterday that was great.
+0:25:36.131 --> 0:25:43.411
+Luis Escobar
+That's the kind of like insight that that we need to feed into the AI because it's gonna be able to then really come up with the best answers for us.
+0:25:46.831 --> 0:25:53.831
+Luis Escobar
+The more data you can provide and the more recordings all these meetings that we're having, everything should be fed into the AI, right?
+0:25:53.871 --> 0:25:58.431
+Luis Escobar
+And then at the at the end of this meeting, for example, we should, you know, have.
+0:26:0.11 --> 0:26:2.651
+Luis Escobar
+Aii know teams has its own, you know, AI.
+0:26:0.851 --> 0:26:1.171
+Brian Hyatt
+Open.
+0:26:2.651 --> 0:26:7.931
+Luis Escobar
+But we can have something a little more sophisticated that goes and it it talks to the hotspot, right?
+0:26:7.931 --> 0:26:11.371
+Luis Escobar
+And it finds out. Hey, here are some stats from HubSpot.
+0:26:11.731 --> 0:26:13.571
+Luis Escobar
+Here are some stats from Intercom.
+0:26:14.241 --> 0:26:20.121
+Luis Escobar
+Here are some stats from how your team is, you know, doing on texting platform.
+0:26:20.681 --> 0:26:23.801
+Luis Escobar
+It combines all that into the the transcript of this meeting where.
+0:26:26.601 --> 0:26:28.241
+Luis Escobar
+It's a little more contextual.
+0:26:35.491 --> 0:26:36.571
+Luis Escobar
+But right now.
+0:26:38.411 --> 0:26:38.731
+Luis Escobar
+How do?
+0:26:38.731 --> 0:26:43.51
+Luis Escobar
+How do you feel about moving forward with theenewlive.com approach?
+0:26:46.281 --> 0:26:51.641
+Basement
+I'm not opposed to itsoundslikethe.com's the way to go is was was there a certain price on that?
+0:26:52.701 --> 0:26:53.621
+Luis Escobar
+It's 10 bucks.
+0:26:54.11 --> 0:26:54.171
+Basement
+Bstf.
+0:26:56.651 --> 0:26:57.611
+Basement
+10 bugs I don't know.
+0:26:57.611 --> 0:26:58.211
+Basement
+I don't know.
+0:27:2.61 --> 0:27:2.501
+Basement
+Yeah.
+0:27:5.961 --> 0:27:10.41
+Luis Escobar
+Yeah, but here's some other ideas with like a more dark background, right?
+0:27:10.801 --> 0:27:17.481
+Luis Escobar
+Something that we can have to put to the test dark background websites actually can perform well.
+0:27:21.861 --> 0:27:24.941
+Basement
+I can't stand that thought, but other than that.
+0:27:26.491 --> 0:27:27.131
+Luis Escobar
+Yeah, yeah.
+0:27:28.871 --> 0:27:32.271
+Basement
+Did you go through all the mothers? I like the light one better.
+0:27:32.711 --> 0:27:34.871
+Basement
+Yeah, there's I like these.
+0:27:33.351 --> 0:27:33.751
+Luis Escobar
+Yeah.
+0:27:35.831 --> 0:27:36.951
+Basement
+No, I did.
+0:27:36.951 --> 0:27:37.591
+Basement
+You send these.
+0:27:37.751 --> 0:27:39.271
+Basement
+Yeah, I didn't see them.
+0:27:39.351 --> 0:27:42.871
+Basement
+It's on the teams. Yeah, you need to download teams app.
+0:27:42.251 --> 0:27:42.411
+Brian Hyatt
+OK.
+0:27:43.71 --> 0:27:43.911
+Basement
+No, it's on.
+0:27:44.151 --> 0:27:46.991
+Basement
+It's on my my phone and oh, thanks.
+0:27:48.771 --> 0:27:51.91
+Basement
+The daughter you were on team for like you're right.
+0:27:51.91 --> 0:27:54.451
+Basement
+So it's like every other day.
+0:27:56.771 --> 0:27:56.971
+Basement
+Oh God.
+0:27:58.721 --> 0:28:3.961
+Luis Escobar
+We also really need to consider the the mobile design right so.
+0:28:3.521 --> 0:28:4.761
+Basement
+Yes, yes.
+0:28:5.81 --> 0:28:8.681
+Luis Escobar
+No, this right now is not mobile optimized. For example, right?
+0:28:8.681 --> 0:28:9.641
+Luis Escobar
+This is just a rough.
+0:28:11.171 --> 0:28:15.691
+Luis Escobar
+Draft that I had in AI do so you know, 70% of our traffic will be mobile.
+0:28:16.761 --> 0:28:17.361
+Luis Escobar
+So.
+0:28:18.141 --> 0:28:24.741
+Basement
+I will tell you the most visited site or page of our own site of our old site.
+0:28:26.291 --> 0:28:28.211
+Basement
+Was people wanted to know what the.
+0:28:31.211 --> 0:28:38.51
+Basement
+Process was so they they wanted to be able to see, you know what? What, what? Where do I start?
+0:28:38.91 --> 0:28:39.251
+Basement
+What's the next step?
+0:28:39.291 --> 0:28:40.91
+Basement
+Yada yada yada.
+0:28:40.91 --> 0:28:46.811
+Basement
+So I know that that's a question that most folks have and quite frankly.
+0:28:48.161 --> 0:28:50.441
+Basement
+Life Force does a pretty good job of it.
+0:28:52.891 --> 0:29:0.491
+Basement
+Although it's almost too simplistic, really. I mean it doesn't tell you who's.
+0:29:0.731 --> 0:29:2.931
+Basement
+You know what? Once you sign up.
+0:29:4.651 --> 0:29:8.411
+Basement
+I don't know what it what it does, but I kind of want to know.
+0:29:10.71 --> 0:29:12.671
+Luis Escobar
+I don't know what it does, but I know I'm gonna be surfing soon.
+0:29:14.361 --> 0:29:16.721
+Basement
+Right, right, right.
+0:29:16.141 --> 0:29:19.21
+Luis Escobar
+You know, that's what we gotta write.
+0:29:18.171 --> 0:29:25.771
+Basement
+I also really like on their you just scrolled past it a second ago, but they have.
+0:29:27.451 --> 0:29:28.571
+Basement
+Some symbol. I don't know what it is.
+0:29:28.571 --> 0:29:35.771
+Basement
+It's like colors, but they put that next to the like life score. Yeah, and I don't.
+0:29:35.791 --> 0:29:36.391
+Luis Escobar
+Listing.
+0:29:35.811 --> 0:29:38.11
+Basement
+I mean, I know we have our story and things like that.
+0:29:38.11 --> 0:29:42.731
+Basement
+Yeah, that. But they also put that on like their graphics on social.
+0:29:43.81 --> 0:29:57.651
+Basement
+And like if they do a testimonial, they'll kind of put not all of them, but in some of them they'll put that symbol with the score next to it. I feel like that's a really good way, like to show someone's progress compared to them just saying like.
+0:29:57.681 --> 0:29:58.681
+Basement
+Oh, I feel.
+0:29:58.761 --> 0:30:8.281
+Basement
+I feel better, you know? So I think that would be a good something that we could explore and see what we can do, like make it our own, obviously.
+0:30:9.211 --> 0:30:12.771
+Basement
+But to me, that's a really appealing like instead of just.
+0:30:13.281 --> 0:30:18.841
+Basement
+Looking at all of my labs, I kind of just look at this one number, but I feel like they really highlight that.
+0:30:18.881 --> 0:30:25.961
+Basement
+So and we, Justin, we we have something that's like version 1.0 of that. Yeah, right in the.
+0:30:26.751 --> 0:30:29.431
+Basement
+Re review story, have you seen it?
+0:30:29.821 --> 0:30:33.901
+Basement
+You know, so yeah. But but you're exactly right.
+0:30:33.941 --> 0:30:42.621
+Basement
+I mean, I don't know what the algorithm is that they use to predict the scoring or what your.
+0:30:45.111 --> 0:30:51.391
+Basement
+Logical age is relative to your chronological age, you know.
+0:30:51.791 --> 0:30:54.591
+Basement
+But I think that's kind of neat too, right?
+0:30:54.671 --> 0:30:57.511
+Basement
+You know, if I'm 55.
+0:30:59.71 --> 0:30:59.191
+Basement
+But.
+0:30:59.871 --> 0:31:6.711
+Basement
+You know the the longer I'm a member with them, the more optimal I am I can get down to 38.
+0:31:6.911 --> 0:31:8.791
+Basement
+Yeah, kind of thing so.
+0:31:10.141 --> 0:31:11.741
+Luis Escobar
+I think that's huge, yeah.
+0:31:10.311 --> 0:31:11.791
+Basement
+I think that's a really good touch.
+0:31:13.241 --> 0:31:15.881
+Luis Escobar
+And I don't think it should be that difficult to achieve either.
+0:31:15.881 --> 0:31:20.801
+Luis Escobar
+No. We create the 10 point you know calculation, right.
+0:31:22.481 --> 0:31:24.81
+Luis Escobar
+Assign these different variables to it and then.
+0:31:25.681 --> 0:31:26.641
+Luis Escobar
+It it figures it out by itself, right?
+0:31:28.241 --> 0:31:29.921
+Luis Escobar
+And the idea is to keep it simple, right?
+0:31:29.921 --> 0:31:34.801
+Luis Escobar
+Nobody likes reading these lengthy they can if they want, they can always, you know, dive into it.
+0:31:34.961 --> 0:31:39.441
+Luis Escobar
+But at a glance they wanna see a sample easy to digest.
+0:31:41.271 --> 0:31:46.71
+Luis Escobar
+Report or or or number I. I think that's a great initiative.
+0:31:44.221 --> 0:31:45.141
+Basement
+Well, and what what?
+0:31:45.141 --> 0:31:46.101
+Basement
+You really want them?
+0:31:46.501 --> 0:31:47.301
+Basement
+What? What, what?
+0:31:47.301 --> 0:31:53.341
+Basement
+What you really want too is for them to always be looking to improve, right? So so you always gotta.
+0:31:52.571 --> 0:31:52.771
+Luis Escobar
+Mm hmm.
+0:31:53.541 --> 0:32:3.901
+Basement
+You always, always have to have that carrot out there saying you need us kind of thing, you know, you know, we're better off together, you know.
+0:31:59.741 --> 0:31:59.941
+Luis Escobar
+Mm hmm.
+0:32:4.421 --> 0:32:4.621
+Luis Escobar
+Mm hmm.
+0:32:5.391 --> 0:32:12.391
+Basement
+It also serves as like a when you look at testimonials and see someone with like a high life score, whatever they call it.
+0:32:13.111 --> 0:32:13.951
+Basement
+I feel like that.
+0:32:14.981 --> 0:32:24.141
+Basement
+Creates kind of like a competitive isn't the right word, but like if someone with a really low score was looking at it instead of being like, oh, that Lady says that she feels this and this.
+0:32:24.141 --> 0:32:26.821
+Basement
+It's like, oh, her life scores this much higher than mine.
+0:32:26.821 --> 0:32:29.341
+Basement
+It gives you something to like strive for.
+0:32:30.61 --> 0:32:31.61
+Luis Escobar
+Yeah, yeah.
+0:32:30.831 --> 0:32:33.551
+Basement
+And like a just a straightforward like this is where they're at.
+0:32:33.551 --> 0:32:38.431
+Basement
+This is where I want to be type of thing, but I know that's a future thing.
+0:32:38.431 --> 0:32:38.871
+Basement
+Do you?
+0:32:38.451 --> 0:32:39.11
+Luis Escobar
+Do you?
+0:32:38.871 --> 0:32:42.271
+Basement
+Do you have any problem with anewlife.com on the aesthetic side?
+0:32:39.11 --> 0:32:40.11
+Luis Escobar
+Do you have?
+0:32:41.761 --> 0:32:41.801
+Luis Escobar
+A.
+0:32:44.911 --> 0:32:46.111
+Basement
+Does that overcome?
+0:32:46.421 --> 0:32:53.101
+Basement
+Or I don't think it does, but I'm asking you 'cause. I know you have a better sense on that.
+0:32:54.871 --> 0:33:11.31
+Basement
+I mean the only thing I think that for either side, it doesn't really matter that much, but I'm just wondering like whenever I go to search life force, I always get a little tripped up because I just type in life force and that it like doesn't come up.
+0:33:11.391 --> 0:33:13.991
+Basement
+First, because I'm I'm not putting my in front of it.
+0:33:14.671 --> 0:33:17.431
+Basement
+It might come up like in there somewhere like the first thing.
+0:33:17.781 --> 0:33:20.701
+Basement
+But do you think like that's a problem?
+0:33:20.741 --> 0:33:23.61
+Basement
+What happens if you type in lifeforce.com?
+0:33:23.541 --> 0:33:24.341
+Basement
+Does anything?
+0:33:24.341 --> 0:33:26.21
+Basement
+Does it come up on Google or like?
+0:33:27.471 --> 0:33:28.671
+Basement
+AI also know a lot of like.
+0:33:28.901 --> 0:33:31.781
+Luis Escobar
+2nd through oh, they own that one too. Good for them.
+0:33:31.311 --> 0:33:31.911
+Basement
+Yeah. Oh, OK.
+0:33:33.551 --> 0:33:35.151
+Basement
+I think they used to.
+0:33:35.551 --> 0:33:36.151
+Basement
+I don't know.
+0:33:36.191 --> 0:33:47.231
+Basement
+Anyways, I was just wondering if that would get confusing, but then I also know a lot of even like retail brands do that and you kind of just type type it in until you find it.
+0:33:47.581 --> 0:33:48.941
+Basement
+So we own.
+0:33:48.521 --> 0:33:48.881
+Luis Escobar
+Yeah.
+0:33:52.31 --> 0:33:53.191
+Basement
+Anew.com.
+0:33:54.991 --> 0:33:58.431
+Basement
+Now that that's better, I'm just saying I think we own.
+0:33:59.751 --> 0:33:59.951
+Luis Escobar
+Yeah.
+0:34:0.111 --> 0:34:0.431
+Brian Hyatt
+Thank you.
+0:34:0.191 --> 0:34:0.551
+Basement
+Quite a few.
+0:34:2.391 --> 0:34:16.671
+Basement
+Variations. I don't if it's pointed toward a new deco yet, but I think as long as when you type in like Google search Anu that it comes up first and it doesn't make a difference really what the domain is in my opinion.
+0:34:12.471 --> 0:34:12.671
+Luis Escobar
+Mm hmm.
+0:34:14.341 --> 0:34:14.861
+Luis Escobar
+Yeah.
+0:34:17.591 --> 0:34:18.551
+Luis Escobar
+No, for sure.
+0:34:18.591 --> 0:34:21.711
+Luis Escobar
+Yeah, we'll we'll make sure that's well structured.
+0:34:22.231 --> 0:34:29.951
+Luis Escobar
+Also on that note, I I would like to also just get access to all the Google brand accounts so that I can adjust them.
+0:34:30.31 --> 0:34:35.871
+Luis Escobar
+We should have a, you know, a Google business listing here with reviews.
+0:34:36.631 --> 0:34:40.231
+Luis Escobar
+You know, we we should have one for each location also.
+0:34:40.941 --> 0:34:41.501
+Basement
+Don't we?
+0:34:41.541 --> 0:34:42.261
+Basement
+We do.
+0:34:42.751 --> 0:34:43.631
+Luis Escobar
+We do OK.
+0:34:43.791 --> 0:34:45.31
+Basement
+Yeah, if you.
+0:34:48.111 --> 0:34:50.671
+Basement
+Yeah. Yeah. When I if you type in just a new.
+0:34:50.671 --> 0:34:53.391
+Basement
+I don't know why it's not, but he's in Miami, so.
+0:34:53.391 --> 0:34:57.311
+Basement
+Oh, right. Yeah. OK. That makes more sense.
+0:34:54.381 --> 0:34:55.61
+Luis Escobar
+Maybe that's why.
+0:34:56.841 --> 0:34:58.401
+Luis Escobar
+You know new Lexington.
+0:34:58.841 --> 0:34:59.681
+Luis Escobar
+Nah, it shows up.
+0:34:59.111 --> 0:35:0.831
+Basement
+Yeah, we have one for all of them.
+0:35:1.111 --> 0:35:3.351
+Basement
+You picked out one more worse one.
+0:35:1.461 --> 0:35:2.701
+Luis Escobar
+For each location.
+0:35:3.391 --> 0:35:6.951
+Basement
+Yeah, he picked out literally the worst one.
+0:35:6.951 --> 0:35:9.271
+Basement
+Springhurst yeah, a new springhurst.
+0:35:15.221 --> 0:35:20.221
+Luis Escobar
+Do you guys have a lot of families as clients like a husband and wife or?
+0:35:21.721 --> 0:35:23.241
+Luis Escobar
+Family members all becoming clients.
+0:35:26.661 --> 0:35:29.301
+Basement
+Definitely husband wife.
+0:35:29.771 --> 0:35:30.811
+Luis Escobar
+Definitely help me and wife.
+0:35:30.791 --> 0:35:40.631
+Basement
+But I like the family idea. I mean, if you have adult kids, I mean you, you know, look, what are the biggest things that we have to offer?
+0:35:42.191 --> 0:35:43.551
+Basement
+Is medical access right?
+0:35:43.551 --> 0:35:49.871
+Basement
+I mean, if you're sick, you're traveling for work, you're on vacation.
+0:35:46.161 --> 0:35:46.361
+Luis Escobar
+Mm hmm.
+0:35:49.991 --> 0:35:52.431
+Basement
+I mean, we are your concier doc.
+0:35:52.431 --> 0:35:55.871
+Basement
+I mean we we we take take over so literally.
+0:35:52.601 --> 0:35:53.161
+Luis Escobar
+Yeah.
+0:35:56.821 --> 0:36:0.581
+Basement
+The app need you know if we get to that point.
+0:35:57.61 --> 0:35:57.541
+Luis Escobar
+Yeah.
+0:36:1.181 --> 0:36:6.261
+Basement
+I mean, you know the version 1.0 just needs to be accessibility, right?
+0:36:6.261 --> 0:36:9.61
+Basement
+I mean, I can book online, I can.
+0:36:9.381 --> 0:36:14.621
+Basement
+I can say I'm sick online and and start a synchronous type.
+0:36:11.831 --> 0:36:12.31
+Luis Escobar
+Mm hmm.
+0:36:15.861 --> 0:36:18.141
+Basement
+Health to visit that kind of thing.
+0:36:18.711 --> 0:36:18.911
+Luis Escobar
+Mm hmm.
+0:36:19.791 --> 0:36:19.951
+Basement
+Yeah.
+0:36:22.51 --> 0:36:22.931
+Luis Escobar
+Gotcha. Gotcha.
+0:36:23.91 --> 0:36:23.731
+Luis Escobar
+Yeah, definitely.
+0:36:23.731 --> 0:36:24.971
+Luis Escobar
+We're gonna achieve that.
+0:36:23.741 --> 0:36:27.541
+Basement
+I forgot to say to Yelp, Yelp, Steve Flores, and Yelp.
+0:36:25.371 --> 0:36:26.531
+Luis Escobar
+See, I think you know.
+0:36:28.81 --> 0:36:37.481
+Luis Escobar
+What I'm envisioning is like, you know, the the long term goals that like you, if you're a member of any location or you're a member of a new life, right.
+0:36:37.481 --> 0:36:45.561
+Luis Escobar
+Obviously you you log in and you have your preferred location right? With content that is like relevant to that location, right?
+0:36:47.241 --> 0:36:54.161
+Luis Escobar
+However, you know, as we expand and we start to get more and more, you know, regional and national, you know customers right.
+0:36:55.71 --> 0:36:56.631
+Luis Escobar
+They'll still get that same.
+0:36:58.121 --> 0:37:15.1
+Luis Escobar
+User experience right in the form of the app and and hopefully that you know it's it's able to convey a, you know a great user experience and it makes perfect sense for husband and the wife to like sign up for husband and wife and older adult children to.
+0:37:15.1 --> 0:37:15.321
+Luis Escobar
+Sign up also.
+0:37:15.791 --> 0:37:15.911
+Luis Escobar
+Umm.
+0:37:18.351 --> 0:37:23.431
+Luis Escobar
+I think you know you bundle the prices or I don't know how you work it out, right.
+0:37:21.51 --> 0:37:21.411
+Basement
+Yeah.
+0:37:24.961 --> 0:37:31.241
+Luis Escobar
+That, and especially on the competitive side, I can see a husband and wife, you know, competing on like who's improving their score faster.
+0:37:35.121 --> 0:37:36.441
+Luis Escobar
+You can make a challenge out of it.
+0:37:38.1 --> 0:37:41.401
+Luis Escobar
+Just out of the creative ideas can come out of that.
+0:37:48.941 --> 0:37:55.221
+Luis Escobar
+In regards to like the telehealth is, do you guys already have some technology that you're using?
+0:37:57.831 --> 0:37:59.711
+Basement
+It's not not good.
+0:37:59.751 --> 0:38:1.111
+Basement
+It needs a revamp for sure.
+0:38:1.111 --> 0:38:3.111
+Basement
+We're using teams for it anyways.
+0:38:3.151 --> 0:38:13.431
+Basement
+It's a lot of manual steps and, but if we have it, it's available we we we really do need to find an integrated EMR.
+0:38:15.151 --> 0:38:15.791
+Basement
+For telehealth.
+0:38:17.551 --> 0:38:18.231
+Basement
+Or you could save.
+0:38:19.191 --> 0:38:21.631
+Basement
+Just take a better EMR overall.
+0:38:23.191 --> 0:38:26.951
+Basement
+That can support telehealth and or brick and mortar and or aesthetics.
+0:38:27.381 --> 0:38:28.461
+Basement
+You know, I mean.
+0:38:30.311 --> 0:38:32.471
+Basement
+That that, that would be ideal.
+0:38:34.271 --> 0:38:34.591
+Luis Escobar
+OK.
+0:38:34.591 --> 0:38:41.31
+Luis Escobar
+I'll do some research, but is there any like, you know, industry leaders like at the HubSpot of EM Rs?
+0:38:39.941 --> 0:38:47.661
+Basement
+Yeah. So so like there there's a EMR called healthy healthy.
+0:38:49.71 --> 0:38:55.751
+Basement
+That is primarily for telehealth, but it does AI scribe it does.
+0:38:55.751 --> 0:38:59.711
+Basement
+I mean, it's apparently extremely fluid.
+0:39:1.871 --> 0:39:3.111
+Basement
+Very good.
+0:39:4.421 --> 0:39:5.461
+Luis Escobar
+Yeah, yeah.
+0:39:5.151 --> 0:39:8.951
+Basement
+EMR for telehealth. So we've also looked at.
+0:39:9.341 --> 0:39:14.781
+Basement
+E Clinical Works mod Med patient now practice Q.
+0:39:17.351 --> 0:39:17.911
+Basement
+Zenote.
+0:39:21.391 --> 0:39:31.231
+Basement
+There was one one of the a lot of the a lot of the biggest draw draw drawbacks are the fact that they're not open source.
+0:39:31.231 --> 0:39:35.991
+Basement
+Right. I mean, they're they're not really, we we we don't have any that.
+0:39:35.991 --> 0:39:38.311
+Basement
+Yeah, that was API was just.
+0:39:38.701 --> 0:39:40.861
+Basement
+Being able to migrate over all of our data.
+0:39:42.391 --> 0:39:50.631
+Basement
+Into one of these systems and then just be able to extract data, yeah. And then if we were ever to move away again, to be able to get all that back out, I don't know.
+0:39:50.631 --> 0:40:1.831
+Basement
+Yeah, well, but. But also if we designed our own app, it would need to be able to to update and or extract data from it, right?
+0:40:1.831 --> 0:40:7.831
+Basement
+I mean, so, so. So I think some of those.
+0:40:8.181 --> 0:40:10.981
+Basement
+Some of those Emrs were very closed.
+0:40:12.431 --> 0:40:15.71
+Basement
+You know, they, they they didn't have a lot of it.
+0:40:15.311 --> 0:40:16.431
+Basement
+But I connections correct.
+0:40:16.871 --> 0:40:23.871
+Basement
+Yeah, I mean, well, most of them had pretty robust API connections. It was just like.
+0:40:25.591 --> 0:40:33.191
+Basement
+Some of those that did either didn't have, like a lab integration or you prescribing integration built in or.
+0:40:34.821 --> 0:40:35.941
+Basement
+Well, there there was.
+0:40:35.941 --> 0:40:38.941
+Basement
+I don't think there was more.
+0:40:38.941 --> 0:40:42.781
+Basement
+It was more so a concern about getting it all migrated over.
+0:40:44.351 --> 0:41:1.511
+Basement
+We weren't really thinking about an app at that time, so that wasn't really a compound, but, but we were thinking about Pavlo, right, and and being able to because of the custom LabCorp and like the integration we have with LabCorp Open Dell.
+0:41:3.541 --> 0:41:9.981
+Luis Escobar
+No, the fact that you guys have everything you know in your own private database is huge.
+0:41:9.981 --> 0:41:13.61
+Luis Escobar
+Actually it gives a lot of freedom to what we can do.
+0:41:13.381 --> 0:41:26.701
+Luis Escobar
+I think I'm gonna do, you know, some research on this. What these guys are are doing on their end and and how we can either maybe utilize one of the ones you recommended or a new one or try to emulate what they're doing, right, we we don't necess.
+0:41:27.141 --> 0:41:29.341
+Luis Escobar
+We probably don't need all the bells and whistles.
+0:41:30.151 --> 0:41:33.351
+Luis Escobar
+They usually over, you know, fill it with a bunch of features that we don't need.
+0:41:35.181 --> 0:41:40.981
+Basement
+That's the only thing about open dental, too, is it's like $650 a month for all.
+0:41:41.21 --> 0:41:42.461
+Basement
+Or yeah, it's super cheap.
+0:41:42.621 --> 0:41:44.101
+Basement
+Yeah, it's it's very cheap.
+0:41:44.851 --> 0:41:45.851
+Luis Escobar
+Yeah, yeah.
+0:41:46.381 --> 0:41:57.701
+Basement
+Compared to the alternatives and it required and it's like just a. It's just a few database tables, basically pieced together in the back end. Very easy to like.
+0:41:57.701 --> 0:42:0.61
+Basement
+You just set up AI agent loose on it and.
+0:42:0.891 --> 0:42:1.451
+Luis Escobar
+Exactly.
+0:42:2.671 --> 0:42:6.911
+Basement
+So what was I gonna say, chip?
+0:42:8.471 --> 0:42:26.191
+Basement
+Yeah, a lot of the Emrs, the bigger ones, are really meant for for like medical offices that take insurance. So that there's a lot of billing and coding that we don't need.
+0:42:26.271 --> 0:42:28.551
+Basement
+So, so, so you end up paying for.
+0:42:29.71 --> 0:42:29.271
+Luis Escobar
+Mm hmm.
+0:42:29.271 --> 0:42:29.831
+Basement
+A lot of that.
+0:42:31.631 --> 0:42:31.831
+Basement
+Technology.
+0:42:32.301 --> 0:42:33.701
+Basement
+That you really never use.
+0:42:34.341 --> 0:42:35.181
+Luis Escobar
+Mm hmm mm hmm.
+0:42:35.791 --> 0:42:40.231
+Basement
+And they're built for Staffs that just don't have the technical expertise to build in different plugins and stuff.
+0:42:40.231 --> 0:42:42.151
+Basement
+They just be ready right out-of-the-box.
+0:42:42.671 --> 0:42:45.591
+Basement
+Like but without probably the flexibility.
+0:42:44.131 --> 0:42:44.531
+Luis Escobar
+I got.
+0:42:47.441 --> 0:42:47.881
+Luis Escobar
+Gotcha.
+0:42:51.261 --> 0:42:53.671
+Luis Escobar
+So yeah, I I did receive.
+0:42:53.671 --> 0:42:53.681
+Luis Escobar
+I.
+0:42:53.681 --> 0:42:56.421
+Luis Escobar
+I believe your e-mail in regards to getting access to the database.
+0:42:58.111 --> 0:43:2.351
+Luis Escobar
+I'm gonna engage on that probably tomorrow at the earliest.
+0:43:3.991 --> 0:43:18.311
+Luis Escobar
+Right. Tonight, I'm gonna get that. You know, initial deployment of of the staging website. So that start looking at something that's actually more in line with what you know the the 1.0 version is gonna be.
+0:43:19.991 --> 0:43:26.831
+Luis Escobar
+From what I'm getting, I think we wanna go with that light. You know, design that sophisticated luxury approach.
+0:43:30.591 --> 0:43:38.951
+Luis Escobar
+We want to, you know, use some of the takeaways from life force in, in terms of like the space and the less is more right.
+0:43:38.951 --> 0:43:42.791
+Luis Escobar
+They're not saying too much, but they're saying a lot, especially with the with the imagery.
+0:43:44.991 --> 0:43:52.431
+Luis Escobar
+So yeah, if I can get access to the Shutterstock, I'll start. You know, going in there, picking out a bunch of winners.
+0:43:52.711 --> 0:43:58.431
+Luis Escobar
+I know we wanna, you know, get our own imagery done and shot and we can and we should.
+0:43:58.551 --> 0:44:1.751
+Luis Escobar
+But for sure you know for the initial start, we'll.
+0:44:2.861 --> 0:44:4.501
+Luis Escobar
+Try to stop would be more than sufficient.
+0:44:6.331 --> 0:44:13.331
+Basement
+Do you think that I was chatting with our graphic designer for this? Do you think that Shutterstock is the best?
+0:44:16.271 --> 0:44:34.551
+Basement
+Option we I was looking through life force their Instagram and I like so many things about it. But one of the things when they post like reels I don't know who the woman is. It's the blonde woman in that picture right there. But she'll make like selfie style.
+0:44:21.511 --> 0:44:21.711
+Luis Escobar
+Mm hmm.
+0:44:34.551 --> 0:44:34.871
+Basement
+Videos.
+0:44:35.181 --> 0:44:46.781
+Basement
+In the cover photos that they use, they're pretty much all stock from what I can assume, and they look really nice. But do you think that they're getting those from Shutterstock?
+0:44:46.821 --> 0:44:54.741
+Basement
+Because when we use stock photos, they feel very stock photo and they're not really doing what we want them to do.
+0:44:55.341 --> 0:44:58.501
+Basement
+So we're kind of at a point right now.
+0:44:55.441 --> 0:44:56.41
+Luis Escobar
+I hear you.
+0:44:58.501 --> 0:44:59.861
+Basement
+Is there a higher level?
+0:45:1.71 --> 0:45:5.111
+Basement
+Subscription maybe. I think we have the full access to everything.
+0:45:5.301 --> 0:45:21.111
+Basement
+But it's just like the people in the photos that we see are just not what we would want to portray on anything or they just look super staged where like the photos, I see them use look real and maybe they're taking those photos. I would be surprised if.
+0:45:20.201 --> 0:45:20.361
+Brian Hyatt
+OK.
+0:45:21.111 --> 0:45:24.101
+Basement
+They are, but I just didn't know your opinion on that.
+0:45:24.781 --> 0:45:33.221
+Luis Escobar
+There's a few different, you know, really good service providers even like Getty getting images as a subscription.
+0:45:33.221 --> 0:45:34.741
+Luis Escobar
+That's sometimes really good.
+0:45:36.791 --> 0:45:40.671
+Luis Escobar
+There's another one called a stack diary.
+0:45:43.231 --> 0:45:48.271
+Luis Escobar
+I'll send a few links on the ones I think we can get some really high quality content from.
+0:45:49.241 --> 0:45:49.561
+Basement
+OK.
+0:45:50.71 --> 0:45:50.911
+Luis Escobar
+Yeah, yeah.
+0:45:50.911 --> 0:45:52.871
+Luis Escobar
+So it doesn't have to be shorter stock.
+0:45:53.811 --> 0:45:54.291
+Basement
+OK.
+0:45:54.451 --> 0:45:59.851
+Basement
+Yeah, they have a lot of stuff, but I feel like half of their stuff isn't good, so.
+0:45:54.761 --> 0:45:54.961
+Luis Escobar
+Mm hmm.
+0:46:1.131 --> 0:46:3.931
+Luis Escobar
+Yeah. So it depends on, I think the niche for sure.
+0:46:2.311 --> 0:46:2.471
+Basement
+Yeah.
+0:46:3.931 --> 0:46:5.531
+Luis Escobar
+Yeah, some of it is cringe.
+0:46:5.971 --> 0:46:7.331
+Basement
+Yeah, absolutely.
+0:46:8.191 --> 0:46:8.511
+Luis Escobar
+Yeah.
+0:46:10.821 --> 0:46:13.301
+Luis Escobar
+Alright, a film supply.
+0:46:13.301 --> 0:46:14.341
+Luis Escobar
+That's another good one.
+0:46:15.911 --> 0:46:19.31
+Luis Escobar
+It's like high end cinema type like cinematography.
+0:46:19.441 --> 0:46:19.921
+Basement
+Yeah.
+0:46:24.431 --> 0:46:26.231
+Luis Escobar
+I wanted to also ask about.
+0:46:27.911 --> 0:46:28.31
+Luis Escobar
+The.
+0:46:32.101 --> 0:46:34.541
+Luis Escobar
+The socials. Ted. I saw your e-mail.
+0:46:35.421 --> 0:46:35.621
+Basement
+Mm hmm.
+0:46:36.231 --> 0:46:37.991
+Luis Escobar
+Here you sent a few of these are already.
+0:46:40.591 --> 0:46:44.351
+Luis Escobar
+So in your official, in your aesthetics, in your optimal health.
+0:46:45.871 --> 0:46:46.191
+Luis Escobar
+Official in new.
+0:46:49.761 --> 0:46:50.921
+Luis Escobar
+Last legacy account.
+0:46:54.431 --> 0:46:55.351
+Luis Escobar
+The new official.
+0:47:0.181 --> 0:47:7.141
+Luis Escobar
+Is someone actively in charge of, you know, posting every day and engaging with with the audience?
+0:47:8.411 --> 0:47:9.51
+Basement
+Yes.
+0:47:10.991 --> 0:47:13.151
+Basement
+That should not have zero post.
+0:47:14.701 --> 0:47:15.981
+Basement
+We just looked at that yesterday.
+0:47:17.471 --> 0:47:18.991
+Basement
+That's X, yeah.
+0:47:19.21 --> 0:47:21.981
+Luis Escobar
+That's X Instagram.
+0:47:22.881 --> 0:47:25.161
+Basement
+Yeah. We just looked at that yesterday though.
+0:47:26.671 --> 0:47:28.351
+Basement
+Yeah, but did I look at the post?
+0:47:28.471 --> 0:47:30.111
+Basement
+Yeah, we post on it three times a week.
+0:47:31.751 --> 0:47:31.871
+Luis Escobar
+Aye.
+0:47:31.791 --> 0:47:36.391
+Basement
+There should be post on there. I I saw them like yesterday when we were scrolling through.
+0:47:36.431 --> 0:47:39.151
+Basement
+They don't get any engagement, but there's posts on there.
+0:47:40.131 --> 0:47:43.131
+Luis Escobar
+No, it's fine. Yeah, basically, yeah.
+0:47:41.891 --> 0:47:44.771
+Basement
+I just don't know why it's I haven't posted yet, but.
+0:47:45.621 --> 0:47:50.741
+Luis Escobar
+Gotcha. Yeah, we'll you know, we're going to refine the whole social media strategy as well.
+0:47:52.551 --> 0:47:57.391
+Luis Escobar
+I was mentioning to Brian like you know, we want to create like a content creation machine, right?
+0:47:57.391 --> 0:48:6.111
+Luis Escobar
+So like we we we have maybe a week or or a few days out of the month where where we generate or produce a lot of ideas, right.
+0:47:57.501 --> 0:47:57.861
+Basement
+Yeah.
+0:48:6.111 --> 0:48:13.591
+Luis Escobar
+And we we hire the actors or we get the scenes shot internally or or whatever it takes.
+0:48:14.201 --> 0:48:20.881
+Luis Escobar
+And but then we we have, you know, 3-4, six weeks of content that that we can rely on, right.
+0:48:21.281 --> 0:48:22.481
+Luis Escobar
+So we're always like.
+0:48:23.991 --> 0:48:25.831
+Luis Escobar
+We always have an abundance of content to use.
+0:48:27.471 --> 0:48:28.871
+Luis Escobar
+That's like our failure content.
+0:48:28.871 --> 0:48:31.711
+Luis Escobar
+That's how we get the algorithm to to pay attention to us.
+0:48:32.71 --> 0:48:43.71
+Luis Escobar
+Then there's there's the organic stuff that's like more, you know, a little more thoughtful and and and and inline with. Maybe the current events, right?
+0:48:43.991 --> 0:48:44.551
+Basement
+Yeah.
+0:48:46.441 --> 0:48:49.111
+Luis Escobar
+What was that trend the other day? Oh.
+0:48:49.661 --> 0:48:51.981
+Luis Escobar
+There's always these trends on Instagram, right?
+0:48:51.981 --> 0:48:57.781
+Luis Escobar
+So you know, if we see something that's catching on, you know, just Ashton hag with the, with the ice.
+0:48:58.551 --> 0:48:59.71
+Basement
+Thank you.
+0:48:59.551 --> 0:49:1.431
+Luis Escobar
+Yeah, yeah, you know.
+0:49:1.421 --> 0:49:5.61
+Basement
+Yeah, and one that I sent to you, I think.
+0:49:6.711 --> 0:49:7.311
+Basement
+Sprayed it off.
+0:49:7.311 --> 0:49:8.511
+Basement
+Yeah, I like that one.
+0:49:8.631 --> 0:49:9.431
+Basement
+I thought that was cute.
+0:49:9.471 --> 0:49:10.791
+Basement
+I mean, yeah, that was cool.
+0:49:11.851 --> 0:49:17.451
+Luis Escobar
+So, like we, we should always like have the flexibility like to jump on those trends, right.
+0:49:17.451 --> 0:49:22.891
+Luis Escobar
+Because they do build a buzz and we we we get an influx of, you know, new eyeballs or whatever.
+0:49:25.461 --> 0:49:35.941
+Luis Escobar
+So a combination of always having you know constant content, you know ready to go and then always being you know on the lookout for for fresh new ideas that are gonna hopefully go viral.
+0:49:37.1 --> 0:49:37.481
+Basement
+Yeah.
+0:49:40.151 --> 0:49:42.351
+Luis Escobar
+And then these these holidays.
+0:49:40.261 --> 0:49:41.941
+Basement
+Right, right now.
+0:49:43.551 --> 0:49:50.151
+Basement
+Right, right. Right now the social is broken by, you know, health versus aesthetics.
+0:49:50.751 --> 0:49:51.511
+Basement
+I don't mean.
+0:49:53.421 --> 0:50:4.941
+Basement
+I don't necessarily mean against like me, but but that that that's the way we've got it broken out, one of the debates, one of the debates have been, you know, know your audience.
+0:49:59.751 --> 0:49:59.951
+Luis Escobar
+Mm hmm.
+0:50:4.981 --> 0:50:6.421
+Basement
+What voice you use?
+0:50:6.421 --> 0:50:10.701
+Basement
+Color emotion, you know, is it better that you break it?
+0:50:11.981 --> 0:50:21.181
+Basement
+Gender. You know, a new woman, a new man. You know that does. Is that better or worse than breaking it by service?
+0:50:22.351 --> 0:50:22.871
+Basement
+So.
+0:50:23.851 --> 0:50:24.531
+Luis Escobar
+We.
+0:50:24.141 --> 0:50:25.101
+Basement
+On a social.
+0:50:25.951 --> 0:50:26.991
+Luis Escobar
+Yeah. I mean, we have to.
+0:50:27.511 --> 0:50:36.431
+Luis Escobar
+It depends on on you know if we have like an abundance of well-rounded content that we can cater to all the niches in in in one channel.
+0:50:37.941 --> 0:50:39.461
+Luis Escobar
+No. If not you know it.
+0:50:39.741 --> 0:50:43.141
+Luis Escobar
+Maybe it makes more sense to build our our foundation.
+0:50:43.141 --> 0:50:55.821
+Luis Escobar
+Get a get a strong community of only men, only females, and you know there is definitely a higher chance that they're gonna follow an account. That's just all all women, right?
+0:50:55.821 --> 0:50:57.101
+Luis Escobar
+Speaking about Women's Health.
+0:51:3.871 --> 0:51:15.991
+Luis Escobar
+I think you know the the, the a new life idea. Me and Brian were saying earlier like I was mentioning to him like it sound it sounds a little like a new life, a new life, a new life, a new life.
+0:51:18.591 --> 0:51:22.231
+Luis Escobar
+We can play with that. I'd you know those those word games.
+0:51:23.201 --> 0:51:23.521
+Basement
+Right.
+0:51:38.501 --> 0:51:43.261
+Luis Escobar
+Also, I just want to touch upon the the the e-commerce side.
+0:51:43.261 --> 0:51:45.661
+Luis Escobar
+I know you have a Shopify website, right?
+0:51:46.521 --> 0:51:49.441
+Basement
+Yeah, neither. We actually have two, I think.
+0:51:50.911 --> 0:51:55.311
+Basement
+And neither are really being used. Much to my knowledge, right?
+0:51:58.711 --> 0:52:2.151
+Basement
+Somebody bought a gift card through there somehow. I don't even know.
+0:52:4.181 --> 0:52:4.941
+Basement
+So no more.
+0:52:4.941 --> 0:52:5.901
+Basement
+I mean, we're not using it.
+0:52:6.681 --> 0:52:7.601
+Luis Escobar
+What's the domain?
+0:52:9.561 --> 0:52:11.471
+Renzo Mogrovejo
+Shop at eny.co.
+0:52:12.201 --> 0:52:12.361
+Luis Escobar
+Stop.
+0:52:15.731 --> 0:52:18.331
+Luis Escobar
+OK. So I mean, what was the idea?
+0:52:18.331 --> 0:52:21.571
+Luis Escobar
+Here are. Is this still the intention to have also?
+0:52:23.31 --> 0:52:26.471
+Luis Escobar
+This e-commerce out of CART shopping experience.
+0:52:30.231 --> 0:52:43.231
+Renzo Mogrovejo
+That was the previous website we migrated almost all services to to indian.com and that was the preview in India that Co site.
+0:52:33.841 --> 0:52:34.41
+Luis Escobar
+Mm hmm.
+0:52:43.311 --> 0:52:46.231
+Renzo Mogrovejo
+So we changed the the domain.
+0:52:47.41 --> 0:52:47.241
+Luis Escobar
+Mm hmm.
+0:52:47.951 --> 0:52:50.311
+Renzo Mogrovejo
+And we set it like show that in.
+0:52:52.641 --> 0:52:52.801
+Luis Escobar
+OK.
+0:52:52.911 --> 0:52:53.911
+Renzo Mogrovejo
+Just not close down.
+0:52:54.951 --> 0:53:4.111
+Luis Escobar
+But right now, like if I'm a customer that I like, this new bio serum firm like, what's the best way for me to get it again or?
+0:53:6.361 --> 0:53:8.721
+Luis Escobar
+Restock it for myself.
+0:53:9.471 --> 0:53:13.871
+Basement
+Almost all of our products are sold.
+0:53:15.351 --> 0:53:19.751
+Basement
+Brick and mortar, you know, so they're all inventoried at the offices.
+0:53:21.471 --> 0:53:25.831
+Basement
+But but, but that doesn't mean that it has to be like that, I mean.
+0:53:27.471 --> 0:53:36.31
+Basement
+They're all medical grade. So. So you can't just go online and buy, buy, buy these anywhere. They have to be sold by.
+0:53:38.671 --> 0:53:39.271
+Basement
+A medical.
+0:53:39.581 --> 0:53:41.741
+Basement
+Facility, I guess if you will so.
+0:53:42.941 --> 0:53:43.501
+Luis Escobar
+Got it.
+0:53:45.111 --> 0:53:56.871
+Luis Escobar
+Yeah, I'm just thinking like, you know, if I log into my members portal and I, you know I can click a button that says I I need a renew my my serum or.
+0:53:58.581 --> 0:54:4.501
+Luis Escobar
+The you know, I I come in to pick it up or or or I set the appointment to get the prescription.
+0:54:4.901 --> 0:54:10.781
+Luis Escobar
+But essentially, yeah, do we wanna incorporate the entire product line, every single physical product?
+0:54:10.781 --> 0:54:15.101
+Luis Escobar
+You guys, you know, use across all the locations.
+0:54:18.751 --> 0:54:18.791
+Basement
+I.
+0:54:18.791 --> 0:54:20.471
+Basement
+I don't see personally. Why not.
+0:54:21.71 --> 0:54:22.551
+Basement
+Just just because it would.
+0:54:22.631 --> 0:54:28.951
+Basement
+I mean, at the very least, you have one purchase, you know it's extra 100 few, $100 in revenue.
+0:54:30.391 --> 0:54:32.231
+Basement
+Unless you're just cluttering up the the page.
+0:54:33.521 --> 0:54:37.951
+Luis Escobar
+No, Sir. It makes a big difference if we have a card on file or not, right?
+0:54:38.741 --> 0:54:41.261
+Luis Escobar
+So the conversion rate changes drastically.
+0:54:38.991 --> 0:54:39.471
+Basement
+Yeah.
+0:54:41.261 --> 0:54:46.861
+Luis Escobar
+Actually, you know, if you were asking someone to take out their credit card or sign up again, right?
+0:54:46.901 --> 0:54:54.741
+Luis Escobar
+But if they already have a username and a password and their credit card was already put on file a long time ago and all they got to do is.
+0:54:53.351 --> 0:54:55.191
+Basement
+Yeah, but, but but.
+0:54:57.191 --> 0:54:58.71
+Basement
+We we could also add.
+0:55:0.351 --> 0:55:4.71
+Basement
+What? What Apple Pay here too?
+0:55:3.531 --> 0:55:3.731
+Luis Escobar
+Mm hmm.
+0:55:4.71 --> 0:55:6.151
+Basement
+So if you're just a guest.
+0:55:5.461 --> 0:55:5.941
+Luis Escobar
+Yeah.
+0:55:8.231 --> 0:55:10.991
+Basement
+We we can add Apple Pay as a checkout.
+0:55:11.351 --> 0:55:15.71
+Basement
+I love Apple Pay. I feel like having the products on there too.
+0:55:12.11 --> 0:55:13.651
+Luis Escobar
+Yeah, yeah.
+0:55:15.111 --> 0:55:24.711
+Basement
+We used to have like the supplements if we like really got telehealth going, I feel like that would be a good place for. Yeah, I mean it, it was never meant to be.
+0:55:25.221 --> 0:55:48.871
+Basement
+Be a popular visited site but but. But I mean we would actually pick a prop product or service from Shopify and we would advertise that so so so it more more or less gave us a storefront to do that from that, that that in my mind I mean.
+0:55:46.931 --> 0:55:47.451
+Luis Escobar
+I gotcha.
+0:55:48.871 --> 0:55:51.581
+Basement
+Like we had membership we we were selling.
+0:55:53.151 --> 0:55:54.151
+Basement
+Memberships.
+0:55:54.921 --> 0:56:1.41
+Basement
+Through Shopify, before the way that we do it now, however we do it now.
+0:56:1.321 --> 0:56:8.441
+Basement
+So we, you know, we were selling the assessment on you know on Shopify and then we we would add.
+0:56:5.871 --> 0:56:6.71
+Luis Escobar
+Mm hmm.
+0:56:11.871 --> 0:56:18.471
+Basement
+Discount code. You know if we were running a special offer, that kind of thing so.
+0:56:17.951 --> 0:56:18.351
+Luis Escobar
+Mm hmm mm hmm.
+0:56:21.651 --> 0:56:24.51
+Basement
+This is kind of not the most important thing.
+0:56:24.51 --> 0:56:31.531
+Basement
+I'm just curious, like when it comes to the product page for like the physical things like the supplements and skin care.
+0:56:33.511 --> 0:56:42.551
+Basement
+Would AI be able to like enhance those like the photos of the supplement bottles? And like the photos of the skin care?
+0:56:43.151 --> 0:56:45.351
+Basement
+Like the photos that we have on there now.
+0:56:43.881 --> 0:56:44.561
+Luis Escobar
+Yeah.
+0:56:47.111 --> 0:56:50.831
+Basement
+Those, I think those are from their site, but of the skin care.
+0:56:51.181 --> 0:56:56.301
+Basement
+Eris from like our neocutis like portal that they give us access to.
+0:56:57.221 --> 0:57:5.701
+Basement
+So yeah, just curious because as the pictures as they are right now are not worth it to have on a product page just because they're not.
+0:57:0.831 --> 0:57:1.231
+Luis Escobar
+No.
+0:57:7.91 --> 0:57:8.291
+Luis Escobar
+Oh yeah. Good, good point.
+0:57:8.291 --> 0:57:8.771
+Luis Escobar
+I agree.
+0:57:8.851 --> 0:57:26.291
+Luis Escobar
+I mean, yeah, every aspect of of every, you know, the way we're presenting the product, it should be like really well presented on like a high quality image that that if it looks like it's like nobody put effort into it, people don't believe in it like.
+0:57:26.301 --> 0:57:27.301
+Basement
+Yeah, for sure.
+0:57:27.951 --> 0:57:34.991
+Luis Escobar
+Yeah. So yeah, for sure, we'll we'll definitely try to like improve the images that need improvement with with AI.
+0:57:39.971 --> 0:57:48.251
+Luis Escobar
+Is is there. Also is are all those images like also stored in our in Dropbox?
+0:57:49.81 --> 0:57:51.481
+Basement
+Of the like supplements and skin care.
+0:57:51.641 --> 0:57:52.241
+Luis Escobar
+Yeah.
+0:57:53.151 --> 0:57:54.831
+Basement
+Probably not, no.
+0:57:54.831 --> 0:57:59.231
+Basement
+I don't actually know where the Renzo do you know where those photos of this?
+0:58:0.31 --> 0:58:2.631
+Basement
+Oh well, you probably didn't even do that part.
+0:58:2.631 --> 0:58:4.871
+Basement
+I don't know where the supplement photos came from.
+0:58:4.871 --> 0:58:8.831
+Basement
+Did you turn these into black and white?
+0:58:9.551 --> 0:58:11.311
+Basement
+Was this your idea?
+0:58:11.791 --> 0:58:13.31
+Basement
+It's been like that for a while.
+0:58:14.511 --> 0:58:15.351
+Basement
+I know you hate it.
+0:58:15.431 --> 0:58:16.351
+Basement
+Well, no, no, no.
+0:58:16.711 --> 0:58:21.151
+Basement
+I like it for certain things I I really don't like black and white.
+0:58:21.661 --> 0:58:30.541
+Basement
+When you're bringing things to life, you know, I mean, I think black and white has A to me, you're missing out on on.
+0:58:30.541 --> 0:58:40.341
+Basement
+I mean color is life, you know, to me, and I know these videos with color. And to me it'd be much more compelling, but.
+0:58:40.971 --> 0:58:41.171
+Luis Escobar
+Mm hmm.
+0:58:42.491 --> 0:58:49.171
+Basement
+But that's a design thing. Like, right? I mean, that's just there's a lot of things wrong with the this website.
+0:58:43.121 --> 0:58:43.481
+Luis Escobar
+Yeah.
+0:58:49.171 --> 0:58:52.491
+Basement
+So that was kinda just. That's not even meant to be on every page.
+0:58:52.491 --> 0:58:56.931
+Basement
+That was just kind of a, you know, that's on, like the aesthetics home page.
+0:58:57.651 --> 0:58:57.891
+Luis Escobar
+Uh H.
+0:58:58.871 --> 0:59:1.191
+Basement
+So yeah, but I get what you're saying.
+0:59:1.111 --> 0:59:1.471
+Luis Escobar
+All good.
+0:59:1.471 --> 0:59:3.991
+Luis Escobar
+Yeah, we're. Yeah, we're gonna cover all that.
+0:59:2.911 --> 0:59:6.671
+Basement
+But I can look for those supplement in skin care photos for you.
+0:59:6.671 --> 0:59:8.591
+Basement
+I don't really know where to find them but.
+0:59:7.21 --> 0:59:7.701
+Luis Escobar
+Yeah, please.
+0:59:7.701 --> 0:59:8.621
+Luis Escobar
+That helps.
+0:59:9.981 --> 0:59:14.61
+Luis Escobar
+Yeah, all all the imagery you can provide that that really helps.
+0:59:15.61 --> 0:59:16.101
+Luis Escobar
+Just to move things along.
+0:59:15.311 --> 0:59:16.71
+Basement
+Why don't?
+0:59:16.71 --> 0:59:18.511
+Basement
+Why don't I send you some notes as well?
+0:59:18.881 --> 0:59:19.41
+Brian Hyatt
+OK.
+0:59:19.911 --> 0:59:29.791
+Basement
+On you know the the 92nd infomercial pre pre pre flight video that tells our brand story etc etc.
+0:59:30.921 --> 0:59:31.601
+Luis Escobar
+Please do.
+0:59:31.751 --> 0:59:35.191
+Basement
+I could start start to give you some insight into that.
+0:59:36.951 --> 0:59:37.271
+Basement
+To where?
+0:59:37.311 --> 0:59:41.911
+Basement
+Maybe we can have AI do a podcast script or whatever that we can follow.
+0:59:46.701 --> 0:59:48.741
+Luis Escobar
+And and do we have like?
+0:59:51.71 --> 0:59:51.271
+Luis Escobar
+Video.
+0:59:51.981 --> 1:0:5.701
+Luis Escobar
+Recording of this 100 biomarker health assessment. Like I'm I'm, I'm picturing like like AB roll like a a 22nd slow motion B roll. But basically this girl and this guy were just video.
+0:59:56.851 --> 0:59:57.771
+Basement
+Yeah, we.
+1:0:9.381 --> 1:0:14.101
+Basement
+I would say there's some stuff that Gabo did when he was here.
+1:0:14.101 --> 1:0:14.821
+Basement
+It's not.
+1:0:14.821 --> 1:0:19.861
+Basement
+No, there's what she did with me. Like, I mean, I will sit in the chair.
+1:0:19.861 --> 1:0:24.141
+Basement
+I mean, you know, I mean, I know she's filmed people.
+1:0:24.141 --> 1:0:26.271
+Basement
+Yeah, I mean that, that's what I'm saying.
+1:0:26.271 --> 1:0:29.61
+Basement
+I don't know where all this video that she's taken exists.
+1:0:29.741 --> 1:0:31.981
+Basement
+It is all in Dropbox.
+1:0:30.471 --> 1:0:30.871
+Luis Escobar
+Mm hmm mm hmm.
+1:0:33.591 --> 1:0:33.671
+Basement
+OK.
+1:0:33.791 --> 1:0:35.551
+Basement
+Well then, yes, I I we.
+1:0:35.671 --> 1:0:37.511
+Basement
+I didn't know that we had that, but we do.
+1:0:37.871 --> 1:0:39.311
+Basement
+I was thinking of the stuff that Gabriel.
+1:0:39.741 --> 1:0:40.421
+Basement
+On the phone.
+1:0:40.421 --> 1:0:43.981
+Basement
+And that was just, you know.
+1:0:44.21 --> 1:0:45.661
+Basement
+No, you don't even need to take a look at those.
+1:0:47.831 --> 1:0:48.551
+Basement
+But yeah.
+1:0:48.441 --> 1:0:49.281
+Luis Escobar
+Alright, perfect.
+1:0:49.281 --> 1:0:52.841
+Luis Escobar
+Perfect. That definitely will just keep building up on that.
+1:0:53.861 --> 1:0:54.301
+Basement
+This week.
+1:0:54.551 --> 1:0:55.231
+Luis Escobar
+Solid.
+1:0:56.881 --> 1:1:8.401
+Basement
+But I mean, we have tons of, I don't know how organized right where we see Pam or Doctor Reyes or Vivien, we could definitely have instead of some stock photography.
+1:1:8.521 --> 1:1:14.1
+Basement
+Doctor Who, we could definitely have one of our yeah providers there.
+1:1:14.1 --> 1:1:21.881
+Basement
+Yeah. I think one also issue that we cannot have with some of the photos that we have is our providers offices aren't the most like.
+1:1:22.991 --> 1:1:26.671
+Basement
+You know they have, like personal photos and and stuff like that.
+1:1:27.501 --> 1:1:35.341
+Basement
+I think for the most part, we when we would shoot photos or videos or whatever, we would move a lot of the stuff out of the way.
+1:1:35.841 --> 1:1:36.41
+Luis Escobar
+Mm hmm.
+1:1:37.151 --> 1:1:47.191
+Basement
+But I think that like from a brick and mortar point of view, we could enhance their offices a little bit to make it easier for us to get content without having to rearrange the room first.
+1:1:47.951 --> 1:1:56.231
+Basement
+That's kind of like a hard thing. I don't know. Like where we go with that because also it's their space that they work in every day. Yeah, but.
+1:1:48.241 --> 1:1:48.561
+Luis Escobar
+For sure.
+1:1:56.661 --> 1:1:58.61
+Basement
+We can definitely.
+1:1:58.341 --> 1:2:10.821
+Basement
+I I will definitely we we can just make it a company policy like I mean honestly being German like things have a place.
+1:2:10.891 --> 1:2:12.411
+Basement
+Less is more.
+1:2:12.451 --> 1:2:17.571
+Basement
+I mean like, I'm a very **** kind of like that, that that's so so.
+1:2:19.541 --> 1:2:21.621
+Basement
+I can easily make that a thing, I mean.
+1:2:21.741 --> 1:2:22.581
+Luis Escobar
+Mm hmm mm hmm.
+1:2:23.581 --> 1:2:25.461
+Basement
+Yeah, I mean, things have to look clean.
+1:2:25.461 --> 1:2:27.541
+Basement
+They have to look well positioned, yeah.
+1:2:27.901 --> 1:2:31.461
+Basement
+And you have like, a uniform, like everyone's office looks the same.
+1:2:28.711 --> 1:2:29.71
+Luis Escobar
+Yeah.
+1:2:30.541 --> 1:2:30.661
+Luis Escobar
+But.
+1:2:31.501 --> 1:2:40.981
+Basement
+Yeah. And then I think it would make content a lot easier 'cause, you know, we won't have to say, oh, well, there's a picture of, you know, Pam's daughter in the background or.
+1:2:36.101 --> 1:2:36.301
+Luis Escobar
+Mm hmm.
+1:2:41.411 --> 1:2:49.931
+Basement
+I mean, if you step into our office, we have the same lighting, the same chandeliers, the same Scots, the same colors, the same desk.
+1:2:50.171 --> 1:2:52.571
+Basement
+I mean so. So I mean we don't.
+1:2:53.91 --> 1:3:5.971
+Basement
+I mean to to your point, we should accentuate that, you know, and make sure we were clean in every office because that's a big a big like, you know, appeal to our in office.
+1:2:57.741 --> 1:2:58.141
+Luis Escobar
+Yeah.
+1:3:1.891 --> 1:3:2.571
+Luis Escobar
+Yeah.
+1:3:3.941 --> 1:3:4.341
+Luis Escobar
+So.
+1:3:7.101 --> 1:3:7.861
+Luis Escobar
+Especially right here.
+1:3:7.861 --> 1:3:10.61
+Luis Escobar
+This is the four step process right?
+1:3:10.61 --> 1:3:13.421
+Luis Escobar
+It's just exactly what to expect essentially, right?
+1:3:12.121 --> 1:3:12.921
+Basement
+Don't send me no.
+1:3:14.981 --> 1:3:28.421
+Luis Escobar
+You know this should be like a also like a a slow MO video like a a person on their laptop or on their computer clicking Apple Pay and signing up to enuh health like nine second video clip.
+1:3:16.491 --> 1:3:17.251
+Basement
+This is.
+1:3:26.971 --> 1:3:27.651
+Basement
+This is.
+1:3:30.91 --> 1:3:33.531
+Basement
+This is probably more of like the flow of our telehealth membership.
+1:3:34.1 --> 1:3:34.201
+Luis Escobar
+Mm hmm.
+1:3:35.101 --> 1:3:36.381
+Basement
+Oh, you're on the telehealth number, Ron.
+1:3:36.381 --> 1:3:37.381
+Basement
+Sorry, yeah.
+1:3:36.881 --> 1:3:37.801
+Luis Escobar
+I think so, yeah.
+1:3:37.381 --> 1:3:55.101
+Basement
+So it looks a little different than the in person one, just because like in person they don't start with the purchase they purchase like at their and there there's no reason to have a photo of me and Lisa and Kagan on there.
+1:3:55.101 --> 1:3:57.661
+Basement
+I mean that's that doesn't sell anybody.
+1:3:57.661 --> 1:3:59.181
+Basement
+I don't think I don't.
+1:3:59.381 --> 1:4:0.941
+Basement
+I think that that's part of.
+1:4:1.211 --> 1:4:6.251
+Basement
+Story. But I mean, I don't think that that's enough to take up space.
+1:4:5.571 --> 1:4:9.691
+Luis Escobar
+Oh, there's a there's a place on the website for that, right?
+1:4:9.811 --> 1:4:10.691
+Luis Escobar
+So you wanna?
+1:4:10.191 --> 1:4:10.591
+Basement
+Yeah.
+1:4:10.691 --> 1:4:14.211
+Luis Escobar
+Yeah. We really wanna make use of every pixel.
+1:4:14.871 --> 1:4:15.831
+Basement
+Yeah.
+1:4:15.741 --> 1:4:16.61
+Luis Escobar
+All right.
+1:4:18.811 --> 1:4:19.611
+Luis Escobar
+Yeah, I mean, right.
+1:4:19.651 --> 1:4:22.691
+Luis Escobar
+So right here I'm looking at your in person membership.
+1:4:29.221 --> 1:4:33.981
+Luis Escobar
+And so, I mean, nobody's landing on here and clicking this, right?
+1:4:30.551 --> 1:4:30.631
+Basement
+I I.
+1:4:33.501 --> 1:4:33.701
+Basement
+Don't.
+1:4:35.951 --> 1:4:38.431
+Basement
+There was one scene.
+1:4:38.431 --> 1:4:45.551
+Basement
+There are a shot where it says, you know, telehealth versus in person.
+1:4:45.591 --> 1:4:51.911
+Basement
+It's almost like we're competing with each other. You know, telehealth is at a much lower, lower price.
+1:4:56.151 --> 1:4:56.351
+Luis Escobar
+Mm hmm.
+1:4:56.521 --> 1:5:3.201
+Basement
+But but I don't like the feeling of the look of on our site or comparing to each other, you know.
+1:5:3.991 --> 1:5:4.191
+Luis Escobar
+Mm hmm.
+1:5:5.301 --> 1:5:8.741
+Basement
+Even though you you want to sell both and you wanted to to display both.
+1:5:12.31 --> 1:5:13.391
+Basement
+You know it needs to be.
+1:5:15.381 --> 1:5:16.261
+Basement
+You know, we're really pick.
+1:5:16.261 --> 1:5:19.501
+Basement
+Pick the service level that's right for you, I guess.
+1:5:19.781 --> 1:5:23.141
+Basement
+But I don't like saying what's not included.
+1:5:25.431 --> 1:5:30.231
+Basement
+Although you have to, I guess, be able to justify why you're charging more.
+1:5:31.231 --> 1:5:31.631
+Basement
+So.
+1:5:31.591 --> 1:5:32.231
+Luis Escobar
+Yeah, I know.
+1:5:32.391 --> 1:5:35.471
+Luis Escobar
+We gotta make it more make sense, right?
+1:5:37.181 --> 1:5:40.141
+Luis Escobar
+And and so look, I just made this image into a video.
+1:5:41.901 --> 1:5:42.381
+Luis Escobar
+This image.
+1:5:59.511 --> 1:6:0.231
+Basement
+How are you doing?
+1:6:2.171 --> 1:6:2.611
+Basement
+Yeah.
+1:6:3.581 --> 1:6:6.341
+Renzo Mogrovejo
+The user generated it right now.
+1:6:7.151 --> 1:6:7.871
+Luis Escobar
+Yeah, just now.
+1:6:9.11 --> 1:6:9.211
+Renzo Mogrovejo
+Wow.
+1:6:12.301 --> 1:6:17.741
+Luis Escobar
+So yeah, if I can get my hands on all the imagery you have, right, and we'll, we'll make some videos out of them.
+1:6:19.821 --> 1:6:23.701
+Luis Escobar
+It just expresses the message better. Right now I understand what.
+1:6:26.51 --> 1:6:28.851
+Luis Escobar
+Expecting maybe the getting pinched is not the best.
+1:6:31.171 --> 1:6:31.611
+Luis Escobar
+Video.
+1:6:34.141 --> 1:6:36.861
+Luis Escobar
+But yeah, that's more video as much video as we can.
+1:6:36.901 --> 1:6:38.861
+Luis Escobar
+We see life force has a bunch of video everywhere.
+1:6:40.951 --> 1:6:45.71
+Basement
+It's a small thing, but the capitalization on our page drives me crazy too.
+1:6:45.71 --> 1:6:46.31
+Basement
+I I yeah.
+1:6:47.391 --> 1:6:47.871
+Luis Escobar
+Yeah.
+1:6:54.901 --> 1:6:56.461
+Luis Escobar
+We're gonna revamp all this.
+1:6:55.31 --> 1:6:56.191
+Basement
+Random capital letters.
+1:6:57.861 --> 1:7:1.381
+Basement
+That's just random words capitalized.
+1:7:4.521 --> 1:7:5.241
+Luis Escobar
+So.
+1:7:6.971 --> 1:7:7.251
+Basement
+Hello.
+1:7:7.741 --> 1:7:10.501
+Luis Escobar
+Does each does each location right now have their own website?
+1:7:12.411 --> 1:7:13.91
+Basement
+No.
+1:7:14.341 --> 1:7:14.701
+Luis Escobar
+OK.
+1:7:15.901 --> 1:7:17.181
+Basement
+I'm speaking out of turn there.
+1:7:19.411 --> 1:7:20.651
+Luis Escobar
+No, I believe, yeah, we should get.
+1:7:23.101 --> 1:7:23.701
+Luis Escobar
+New life.
+1:7:25.341 --> 1:7:30.61
+Luis Escobar
+Springhurst.com new life for creek.com newlifelexington.com.
+1:7:34.91 --> 1:7:37.771
+Luis Escobar
+And really drive home the idea of new life, right?
+1:7:37.771 --> 1:7:43.131
+Luis Escobar
+We we want these local members right, even though they're local, we want them to go home and tell their friends.
+1:7:43.131 --> 1:7:44.931
+Luis Escobar
+Hey, you gotta download the new life app.
+1:7:51.771 --> 1:7:52.811
+Luis Escobar
+What is it?
+1:7:52.811 --> 1:7:53.11
+Luis Escobar
+It's a it's a.
+1:7:53.11 --> 1:7:57.571
+Luis Escobar
+It's not a if you want a new life, you download the new Life app.
+1:8:0.761 --> 1:8:4.681
+Luis Escobar
+We gotta start playing with these different, you know, different approaches, right?
+1:8:14.741 --> 1:8:18.501
+Luis Escobar
+I was mentioning to Brian earlier that like you know, if we really just like.
+1:8:20.391 --> 1:8:25.231
+Luis Escobar
+Work at a pretty good pace. We can have an app on the iOS store.
+1:8:26.571 --> 1:8:29.931
+Luis Escobar
+Four to six months right 1.0 version.
+1:8:32.301 --> 1:8:44.381
+Luis Escobar
+You know, maybe it doesn't have all the building features and whistles, but that's how we invite our the initial, you know, 100 Members, the friends and family, the loyal customers.
+1:8:44.381 --> 1:8:51.61
+Luis Escobar
+And then we're gonna get all the feedback we need from them in regards to like, you know what they wanna see this app do? What?
+1:8:51.461 --> 1:8:55.21
+Luis Escobar
+How they would like to see it designed or or.
+1:8:56.501 --> 1:8:56.981
+Luis Escobar
+You know what?
+1:8:57.21 --> 1:8:58.701
+Luis Escobar
+What kinds of features they would like to see?
+1:8:59.761 --> 1:9:1.161
+Luis Escobar
+So it's kind of like my my.
+1:9:15.871 --> 1:9:15.991
+Luis Escobar
+Umm.
+1:9:19.711 --> 1:9:31.551
+Luis Escobar
+The 90 minute video also, that's sorry, the 92nd video Ted or or two-minute video, however long it is, it should just be a short video that really drives home the message of who we are and what we do.
+1:9:33.61 --> 1:9:37.461
+Luis Escobar
+That's also a pretty crucial component of of the initial marketing, right?
+1:9:37.461 --> 1:9:39.221
+Luis Escobar
+It's gonna set the tone for everything else.
+1:9:44.421 --> 1:9:53.61
+Basement
+Do you see that VM like a fast-paced, fast moving energy type thing? Or is it more of a podcast?
+1:9:54.581 --> 1:9:56.421
+Basement
+Conversation or?
+1:9:54.791 --> 1:9:54.911
+Luis Escobar
+You.
+1:9:56.651 --> 1:9:59.731
+Luis Escobar
+No more high. Yeah, fast-paced.
+1:10:2.771 --> 1:10:3.891
+Luis Escobar
+Emotional triggers.
+1:10:6.531 --> 1:10:9.131
+Luis Escobar
+Borderline like.
+1:10:6.711 --> 1:10:7.71
+Basement
+Come.
+1:10:10.541 --> 1:10:11.181
+Luis Escobar
+Wow. Amazing. Like.
+1:10:11.821 --> 1:10:12.301
+Basement
+Yeah.
+1:10:13.341 --> 1:10:14.541
+Luis Escobar
+Really don't.
+1:10:14.541 --> 1:10:15.541
+Luis Escobar
+Not exaggerated, but it's it's.
+1:10:15.741 --> 1:10:18.261
+Luis Escobar
+You know, it can look away.
+1:10:20.771 --> 1:10:21.171
+Basement
+What?
+1:10:25.871 --> 1:10:27.111
+Luis Escobar
+I'm happy to help with that, right?
+1:10:27.111 --> 1:10:30.31
+Luis Escobar
+But if you can share your initial thoughts and and copyright.
+1:10:31.701 --> 1:10:32.21
+Luis Escobar
+Give you my two cents.
+1:10:33.141 --> 1:10:33.541
+Basement
+Jim.
+1:10:37.931 --> 1:10:39.971
+Basement
+There there was an there was an.
+1:10:38.81 --> 1:10:38.601
+Luis Escobar
+But yeah, I'm.
+1:10:40.611 --> 1:10:45.811
+Basement
+There there was a video that we paid to have done that announced the brand change.
+1:10:46.51 --> 1:10:47.931
+Basement
+I don't know where we put that.
+1:10:47.931 --> 1:10:52.811
+Basement
+Did you see that it was at the end of that PowerPoint presentation I sent you before we met?
+1:10:54.501 --> 1:10:58.181
+Basement
+On the very first PowerPoint, yeah, there was a drop box.
+1:10:58.181 --> 1:11:2.101
+Basement
+There was a link to it at the on the very last page or second last page I believe.
+1:11:6.21 --> 1:11:7.221
+Basement
+I don't know if that one.
+1:11:7.931 --> 1:11:12.771
+Basement
+Maybe that similar vibe, but that one mentions 25 again and Nava's logo.
+1:11:12.931 --> 1:11:22.11
+Basement
+It's different, meaning it's different but but, but it's a it's A and that that's a pretty in intense vibe.
+1:11:14.841 --> 1:11:15.41
+Luis Escobar
+Mm hmm.
+1:11:23.541 --> 1:11:26.421
+Basement
+You know where where this one would be more.
+1:11:28.321 --> 1:11:30.81
+Basement
+Professional. Heartfelt.
+1:11:32.541 --> 1:11:33.181
+Basement
+Kind of thing so.
+1:11:34.741 --> 1:11:35.141
+Luis Escobar
+I got you.
+1:11:39.91 --> 1:11:43.691
+Luis Escobar
+Can can we just set up the Google Workspace now? It takes like 2 seconds.
+1:11:45.261 --> 1:11:45.781
+Luis Escobar
+Think I'll just.
+1:11:47.941 --> 1:11:48.621
+Luis Escobar
+Here.
+1:11:52.101 --> 1:12:0.861
+Luis Escobar
+We live, but I really wanna get you and and the team using Gemini. I mean that that little video I just generated that was Gemini.
+1:12:8.861 --> 1:12:10.461
+Basement
+Dot coor.com there.
+1:12:11.421 --> 1:12:11.781
+Luis Escobar
+OK.
+1:12:44.301 --> 1:12:49.661
+Luis Escobar
+So. So the big thing with workspace. You see my screen. You see all these different drop downs.
+1:12:51.181 --> 1:13:2.501
+Luis Escobar
+These are different team members from different companies basically, but I have a a way to like make sure that everyone has all the resources they need inside of their Chrome, right?
+1:13:3.61 --> 1:13:5.181
+Luis Escobar
+And with Gemini, it just makes it so easy.
+1:13:6.981 --> 1:13:13.141
+Luis Escobar
+You know, the idea is for every team member to have their own AI, basically helping them, you know, with their day-to-day operations.
+1:13:13.971 --> 1:13:14.91
+Luis Escobar
+Yes.
+1:13:16.941 --> 1:13:18.701
+Luis Escobar
+This is a Google Labs.
+1:13:26.921 --> 1:13:28.441
+Luis Escobar
+All these are different AIS.
+1:13:30.581 --> 1:13:33.421
+Luis Escobar
+For audio, for video recording.
+1:13:36.651 --> 1:13:40.331
+Luis Escobar
+You know, like a a a 3D animation type video.
+1:13:40.371 --> 1:13:42.771
+Luis Escobar
+That could be something to to think about.
+1:13:45.811 --> 1:13:47.131
+Luis Escobar
+Now we have.
+1:13:47.251 --> 1:13:49.411
+Luis Escobar
+You know it's it's a great time to create content.
+1:13:49.411 --> 1:13:51.651
+Luis Escobar
+This was not possible eight months ago.
+1:13:54.991 --> 1:13:55.871
+Basement
+Superco.
+1:13:56.581 --> 1:13:57.421
+Luis Escobar
+Yeah, yeah.
+1:13:58.301 --> 1:13:58.381
+Basement
+Nd.
+1:14:3.741 --> 1:14:5.61
+Luis Escobar
+There's a lot of work to do.
+1:14:6.581 --> 1:14:7.141
+Luis Escobar
+I got I got my.
+1:14:7.181 --> 1:14:11.21
+Luis Escobar
+I got my plate pulled, but I'm excited guys starting just with the website, right?
+1:14:11.21 --> 1:14:14.821
+Luis Escobar
+And then we're gonna evolve to the app and and all the other things.
+1:14:17.61 --> 1:14:24.461
+Luis Escobar
+I I do wanna make sure that you know that the HubSpot is is getting all the data it needs.
+1:14:25.221 --> 1:14:29.501
+Luis Escobar
+Can can we schedule a meeting tomorrow just for the data migration?
+1:14:31.221 --> 1:14:31.901
+Luis Escobar
+Initiative.
+1:14:33.721 --> 1:14:34.521
+Basement
+Sure.
+1:14:35.121 --> 1:14:35.241
+Luis Escobar
+Mm H.
+1:14:41.441 --> 1:14:43.561
+Luis Escobar
+What would be a good time?
+1:14:44.891 --> 1:14:47.451
+Basement
+I think I just have something at 10 and that's.
+1:14:49.51 --> 1:14:50.451
+Basement
+The only thing I have.
+1:14:52.931 --> 1:14:54.51
+Basement
+Preferably after that.
+1:14:55.121 --> 1:14:56.321
+Luis Escobar
+Preferably after.
+1:14:58.91 --> 1:14:58.771
+Basement
+Oh yeah.
+1:15:0.501 --> 1:15:1.741
+Luis Escobar
+I can do 11.
+1:15:3.331 --> 1:15:3.931
+Luis Escobar
+I am.
+1:15:5.341 --> 1:15:5.941
+Basement
+That works.
+1:15:8.481 --> 1:15:8.841
+Luis Escobar
+Great.
+1:15:8.831 --> 1:15:10.471
+Basement
+For those that work for you.
+1:15:11.151 --> 1:15:11.791
+Luis Escobar
+Hours.
+1:15:14.501 --> 1:15:14.621
+Luis Escobar
+Umm.
+1:15:15.841 --> 1:15:15.921
+Renzo Mogrovejo
+Oh.
+1:15:18.731 --> 1:15:19.731
+Renzo Mogrovejo
+Which one, sorry.
+1:15:21.901 --> 1:15:24.261
+Basement
+11:00 AM does that work for you tomorrow, Renzo?
+1:15:26.21 --> 1:15:26.101
+Renzo Mogrovejo
+Ed.
+1:15:27.531 --> 1:15:27.971
+Renzo Mogrovejo
+Gemini.
+1:15:30.271 --> 1:15:30.831
+Basement
+Yeah.
+1:15:30.441 --> 1:15:31.161
+Luis Escobar
+11:00 AM.
+1:15:34.471 --> 1:15:35.111
+Renzo Mogrovejo
+Oh yeah.
+1:15:53.491 --> 1:15:54.131
+Basement
+OK so.
+1:15:55.941 --> 1:15:56.861
+Basement
+Next steps as far as.
+1:15:59.461 --> 1:16:2.381
+Basement
+Clickup is concerned. I guess we're gonna.
+1:16:5.521 --> 1:16:8.881
+Basement
+We have to do something before proposing it to Louis.
+1:16:10.741 --> 1:16:13.861
+Basement
+I mean, no, I don't think we're really like proposing it.
+1:16:13.861 --> 1:16:17.741
+Basement
+We're kind of just like we just want you to take a look at it.
+1:16:17.741 --> 1:16:19.621
+Basement
+We don't have the subtasks.
+1:16:18.381 --> 1:16:18.581
+Luis Escobar
+Mm hmm.
+1:16:19.661 --> 1:16:25.341
+Basement
+It's based off of what we talked about yesterday. So it's just kind of like the first steps.
+1:16:22.901 --> 1:16:23.101
+Luis Escobar
+Mm hmm.
+1:16:26.101 --> 1:16:26.301
+Luis Escobar
+Mm hmm.
+1:16:26.821 --> 1:16:32.581
+Basement
+Obviously we have that admin access. That one's done. I think the bottom two are.
+1:16:34.531 --> 1:16:44.131
+Basement
+Hang on, sorry. Let me look. I guess what I'm saying is like I view that as being like the one place where we can delegate, right?
+1:16:44.131 --> 1:16:53.971
+Basement
+Delegate task, assign a date and make sure that that nobody's holding us up from achieving what we want to and the time that we think it should take.
+1:16:54.51 --> 1:16:56.131
+Basement
+So. So that's right.
+1:16:56.131 --> 1:16:59.931
+Basement
+Yeah. So, so the two tasks that we've put on there so far.
+1:17:0.861 --> 1:17:3.821
+Basement
+Are the data migration slash integration?
+1:17:4.211 --> 1:17:6.771
+Basement
+And then integrate AI for operations.
+1:17:6.771 --> 1:17:20.171
+Basement
+So that's air call, chat bots, intercom, slack. Those are the top two from the list that we pulled from the like Louis tasks list.
+1:17:11.341 --> 1:17:11.541
+Luis Escobar
+Mm hmm.
+1:17:14.731 --> 1:17:15.211
+Luis Escobar
+OK.
+1:17:20.211 --> 1:17:21.691
+Basement
+Those are the 1st 2 steps.
+1:17:20.661 --> 1:17:20.861
+Luis Escobar
+Mm hmm.
+1:17:23.141 --> 1:17:24.461
+Basement
+Anything else?
+1:17:24.561 --> 1:17:26.41
+Luis Escobar
+Perfect. Yeah.
+1:17:25.221 --> 1:17:31.701
+Basement
+What what you just said? The two tasks they're under to do right now. Oh, OK.
+1:17:26.41 --> 1:17:27.441
+Luis Escobar
+And I already have the admin.
+1:17:31.701 --> 1:17:33.101
+Basement
+So. So they're now on screen.
+1:17:33.971 --> 1:17:42.691
+Basement
+There's huge set to Scroll down to the bottom OK and then we've all been kind of in meetings here and there all day.
+1:17:42.691 --> 1:17:50.891
+Basement
+So I think that the adding of the subtasks will be done tomorrow, but like Steven and Renzo are going to go in together for those two.
+1:17:52.341 --> 1:17:58.141
+Basement
+Because they're kind of going to be the ones leading that and Add all of the tasks that they need to do tomorrow 11:00 AM.
+1:18:0.61 --> 1:18:0.621
+Basement
+And then.
+1:18:2.381 --> 1:18:2.541
+Basement
+Yeah.
+1:18:3.51 --> 1:18:7.131
+Basement
+Yeah, those are the first two that we have to start with before anything else happens.
+1:18:7.971 --> 1:18:19.811
+Basement
+We also have like a task on the task list for the website, but we don't really have anything to contribute to the website yet until we get that like 1.0 version of it.
+1:18:14.401 --> 1:18:14.481
+Luis Escobar
+Mm.
+1:18:19.811 --> 1:18:22.291
+Basement
+So this is just kind of a starting point.
+1:18:20.351 --> 1:18:20.551
+Luis Escobar
+Mm hmm.
+1:18:24.141 --> 1:18:28.221
+Basement
+Before anything else happens, so and obviously this is for two weeks.
+1:18:29.531 --> 1:18:30.51
+Luis Escobar
+Mm hmm mm hmm.
+1:18:29.901 --> 1:18:31.581
+Basement
+So we also have tasks.
+1:18:31.581 --> 1:18:33.341
+Basement
+We created a status that's ongoing.
+1:18:34.811 --> 1:18:47.971
+Basement
+Steven already had some ongoing tasks that we moved to that status and then I'm sure a lot of the stuff that we're gonna start is gonna kind of live in that ongoing status because it's not gonna be done within a two week period.
+1:18:52.511 --> 1:18:56.231
+Luis Escobar
+Noted. Noted. Yeah, no, this is taking good shape already.
+1:18:56.311 --> 1:18:57.111
+Luis Escobar
+From what I can see.
+1:19:0.711 --> 1:19:3.231
+Luis Escobar
+I'm curious about these no show automations.
+1:19:5.21 --> 1:19:6.501
+Luis Escobar
+That that is a high priority.
+1:19:8.231 --> 1:19:14.71
+Basement
+Yes, I got that on there. It it kind of like works in a little.
+1:19:15.741 --> 1:19:22.621
+Basement
+Right now what we're doing is taking for like our aesthetic booking page. We're taking $25.00 deposit fee.
+1:19:22.621 --> 1:19:37.381
+Basement
+The idea was change that to where we're taking a no show fee afterwards, but we need to get where it's communicating. A broken appointments correctly so that we could send an invoice in HubSpot and then we're also trying to make sure that we can save that card.
+1:19:37.381 --> 1:19:37.741
+Basement
+On file.
+1:19:38.331 --> 1:19:44.691
+Basement
+And charge it. I think we should have a problem saving the card on file.
+1:19:44.691 --> 1:19:50.51
+Basement
+I I'm pretty sure we have that enabled now, but yeah, we're just trying to get that set.
+1:19:46.101 --> 1:19:46.261
+Brian Hyatt
+OK.
+1:19:50.51 --> 1:19:54.371
+Basement
+So we we don't charge the $25 at the time of the booking.
+1:19:54.371 --> 1:20:2.171
+Basement
+We do OK, but I wanted to change it where it would be like AI. Think it the way it would have to work would be a $1.00 like card verification fee.
+1:20:2.171 --> 1:20:3.611
+Basement
+That would hopefully would set.
+1:20:4.381 --> 1:20:9.741
+Basement
+Your set like maybe some custom field like oh we have a card on file or existing customer.
+1:20:9.891 --> 1:20:10.771
+Basement
+Or something like that.
+1:20:10.771 --> 1:20:21.651
+Basement
+And HubSpot and then we would know not to send them to that payment link, but just to let them book and then we could charge the card on file if they if they broke the appointment but.
+1:20:13.431 --> 1:20:14.151
+Luis Escobar
+Yeah.
+1:20:22.571 --> 1:20:24.851
+Luis Escobar
+So I I do.
+1:20:23.421 --> 1:20:26.341
+Basement
+Yeah, that kind of got pushed off. Sorry, go ahead.
+1:20:26.661 --> 1:20:32.901
+Luis Escobar
+Yeah, I do know that HubSpot requires at at least a $0.50 transaction to save the card on file.
+1:20:33.801 --> 1:20:42.921
+Basement
+Right. Yeah, that was that was the idea with the like, the one time card verification fee. And I I just don't know if we can like set.
+1:20:44.461 --> 1:20:54.581
+Basement
+Set some custom field or like check to see if there is a card on file to know like to not send them to the payment link or to send them to directly the booking page.
+1:20:54.581 --> 1:20:55.541
+Basement
+I don't really know but.
+1:20:57.421 --> 1:21:3.661
+Basement
+That was kind of a part of a bigger integration to where whether the appointment would be completed or not.
+1:21:4.211 --> 1:21:9.91
+Basement
+Code the well the the No show status.
+1:21:10.501 --> 1:21:10.901
+Basement
+Would if.
+1:21:10.901 --> 1:21:17.781
+Basement
+There, if it was an aesthetic appointment, you supposed to, we would be taking the no show fee after we change that around.
+1:21:19.541 --> 1:21:22.981
+Basement
+And then send them like create some tasks, send an e-mail.
+1:21:24.581 --> 1:21:25.781
+Basement
+That like, sorry we missed you.
+1:21:27.701 --> 1:21:29.301
+Basement
+Click here to reschedule.
+1:21:29.501 --> 1:21:34.221
+Basement
+Or if it was a if it was a like a baseline for like a health assessment appointment that was broken.
+1:21:34.451 --> 1:21:41.91
+Basement
+Then should have or. We wanted to create a task for one of the MC as to reach out immediately to that person.
+1:21:42.541 --> 1:21:56.221
+Basement
+And then likewise, if it's like a continuing medical appointment, it should. We want it to be able to notify the practice manager somehow, although they should already know that they didn't know show because they work in the office. But.
+1:21:58.61 --> 1:22:6.181
+Basement
+Yeah. And then on the on the other side of that, if they did show up, we well regardless of if they showed up or not, we would wanna update the deal.
+1:22:6.491 --> 1:22:18.251
+Basement
+Amount on that was created when they purchased with the total amount of the payments that are attached to the procedures that are on that appointment procedures.
+1:22:18.251 --> 1:22:23.51
+Basement
+It's like whether it's services or products, we have procedures, procedure codes.
+1:22:23.811 --> 1:22:45.61
+Basement
+So that was that was part of that was kind of the bigger automation was like whenever the whatever the appointment is completed or no showed whatever move whatever relevant information we need to HubSpot basically whether that's creating a task or updating a status or charging the no.
+1:22:24.681 --> 1:22:25.201
+Luis Escobar
+I follow.
+1:22:39.501 --> 1:22:39.941
+Luis Escobar
+Mm hmm mm hmm.
+1:22:45.51 --> 1:22:45.291
+Basement
+Show fee.
+1:22:46.541 --> 1:22:52.661
+Luis Escobar
+Gotcha. Gotcha. And so the the OM that's the the database.
+1:22:46.851 --> 1:22:47.91
+Basement
+So.
+1:22:53.191 --> 1:22:56.471
+Basement
+Yeah. We open open medical.
+1:22:56.471 --> 1:22:57.871
+Basement
+It's really open dental.
+1:22:57.871 --> 1:23:1.111
+Basement
+We just call it open medical because we're a medical practice.
+1:23:1.151 --> 1:23:4.191
+Basement
+It's open dental on every website you'll ever see.
+1:23:1.811 --> 1:23:2.291
+Luis Escobar
+Got it.
+1:23:4.311 --> 1:23:7.431
+Basement
+No one calls it open medical besides us, so.
+1:23:5.81 --> 1:23:5.201
+Luis Escobar
+Hmm.
+1:23:7.991 --> 1:23:8.271
+Luis Escobar
+Got it.
+1:23:10.331 --> 1:23:10.571
+Luis Escobar
+OK.
+1:23:10.571 --> 1:23:15.451
+Luis Escobar
+Yeah, I'm. I'm curious to see just the inner workings of it that API and how it works, right?
+1:23:17.91 --> 1:23:18.371
+Luis Escobar
+I think there's a lot we can do there.
+1:23:20.691 --> 1:23:24.651
+Luis Escobar
+We may need to bring in to the play like Stripe.
+1:23:24.651 --> 1:23:26.11
+Luis Escobar
+Do you guys have a stripe account?
+1:23:29.181 --> 1:23:32.141
+Basement
+Yes, I think, yeah, yeah, yeah.
+1:23:32.631 --> 1:23:34.311
+Luis Escobar
+You do OK, 'cause.
+1:23:34.311 --> 1:23:38.751
+Luis Escobar
+Yeah, the the HubSpot Commerce API is is a fairly new.
+1:23:40.251 --> 1:23:40.371
+Luis Escobar
+API.
+1:23:40.371 --> 1:23:46.251
+Luis Escobar
+It's, you know, they they just released this like a year or two ago. And it's they're just using.
+1:23:46.251 --> 1:23:49.91
+Luis Escobar
+They're building on top of the the stripe technology.
+1:23:49.91 --> 1:23:50.731
+Luis Escobar
+Actually, they're just a stripe reseller.
+1:23:52.531 --> 1:23:55.131
+Luis Escobar
+So there's a few advantages of when we're using the.
+1:23:57.611 --> 1:24:0.771
+Luis Escobar
+The core stripe account has the the source.
+1:24:1.821 --> 1:24:5.621
+Basement
+You do have to layer stripe with another.
+1:24:7.491 --> 1:24:11.771
+Basement
+Something another if you're gonna self pharmaceutical.
+1:24:13.571 --> 1:24:19.491
+Basement
+Because Stripe will disallow any sale of, you know meds, so.
+1:24:20.501 --> 1:24:21.181
+Luis Escobar
+I figured.
+1:24:23.761 --> 1:24:33.801
+Basement
+So for like tribe Tri pods, the whole idea behind Tri Pods was kind of an asynchronous that this is what I want.
+1:24:24.401 --> 1:24:24.961
+Luis Escobar
+That's it.
+1:24:34.321 --> 1:24:43.401
+Basement
+Or, you know, good, good, better, best kind of for hair. Erectile function, much like hims and hers kind of thing.
+1:24:45.941 --> 1:24:49.221
+Luis Escobar
+Gotcha. I'll do some research on that. It makes sense.
+1:25:2.521 --> 1:25:6.921
+Basement
+You need what do you need from us or from me specifically?
+1:25:8.471 --> 1:25:15.551
+Luis Escobar
+Well, yeah. When? When? When you have those notes on that 90. Oh, second video. 2 minute video. Can you share that?
+1:25:15.441 --> 1:25:15.801
+Basement
+Go, go.
+1:25:17.51 --> 1:25:21.411
+Luis Escobar
+For the website I I I have what I need for now.
+1:25:24.331 --> 1:25:28.331
+Luis Escobar
+Kather new life domain that I've been connect now to the Google Workspace.
+1:25:33.881 --> 1:25:37.121
+Luis Escobar
+Yeah, I I try free for 14 days. Just do that.
+1:25:39.831 --> 1:25:44.151
+Luis Escobar
+Trenton, I can reconvene on, on e-mail and then we can put a card on file.
+1:25:59.671 --> 1:26:0.871
+Luis Escobar
+Put all this in there.
+1:26:5.891 --> 1:26:7.971
+Luis Escobar
+One looks like it won't let me proceed without it.
+1:26:11.251 --> 1:26:18.251
+Luis Escobar
+Trent Eno, you now. I guess. Or or you want to share the card or do you want to log in yourself and do it?
+1:26:19.891 --> 1:26:19.971
+Luis Escobar
+Or.
+1:26:22.911 --> 1:26:24.271
+Basement
+But I'm sorry.
+1:26:26.561 --> 1:26:27.481
+Basement
+Sorry man, I was.
+1:26:27.521 --> 1:26:29.761
+Basement
+I was looking at something real quick. What was that question?
+1:26:30.961 --> 1:26:35.681
+Luis Escobar
+Regards to adding the payment method or the Google Workspace that we need.
+1:26:36.861 --> 1:26:38.61
+Basement
+Oh yeah, I can.
+1:26:38.461 --> 1:26:43.901
+Basement
+You can either send me a link, I can get it set up, or I can share card information. Whatever. Yeah, whatever works.
+1:26:45.191 --> 1:26:47.791
+Luis Escobar
+Yeah, if you don't just sharing it and then I can just punch it in.
+1:26:50.281 --> 1:26:56.121
+Basement
+Let me send you a I'll just text you a picture of it front and back.
+1:26:55.531 --> 1:26:57.171
+Luis Escobar
+Perfect. Perfect.
+1:26:58.101 --> 1:26:58.701
+Basement
+Let me go.
+1:26:59.561 --> 1:27:0.521
+Luis Escobar
+Yeah, I'll get that.
+1:27:1.201 --> 1:27:2.521
+Luis Escobar
+I'll get that all sorted.
+1:27:1.931 --> 1:27:3.291
+Basement
+Oh, here, here. You all do it.
+1:27:6.1 --> 1:27:7.41
+Basement
+Sorry, it's upstairs.
+1:27:9.731 --> 1:27:15.971
+Luis Escobar
+And the overall like you know site map that that was in that document that I shared, right?
+1:27:19.111 --> 1:27:22.471
+Luis Escobar
+Essentially, we we wanna have all these URLs right?
+1:27:23.71 --> 1:27:25.431
+Luis Escobar
+And they should all be SCO optimized.
+1:27:31.771 --> 1:27:32.651
+Luis Escobar
+Services.
+1:27:34.131 --> 1:27:34.731
+Luis Escobar
+Needing that.
+1:27:45.621 --> 1:27:57.101
+Luis Escobar
+Do do you guys have any like calculators? Like kinda like the idea we're referring to earlier about like the the point system. But do you have any existing calculators?
+1:27:59.31 --> 1:28:1.311
+Basement
+Wasn't there abmi?
+1:28:2.231 --> 1:28:4.631
+Basement
+Yeah, calculator that we had.
+1:28:4.631 --> 1:28:20.111
+Basement
+And then the questionnaire that it took you through basically telling you whether or not you're pre qualified for semaglutide or whatever. But it and it took into account your height and weight and your and basically what about the like hormone health survey it would.
+1:28:14.121 --> 1:28:14.281
+Brian Hyatt
+OK.
+1:28:19.581 --> 1:28:21.101
+Ximena Livia
+We have also one for TRT.
+1:28:23.41 --> 1:28:24.761
+Basement
+And one for TRT as well.
+1:28:24.761 --> 1:28:29.721
+Basement
+Yeah. So, So what was cool about the hormone health survey?
+1:28:29.921 --> 1:28:33.81
+Basement
+And it looks bad.
+1:28:33.81 --> 1:28:46.921
+Basement
+It's it's a wonky if you go to 25 fiveagain.com the hormone surveys on there. What's cool is you complete it and it tells you whether.
+1:28:47.851 --> 1:28:51.891
+Basement
+You're likely probable or whatever.
+1:28:53.601 --> 1:28:58.121
+Basement
+Hormone So what?
+1:28:58.121 --> 1:29:1.761
+Basement
+You get out of it is actually really good.
+1:29:1.841 --> 1:29:5.841
+Basement
+I mean and and it gives us a lot to market on, right?
+1:29:5.881 --> 1:29:8.481
+Basement
+So if we know that they don't sleep well.
+1:29:10.11 --> 1:29:22.91
+Basement
+It literally takes, you know, several, several minutes to to go go through but it but but what it what it gives back to them is really cool.
+1:29:17.261 --> 1:29:17.381
+Luis Escobar
+Mm H.
+1:29:22.921 --> 1:29:29.641
+Basement
+And like honestly, you can almost create an AI podcast result of it.
+1:29:30.81 --> 1:29:34.321
+Basement
+I mean, because we say, OK.
+1:29:34.321 --> 1:29:39.761
+Basement
+Yeah, we we ask this but but when you get into like the the meat of it.
+1:29:41.371 --> 1:29:47.371
+Basement
+Like you know, we know whether you sleep well, whether you, you know, whatever, so.
+1:29:49.151 --> 1:29:50.631
+Luis Escobar
+Brilliant. Yeah, I'm gonna.
+1:29:52.211 --> 1:29:53.411
+Luis Escobar
+Use this for sure.
+1:29:54.441 --> 1:29:58.281
+Basement
+Now we have something on one of our pages too. That said, it's like.
+1:29:59.931 --> 1:30:4.731
+Basement
+Your potential weight loss with with a GLP one or something like that.
+1:30:4.811 --> 1:30:5.571
+Basement
+That's what we did.
+1:30:5.651 --> 1:30:8.371
+Basement
+I don't really know what that's based off of, but.
+1:30:10.351 --> 1:30:11.31
+Basement
+Yeah.
+1:30:12.691 --> 1:30:13.931
+Basement
+That might be what runs over say.
+1:30:14.971 --> 1:30:15.971
+Renzo Mogrovejo
+Exactly the same.
+1:30:17.401 --> 1:30:22.1
+Renzo Mogrovejo
+That one is the GLP calculator.
+1:30:21.101 --> 1:30:21.221
+Luis Escobar
+Mm H.
+1:30:23.851 --> 1:30:25.651
+Renzo Mogrovejo
+I just cherry in the chat.
+1:30:27.631 --> 1:30:33.151
+Luis Escobar
+Yeah. So we should have all these fields also being documented in HubSpot, right?
+1:30:34.741 --> 1:30:35.701
+Brian Hyatt
+Yes, they are.
+1:30:38.111 --> 1:30:38.751
+Luis Escobar
+Fantastic.
+1:30:39.251 --> 1:30:45.51
+Basement
+Well, don't. Don't pay nothing for all of them. ****. We have to have something wrong. Wrong with you.
+1:30:44.811 --> 1:30:45.891
+Luis Escobar
+Oh yeah, you're right.
+1:30:46.691 --> 1:30:49.451
+Basement
+I mean we we need, we can't.
+1:30:53.131 --> 1:30:53.771
+Luis Escobar
+That's funny.
+1:31:5.461 --> 1:31:19.781
+Basement
+I had kind of on my like backlog tasks and what's not really something that's like possible right now, but like it would be like a membership savings calculator where hopefully for like especially aesthetic patients.
+1:31:21.251 --> 1:31:26.691
+Basement
+They could like enter in like how many hydrofacials they normally get each year or something like that.
+1:31:26.851 --> 1:31:28.331
+Basement
+Great Run bundle type thing.
+1:31:28.411 --> 1:31:33.331
+Basement
+Yeah, and basically show them what their total savings would be with like their membership discount.
+1:31:34.931 --> 1:31:35.251
+Basement
+And then.
+1:31:36.121 --> 1:31:47.841
+Basement
+Also, like maybe talking about, yeah, maybe thinking about like computing like free, like the average membership saving that that you saved like for with your membership discount overall.
+1:31:49.291 --> 1:31:54.11
+Basement
+Your aesthetic services and products, or whether it's medications or something else but.
+1:31:53.851 --> 1:31:54.51
+Luis Escobar
+Mm hmm.
+1:31:56.951 --> 1:31:58.191
+Basement
+We don't really have that data.
+1:31:59.311 --> 1:32:1.871
+Luis Escobar
+I think it's AI think it's a good idea for sure.
+1:31:59.651 --> 1:31:59.971
+Basement
+Or that's.
+1:32:3.411 --> 1:32:6.891
+Luis Escobar
+If you have some notes on that already, we can share on it.
+1:32:6.891 --> 1:32:8.651
+Luis Escobar
+We can definitely.
+1:32:10.251 --> 1:32:11.531
+Luis Escobar
+Bring that project back to life.
+1:32:13.371 --> 1:32:19.731
+Basement
+As you can see, we can make this much better looking, but much more intuitive.
+1:32:20.891 --> 1:32:24.531
+Luis Escobar
+Yeah, it's for sure, but I like it.
+1:32:24.961 --> 1:32:26.321
+Luis Escobar
+You guys have the right idea.
+1:32:25.521 --> 1:32:35.601
+Basement
+Well, well. The result that that you get is really kind of cool because all these questions mean something.
+1:32:37.171 --> 1:32:40.251
+Basement
+Well, the yeah, it doesn't look like yesterday.
+1:32:40.251 --> 1:32:42.171
+Basement
+They can condense this, but.
+1:32:44.931 --> 1:32:45.331
+Basement
+So yeah.
+1:32:46.891 --> 1:32:52.571
+Basement
+It it gives you probable deficiencies, possible deficiencies.
+1:33:0.531 --> 1:33:14.731
+Basement
+This project no, but I mean it's super cool though, especially if you run. If you run these results through AI, you know you you can be able to see.
+1:33:5.211 --> 1:33:5.731
+Luis Escobar
+Yeah, yeah.
+1:33:13.321 --> 1:33:14.641
+Luis Escobar
+Yeah, is.
+1:33:14.641 --> 1:33:17.841
+Luis Escobar
+There is there documentation on when this was built.
+1:33:16.451 --> 1:33:16.531
+Basement
+It.
+1:33:19.371 --> 1:33:20.571
+Luis Escobar
+Or whoever built it or.
+1:33:21.591 --> 1:33:26.951
+Basement
+You should should be able to see the back, end it on word, word, word press.
+1:33:27.241 --> 1:33:27.561
+Luis Escobar
+OK.
+1:33:28.451 --> 1:33:28.731
+Basement
+I mean.
+1:33:29.51 --> 1:33:30.811
+Luis Escobar
+Yeah, I'll extract everything from there.
+1:33:30.731 --> 1:33:31.331
+Basement
+Yeah.
+1:33:32.641 --> 1:33:34.441
+Luis Escobar
+Not sure if I got that log in.
+1:33:35.901 --> 1:33:36.981
+Basement
+I can get it for you.
+1:33:38.251 --> 1:33:38.371
+Luis Escobar
+See.
+1:33:38.451 --> 1:33:39.91
+Luis Escobar
+Ya ya, I'll need that.
+1:33:39.521 --> 1:33:43.401
+Brian Hyatt
+We'll see. I think I may have put it on that sheet yesterday, but.
+1:33:44.931 --> 1:33:46.131
+Brian Hyatt
+That we shared internally.
+1:33:50.141 --> 1:33:51.581
+Basement
+Not that one.
+1:33:53.891 --> 1:33:54.11
+Basement
+The.
+1:33:54.881 --> 1:34:0.441
+Renzo Mogrovejo
+I can share with you a safe link so you can you can see the credentials.
+1:34:1.881 --> 1:34:2.321
+Luis Escobar
+OK.
+1:34:7.681 --> 1:34:9.201
+Luis Escobar
+But yeah, that's that's huge.
+1:34:9.201 --> 1:34:11.441
+Luis Escobar
+So that that's a lead magnet right there, right?
+1:34:11.731 --> 1:34:15.211
+Basement
+No, no, that that was our biggest one.
+1:34:15.211 --> 1:34:16.251
+Basement
+I mean, it was really.
+1:34:18.211 --> 1:34:18.491
+Basement
+You know.
+1:34:20.571 --> 1:34:26.891
+Basement
+And and we have all that information, if it was, if it was pulled over from suite CRM.
+1:34:28.971 --> 1:34:41.51
+Basement
+No. Yeah. Suite. Yeah. Suite suite. CRM is where all the leads went over. If all the qualitative data about their dry skin, their.
+1:34:41.701 --> 1:34:43.541
+Basement
+Their sex drive all that.
+1:34:43.541 --> 1:34:47.981
+Basement
+I mean, that's all stuff that we we could use, I mean.
+1:34:45.181 --> 1:34:45.381
+Luis Escobar
+Mm hmm.
+1:34:47.801 --> 1:34:48.961
+Luis Escobar
+Great. Great.
+1:34:47.911 --> 1:34:48.351
+Brian Hyatt
+Thank you.
+1:34:49.521 --> 1:34:54.721
+Luis Escobar
+Yeah, let's definitely get our hands on that and just aggregate all this data.
+1:35:8.511 --> 1:35:17.71
+Luis Escobar
+The other idea with the AI chat bots that whenever you're on the website, it's also gonna understand, you know your the the.
+1:35:18.721 --> 1:35:30.721
+Luis Escobar
+His selections you made right on all these questions, so it'll be able to, you know, present you an offer or or a discount or or something that I know that you're interested in or relevant, you know upgrade.
+1:35:23.731 --> 1:35:23.891
+Brian Hyatt
+Good.
+1:35:34.11 --> 1:35:38.411
+Luis Escobar
+I really think that the, you know, the holidays are a really good opportunities.
+1:35:35.521 --> 1:35:35.681
+Brian Hyatt
+Good.
+1:35:38.411 --> 1:35:42.411
+Luis Escobar
+There's quite a few of them in a year. Count em, right?
+1:35:42.931 --> 1:35:45.451
+Luis Escobar
+And then, you know, prepping for the holiday, right?
+1:35:47.681 --> 1:35:49.201
+Luis Escobar
+What's the next one Labor Day?
+1:35:52.471 --> 1:35:52.671
+Luis Escobar
+So.
+1:35:52.641 --> 1:35:54.761
+Basement
+No July 4th.
+1:35:55.811 --> 1:35:57.571
+Luis Escobar
+Right, right.
+1:35:58.371 --> 1:36:8.651
+Luis Escobar
+Well, you know, a good, you know, 7 to 10 days prior to the holiday and then you can still milk it for another 4 to maybe even 10 more days after the holiday.
+1:35:59.681 --> 1:35:59.841
+Brian Hyatt
+OK.
+1:36:10.291 --> 1:36:10.691
+Luis Escobar
+Right.
+1:36:12.451 --> 1:36:15.451
+Luis Escobar
+If we can get all you know the the marketing.
+1:36:17.131 --> 1:36:18.411
+Luis Escobar
+Campaigns prepared well in advance.
+1:36:20.371 --> 1:36:23.491
+Luis Escobar
+I don't know if you guys already have something planned for 4th of July.
+1:36:23.461 --> 1:36:26.501
+Basement
+There should be a. There should be a holiday.
+1:36:28.571 --> 1:36:31.131
+Basement
+Workflow that we've already spoken about.
+1:36:29.511 --> 1:36:29.991
+Luis Escobar
+Yeah.
+1:36:32.731 --> 1:36:32.851
+Basement
+But.
+1:36:34.801 --> 1:36:36.761
+Basement
+Brian, do you know or?
+1:36:36.501 --> 1:36:42.981
+Brian Hyatt
+Yes, there there is. And I know that Marissa has specifically for July 4th and July.
+1:36:42.981 --> 1:36:45.741
+Brian Hyatt
+They're starting to work on that, so.
+1:36:46.631 --> 1:36:47.591
+Luis Escobar
+Great. Great.
+1:36:59.671 --> 1:37:5.151
+Luis Escobar
+And then Brian shared with me a few of the like local competitors, right?
+1:37:7.411 --> 1:37:8.771
+Luis Escobar
+You can see my screen here.
+1:37:11.111 --> 1:37:12.431
+Luis Escobar
+Thank you for Max.
+1:37:14.571 --> 1:37:15.411
+Luis Escobar
+Gout aesthetic.
+1:37:18.701 --> 1:37:27.541
+Basement
+I don't see all the competitors from like the surrounding. I mean I see a lot that we could add for sure.
+1:37:19.431 --> 1:37:19.911
+Brian Hyatt
+Thank you.
+1:37:28.691 --> 1:37:28.891
+Luis Escobar
+Mm hmm.
+1:37:30.321 --> 1:37:32.401
+Luis Escobar
+Yeah, if there's not anymore, you can add.
+1:37:32.401 --> 1:37:37.121
+Luis Escobar
+Please share that with me. But yeah. Is there any like like?
+1:37:38.571 --> 1:37:41.51
+Luis Escobar
+Key ones that that really stand out that are like.
+1:37:42.731 --> 1:37:43.491
+Luis Escobar
+They're they're local.
+1:37:43.491 --> 1:37:45.571
+Luis Escobar
+They're not like life force, but they are.
+1:37:46.901 --> 1:37:50.301
+Basement
+Yeah, yeah, yeah, none of those.
+1:37:47.441 --> 1:37:47.561
+Brian Hyatt
+Yep.
+1:37:50.381 --> 1:37:54.221
+Basement
+So I don't think any of the ones on the optimal health.
+1:37:55.771 --> 1:37:59.211
+Basement
+Are a national brand, except for game game day.
+1:37:59.411 --> 1:38:1.251
+Basement
+I know they have a lot.
+1:38:3.811 --> 1:38:6.291
+Basement
+Optimized. Use a bigger one around here.
+1:38:6.291 --> 1:38:7.771
+Basement
+A lot of people on that.
+1:38:9.531 --> 1:38:10.171
+Basement
+On the optimal health.
+1:38:14.331 --> 1:38:17.131
+Basement
+Yeah, marsials.
+1:38:17.641 --> 1:38:21.401
+Basement
+Down in Lexington and they've expanded up here.
+1:38:21.441 --> 1:38:26.721
+Basement
+So Marshall's lifestyle, medicine and find that.
+1:38:30.401 --> 1:38:31.481
+Luis Escobar
+Gotcha. Gotcha.
+1:38:34.91 --> 1:38:34.211
+Basement
+2.
+1:38:44.811 --> 1:38:45.771
+Basement
+Someone starts with an R.
+1:38:47.611 --> 1:38:50.611
+Basement
+What one starts with an R and then we'll write back graders.
+1:38:52.51 --> 1:38:54.691
+Basement
+We'll revitalize that. That's.
+1:38:55.841 --> 1:38:59.121
+Basement
+Maybe just one that might be worth putting on there, yeah.
+1:39:0.981 --> 1:39:5.491
+Luis Escobar
+And so are are you guys getting a lot of bookings through through the system right now?
+1:39:6.871 --> 1:39:16.751
+Basement
+I think recently we've seen a little bit of an uptick after working with our a person that's been optimizing the meta ads, but nothing sustainable.
+1:39:17.151 --> 1:39:20.951
+Basement
+Yeah, I mean, I'd say like an average of like maybe one a day.
+1:39:17.811 --> 1:39:18.171
+Luis Escobar
+All right.
+1:39:22.451 --> 1:39:23.171
+Basement
+Through this?
+1:39:22.601 --> 1:39:22.921
+Luis Escobar
+OK.
+1:39:24.491 --> 1:39:24.971
+Luis Escobar
+OK.
+1:39:26.561 --> 1:39:28.121
+Basement
+Yeah, we, we have a lot of.
+1:39:30.1 --> 1:39:32.201
+Basement
+Capacity. Let's just put it like that so.
+1:39:36.961 --> 1:39:42.1
+Luis Escobar
+Yeah, let's think about those like that, that bundle idea like, right?
+1:39:42.401 --> 1:39:44.321
+Luis Escobar
+Nobody comes in just for one thing.
+1:39:45.601 --> 1:39:45.721
+Luis Escobar
+Umm.
+1:39:47.321 --> 1:39:49.481
+Luis Escobar
+Do you guys have like packages already like?
+1:39:54.241 --> 1:39:59.241
+Basement
+There's like packages of like 3 micro needling injections or like 3.
+1:39:59.201 --> 1:39:59.361
+Brian Hyatt
+OK.
+1:40:0.691 --> 1:40:6.611
+Basement
+I think they did a it's not advertised well and the fact that you're asking looking through our products probably tells you enough.
+1:40:6.611 --> 1:40:9.291
+Basement
+I don't think we do at least effectively.
+1:40:8.691 --> 1:40:8.891
+Luis Escobar
+Mm hmm.
+1:40:9.291 --> 1:40:12.451
+Basement
+Yeah, I mean right. So.
+1:40:15.901 --> 1:40:17.221
+Basement
+But you're right though we.
+1:40:16.171 --> 1:40:25.171
+Luis Escobar
+Is it just like trying to figure out the, you know, the the the whole cost profit ratio trying to make sure it makes sense?
+1:40:28.231 --> 1:40:32.751
+Luis Escobar
+Or is it just trying to figure out which combination of products?
+1:40:28.521 --> 1:40:30.681
+Basement
+Yeah. Well, no.
+1:40:30.881 --> 1:40:45.401
+Basement
+I think it's more, yeah, just figuring out like a combination. I feel like that makes sense for people because so much on the aesthetic side is like personal choice. And like, you know, OK, your skin would be good for the.
+1:40:45.401 --> 1:40:58.321
+Basement
+I don't know a lot. I feel like a lot of people don't get filler or do get injectables or like creating your own package. Almost like dragging and dropping the services to like your package and then it it'll add up like the savings at the bottom.
+1:40:58.481 --> 1:41:0.681
+Basement
+As you're adding to it. Yeah, got it. Yeah.
+1:41:2.51 --> 1:41:3.251
+Luis Escobar
+I'm loving that idea.
+1:41:2.371 --> 1:41:14.291
+Basement
+Yeah. So, so, so along those lines, if we knew what their goals were and we knew what their conditions were, say, dry skin, I went fuller lips.
+1:41:14.291 --> 1:41:15.931
+Basement
+I've got sagging cheeks.
+1:41:17.891 --> 1:41:18.931
+Basement
+I feel bad.
+1:41:18.931 --> 1:41:20.891
+Basement
+I mean, you know, we we could.
+1:41:21.11 --> 1:41:24.691
+Basement
+We could custom design or propose a package.
+1:41:26.811 --> 1:41:28.211
+Basement
+You know for for them.
+1:41:28.601 --> 1:41:30.441
+Basement
+And that's what what we do.
+1:41:31.971 --> 1:41:39.531
+Basement
+When when they come in, we see what? What they're. You know what what their goals are, right.
+1:41:39.531 --> 1:41:45.411
+Basement
+I mean, so if they want to lose weight, they want fuller lips, they want yo yada, yada.
+1:41:45.771 --> 1:41:55.211
+Basement
+I mean we we we certainly introduce them and talk about things that that that that that will help achieve those goals.
+1:41:55.331 --> 1:41:58.411
+Basement
+I will also say one thing with the the packages especially.
+1:41:58.681 --> 1:42:15.201
+Basement
+For aesthetic stuff is they've been like the aesthetic providers, especially a push back really hard at prepayments for some of this stuff because it's like really hard to estimate the amount that they'll need for like filler or for like the the different neurotoxins.
+1:42:15.241 --> 1:42:23.561
+Basement
+It's like variable based off of everyone's different face like somebody might use one vial. Somebody might use two for the same service.
+1:42:24.251 --> 1:42:25.691
+Basement
+So I don't know.
+1:42:25.781 --> 1:42:25.901
+Luis Escobar
+MMM.
+1:42:25.971 --> 1:42:33.971
+Basement
+Didn't want to get into a circumstance where people are, you know, either overpaying or underpaying and thinking that that was all their cost.
+1:42:26.491 --> 1:42:26.571
+Luis Escobar
+Oh.
+1:42:34.291 --> 1:42:37.771
+Basement
+So but but but in a sense you're right.
+1:42:37.811 --> 1:42:51.491
+Basement
+I mean, like Hermosa's book talks about creating a package that nobody else can offer, or you know where where you you're not commodity, right? Like a Hydra facial.
+1:42:52.261 --> 1:42:55.381
+Basement
+A unit of talks. All of those are things that you can shop around.
+1:42:55.851 --> 1:43:6.451
+Basement
+Right. But if we created a package that included some intent, tangible type things you know?
+1:43:8.821 --> 1:43:11.181
+Basement
+Then then you you can compare it.
+1:43:12.301 --> 1:43:12.741
+Luis Escobar
+Yeah.
+1:43:12.981 --> 1:43:17.221
+Basement
+And be able to brand something and make it uncom.
+1:43:19.541 --> 1:43:21.61
+Basement
+Parable in the marketplace.
+1:43:22.941 --> 1:43:25.421
+Basement
+It's certainly that designer feel.
+1:43:25.691 --> 1:43:29.91
+Basement
+You know that unique experience?
+1:43:30.781 --> 1:43:31.461
+Basement
+You know, so.
+1:43:31.461 --> 1:43:32.901
+Basement
+So yeah, I mean I think.
+1:43:34.491 --> 1:43:38.171
+Basement
+You know, and you, you'll get a higher margin too.
+1:43:39.31 --> 1:43:40.351
+Luis Escobar
+Yeah. Yeah, no, I agree.
+1:43:43.211 --> 1:43:50.171
+Luis Escobar
+This should also have like a a rewards program. After you spend 1000 bucks you get something.
+1:43:51.941 --> 1:43:52.981
+Luis Escobar
+Or something like that.
+1:43:56.681 --> 1:43:58.1
+Basement
+A lot of the specific.
+1:43:59.531 --> 1:44:3.531
+Basement
+Product brands do have their own rewards.
+1:44:6.221 --> 1:44:8.421
+Basement
+But, but that's not very well explained.
+1:44:10.301 --> 1:44:12.541
+Basement
+And quite frankly, you're you're right.
+1:44:13.701 --> 1:44:14.261
+Basement
+I I kind of hate.
+1:44:20.261 --> 1:44:22.701
+Basement
+Promoting other brand names.
+1:44:24.221 --> 1:44:27.21
+Basement
+When we should have our own, you know.
+1:44:28.701 --> 1:44:28.941
+Basement
+Rewards.
+1:44:29.571 --> 1:44:31.411
+Basement
+Type thing so.
+1:44:32.721 --> 1:44:34.761
+Luis Escobar
+I get it for sure.
+1:44:38.731 --> 1:44:44.971
+Luis Escobar
+Yeah, I'm gonna continue my work and then we can reconvene tomorrow.
+1:44:43.421 --> 1:44:43.581
+Basement
+OK.
+1:44:49.281 --> 1:44:50.1
+Luis Escobar
+Let me see I got.
+1:44:50.1 --> 1:44:51.561
+Luis Escobar
+Yeah, I got everything I need for now.
+1:44:53.811 --> 1:44:59.411
+Luis Escobar
+Oh, one thing I wanted to ask, do you is there any recordings of the in person visit?
+1:45:1.471 --> 1:45:2.911
+Luis Escobar
+Like from start to finish.
+1:45:4.711 --> 1:45:9.311
+Basement
+The in person ones? No, not start to finish or no.
+1:45:7.361 --> 1:45:7.561
+Luis Escobar
+Mm hmm.
+1:45:10.211 --> 1:45:11.531
+Luis Escobar
+'Cause basically like.
+1:45:13.61 --> 1:45:17.141
+Luis Escobar
+If if we can replicate, you know, all those questions, all that you know.
+1:45:18.861 --> 1:45:22.221
+Luis Escobar
+User experience that that people are are experiencing in the office, right?
+1:45:22.221 --> 1:45:27.61
+Luis Escobar
+We'll get an idea of what those questions should be or shouldn't be, or how to ask them.
+1:45:27.761 --> 1:45:28.641
+Luis Escobar
+Went to Aston.
+1:45:30.501 --> 1:45:34.341
+Luis Escobar
+It could influence the way we we present those those questions on the website, right?
+1:45:35.951 --> 1:45:43.271
+Basement
+Have you been given and look, this is a very it's old, but have you been given a final?
+1:45:44.941 --> 1:45:52.221
+Basement
+Story kind of like like the output. Have we given him like a a good example of what our finished product is.
+1:45:54.341 --> 1:46:4.221
+Basement
+You probably need to see that for sure because you know that is the work product, at least for for for now.
+1:45:58.491 --> 1:45:58.691
+Luis Escobar
+Mm hmm.
+1:46:5.141 --> 1:46:5.541
+Basement
+Of what?
+1:46:5.541 --> 1:46:7.421
+Basement
+The health assessment is.
+1:46:8.791 --> 1:46:11.71
+Basement
+Yeah. And I think it's.
+1:46:11.71 --> 1:46:12.351
+Basement
+I don't know.
+1:46:12.351 --> 1:46:30.301
+Basement
+It's really like the best kind of touch point we have with our customers in between appointments is like this, like big document that summarizes all their blood test levels and information that they put on their forms and makes different recommendations based off of their different their active proble.
+1:46:30.791 --> 1:46:32.431
+Basement
+Or symptoms of family history.
+1:46:34.181 --> 1:46:36.261
+Basement
+And black walks through like what?
+1:46:36.261 --> 1:46:39.541
+Basement
+Their how they compare to the optimal range is.
+1:46:39.971 --> 1:46:44.11
+Basement
+And like, what symptoms could be caused by that supposed to?
+1:46:40.791 --> 1:46:40.991
+Luis Escobar
+Mm hmm.
+1:46:44.51 --> 1:46:56.171
+Basement
+And we can we can put all these rules and share it with some kind of like AI mean, you know, where where it could really be super.
+1:46:56.291 --> 1:47:2.171
+Basement
+I'm starting to really think about how we like, like, wanna read kind of reorganize this.
+1:46:56.711 --> 1:46:56.911
+Luis Escobar
+Mm hmm.
+1:47:2.171 --> 1:47:4.771
+Basement
+I mean, it's like almost to the point where it's not.
+1:47:5.501 --> 1:47:8.941
+Basement
+I guess not as much worth trying to figure out how it's built and updating it.
+1:47:9.371 --> 1:47:14.171
+Basement
+More so, just like take the useful parts out that we like and then rebuild it around.
+1:47:14.811 --> 1:47:32.781
+Basement
+So whether that's in Tableau or somewhere else or just just just just making sure that the rules are are correct, you know, I mean what what the optimal values are or are not and do they fall in line with you mean sharing all the rules based that that?
+1:47:23.391 --> 1:47:23.591
+Luis Escobar
+Mm hmm.
+1:47:32.781 --> 1:47:34.531
+Basement
+You already have, right? Yes, for sure.
+1:47:34.531 --> 1:47:35.131
+Basement
+For sure.
+1:47:35.331 --> 1:47:39.371
+Basement
+I just mean in terms of like adding on or maintaining.
+1:47:39.451 --> 1:47:45.731
+Basement
+And updating it like I think, just the way that it's set up right now, there's almost surely better ways to be doing this.
+1:47:45.731 --> 1:47:51.811
+Basement
+And like I don't know the changes that you've wanted me to make or taking like so much longer than what they should.
+1:47:51.811 --> 1:47:53.11
+Basement
+You know, like what?
+1:47:53.11 --> 1:47:56.651
+Basement
+I'm sure like a a current system would be capable of, you know, of doing.
+1:47:56.791 --> 1:47:57.271
+Luis Escobar
+No.
+1:47:58.61 --> 1:47:59.341
+Basement
+So just basically modifying like.
+1:48:1.21 --> 1:48:7.661
+Basement
+The related tables, the custom tables on the database side and making sure all the IDs match basically.
+1:48:8.761 --> 1:48:9.161
+Luis Escobar
+Mm hmm mm hmm.
+1:48:9.781 --> 1:48:9.941
+Basement
+But.
+1:48:10.211 --> 1:48:13.91
+Basement
+I'm sure that there's like an easier way to do this. Where?
+1:48:14.11 --> 1:48:22.611
+Basement
+We could have just drop downs with options so that Ted could go and do it instead of having to write SQL queries or whatever.
+1:48:17.471 --> 1:48:18.71
+Luis Escobar
+Yeah.
+1:48:23.171 --> 1:48:23.971
+Luis Escobar
+No, for sure.
+1:48:24.51 --> 1:48:29.691
+Luis Escobar
+I think that's that's we can have a a deep type meeting just on this, right?
+1:48:30.411 --> 1:48:37.331
+Luis Escobar
+You know it's we just need to figure out the right template, the right approach to figure out one time and then we can duplicate that, right?
+1:48:38.821 --> 1:48:41.301
+Luis Escobar
+As long as we have a really strong and stable foundation.
+1:48:44.461 --> 1:48:46.381
+Luis Escobar
+Yeah, I'm. I'm on the same page on that.
+1:48:48.111 --> 1:49:3.141
+Basement
+And another thing that like I've kind of thought that like we may want to switch away from. We're currently like doing all of our forms through open dental like which is I guess the idea is to have it in the same place to the charts and because their.
+1:49:3.141 --> 1:49:12.911
+Basement
+Story is pulling from all these tables and open dental open dental database, but it's it's a terrible way to create forms like it's just.
+1:49:13.741 --> 1:49:17.181
+Basement
+So like you have to go and set create each check box set.
+1:49:17.651 --> 1:49:34.341
+Basement
+Set it to a reportable field in the database. You know, like each static box like it's impossible for like. I don't know, it's a full time job basically creating and updating forms. I feel like if we were if we were to do that through open data also I.
+1:49:21.431 --> 1:49:21.551
+Luis Escobar
+No.
+1:49:30.41 --> 1:49:30.201
+Luis Escobar
+Yeah.
+1:49:34.341 --> 1:49:34.531
+Basement
+Don't know.
+1:49:34.531 --> 1:49:42.531
+Basement
+At some point, thinking about yeah, the user doing itself journey, the user's journey should be much.
+1:49:43.701 --> 1:49:44.141
+Basement
+Better, I mean.
+1:49:44.701 --> 1:49:45.381
+Luis Escobar
+For sure.
+1:49:45.381 --> 1:49:45.661
+Luis Escobar
+For sure.
+1:49:46.501 --> 1:49:46.741
+Basement
+Yeah.
+1:49:48.131 --> 1:50:6.261
+Luis Escobar
+Yeah, we're going to streamline that. Think, yeah, eventually we're going to have our own, just proprietary, you know, system that that's making the best of of you know the data that makes sense that it's actually beneficial. And I'm sure there's a lot of data that also doesn't really.
+1:49:48.321 --> 1:49:48.681
+Basement
+Yeah.
+1:50:6.291 --> 1:50:9.651
+Luis Escobar
+Help us. And so we we wanna like declutter.
+1:50:9.651 --> 1:50:12.131
+Luis Escobar
+Yeah, that's the other thing with the AI. Right? Like we wanna.
+1:50:13.21 --> 1:50:19.21
+Luis Escobar
+Like, really be like very specific with the instructions we're giving it, right.
+1:50:19.531 --> 1:50:20.91
+Luis Escobar
+And and.
+1:50:21.931 --> 1:50:26.451
+Luis Escobar
+The kind of data that's in the knowledge base should be highly relevant, right?
+1:50:27.941 --> 1:50:29.461
+Luis Escobar
+It would just hallucinate, right?
+1:50:45.571 --> 1:50:45.691
+Luis Escobar
+Umm.
+1:50:52.211 --> 1:50:59.851
+Luis Escobar
+Yeah, there's a there's a. There's a few more services we're gonna have to also sign up to, right? But not immediate. Will probably end the next day or two.
+1:50:59.851 --> 1:51:4.411
+Luis Escobar
+And I can just share that with you as well. Ted and Trent, I can handle that on the next meeting.
+1:51:10.421 --> 1:51:15.301
+Renzo Mogrovejo
+One additional thing I would like to to check with you Luis is.
+1:51:17.61 --> 1:51:18.101
+Renzo Mogrovejo
+If it's OK.
+1:51:18.701 --> 1:51:21.861
+Renzo Mogrovejo
+If we keep using hot spot payments.
+1:51:23.581 --> 1:51:36.381
+Renzo Mogrovejo
+Or we start using a stripe because we want to save the credit card without doing any charge and we can do that with HubSpot payments.
+1:51:31.1 --> 1:51:31.601
+Luis Escobar
+Yeah.
+1:51:36.901 --> 1:51:38.981
+Renzo Mogrovejo
+Maybe there is a workaround?
+1:51:40.411 --> 1:51:40.771
+Luis Escobar
+Wait.
+1:51:41.331 --> 1:51:48.611
+Renzo Mogrovejo
+We charge a $1.00 and then make a refund, but it it is not recommendable, right?
+1:51:49.911 --> 1:51:52.791
+Luis Escobar
+I don't like it either that HubSpot causes us to do that.
+1:51:50.61 --> 1:51:50.261
+Renzo Mogrovejo
+But.
+1:51:54.31 --> 1:51:54.471
+Renzo Mogrovejo
+Yeah.
+1:51:54.581 --> 1:51:56.701
+Luis Escobar
+Have that conflict with another project and.
+1:51:58.941 --> 1:52:7.421
+Luis Escobar
+I you know, I like the idea that, you know, Housewa also has the plate options so people can pay with their bank account and just connect their ACH.
+1:52:9.501 --> 1:52:10.861
+Luis Escobar
+That's really great also.
+1:52:11.771 --> 1:52:11.971
+Renzo Mogrovejo
+Mm hmm.
+1:52:13.621 --> 1:52:26.861
+Luis Escobar
+I encourage my customers to like, you know, my clients to give their customers a discount if they pay with ACH just because it's it's a more guaranteed payment. You know, you can't really do chargebacks on ACH.
+1:52:29.991 --> 1:52:30.591
+Renzo Mogrovejo
+Yeah.
+1:52:30.701 --> 1:52:34.181
+Luis Escobar
+Actually the Holy Grail is Apple Pay, right?
+1:52:34.461 --> 1:52:37.941
+Luis Escobar
+The only way we can achieve Apple Pay is with right now is with Stripe.
+1:52:38.551 --> 1:52:39.391
+Renzo Mogrovejo
+Yes.
+1:52:39.511 --> 1:52:39.991
+Luis Escobar
+Yeah.
+1:52:41.631 --> 1:52:44.711
+Luis Escobar
+So yeah, I think we should. I think we should sign up to Stripe.
+1:52:41.891 --> 1:52:42.451
+Renzo Mogrovejo
+Yes, yes.
+1:52:46.731 --> 1:52:49.51
+Renzo Mogrovejo
+Yeah, we we have an account.
+1:52:49.411 --> 1:52:52.531
+Renzo Mogrovejo
+We I don't know if we are using that account to.
+1:52:50.221 --> 1:52:50.381
+Luis Escobar
+Yeah.
+1:52:53.581 --> 1:52:58.21
+Renzo Mogrovejo
+For in your payments, but we were using that for tripones.
+1:52:59.421 --> 1:53:0.181
+Basement
+Yeah. OK.
+1:53:0.181 --> 1:53:6.141
+Basement
+So that I've allowed that to be suspended only because.
+1:53:5.291 --> 1:53:5.611
+Renzo Mogrovejo
+OK.
+1:53:8.781 --> 1:53:14.21
+Basement
+Well, we we would just have to respond back to them and disconnect.
+1:53:14.301 --> 1:53:17.181
+Basement
+Try tripods because.
+1:53:18.711 --> 1:53:25.351
+Basement
+Right, right. Right now it's showing that we're selling meds online, which is in a strict.
+1:53:26.751 --> 1:53:30.831
+Basement
+Violation. So we we we can move the account.
+1:53:32.671 --> 1:53:37.351
+Basement
+And and certify that we're no no longer selling selling meds.
+1:53:39.671 --> 1:53:40.351
+Basement
+Would it?
+1:53:40.431 --> 1:53:43.271
+Basement
+Would it conflict with any of the aesthetic that like like?
+1:53:46.381 --> 1:53:46.741
+Basement
+No.
+1:53:58.411 --> 1:53:59.51
+Basement
+I do have to go.
+1:53:58.491 --> 1:54:2.11
+Luis Escobar
+Did did HubSpot give you a hard time to get approved?
+1:54:3.711 --> 1:54:7.191
+Basement
+It it I was doing it directly through Stripe.
+1:54:7.191 --> 1:54:15.151
+Basement
+My, my, my communication, my communication was directly with Stripe.
+1:54:7.731 --> 1:54:9.971
+Luis Escobar
+Who strad. OK.
+1:54:15.691 --> 1:54:17.91
+Luis Escobar
+I have an account manager side.
+1:54:17.91 --> 1:54:20.691
+Luis Escobar
+I'm. I'm gonna give him a ping and and see what he can tell me about.
+1:54:22.351 --> 1:54:27.471
+Luis Escobar
+The the medical side of things, I know, I know there are some restrictions there.
+1:54:28.91 --> 1:54:31.331
+Basement
+Yeah, but. But I do think that he'll tell you.
+1:54:31.331 --> 1:54:42.891
+Basement
+She'll tell you that that there is that they do work with like a third party vendor that does manage the high risk.
+1:54:38.941 --> 1:54:39.141
+Luis Escobar
+Mm hmm.
+1:54:44.591 --> 1:54:46.191
+Basement
+Online sales of meds.
+1:54:46.191 --> 1:54:48.991
+Basement
+So I think it's possible.
+1:54:50.991 --> 1:54:51.591
+Basement
+But.
+1:54:52.371 --> 1:54:57.851
+Luis Escobar
+But yeah, hopefully they support the Apple Pay because it will make a difference to the bottom line.
+1:54:58.681 --> 1:55:5.681
+Basement
+But but but I think one of the things that they were trying to do though was you're trying to capture the card on file, right?
+1:55:7.191 --> 1:55:9.991
+Basement
+But and Stripe won't allow you to do that.
+1:55:11.631 --> 1:55:12.551
+Basement
+I thought I read that too.
+1:55:13.711 --> 1:55:16.551
+Basement
+But Renzo, this thing just died.
+1:55:16.141 --> 1:55:17.261
+Luis Escobar
+No you can.
+1:55:17.301 --> 1:55:25.781
+Luis Escobar
+With Apple Pay, you can you can capture the initial payment and then it'll also do the renewal on that. If Apple Pay transaction.
+1:55:26.561 --> 1:55:26.841
+Basement
+OK.
+1:55:26.881 --> 1:55:27.881
+Basement
+It's a MasterCard.
+1:55:28.491 --> 1:55:28.971
+Luis Escobar
+No.
+1:55:28.641 --> 1:55:31.1
+Basement
+Your applic or what?
+1:55:28.811 --> 1:55:36.811
+Brian Hyatt
+There I have the name of of the third party that hams and hers uses.
+1:55:29.161 --> 1:55:29.321
+Renzo Mogrovejo
+Yeah.
+1:55:31.1 --> 1:55:33.201
+Basement
+Whatever card you have a file here.
+1:55:36.811 --> 1:55:39.111
+Brian Hyatt
+I have that written down, so I'll share that with you all.
+1:55:40.141 --> 1:55:40.661
+Luis Escobar
+Perfect.
+1:55:40.251 --> 1:55:40.491
+Basement
+OK.
+1:55:41.941 --> 1:55:48.261
+Luis Escobar
+Yeah, let's, let's get that ball rolling and then hopefully we get approved by the time the sites live.
+1:55:50.801 --> 1:55:54.41
+Luis Escobar
+But yeah, I'll let you go. Ted, I know you gotta go.
+1:55:54.81 --> 1:55:55.241
+Luis Escobar
+I also have to go.
+1:55:55.241 --> 1:55:57.201
+Luis Escobar
+But yeah, we'll we'll reconnect.
+1:56:1.21 --> 1:56:2.981
+Basement
+Perfect. And you can always hit me up for anything you need.
+1:56:2.981 --> 1:56:4.901
+Basement
+I work 24/7 so.
+1:56:5.921 --> 1:56:7.201
+Luis Escobar
+Awesome. Awesome. Right on.
+1:56:8.471 --> 1:56:10.231
+Basement
+Guys, thank you very very much.
+1:56:8.671 --> 1:56:9.311
+Luis Escobar
+Thank you guys.
+1:56:10.511 --> 1:56:11.431
+Basement
+Thank you.
+1:56:11.591 --> 1:56:12.511
+Brian Hyatt
+Thank you.
+1:56:13.231 --> 1:56:13.551
+Luis Escobar
+Bye now.
+1:56:14.441 --> 1:56:14.801
+Ximena Livia
+Thank you.
+1:56:14.861 --> 1:56:14.981
+Basement
+Bye.
+1:56:15.221 --> 1:56:16.701
+Renzo Mogrovejo
+Thank you, guys. See you tomorrow.
+1:56:17.141 --> 1:56:18.421
+Basement
+Bye bye Siri, look up.
