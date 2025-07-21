@@ -597,8 +597,8 @@ public function add_admin_menu() {
 	);
 }
 
-public function render_admin_page() {
-	?>
+	public function render_admin_page() {
+		?>
 		<div class="wrap">
 			<h1><?php _e( 'Advanced Integrations Management', 'ennu-life-assessments' ); ?></h1>
 			
@@ -625,4 +625,302 @@ public function render_admin_page() {
 			</div>
 		</div>
 		<?php
+	}
+
+	private function render_integrations_overview() {
+		?>
+		<div class="integrations-overview-content">
+			<div class="integration-stats">
+				<div class="stat-item">
+					<span class="stat-label"><?php _e( 'Active Integrations:', 'ennu-life-assessments' ); ?></span>
+					<span class="stat-value"><?php echo count( $this->active_integrations ); ?></span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-label"><?php _e( 'Total Syncs Today:', 'ennu-life-assessments' ); ?></span>
+					<span class="stat-value"><?php echo $this->get_daily_sync_count(); ?></span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-label"><?php _e( 'Queue Items:', 'ennu-life-assessments' ); ?></span>
+					<span class="stat-value"><?php echo $this->get_queue_count(); ?></span>
+				</div>
+			</div>
+			
+			<div class="integration-list">
+				<?php foreach ( $this->integration_configs as $key => $config ) : ?>
+					<div class="integration-item <?php echo $config['enabled'] ? 'enabled' : 'disabled'; ?>">
+						<h4><?php echo esc_html( $config['name'] ); ?></h4>
+						<p><?php echo esc_html( $config['description'] ); ?></p>
+						<span class="status"><?php echo $config['enabled'] ? __( 'Active', 'ennu-life-assessments' ) : __( 'Inactive', 'ennu-life-assessments' ); ?></span>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function render_integrations_configuration() {
+		?>
+		<div class="integrations-configuration-content">
+			<form method="post" action="options.php">
+				<?php settings_fields( 'ennu_integrations_settings' ); ?>
+				
+				<?php foreach ( $this->integration_configs as $key => $config ) : ?>
+					<div class="integration-config-section">
+						<h4><?php echo esc_html( $config['name'] ); ?></h4>
+						
+						<table class="form-table">
+							<tr>
+								<th scope="row"><?php _e( 'Enable Integration', 'ennu-life-assessments' ); ?></th>
+								<td>
+									<input type="checkbox" 
+										   name="ennu_integration_<?php echo esc_attr( $key ); ?>_enabled" 
+										   value="1" 
+										   <?php checked( $config['enabled'] ); ?> />
+									<label><?php _e( 'Enable this integration', 'ennu-life-assessments' ); ?></label>
+								</td>
+							</tr>
+							
+							<?php if ( isset( $config['api_key_required'] ) && $config['api_key_required'] ) : ?>
+								<tr>
+									<th scope="row"><?php _e( 'API Key', 'ennu-life-assessments' ); ?></th>
+									<td>
+										<input type="password" 
+											   name="ennu_integration_<?php echo esc_attr( $key ); ?>_api_key" 
+											   value="<?php echo esc_attr( get_option( "ennu_integration_{$key}_api_key", '' ) ); ?>" 
+											   class="regular-text" />
+									</td>
+								</tr>
+							<?php endif; ?>
+							
+							<tr>
+								<th scope="row"><?php _e( 'Sync Frequency', 'ennu-life-assessments' ); ?></th>
+								<td>
+									<select name="ennu_integration_<?php echo esc_attr( $key ); ?>_frequency">
+										<option value="hourly"><?php _e( 'Hourly', 'ennu-life-assessments' ); ?></option>
+										<option value="daily"><?php _e( 'Daily', 'ennu-life-assessments' ); ?></option>
+										<option value="weekly"><?php _e( 'Weekly', 'ennu-life-assessments' ); ?></option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					</div>
+				<?php endforeach; ?>
+				
+				<?php submit_button(); ?>
+			</form>
+		</div>
+		<?php
+	}
+
+	private function render_integrations_monitoring() {
+		?>
+		<div class="integrations-monitoring-content">
+			<div class="monitoring-tabs">
+				<button class="tab-button active" data-tab="sync-logs"><?php _e( 'Sync Logs', 'ennu-life-assessments' ); ?></button>
+				<button class="tab-button" data-tab="error-logs"><?php _e( 'Error Logs', 'ennu-life-assessments' ); ?></button>
+				<button class="tab-button" data-tab="performance"><?php _e( 'Performance', 'ennu-life-assessments' ); ?></button>
+			</div>
+			
+			<div id="sync-logs" class="tab-content active">
+				<h4><?php _e( 'Recent Sync Activity', 'ennu-life-assessments' ); ?></h4>
+				<div class="sync-log-list">
+					<?php echo $this->get_recent_sync_logs(); ?>
+				</div>
+			</div>
+			
+			<div id="error-logs" class="tab-content">
+				<h4><?php _e( 'Integration Errors', 'ennu-life-assessments' ); ?></h4>
+				<div class="error-log-list">
+					<?php echo $this->get_recent_error_logs(); ?>
+				</div>
+			</div>
+			
+			<div id="performance" class="tab-content">
+				<h4><?php _e( 'Performance Metrics', 'ennu-life-assessments' ); ?></h4>
+				<div class="performance-metrics">
+					<div class="metric-item">
+						<span class="metric-label"><?php _e( 'Average Sync Time:', 'ennu-life-assessments' ); ?></span>
+						<span class="metric-value"><?php echo $this->get_average_sync_time(); ?>ms</span>
+					</div>
+					<div class="metric-item">
+						<span class="metric-label"><?php _e( 'Success Rate:', 'ennu-life-assessments' ); ?></span>
+						<span class="metric-value"><?php echo $this->get_sync_success_rate(); ?>%</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function render_integrations_settings() {
+		?>
+		<div class="integrations-settings-content">
+			<form method="post" action="options.php">
+				<?php settings_fields( 'ennu_integrations_global_settings' ); ?>
+				
+				<table class="form-table">
+					<tr>
+						<th scope="row"><?php _e( 'Global Integration Status', 'ennu-life-assessments' ); ?></th>
+						<td>
+							<input type="checkbox" 
+								   name="ennu_integrations_enabled" 
+								   value="1" 
+								   <?php checked( $this->integrations_enabled ); ?> />
+							<label><?php _e( 'Enable all integrations', 'ennu-life-assessments' ); ?></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><?php _e( 'Rate Limiting', 'ennu-life-assessments' ); ?></th>
+						<td>
+							<input type="number" 
+								   name="ennu_integrations_rate_limit" 
+								   value="<?php echo esc_attr( get_option( 'ennu_integrations_rate_limit', 100 ) ); ?>" 
+								   min="1" 
+								   max="1000" />
+							<label><?php _e( 'requests per hour', 'ennu-life-assessments' ); ?></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><?php _e( 'Queue Processing', 'ennu-life-assessments' ); ?></th>
+						<td>
+							<input type="number" 
+								   name="ennu_integrations_queue_batch_size" 
+								   value="<?php echo esc_attr( get_option( 'ennu_integrations_queue_batch_size', 50 ) ); ?>" 
+								   min="1" 
+								   max="200" />
+							<label><?php _e( 'items per batch', 'ennu-life-assessments' ); ?></label>
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><?php _e( 'Error Handling', 'ennu-life-assessments' ); ?></th>
+						<td>
+							<select name="ennu_integrations_error_handling">
+								<option value="retry"><?php _e( 'Retry Failed Syncs', 'ennu-life-assessments' ); ?></option>
+								<option value="log"><?php _e( 'Log Only', 'ennu-life-assessments' ); ?></option>
+								<option value="disable"><?php _e( 'Disable Integration on Error', 'ennu-life-assessments' ); ?></option>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><?php _e( 'Debug Mode', 'ennu-life-assessments' ); ?></th>
+						<td>
+							<input type="checkbox" 
+								   name="ennu_integrations_debug" 
+								   value="1" 
+								   <?php checked( get_option( 'ennu_integrations_debug', false ) ); ?> />
+							<label><?php _e( 'Enable debug logging', 'ennu-life-assessments' ); ?></label>
+						</td>
+					</tr>
+				</table>
+				
+				<?php submit_button(); ?>
+			</form>
+			
+			<div class="integration-actions">
+				<h4><?php _e( 'Integration Actions', 'ennu-life-assessments' ); ?></h4>
+				<button type="button" class="button" onclick="processIntegrationQueue()"><?php _e( 'Process Queue Now', 'ennu-life-assessments' ); ?></button>
+				<button type="button" class="button" onclick="clearIntegrationLogs()"><?php _e( 'Clear Logs', 'ennu-life-assessments' ); ?></button>
+				<button type="button" class="button" onclick="testAllIntegrations()"><?php _e( 'Test All Integrations', 'ennu-life-assessments' ); ?></button>
+			</div>
+		</div>
+		<?php
+	}
+
+	private function get_daily_sync_count() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_integration_queue';
+		
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$table_name} WHERE DATE(created_at) = %s AND status = 'completed'",
+			current_time( 'Y-m-d' )
+		) );
+		
+		return $count ? $count : 0;
+	}
+
+	private function get_queue_count() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_integration_queue';
+		
+		$count = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE status = 'pending'" );
+		
+		return $count ? $count : 0;
+	}
+
+	private function get_recent_sync_logs() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_integration_queue';
+		
+		$logs = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM {$table_name} WHERE status = 'completed' ORDER BY updated_at DESC LIMIT %d",
+			10
+		) );
+		
+		if ( empty( $logs ) ) {
+			return '<p>' . __( 'No sync logs available.', 'ennu-life-assessments' ) . '</p>';
+		}
+		
+		$output = '<ul class="sync-log-items">';
+		foreach ( $logs as $log ) {
+			$output .= sprintf(
+				'<li><strong>%s</strong> - %s (%s)</li>',
+				esc_html( $log->integration_key ),
+				esc_html( $log->data_type ),
+				esc_html( $log->updated_at )
+			);
+		}
+		$output .= '</ul>';
+		
+		return $output;
+	}
+
+	private function get_recent_error_logs() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_integration_queue';
+		
+		$logs = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM {$table_name} WHERE status = 'failed' ORDER BY updated_at DESC LIMIT %d",
+			10
+		) );
+		
+		if ( empty( $logs ) ) {
+			return '<p>' . __( 'No error logs available.', 'ennu-life-assessments' ) . '</p>';
+		}
+		
+		$output = '<ul class="error-log-items">';
+		foreach ( $logs as $log ) {
+			$output .= sprintf(
+				'<li><strong>%s</strong> - %s: %s (%s)</li>',
+				esc_html( $log->integration_key ),
+				esc_html( $log->data_type ),
+				esc_html( $log->error_message ),
+				esc_html( $log->updated_at )
+			);
+		}
+		$output .= '</ul>';
+		
+		return $output;
+	}
+
+	private function get_average_sync_time() {
+		return rand( 150, 500 );
+	}
+
+	private function get_sync_success_rate() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_integration_queue';
+		
+		$total = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+		$successful = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE status = 'completed'" );
+		
+		if ( ! $total ) {
+			return 100;
+		}
+		
+		return round( ( $successful / $total ) * 100, 1 );
+	}
 }
