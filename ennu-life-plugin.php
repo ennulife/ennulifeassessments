@@ -1,22 +1,22 @@
 <?php
 /**
  * Plugin Name: ENNU Life Assessments
- * Plugin URI: https://ennulife.com/plugin
- * Description: Comprehensive health assessment system with Four-Engine scoring, biomarker integration, and personalized health insights for WordPress.
- * Version: 62.3.3
- * Requires at least: 5.0
- * Tested up to: 6.8.2
- * Requires PHP: 7.4
- * Author: Luis Escobar
+ * Plugin URI: https://ennulife.com
+ * Description: Comprehensive health assessment and optimization platform
+ * Version: 63.17.0
+ * Author: ENNU Life
  * Author URI: https://ennulife.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ennu-life-assessments
+ * Text Domain: ennulifeassessments
  * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
  * Network: false
  *
  * @package ENNU_Life_Assessments
- * @version 62.2.9
+ * @version 62.3.8
  * @author Luis Escobar
  * @license GPL v2 or later
 **/
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'ENNU_LIFE_VERSION', '62.2.33' );
+define( 'ENNU_LIFE_VERSION', '63.17.0' );
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -186,10 +186,10 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Initialize components
 		 */
 		private function init_components() {
-			// Initialize database - with class existence check
-			if ( class_exists( 'ENNU_Enhanced_Database' ) ) {
-				$this->database = new ENNU_Enhanced_Database();
-			}
+					// Initialize database - with class existence check
+		if ( class_exists( 'ENNU_Life_Enhanced_Database' ) ) {
+			$this->database = new ENNU_Life_Enhanced_Database();
+		}
 
 			// Initialize admin - with class existence check
 			if ( class_exists( 'ENNU_Enhanced_Admin' ) ) {
@@ -202,6 +202,78 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				error_log( 'ENNU Life Plugin: Initialized Health Goals AJAX handlers' );
 			} else {
 				error_log( 'ENNU Life Plugin: WARNING - ENNU_Health_Goals_Ajax class not found' );
+			}
+
+			// Initialize Medical Role Manager - PHASE 10
+			if ( class_exists( 'ENNU_Medical_Role_Manager' ) ) {
+				ENNU_Medical_Role_Manager::init();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Medical_Role_Manager' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Medical_Role_Manager class not found' );
+			}
+
+			// Initialize Role-Based Access Control - PHASE 11
+			if ( class_exists( 'ENNU_Role_Based_Access_Control' ) ) {
+				new ENNU_Role_Based_Access_Control();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Role_Based_Access_Control' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Role_Based_Access_Control class not found' );
+			}
+
+			// Initialize Biomarker Flag Manager - PHASE 5
+			if ( class_exists( 'ENNU_Biomarker_Flag_Manager' ) ) {
+				new ENNU_Biomarker_Flag_Manager();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Biomarker_Flag_Manager' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Biomarker_Flag_Manager class not found' );
+			}
+
+			// Initialize Lab Data Landing System - PHASE 6
+			if ( class_exists( 'ENNU_Lab_Data_Landing_System' ) ) {
+				new ENNU_Lab_Data_Landing_System();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Lab_Data_Landing_System' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Lab_Data_Landing_System class not found' );
+			}
+
+			// Initialize Trends Visualization System - PHASE 8
+			if ( class_exists( 'ENNU_Trends_Visualization_System' ) ) {
+				ENNU_Trends_Visualization_System::init();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Trends_Visualization_System' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Trends_Visualization_System class not found' );
+			}
+
+			// Initialize Recommended Range Manager - PHASE 9
+			if ( class_exists( 'ENNU_Recommended_Range_Manager' ) ) {
+				new ENNU_Recommended_Range_Manager();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Recommended_Range_Manager' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Recommended_Range_Manager class not found' );
+			}
+
+			// Initialize Enhanced Dashboard Manager - PHASE 13
+			if ( class_exists( 'ENNU_Enhanced_Dashboard_Manager' ) ) {
+				new ENNU_Enhanced_Dashboard_Manager();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Dashboard_Manager' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Enhanced_Dashboard_Manager class not found' );
+			}
+
+			// Initialize Goal Progression Tracker - PHASE 12
+			if ( class_exists( 'ENNU_Goal_Progression_Tracker' ) ) {
+				new ENNU_Goal_Progression_Tracker();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Goal_Progression_Tracker' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_Goal_Progression_Tracker class not found' );
+			}
+
+			// Initialize CSRF Protection - PHASE 0
+			if ( class_exists( 'ENNU_CSRF_Protection' ) ) {
+				ENNU_CSRF_Protection::get_instance();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_CSRF_Protection' );
+			} else {
+				error_log( 'ENNU Life Plugin: WARNING - ENNU_CSRF_Protection class not found' );
 			}
 
 			// Initialize shortcodes on init hook to ensure proper timing

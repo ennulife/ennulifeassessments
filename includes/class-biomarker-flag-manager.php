@@ -130,11 +130,41 @@ class ENNU_Biomarker_Flag_Manager {
 	}
 
 	/**
+	 * Get biomarker flags for a specific biomarker
+	 *
+	 * @param int $user_id User ID
+	 * @param string $biomarker_name Biomarker name
+	 * @return array Array of flags for the biomarker
+	 */
+	public function get_biomarker_flags( $user_id, $biomarker_name ) {
+		$all_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
+		
+		if ( empty( $all_flags ) || ! is_array( $all_flags ) ) {
+			return array();
+		}
+
+		$biomarker_flags = array();
+		foreach ( $all_flags as $flag_id => $flag_data ) {
+			if ( isset( $flag_data['biomarker_name'] ) && $flag_data['biomarker_name'] === $biomarker_name ) {
+				if ( isset( $flag_data['status'] ) && $flag_data['status'] === 'active' ) {
+					$biomarker_flags[] = array(
+						'type' => $flag_data['flag_type'],
+						'reason' => $flag_data['reason'],
+						'flagged_at' => $flag_data['flagged_at']
+					);
+				}
+			}
+		}
+
+		return $biomarker_flags;
+	}
+
+	/**
 	 * Get flagged biomarkers for a user
 	 *
 	 * @param int $user_id User ID
-	 * @param string $status Flag status (active, removed, all)
-	 * @return array Flagged biomarkers
+	 * @param string $status Flag status (active, resolved, all)
+	 * @return array Array of flagged biomarkers
 	 */
 	public function get_flagged_biomarkers( $user_id, $status = 'active' ) {
 		$all_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );

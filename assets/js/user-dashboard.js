@@ -3,13 +3,18 @@
  * This file controls all the interactivity for the "Bio-Metric Canvas" dashboard.
  */
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('ENNU Dashboard: DOM Content Loaded');
     
     const dashboardEl = document.querySelector('.ennu-user-dashboard');
     if (dashboardEl) {
+        console.log('ENNU Dashboard: Dashboard element found, initializing...');
         new ENNUDashboard(dashboardEl);
+    } else {
+        console.log('ENNU Dashboard: Dashboard element not found');
     }
     
     // Initialize My Story Tabs independently to ensure they work
+    console.log('ENNU Dashboard: Initializing My Story Tabs Manager...');
     const storyTabsManager = new MyStoryTabsManager();
 });
 
@@ -19,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 class MyStoryTabsManager {
     constructor() {
+        console.log('MyStoryTabsManager: Constructor called');
         this.activeTab = 'tab-my-assessments';
         this.tabContainer = null;
         this.tabLinks = [];
@@ -28,27 +34,35 @@ class MyStoryTabsManager {
     }
     
     init() {
+        console.log('MyStoryTabsManager: Init called');
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
+            console.log('MyStoryTabsManager: DOM still loading, adding event listener');
             document.addEventListener('DOMContentLoaded', () => this.initialize());
         } else {
+            console.log('MyStoryTabsManager: DOM ready, initializing immediately');
             this.initialize();
         }
     }
     
     initialize() {
+        console.log('MyStoryTabsManager: Initialize called');
         this.tabContainer = document.querySelector('.my-story-tabs');
         
         if (!this.tabContainer) {
+            console.error('MyStoryTabsManager: Tab container not found!');
             return;
         }
         
+        console.log('MyStoryTabsManager: Tab container found');
         
         this.tabLinks = this.tabContainer.querySelectorAll('.my-story-tab-nav a');
         this.tabContents = this.tabContainer.querySelectorAll('.my-story-tab-content');
         
+        console.log('MyStoryTabsManager: Found', this.tabLinks.length, 'tab links and', this.tabContents.length, 'tab contents');
         
         if (this.tabLinks.length === 0 || this.tabContents.length === 0) {
+            console.error('MyStoryTabsManager: No tab links or contents found!');
             return;
         }
         
@@ -61,6 +75,7 @@ class MyStoryTabsManager {
     }
     
     activateFirstTab() {
+        console.log('MyStoryTabsManager: Activating first tab');
         // Hide all tab contents first
         this.tabContents.forEach(content => {
             content.classList.remove('my-story-tab-active');
@@ -80,6 +95,9 @@ class MyStoryTabsManager {
             const firstTabId = firstLink.getAttribute('href');
             const firstContent = document.querySelector(firstTabId);
             
+            console.log('MyStoryTabsManager: First tab ID:', firstTabId);
+            console.log('MyStoryTabsManager: First content element:', firstContent);
+            
             if (firstContent) {
                 firstLink.classList.add('my-story-tab-active');
                 firstContent.classList.add('my-story-tab-active');
@@ -92,47 +110,33 @@ class MyStoryTabsManager {
                 }, 50);
                 
                 this.activeTab = firstTabId.substring(1);
+                console.log('MyStoryTabsManager: First tab activated:', this.activeTab);
+            } else {
+                console.error('MyStoryTabsManager: First content element not found!');
             }
         }
     }
     
     setupEventListeners() {
+        console.log('MyStoryTabsManager: Setting up event listeners');
         
-        this.tabLinks.forEach((link, index) => {
-            
-            // Click event
+        this.tabLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                this.switchToTab(link.getAttribute('href'));
-            });
-            
-            // Keyboard events
-            link.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.switchToTab(link.getAttribute('href'));
-                } else if (e.key === 'ArrowRight') {
-                    e.preventDefault();
-                    this.navigateToNextTab(1);
-                } else if (e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    this.navigateToNextTab(-1);
-                }
+                const targetId = link.getAttribute('href');
+                console.log('MyStoryTabsManager: Tab clicked:', targetId);
+                this.switchToTab(targetId);
             });
         });
         
-        // Add event listeners for switch-tab buttons within tab content
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('switch-tab') || e.target.closest('.switch-tab')) {
+        // Add keyboard navigation
+        this.tabContainer.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
-                const button = e.target.classList.contains('switch-tab') ? e.target : e.target.closest('.switch-tab');
-                const targetTab = button.getAttribute('data-tab');
-                if (targetTab) {
-                    this.switchToTab('#' + targetTab);
-                }
+                const direction = e.key === 'ArrowLeft' ? -1 : 1;
+                this.navigateToNextTab(direction);
             }
         });
-        
     }
     
     addAccessibilityAttributes() {
@@ -158,16 +162,21 @@ class MyStoryTabsManager {
     }
     
     switchToTab(targetId) {
+        console.log('MyStoryTabsManager: switchToTab called with:', targetId);
         
         if (!targetId.startsWith('#')) {
             targetId = '#' + targetId;
         }
         
+        console.log('MyStoryTabsManager: Normalized targetId:', targetId);
+        
         const targetContent = document.querySelector(targetId);
         if (!targetContent) {
+            console.error('MyStoryTabsManager: Target content not found for:', targetId);
             return;
         }
         
+        console.log('MyStoryTabsManager: Target content found:', targetContent);
         
         // Remove active class from all tabs and contents
         this.tabLinks.forEach(link => {
@@ -187,9 +196,12 @@ class MyStoryTabsManager {
         // Add active class to selected tab and content
         const activeLink = this.tabContainer.querySelector(`a[href="${targetId}"]`);
         if (activeLink) {
+            console.log('MyStoryTabsManager: Active link found:', activeLink);
             activeLink.classList.add('my-story-tab-active');
             activeLink.setAttribute('aria-selected', 'true');
             activeLink.setAttribute('tabindex', '0');
+        } else {
+            console.error('MyStoryTabsManager: Active link not found for:', targetId);
         }
         
         // Show target content
@@ -205,7 +217,10 @@ class MyStoryTabsManager {
         
         // Update active tab reference
         this.activeTab = targetId.substring(1);
+        console.log('MyStoryTabsManager: Tab switched to:', this.activeTab);
         
+        // Trigger custom event
+        this.triggerTabChangeEvent(targetId, activeLink, targetContent);
     }
     
     navigateToNextTab(direction) {

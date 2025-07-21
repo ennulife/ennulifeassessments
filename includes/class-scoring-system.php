@@ -17,6 +17,9 @@ class ENNU_Scoring_System {
 	private static $pillar_map      = array();
 
 	public static function get_all_definitions() {
+		// Force refresh for testing - remove this line after verification
+		delete_transient( 'ennu_assessment_definitions_v1' );
+		
 		if ( ! empty( self::$all_definitions ) ) {
 			return self::$all_definitions;
 		}
@@ -48,6 +51,9 @@ class ENNU_Scoring_System {
 	}
 
 	public static function get_health_pillar_map() {
+		// Force refresh for testing - remove this line after verification
+		delete_transient( 'ennu_pillar_map_v1' );
+		
 		if ( ! empty( self::$pillar_map ) ) {
 			return self::$pillar_map;
 		}
@@ -241,7 +247,7 @@ class ENNU_Scoring_System {
 		}
 
 		// 6. Calculate Final ENNU Life Score with all engine adjustments
-		$ennu_life_score_calculator = new ENNU_Life_Score_Calculator( $user_id, $final_pillar_scores, $health_goals, $goal_definitions );
+		$ennu_life_score_calculator = new ENNU_Life_Score_Calculator( $user_id, $final_pillar_scores, $all_definitions, $health_goals, $goal_definitions );
 		$ennu_life_score_data       = $ennu_life_score_calculator->calculate();
 
 		update_user_meta( $user_id, 'ennu_life_score_data', $ennu_life_score_data );
@@ -256,7 +262,7 @@ class ENNU_Scoring_System {
 		}
 
 		$score_history[] = array(
-			'score'                         => $ennu_life_score_data['ennu_life_score'],
+			'score'                         => is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 0,
 			'date'                          => current_time( 'mysql' ),
 			'timestamp'                     => time(),
 			'goal_boost_applied'            => ! empty( $intentionality_data['boost_summary']['boosts_applied'] ),
@@ -268,7 +274,8 @@ class ENNU_Scoring_System {
 		update_user_meta( $user_id, 'ennu_score_history', $score_history );
 
 		$metrics = $performance_monitor->end_timer( 'scoring_calculation' );
-		error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $ennu_life_score_data['ennu_life_score'] . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+		$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
+		error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
 
 		return $ennu_life_score_data;
 	}

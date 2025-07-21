@@ -70,7 +70,7 @@ if ( empty( $assessment_type ) ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Main Score Orb -->
+			<!-- Assessment Score Orb -->
 			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ); ?>">
 				<svg viewBox="0 0 36 36">
 					<defs>
@@ -84,7 +84,41 @@ if ( empty( $assessment_type ) ) {
 				</svg>
 				<div class="ennu-score-text">
 					<div class="ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-					<div class="ennu-score-label"><?php echo esc_html( $assessment_title ); ?> Score</div>
+					<div class="ennu-score-label">Assessment Score</div>
+				</div>
+			</div>
+
+			<!-- ENNU Life Score and Pillar Scores Container -->
+			<div class="ennu-glass-card">
+				<h3 class="ennu-section-title">Your ENNU Life Score</h3>
+				<div class="ennu-card-content">
+					<?php
+					$ennu_life_score = get_user_meta( $user_id, 'ennu_life_score', true );
+					$ennu_life_score = is_numeric( $ennu_life_score ) ? $ennu_life_score : 0;
+					$pillar_scores = get_user_meta( $user_id, 'ennu_pillar_scores', true );
+					$pillar_scores = is_array( $pillar_scores ) ? $pillar_scores : array();
+					?>
+					
+					<!-- ENNU Life Score Display -->
+					<div class="ennu-life-score-display">
+						<div class="ennu-life-score-value"><?php echo esc_html( number_format( $ennu_life_score, 1 ) ); ?></div>
+						<div class="ennu-life-score-label">ENNU Life Score</div>
+					</div>
+					
+					<!-- Pillar Scores -->
+					<?php if ( ! empty( $pillar_scores ) ) : ?>
+						<div class="ennu-pillar-scores">
+							<h4>Pillar Breakdown</h4>
+							<div class="ennu-pillar-grid">
+								<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
+									<div class="ennu-pillar-item">
+										<div class="ennu-pillar-name"><?php echo esc_html( $pillar ); ?></div>
+										<div class="ennu-pillar-score"><?php echo esc_html( number_format( $pillar_score, 1 ) ); ?></div>
+									</div>
+								<?php endforeach; ?>
+							</div>
+						</div>
+					<?php endif; ?>
 				</div>
 			</div>
 

@@ -545,6 +545,8 @@ final class ENNU_Assessment_Shortcodes {
 			}
 			$saved_value = get_user_meta( $user_id, $meta_key, true );
 
+			error_log( "ENNU DEBUG: Pre-populating field {$question_key} -> {$meta_key} -> " . ( is_array( $saved_value ) ? json_encode( $saved_value ) : $saved_value ) );
+
 			if ( 'multiselect' === ( $question['type'] ?? '' ) ) {
 				$pre_selected_value = is_array( $saved_value ) ? $saved_value : array();
 			} else {
@@ -1101,7 +1103,13 @@ final class ENNU_Assessment_Shortcodes {
 		$this->_log_submission_debug( 'Assessment-specific meta data saved.' );
 
 		// 8. ROUTE TO THE CORRECT ENGINE
-		$assessment_config = $this->all_definitions[ $form_data['assessment_type'] ] ?? array();
+		// Convert assessment type to match config file naming convention
+		$config_assessment_type = $form_data['assessment_type'];
+		if ( $form_data['assessment_type'] === 'health_optimization_assessment' ) {
+			$config_assessment_type = 'health-optimization';
+		}
+		
+		$assessment_config = $this->all_definitions[ $config_assessment_type ] ?? array();
 		$this->_log_submission_debug( 'Routing to assessment engine.', $assessment_config['assessment_engine'] ?? 'quantitative' );
 		if ( isset( $assessment_config['assessment_engine'] ) && $assessment_config['assessment_engine'] === 'qualitative' ) {
 
@@ -1514,15 +1522,23 @@ final class ENNU_Assessment_Shortcodes {
 		$assessment_type = $data['assessment_type'];
 		$questions       = $this->get_assessment_questions( $assessment_type );
 
+		error_log( "ENNU DEBUG: Saving global meta for user {$user_id}, assessment {$assessment_type}" );
+		error_log( "ENNU DEBUG: Form data keys: " . implode( ', ', array_keys( $data ) ) );
+
 		foreach ( $questions as $question_id => $question_def ) {
 			if ( isset( $question_def['global_key'] ) ) {
 				$meta_key      = 'ennu_global_' . $question_def['global_key'];
 				$value_to_save = null;
 
+				error_log( "ENNU DEBUG: Processing global field {$question_id} -> {$meta_key}" );
+
 				// Handle special field types that have different data keys
 				if ( $question_def['type'] === 'dob_dropdowns' ) {
 					if ( isset( $data['dob_combined'] ) ) {
 						$value_to_save = sanitize_text_field( $data['dob_combined'] );
+						error_log( "ENNU DEBUG: DOB field - value: {$value_to_save}" );
+					} else {
+						error_log( "ENNU DEBUG: DOB field - dob_combined not found in data" );
 					}
 				} elseif ( $question_def['type'] === 'height_weight' ) {
 					if ( isset( $data['height_ft'], $data['height_in'], $data['weight_lbs'] ) ) {
@@ -1531,11 +1547,17 @@ final class ENNU_Assessment_Shortcodes {
 							'in'  => sanitize_text_field( $data['height_in'] ),
 							'lbs' => sanitize_text_field( $data['weight_lbs'] ),
 						);
+						error_log( "ENNU DEBUG: Height/Weight field - value: " . json_encode( $value_to_save ) );
+					} else {
+						error_log( "ENNU DEBUG: Height/Weight field - missing required fields" );
 					}
 				} else {
 					// Standard fields
 					if ( isset( $data[ $question_id ] ) ) {
 						$value_to_save = $data[ $question_id ];
+						error_log( "ENNU DEBUG: Standard field {$question_id} - value: " . ( is_array( $value_to_save ) ? json_encode( $value_to_save ) : $value_to_save ) );
+					} else {
+						error_log( "ENNU DEBUG: Standard field {$question_id} - not found in form data" );
 					}
 				}
 
@@ -1543,10 +1565,14 @@ final class ENNU_Assessment_Shortcodes {
 				if ( $value_to_save !== null ) {
 					if ( is_array( $value_to_save ) ) {
 						// No need to sanitize here as individual parts are sanitized above
-						update_user_meta( $user_id, $meta_key, $value_to_save );
+						$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+						error_log( "ENNU DEBUG: Saved array global field {$meta_key} - result: " . ( $result ? 'success' : 'failed' ) );
 					} else {
-						update_user_meta( $user_id, $meta_key, sanitize_text_field( $value_to_save ) );
+						$result = update_user_meta( $user_id, $meta_key, sanitize_text_field( $value_to_save ) );
+						error_log( "ENNU DEBUG: Saved string global field {$meta_key} - result: " . ( $result ? 'success' : 'failed' ) );
 					}
+				} else {
+					error_log( "ENNU DEBUG: Skipped saving {$meta_key} - no value to save" );
 				}
 			}
 		}
@@ -2135,8 +2161,8 @@ final class ENNU_Assessment_Shortcodes {
 		);
 
 		foreach ( $assessment_configs as $key => $config ) {
-			// Skip welcome assessment and health optimization assessment as they have special handling
-			if ( 'welcome_assessment' === $key || 'health_optimization_assessment' === $key ) {
+			// Skip welcome assessment as it has special handling
+			if ( 'welcome_assessment' === $key ) {
 				continue;
 			}
 
@@ -2154,8 +2180,14 @@ final class ENNU_Assessment_Shortcodes {
 			$assessment_url = $this->get_assessment_page_url( $key );
 			$details_url    = $this->get_page_id_url( $details_slug );
 
-			$score        = get_user_meta( $user_id, 'ennu_' . $key . '_calculated_score', true );
-			$is_completed = 'qualitative' === ( $config['assessment_engine'] ?? '' ) ? (bool) get_user_meta( $user_id, 'ennu_' . $key . '_symptom_q1', true ) : ! empty( $score );
+			// Special handling for Health Optimization Assessment (qualitative)
+			if ( $key === 'health_optimization_assessment' ) {
+				$is_completed = (bool) get_user_meta( $user_id, 'ennu_health_optimization_assessment_symptom_q1', true );
+				$score = $is_completed ? 'Qualitative Analysis' : 0; // Health Optimization shows analysis, not numerical score
+			} else {
+				$score        = get_user_meta( $user_id, 'ennu_' . $key . '_calculated_score', true );
+				$is_completed = 'qualitative' === ( $config['assessment_engine'] ?? '' ) ? (bool) get_user_meta( $user_id, 'ennu_' . $key . '_symptom_q1', true ) : ! empty( $score );
+			}
 
 			$user_assessments[ $key ] = array(
 				'key'         => $key,
@@ -2705,6 +2737,11 @@ final class ENNU_Assessment_Shortcodes {
 		// Get user health goals
 		$health_goals_data = $this->get_user_health_goals( $user_id );
 
+		// DEBUG: Log user assessments data
+		error_log( '[ENNU DEBUG] User Assessments Data: ' . print_r( $user_assessments, true ) );
+		error_log( '[ENNU DEBUG] ENNU Life Score: ' . $ennu_life_score );
+		error_log( '[ENNU DEBUG] Average Pillar Scores: ' . print_r( $average_pillar_scores, true ) );
+		
 		$data = compact(
 			'current_user',
 			'ennu_life_score',
