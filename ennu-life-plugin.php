@@ -140,7 +140,6 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-performance-monitor.php',
 				'class-database-optimizer.php',
 				'class-assessment-ajax-handler.php',
-				'class-rest-api.php',
 
 				// Four-Engine Scoring Symphony Implementation
 				'class-intentionality-engine.php',
@@ -218,6 +217,14 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Shortcodes on plugins_loaded hook.' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - ENNU_Assessment_Shortcodes class not found!' );
+			}
+
+			// Initialize REST API
+			if ( class_exists( 'ENNU_REST_API' ) ) {
+				ENNU_REST_API::init();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_REST_API.' );
+			} else {
+				error_log( 'ENNU Life Plugin: ERROR - ENNU_REST_API class not found!' );
 			}
 		}
 
