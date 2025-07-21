@@ -433,10 +433,24 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			
 			add_action( 'ennu_biomarkers_imported', array( 'ENNU_Biomarker_Flag_Manager', 'auto_flag_biomarkers' ), 10, 2 );
 			
+			// Initialize Phase 3 components
+			$this->init_phase_3_components();
+			
 			// Initialize REST API
 			add_action( 'rest_api_init', array( $this, 'init_rest_api' ) );
 			
 			error_log('ENNU Life Plugin: Initialized Phase 1 components');
+		}
+
+		/**
+		 * Initialize Phase 3 components (Universal Data Collection)
+		 */
+		private function init_phase_3_components() {
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-progressive-data-collector.php';
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-smart-question-display.php';
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-enhanced-health-goals.php';
+			
+			error_log('ENNU Life Plugin: Initialized Phase 3 components');
 		}
 
 		/**
