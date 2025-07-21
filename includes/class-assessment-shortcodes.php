@@ -6,9 +6,9 @@
  * and WordPress standards compliance.
  *
  * @package ENNU_Life
- * @version 14.1.11
+ * @version 62.2.8
  * @author ENNU Life Development Team
- * @since 14.1.11
+ * @since 62.2.8
  */
 
 // Prevent direct access

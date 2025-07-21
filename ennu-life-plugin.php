@@ -133,6 +133,15 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-comprehensive-assessment-display.php',
 				'class-score-cache.php',
 				'class-centralized-symptoms-manager.php',
+				
+				'class-smart-defaults-generator.php',
+				'class-profile-completeness-tracker.php',
+				'class-goal-progression-tracker.php',
+				'class-biomarker-flag-manager.php',
+				'class-immediate-score-calculator.php',
+				'class-rest-api-controller.php',
+				'class-security-enhancements.php',
+				'class-lab-data-landing-system.php',
 			);
 
 			foreach ( $includes as $file ) {
@@ -170,6 +179,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			// Initialize shortcodes on init hook to ensure proper timing
 			add_action( 'init', array( $this, 'init_shortcodes' ), 5 ); // Priority 5 to run before shortcode registration
+			
+			// Initialize Phase 1 components
+			$this->init_phase_1_components();
 		}
 
 		/**
@@ -407,6 +419,35 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 */
 		public function get_shortcode_handler() {
 			return $this->shortcodes;
+		}
+
+		/**
+		 * Initialize Phase 1 components
+		 */
+		private function init_phase_1_components() {
+			add_action( 'ennu_assessment_submitted', array( 'ENNU_Immediate_Score_Calculator', 'trigger_after_assessment' ), 10, 3 );
+			
+			add_action( 'ennu_user_data_updated', array( 'ENNU_Profile_Completeness_Tracker', 'calculate_completeness' ), 10, 1 );
+			
+			add_action( 'ennu_scores_updated', array( 'ENNU_Goal_Progression_Tracker', 'track_progression' ), 10, 1 );
+			
+			add_action( 'ennu_biomarkers_imported', array( 'ENNU_Biomarker_Flag_Manager', 'auto_flag_biomarkers' ), 10, 2 );
+			
+			// Initialize REST API
+			add_action( 'rest_api_init', array( $this, 'init_rest_api' ) );
+			
+			error_log('ENNU Life Plugin: Initialized Phase 1 components');
+		}
+
+		/**
+		 * Initialize REST API endpoints
+		 */
+		public function init_rest_api() {
+			if ( class_exists( 'ENNU_REST_API_Controller' ) ) {
+				$rest_controller = new ENNU_REST_API_Controller();
+				$rest_controller->register_routes();
+				error_log('ENNU Life Plugin: Initialized REST API endpoints');
+			}
 		}
 
 		/**

@@ -6,7 +6,7 @@
  * error handling for zero-issue deployment.
  *
  * @package ENNU_Life
- * @version 23.1.0
+ * @version 62.2.8
  * @author Manus - World's Greatest WordPress Developer
  */
 

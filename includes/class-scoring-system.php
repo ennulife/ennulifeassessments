@@ -6,14 +6,8 @@
  * individual calculator classes to produce the final scores and recommendations.
  *
  * @package ENNU_Life
- * @version 60.0.0
+ * @version 62.2.8
  */
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
-// phpcs:disable WordPress.Security.NonceVerification.Missing
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
