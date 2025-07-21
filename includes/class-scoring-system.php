@@ -4,7 +4,7 @@
  * Handles all scoring calculations and data management
  *
  * @package ENNU_Life
- * @version 62.2.9
+ * @version 62.2.8
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -492,3 +492,4 @@ class ENNU_Scoring_System {
         );
     }
 }
+
