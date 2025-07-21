@@ -11,7 +11,6 @@
 return array(
     'title' => 'Testosterone Assessment',
     'assessment_engine' => 'quantitative',
-    'gender_filter' => 'male',
     'questions' => array(
         'testosterone_q_age' => array(
             'title' => 'What is your age?',
@@ -231,4 +230,4 @@ return array(
             'required' => true,
         ),
     ),
-); 
+);   
