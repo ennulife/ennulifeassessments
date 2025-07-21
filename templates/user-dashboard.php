@@ -540,6 +540,7 @@ if (empty($display_name)) {
 							<li><a href="#tab-my-assessments" class="my-story-tab-active">My Assessments</a></li>
 							<li><a href="#tab-my-symptoms">My Symptoms</a></li>
 							<li><a href="#tab-my-biomarkers">My Biomarkers</a></li>
+							<li><a href="#tab-my-trends">My Trends</a></li>
 							<li><a href="#tab-my-new-life">My New Life</a></li>
 						</ul>
 					</nav>
@@ -548,20 +549,15 @@ if (empty($display_name)) {
 					<div id="tab-my-assessments" class="my-story-tab-content my-story-tab-active">
 						<div class="assessment-cards-container">
 							<?php
-							// Define the ordered assessment pairs with gender logic (same as display logic)
+							// Define the ordered assessment pairs with inclusive logic
 							$assessment_pairs = array(
 								array('health', 'weight-loss'),
-								array('hormone', 'testosterone'), // Will be filtered by gender
+								array('hormone', 'testosterone'), // Now gender-inclusive
 								array('hair', 'skin'),
-								array('sleep', 'ed-treatment') // Will be filtered by gender
+								array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical reasons
 							);
 							
-							// Gender-based assessment filtering
-							$user_gender = strtolower(trim($gender ?? ''));
-							$is_male = ($user_gender === 'male');
-							$is_female = ($user_gender === 'female');
-							
-							// Count assessments with gender-based filtering
+							// Count assessments (gender-inclusive)
 							$completed_count = 0;
 							$total_count = 0;
 							
@@ -572,13 +568,6 @@ if (empty($display_name)) {
 										continue;
 									}
 									
-									// Gender-based filtering (same logic as display)
-									if ($assessment_key === 'testosterone' && $is_female) {
-										continue; // Skip testosterone for females
-									}
-									if ($assessment_key === 'hormone' && $is_male) {
-										continue; // Skip hormone for males (show testosterone instead)
-									}
 									if ($assessment_key === 'ed-treatment' && $is_female) {
 										continue; // Skip ED treatment for females
 									}
@@ -614,12 +603,12 @@ if (empty($display_name)) {
 							
 							<div class="assessment-cards-grid">
 								<?php
-								// Define the ordered assessment pairs with gender logic
+								// Define the ordered assessment pairs with inclusive logic
 								$assessment_pairs = array(
 									array('health', 'weight-loss'),
-									array('hormone', 'testosterone'), // Will be filtered by gender
+									array('hormone', 'testosterone'), // Now gender-inclusive
 									array('hair', 'skin'),
-									array('sleep', 'ed-treatment') // Will be filtered by gender
+									array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical reasons
 								);
 								
 								// Gender-based assessment filtering
@@ -640,16 +629,9 @@ if (empty($display_name)) {
 											continue;
 										}
 										
-										// Gender-based filtering
-										if ($assessment_key === 'testosterone' && $is_female) {
-											continue; // Skip testosterone for females
-										}
-										if ($assessment_key === 'hormone' && $is_male) {
-											continue; // Skip hormone for males (show testosterone instead)
-										}
-										if ($assessment_key === 'ed-treatment' && $is_female) {
-											continue; // Skip ED treatment for females
-										}
+									if ($assessment_key === 'ed-treatment' && $is_female) {
+										continue; // Skip ED treatment for females
+									}
 										
 										$pair_assessments[] = array(
 											'key' => $assessment_key,
@@ -2272,7 +2254,23 @@ if (empty($display_name)) {
 						</div>
 					</div>
 					
-					<!-- Tab 4: My New Life -->
+					<!-- Tab 4: My Trends -->
+					<div id="tab-my-trends" class="my-story-tab-content">
+						<?php
+						// Initialize Trends Visualization System
+						if (class_exists('ENNU_Trends_Visualization_System')) {
+							$trends_system = new ENNU_Trends_Visualization_System();
+							echo $trends_system->get_my_trends_content($user_id);
+						} else {
+							echo '<div class="trends-placeholder">
+								<h3 class="tab-section-title">My Trends</h3>
+								<p>Trends visualization system is loading...</p>
+							</div>';
+						}
+						?>
+					</div>
+					
+					<!-- Tab 5: My New Life -->
 					<div id="tab-my-new-life" class="my-story-tab-content">
 						<div class="new-life-container">
 							<div class="new-life-overview">
@@ -3556,4 +3554,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>                 
+</script>                           

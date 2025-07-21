@@ -155,6 +155,15 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-comprehensive-assessment-display.php',
 				'class-score-cache.php',
 				'class-centralized-symptoms-manager.php',
+				
+				'class-progressive-data-collector.php',
+				'class-smart-question-display.php',
+				'class-biomarker-flag-manager.php',
+				'class-goal-progression-tracker.php',
+				'class-lab-data-landing-system.php',
+				'class-trends-visualization-system.php',
+				'class-medical-role-manager.php',
+				'class-ennu-rest-api.php',
 			);
 
 			foreach ( $includes as $file ) {
