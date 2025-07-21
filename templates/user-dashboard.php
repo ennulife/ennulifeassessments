@@ -541,6 +541,7 @@ if (empty($display_name)) {
 							<li><a href="#tab-my-symptoms">My Symptoms</a></li>
 							<li><a href="#tab-my-biomarkers">My Biomarkers</a></li>
 							<li><a href="#tab-my-trends">My Trends</a></li>
+							<li><a href="#tab-my-profile">My Profile</a></li>
 							<li><a href="#tab-my-new-life">My New Life</a></li>
 						</ul>
 					</nav>
@@ -2270,7 +2271,31 @@ if (empty($display_name)) {
 						?>
 					</div>
 					
-					<!-- Tab 5: My New Life -->
+					<!-- Tab 5: My Profile -->
+					<div id="tab-my-profile" class="my-story-tab-content">
+						<div class="profile-container">
+							<h3 class="tab-section-title">Profile Completeness</h3>
+							<?php
+							if (class_exists('ENNU_Enhanced_Dashboard_Manager')) {
+								$dashboard_manager = new ENNU_Enhanced_Dashboard_Manager();
+								echo $dashboard_manager->get_profile_completeness_display(get_current_user_id());
+								echo '<div class="ennu-profile-accuracy">';
+								echo $dashboard_manager->get_data_accuracy_indicators(get_current_user_id());
+								echo '</div>';
+								echo '<div class="ennu-profile-guidance">';
+								echo $dashboard_manager->get_improvement_guidance(get_current_user_id());
+								echo '</div>';
+							} else {
+								echo '<div class="profile-placeholder">
+									<h3 class="tab-section-title">Profile Completeness</h3>
+									<p>Enhanced dashboard features are loading...</p>
+								</div>';
+							}
+							?>
+						</div>
+					</div>
+					
+					<!-- Tab 6: My New Life -->
 					<div id="tab-my-new-life" class="my-story-tab-content">
 						<div class="new-life-container">
 							<div class="new-life-overview">
@@ -3554,4 +3579,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>                           
+</script>                             

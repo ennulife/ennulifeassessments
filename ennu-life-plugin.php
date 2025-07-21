@@ -164,6 +164,12 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				'class-trends-visualization-system.php',
 				'class-medical-role-manager.php',
 				'class-ennu-rest-api.php',
+				
+				'class-recommended-range-manager.php',
+				
+				'class-role-based-access-control.php',
+				
+				'class-enhanced-dashboard-manager.php',
 			);
 
 			foreach ( $includes as $file ) {
