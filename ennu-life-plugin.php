@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://ennulife.com/plugin
  * Description: Comprehensive health assessment system with Four-Engine scoring, biomarker integration, and personalized health insights for WordPress.
- * Version: 62.3.0
+ * Version: 62.3.1
  * Requires at least: 5.0
  * Tested up to: 6.8.2
  * Requires PHP: 7.4
