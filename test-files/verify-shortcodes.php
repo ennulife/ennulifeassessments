@@ -1,16 +1,16 @@
 <?php
 /**
  * ENNU Life Shortcode Verification Script
- * 
+ *
  * This script verifies that shortcodes are properly registered after the fix.
  * Place this file in your WordPress root directory and access via browser.
- * 
+ *
  * @package ENNU_Life
  * @version 60.4.0
  */
 
 // Load WordPress
-require_once( dirname( __FILE__ ) . '/wp-load.php' );
+require_once dirname( __FILE__ ) . '/wp-load.php';
 
 // Security check
 if ( ! current_user_can( 'manage_options' ) ) {
@@ -39,11 +39,11 @@ echo '</ul>';
 if ( class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 	$plugin = ENNU_Life_Enhanced_Plugin::get_instance();
 	echo '<p><strong>Plugin Instance:</strong> ✅ Created</p>';
-	
+
 	// Check if shortcodes object exists
 	$shortcodes = $plugin->get_shortcodes();
 	echo '<p><strong>Shortcodes Object:</strong> ' . ( $shortcodes ? '✅ Exists' : '❌ Missing' ) . '</p>';
-	
+
 	if ( $shortcodes ) {
 		echo '<p><strong>Shortcodes Class:</strong> ' . get_class( $shortcodes ) . '</p>';
 	}
@@ -70,7 +70,7 @@ if ( ! empty( $ennu_shortcodes ) ) {
 		echo '<li>' . esc_html( $shortcode ) . '</li>';
 	}
 	echo '</ul>';
-	
+
 	// Test a simple shortcode
 	echo '<h3>Testing Shortcode Rendering</h3>';
 	$test_output = do_shortcode( '[ennu-user-dashboard]' );
@@ -92,14 +92,14 @@ echo '<h2>Recent Error Log Entries</h2>';
 $log_file = WP_CONTENT_DIR . '/debug.log';
 if ( file_exists( $log_file ) ) {
 	$log_content = file_get_contents( $log_file );
-	$ennu_logs = array();
-	$lines = explode( "\n", $log_content );
+	$ennu_logs   = array();
+	$lines       = explode( "\n", $log_content );
 	foreach ( $lines as $line ) {
 		if ( strpos( $line, 'ENNU' ) !== false ) {
 			$ennu_logs[] = $line;
 		}
 	}
-	
+
 	if ( ! empty( $ennu_logs ) ) {
 		echo '<p><strong>Recent ENNU Log Entries:</strong></p>';
 		echo '<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">';
@@ -115,4 +115,4 @@ if ( file_exists( $log_file ) ) {
 }
 
 echo '<hr>';
-echo '<p><em>Verification completed. Remove this file after testing.</em></p>'; 
+echo '<p><em>Verification completed. Remove this file after testing.</em></p>';

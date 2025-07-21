@@ -1,7 +1,7 @@
 <?php
 /**
  * Test Script: Contextual Text System Verification
- * 
+ *
  * This script verifies that the contextual text system is working correctly:
  * - No static text appears for ENNU Life score
  * - Contextual text only appears on hover
@@ -10,18 +10,18 @@
  */
 
 // Prevent direct access
-if (!defined('ABSPATH')) {
-    require_once('../../../wp-load.php');
+if ( ! defined( 'ABSPATH' ) ) {
+	require_once '../../../wp-load.php';
 }
 
 // Ensure user is logged in for testing
-if (!is_user_logged_in()) {
-    wp_die('Please log in to test the dashboard.');
+if ( ! is_user_logged_in() ) {
+	wp_die( 'Please log in to test the dashboard.' );
 }
 
 // Get current user
 $current_user = wp_get_current_user();
-$user_id = $current_user->ID;
+$user_id      = $current_user->ID;
 
 echo "<!DOCTYPE html>
 <html>
@@ -50,139 +50,139 @@ echo "<!DOCTYPE html>
 echo "<div class='test-section'>
     <div class='test-title'>1. Template Structure Test</div>";
 
-$template_file = plugin_dir_path(__FILE__) . 'templates/user-dashboard.php';
-if (file_exists($template_file)) {
-    $template_content = file_get_contents($template_file);
-    
-    if (strpos($template_content, 'contextual-text-container') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text container found in template</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text container NOT found in template</div>";
-    }
-    
-    if (strpos($template_content, 'id="contextual-text"') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text element with correct ID found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text element with correct ID NOT found</div>";
-    }
-    
-    // Check for static text that should be removed
-    if (strpos($template_content, 'Your ENNU Life score represents') !== false) {
-        echo "<div class='test-result error'>❌ Static text description still exists in template</div>";
-    } else {
-        echo "<div class='test-result success'>✅ Static text description properly removed</div>";
-    }
+$template_file = plugin_dir_path( __FILE__ ) . 'templates/user-dashboard.php';
+if ( file_exists( $template_file ) ) {
+	$template_content = file_get_contents( $template_file );
+
+	if ( strpos( $template_content, 'contextual-text-container' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text container found in template</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text container NOT found in template</div>";
+	}
+
+	if ( strpos( $template_content, 'id="contextual-text"' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text element with correct ID found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text element with correct ID NOT found</div>";
+	}
+
+	// Check for static text that should be removed
+	if ( strpos( $template_content, 'Your ENNU Life score represents' ) !== false ) {
+		echo "<div class='test-result error'>❌ Static text description still exists in template</div>";
+	} else {
+		echo "<div class='test-result success'>✅ Static text description properly removed</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Template file not found</div>";
+	echo "<div class='test-result error'>❌ Template file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 2: Check CSS for contextual text styling
 echo "<div class='test-section'>
     <div class='test-title'>2. CSS Styling Test</div>";
 
-$css_file = plugin_dir_path(__FILE__) . 'assets/css/user-dashboard.css';
-if (file_exists($css_file)) {
-    $css_content = file_get_contents($css_file);
-    
-    if (strpos($css_content, '.contextual-text-container') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text container CSS found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text container CSS NOT found</div>";
-    }
-    
-    if (strpos($css_content, '.contextual-text.visible') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text visible state CSS found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text visible state CSS NOT found</div>";
-    }
-    
-    if (strpos($css_content, 'opacity: 0') !== false && strpos($css_content, 'opacity: 1') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text opacity transitions found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text opacity transitions NOT found</div>";
-    }
+$css_file = plugin_dir_path( __FILE__ ) . 'assets/css/user-dashboard.css';
+if ( file_exists( $css_file ) ) {
+	$css_content = file_get_contents( $css_file );
+
+	if ( strpos( $css_content, '.contextual-text-container' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text container CSS found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text container CSS NOT found</div>";
+	}
+
+	if ( strpos( $css_content, '.contextual-text.visible' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text visible state CSS found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text visible state CSS NOT found</div>";
+	}
+
+	if ( strpos( $css_content, 'opacity: 0' ) !== false && strpos( $css_content, 'opacity: 1' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text opacity transitions found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text opacity transitions NOT found</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ CSS file not found</div>";
+	echo "<div class='test-result error'>❌ CSS file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 3: Check JavaScript for contextual text functionality
 echo "<div class='test-section'>
     <div class='test-title'>3. JavaScript Functionality Test</div>";
 
-$js_file = plugin_dir_path(__FILE__) . 'assets/js/user-dashboard.js';
-if (file_exists($js_file)) {
-    $js_content = file_get_contents($js_file);
-    
-    if (strpos($js_content, 'initContextualText') !== false) {
-        echo "<div class='test-result success'>✅ initContextualText method found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ initContextualText method NOT found</div>";
-    }
-    
-    if (strpos($js_content, 'contextualText') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text JavaScript references found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text JavaScript references NOT found</div>";
-    }
-    
-    if (strpos($js_content, 'mouseenter') !== false && strpos($js_content, 'mouseleave') !== false) {
-        echo "<div class='test-result success'>✅ Hover event handlers found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Hover event handlers NOT found</div>";
-    }
+$js_file = plugin_dir_path( __FILE__ ) . 'assets/js/user-dashboard.js';
+if ( file_exists( $js_file ) ) {
+	$js_content = file_get_contents( $js_file );
+
+	if ( strpos( $js_content, 'initContextualText' ) !== false ) {
+		echo "<div class='test-result success'>✅ initContextualText method found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ initContextualText method NOT found</div>";
+	}
+
+	if ( strpos( $js_content, 'contextualText' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text JavaScript references found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text JavaScript references NOT found</div>";
+	}
+
+	if ( strpos( $js_content, 'mouseenter' ) !== false && strpos( $js_content, 'mouseleave' ) !== false ) {
+		echo "<div class='test-result success'>✅ Hover event handlers found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Hover event handlers NOT found</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ JavaScript file not found</div>";
+	echo "<div class='test-result error'>❌ JavaScript file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 4: Check plugin version
 echo "<div class='test-section'>
     <div class='test-title'>4. Plugin Version Test</div>";
 
-$plugin_file = plugin_dir_path(__FILE__) . 'ennu-life-plugin.php';
-if (file_exists($plugin_file)) {
-    $plugin_content = file_get_contents($plugin_file);
-    
-    if (preg_match('/Version:\s*62\.1\.31/', $plugin_content)) {
-        echo "<div class='test-result success'>✅ Plugin version updated to 62.1.31</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Plugin version NOT updated to 62.1.31</div>";
-    }
+$plugin_file = plugin_dir_path( __FILE__ ) . 'ennu-life-plugin.php';
+if ( file_exists( $plugin_file ) ) {
+	$plugin_content = file_get_contents( $plugin_file );
+
+	if ( preg_match( '/Version:\s*62\.1\.31/', $plugin_content ) ) {
+		echo "<div class='test-result success'>✅ Plugin version updated to 62.1.31</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Plugin version NOT updated to 62.1.31</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Plugin file not found</div>";
+	echo "<div class='test-result error'>❌ Plugin file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 5: Check changelog
 echo "<div class='test-section'>
     <div class='test-title'>5. Changelog Test</div>";
 
-$changelog_file = plugin_dir_path(__FILE__) . 'CHANGELOG.md';
-if (file_exists($changelog_file)) {
-    $changelog_content = file_get_contents($changelog_file);
-    
-    if (strpos($changelog_content, 'Version 62.1.31 - Contextual Text System Fix') !== false) {
-        echo "<div class='test-result success'>✅ Version 62.1.31 changelog entry found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Version 62.1.31 changelog entry NOT found</div>";
-    }
-    
-    if (strpos($changelog_content, 'Removed Static Text') !== false) {
-        echo "<div class='test-result success'>✅ Changelog mentions static text removal</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Changelog does NOT mention static text removal</div>";
-    }
+$changelog_file = plugin_dir_path( __FILE__ ) . 'CHANGELOG.md';
+if ( file_exists( $changelog_file ) ) {
+	$changelog_content = file_get_contents( $changelog_file );
+
+	if ( strpos( $changelog_content, 'Version 62.1.31 - Contextual Text System Fix' ) !== false ) {
+		echo "<div class='test-result success'>✅ Version 62.1.31 changelog entry found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Version 62.1.31 changelog entry NOT found</div>";
+	}
+
+	if ( strpos( $changelog_content, 'Removed Static Text' ) !== false ) {
+		echo "<div class='test-result success'>✅ Changelog mentions static text removal</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Changelog does NOT mention static text removal</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Changelog file not found</div>";
+	echo "<div class='test-result error'>❌ Changelog file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 6: Live Dashboard Test
 echo "<div class='test-section'>
@@ -193,22 +193,22 @@ echo "<div class='test-section'>
 $shortcode_instance = new ENNU_Assessment_Shortcodes();
 
 // Get user data for dashboard
-$user_data = $shortcode_instance->get_user_dashboard_data($user_id);
+$user_data = $shortcode_instance->get_user_dashboard_data( $user_id );
 
-if ($user_data) {
-    echo "<div class='test-result success'>✅ User dashboard data retrieved successfully</div>";
-    
-    // Check if contextual text container would be rendered
-    if (isset($user_data['ennu_life_score']) || isset($user_data['pillar_scores'])) {
-        echo "<div class='test-result success'>✅ Dashboard has score data for contextual text</div>";
-    } else {
-        echo "<div class='test-result info'>ℹ️ No score data available for contextual text testing</div>";
-    }
+if ( $user_data ) {
+	echo "<div class='test-result success'>✅ User dashboard data retrieved successfully</div>";
+
+	// Check if contextual text container would be rendered
+	if ( isset( $user_data['ennu_life_score'] ) || isset( $user_data['pillar_scores'] ) ) {
+		echo "<div class='test-result success'>✅ Dashboard has score data for contextual text</div>";
+	} else {
+		echo "<div class='test-result info'>ℹ️ No score data available for contextual text testing</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Failed to retrieve user dashboard data</div>";
+	echo "<div class='test-result error'>❌ Failed to retrieve user dashboard data</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 7: Hover Instructions
 echo "<div class='hover-test'>
@@ -233,7 +233,7 @@ echo "<div class='hover-test'>
     </div>
 </div>";
 
-echo "</div>";
+echo '</div>';
 
 // Summary
 echo "<div class='test-section'>
@@ -257,7 +257,8 @@ echo "<div class='test-section'>
     </div>
 </div>";
 
-echo "</div>
+echo '</div>
 </body>
-</html>";
-?> 
+</html>';
+
+

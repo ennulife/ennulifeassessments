@@ -1,7 +1,7 @@
 <?php
 /**
  * CRITICAL DASHBOARD ISSUES FIX
- * 
+ *
  * This file addresses:
  * 1. Tab functionality not working
  * 2. Logo image not showing
@@ -13,7 +13,7 @@
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 echo '<div style="max-width: 1200px; margin: 20px auto; padding: 20px; font-family: Arial, sans-serif;">';
@@ -21,48 +21,48 @@ echo '<h1 style="color: #16a085;">🔧 ENNU Life Dashboard Critical Issues Fix</
 
 // Test 1: Check if tab structure exists
 echo '<h2>1. Tab Structure Diagnosis</h2>';
-if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php')) {
-    $template_content = file_get_contents(ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php');
-    
-    if (strpos($template_content, 'my-story-tabs') !== false) {
-        echo '<div style="color: #27ae60;">✓ Tab container structure exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ Tab container missing</div>';
-    }
-    
-    if (strpos($template_content, 'my-story-tab-nav') !== false) {
-        echo '<div style="color: #27ae60;">✓ Tab navigation structure exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ Tab navigation missing</div>';
-    }
-    
-    if (strpos($template_content, 'my-story-tab-content') !== false) {
-        echo '<div style="color: #27ae60;">✓ Tab content structure exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ Tab content missing</div>';
-    }
+if ( file_exists( ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php' ) ) {
+	$template_content = file_get_contents( ENNU_LIFE_PLUGIN_PATH . 'templates/user-dashboard.php' );
+
+	if ( strpos( $template_content, 'my-story-tabs' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ Tab container structure exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ Tab container missing</div>';
+	}
+
+	if ( strpos( $template_content, 'my-story-tab-nav' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ Tab navigation structure exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ Tab navigation missing</div>';
+	}
+
+	if ( strpos( $template_content, 'my-story-tab-content' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ Tab content structure exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ Tab content missing</div>';
+	}
 } else {
-    echo '<div style="color: #e74c3c;">✗ Template file not found</div>';
+	echo '<div style="color: #e74c3c;">✗ Template file not found</div>';
 }
 
 // Test 2: Check JavaScript file
 echo '<h2>2. JavaScript File Diagnosis</h2>';
-if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/js/user-dashboard.js')) {
-    $js_content = file_get_contents(ENNU_LIFE_PLUGIN_PATH . 'assets/js/user-dashboard.js');
-    
-    if (strpos($js_content, 'MyStoryTabsManager') !== false) {
-        echo '<div style="color: #27ae60;">✓ MyStoryTabsManager class exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ MyStoryTabsManager class missing</div>';
-    }
-    
-    if (strpos($js_content, 'switchToTab') !== false) {
-        echo '<div style="color: #27ae60;">✓ switchToTab method exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ switchToTab method missing</div>';
-    }
+if ( file_exists( ENNU_LIFE_PLUGIN_PATH . 'assets/js/user-dashboard.js' ) ) {
+	$js_content = file_get_contents( ENNU_LIFE_PLUGIN_PATH . 'assets/js/user-dashboard.js' );
+
+	if ( strpos( $js_content, 'MyStoryTabsManager' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ MyStoryTabsManager class exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ MyStoryTabsManager class missing</div>';
+	}
+
+	if ( strpos( $js_content, 'switchToTab' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ switchToTab method exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ switchToTab method missing</div>';
+	}
 } else {
-    echo '<div style="color: #e74c3c;">✗ JavaScript file not found</div>';
+	echo '<div style="color: #e74c3c;">✗ JavaScript file not found</div>';
 }
 
 // Test 3: Check logo images
@@ -70,36 +70,36 @@ echo '<h2>3. Logo Image Diagnosis</h2>';
 $logo_black = ENNU_LIFE_PLUGIN_PATH . 'assets/img/ennu-logo-black.png';
 $logo_white = ENNU_LIFE_PLUGIN_PATH . 'assets/img/ennu-logo-white.png';
 
-if (file_exists($logo_black)) {
-    echo '<div style="color: #27ae60;">✓ Black logo exists: ' . basename($logo_black) . '</div>';
+if ( file_exists( $logo_black ) ) {
+	echo '<div style="color: #27ae60;">✓ Black logo exists: ' . basename( $logo_black ) . '</div>';
 } else {
-    echo '<div style="color: #e74c3c;">✗ Black logo missing</div>';
+	echo '<div style="color: #e74c3c;">✗ Black logo missing</div>';
 }
 
-if (file_exists($logo_white)) {
-    echo '<div style="color: #27ae60;">✓ White logo exists: ' . basename($logo_white) . '</div>';
+if ( file_exists( $logo_white ) ) {
+	echo '<div style="color: #27ae60;">✓ White logo exists: ' . basename( $logo_white ) . '</div>';
 } else {
-    echo '<div style="color: #e74c3c;">✗ White logo missing</div>';
+	echo '<div style="color: #e74c3c;">✗ White logo missing</div>';
 }
 
 // Test 4: Check CSS file
 echo '<h2>4. CSS File Diagnosis</h2>';
-if (file_exists(ENNU_LIFE_PLUGIN_PATH . 'assets/css/user-dashboard.css')) {
-    $css_content = file_get_contents(ENNU_LIFE_PLUGIN_PATH . 'assets/css/user-dashboard.css');
-    
-    if (strpos($css_content, 'my-story-tab-active') !== false) {
-        echo '<div style="color: #27ae60;">✓ Tab active class CSS exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ Tab active class CSS missing</div>';
-    }
-    
-    if (strpos($css_content, 'status-badge') !== false) {
-        echo '<div style="color: #27ae60;">✓ Status badge CSS exists</div>';
-    } else {
-        echo '<div style="color: #e74c3c;">✗ Status badge CSS missing</div>';
-    }
+if ( file_exists( ENNU_LIFE_PLUGIN_PATH . 'assets/css/user-dashboard.css' ) ) {
+	$css_content = file_get_contents( ENNU_LIFE_PLUGIN_PATH . 'assets/css/user-dashboard.css' );
+
+	if ( strpos( $css_content, 'my-story-tab-active' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ Tab active class CSS exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ Tab active class CSS missing</div>';
+	}
+
+	if ( strpos( $css_content, 'status-badge' ) !== false ) {
+		echo '<div style="color: #27ae60;">✓ Status badge CSS exists</div>';
+	} else {
+		echo '<div style="color: #e74c3c;">✗ Status badge CSS missing</div>';
+	}
 } else {
-    echo '<div style="color: #e74c3c;">✗ CSS file not found</div>';
+	echo '<div style="color: #e74c3c;">✗ CSS file not found</div>';
 }
 
 echo '<h2>5. Quick Fixes</h2>';
@@ -198,8 +198,8 @@ echo '</div>';
 echo '<h2>6. Testing URLs</h2>';
 echo '<p>Test these URLs to verify fixes:</p>';
 echo '<ul>';
-echo '<li><a href="' . admin_url('admin.php?page=ennu_dashboard_test') . '" target="_blank">Dashboard Test Page</a></li>';
-echo '<li><a href="' . home_url('/dashboard') . '" target="_blank">User Dashboard</a></li>';
+echo '<li><a href="' . admin_url( 'admin.php?page=ennu_dashboard_test' ) . '" target="_blank">Dashboard Test Page</a></li>';
+echo '<li><a href="' . home_url( '/dashboard' ) . '" target="_blank">User Dashboard</a></li>';
 echo '</ul>';
 
 echo '<h2>7. Next Steps</h2>';
@@ -212,4 +212,5 @@ echo '<li>Verify timestamp formatting with a completed assessment</li>';
 echo '</ol>';
 
 echo '</div>';
-?> 
+
+

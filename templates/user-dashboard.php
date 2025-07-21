@@ -5,33 +5,34 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if (isset($template_args) && is_array($template_args)) { extract($template_args, EXTR_SKIP); }
+if ( isset( $template_args ) && is_array( $template_args ) ) {
+	extract( $template_args, EXTR_SKIP ); }
 
 // Defensive checks for required variables
-if (!isset($current_user) || !is_object($current_user)) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__('ERROR: $current_user is not set or not an object.', 'ennulifeassessments') . '</div>';
+if ( ! isset( $current_user ) || ! is_object( $current_user ) ) {
+	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__( 'ERROR: $current_user is not set or not an object.', 'ennulifeassessments' ) . '</div>';
 	return;
 }
-$age = $age ?? '';
-$gender = $gender ?? '';
-$height = $height ?? null;
-$weight = $weight ?? null;
-$bmi = $bmi ?? null;
-$user_assessments = $user_assessments ?? array();
-$insights = $insights ?? array();
+$age                        = $age ?? '';
+$gender                     = $gender ?? '';
+$height                     = $height ?? null;
+$weight                     = $weight ?? null;
+$bmi                        = $bmi ?? null;
+$user_assessments           = $user_assessments ?? array();
+$insights                   = $insights ?? array();
 $health_optimization_report = $health_optimization_report ?? array();
-$shortcode_instance = $shortcode_instance ?? null;
-if (!$shortcode_instance) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__('ERROR: $shortcode_instance is not set.', 'ennulifeassessments') . '</div>';
+$shortcode_instance         = $shortcode_instance ?? null;
+if ( ! $shortcode_instance ) {
+	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__( 'ERROR: $shortcode_instance is not set.', 'ennulifeassessments' ) . '</div>';
 	return;
 }
 
 // Define user ID and display name
-$user_id = $current_user->ID ?? 0;
-$first_name = isset($current_user->first_name) ? $current_user->first_name : '';
-$last_name = isset($current_user->last_name) ? $current_user->last_name : '';
-$display_name = trim($first_name . ' ' . $last_name);
-if (empty($display_name)) {
+$user_id      = $current_user->ID ?? 0;
+$first_name   = isset( $current_user->first_name ) ? $current_user->first_name : '';
+$last_name    = isset( $current_user->last_name ) ? $current_user->last_name : '';
+$display_name = trim( $first_name . ' ' . $last_name );
+if ( empty( $display_name ) ) {
 	$display_name = $current_user->display_name ?? $current_user->user_login ?? 'User';
 }
 ?>
@@ -44,7 +45,7 @@ if (empty($display_name)) {
 			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
 				<h4 style="color: var(--accent-color); margin-bottom: 10px;">1. Quantitative Engine</h4>
 				<p style="font-size: 14px; margin-bottom: 8px;">Base assessment scores from your completed evaluations</p>
-				<?php 
+				<?php
 				$base_score = get_user_meta( $user_id, 'ennu_life_score', true );
 				echo '<p style="font-weight: bold;">Current Score: ' . esc_html( $base_score ? round( $base_score, 1 ) : 'N/A' ) . '</p>';
 				?>
@@ -52,7 +53,7 @@ if (empty($display_name)) {
 			
 			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
 				<h4 style="color: var(--accent-color); margin-bottom: 10px;">2. Qualitative Engine</h4>
-				<?php 
+				<?php
 				$qualitative_data = get_user_meta( $user_id, 'ennu_qualitative_data', true );
 				if ( ! empty( $qualitative_data['penalty_summary'] ) ) {
 					$summary = $qualitative_data['penalty_summary'];
@@ -70,7 +71,7 @@ if (empty($display_name)) {
 			
 			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
 				<h4 style="color: var(--accent-color); margin-bottom: 10px;">3. Objective Engine</h4>
-				<?php 
+				<?php
 				$objective_data = get_user_meta( $user_id, 'ennu_objective_data', true );
 				if ( ! empty( $objective_data['adjustment_summary'] ) ) {
 					$summary = $objective_data['adjustment_summary'];
@@ -86,7 +87,7 @@ if (empty($display_name)) {
 			
 			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
 				<h4 style="color: var(--accent-color); margin-bottom: 10px;">4. Intentionality Engine</h4>
-				<?php 
+				<?php
 				$intentionality_data = get_user_meta( $user_id, 'ennu_intentionality_data', true );
 				if ( ! empty( $intentionality_data['boost_summary'] ) ) {
 					$summary = $intentionality_data['boost_summary'];
@@ -187,13 +188,15 @@ if (empty($display_name)) {
 		<?php
 		if ( function_exists( 'ennu_render_logo' ) ) {
 			echo '<div class="ennu-logo-container">';
-			ennu_render_logo([
-				'color' => 'white',
-				'size' => 'medium',
-				'link' => home_url( '/' ),
-				'alt' => 'ENNU Life',
-				'class' => ''
-			]);
+			ennu_render_logo(
+				array(
+					'color' => 'white',
+					'size'  => 'medium',
+					'link'  => home_url( '/' ),
+					'alt'   => 'ENNU Life',
+					'class' => '',
+				)
+			);
 			echo '</div>';
 		}
 		?>
@@ -216,56 +219,56 @@ if (empty($display_name)) {
 				<div class="journey-details" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
 					<?php
 					// Get journey start date (user registration or first assessment)
-					$user_registered = $current_user->user_registered ?? '';
-					$first_assessment = get_user_meta($user_id, 'ennu_first_assessment_completed', true);
-					$journey_start_date = $first_assessment ?: $user_registered;
-					$journey_start_formatted = $journey_start_date ? date('F j, Y', strtotime($journey_start_date)) : 'Recently';
-					
+					$user_registered         = $current_user->user_registered ?? '';
+					$first_assessment        = get_user_meta( $user_id, 'ennu_first_assessment_completed', true );
+					$journey_start_date      = $first_assessment ?: $user_registered;
+					$journey_start_formatted = $journey_start_date ? date( 'F j, Y', strtotime( $journey_start_date ) ) : 'Recently';
+
 					// Calculate journey duration
-					$journey_days = $journey_start_date ? floor((time() - strtotime($journey_start_date)) / (60 * 60 * 24)) : 0;
+					$journey_days     = $journey_start_date ? floor( ( time() - strtotime( $journey_start_date ) ) / ( 60 * 60 * 24 ) ) : 0;
 					$journey_duration = $journey_days > 0 ? $journey_days . ' days' : 'Just started';
-					
+
 					// Get assessment completion stats
 					$completed_assessments = 0;
-					$total_assessments = 11; // Total available assessments
-					$assessment_types = array('welcome', 'hair', 'health', 'skin', 'sleep', 'hormone', 'menopause', 'testosterone', 'weight_loss', 'ed_treatment', 'health_optimization');
-					
-					foreach ($assessment_types as $type) {
-						$score = get_user_meta($user_id, 'ennu_' . $type . '_calculated_score', true);
-						if (!empty($score)) {
+					$total_assessments     = 11; // Total available assessments
+					$assessment_types      = array( 'welcome', 'hair', 'health', 'skin', 'sleep', 'hormone', 'menopause', 'testosterone', 'weight_loss', 'ed_treatment', 'health_optimization' );
+
+					foreach ( $assessment_types as $type ) {
+						$score = get_user_meta( $user_id, 'ennu_' . $type . '_calculated_score', true );
+						if ( ! empty( $score ) ) {
 							$completed_assessments++;
 						}
 					}
-					$completion_rate = $total_assessments > 0 ? round(($completed_assessments / $total_assessments) * 100) : 0;
+					$completion_rate = $total_assessments > 0 ? round( ( $completed_assessments / $total_assessments ) * 100 ) : 0;
 					?>
 					
 					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
 						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">📅</div>
 						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Journey Started</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html($journey_start_formatted); ?></div>
+						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $journey_start_formatted ); ?></div>
 					</div>
 					
 					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
 						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
 						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Journey Duration</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html($journey_duration); ?></div>
+						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $journey_duration ); ?></div>
 					</div>
 					
 					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
 						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">📊</div>
 						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Assessments Completed</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html($completed_assessments); ?>/<?php echo esc_html($total_assessments); ?></div>
-						<div class="stat-subtitle" style="font-size: 12px; color: var(--accent-color);"><?php echo esc_html($completion_rate); ?>% Complete</div>
+						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $completed_assessments ); ?>/<?php echo esc_html( $total_assessments ); ?></div>
+						<div class="stat-subtitle" style="font-size: 12px; color: var(--accent-color);"><?php echo esc_html( $completion_rate ); ?>% Complete</div>
 					</div>
 					
 					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
 						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">🎯</div>
 						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Health Goals Set</div>
-						<?php 
-						$health_goals = get_user_meta($user_id, 'ennu_global_health_goals', true);
-						$goals_count = is_array($health_goals) ? count($health_goals) : 0;
+						<?php
+						$health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
+						$goals_count  = is_array( $health_goals ) ? count( $health_goals ) : 0;
 						?>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html($goals_count); ?> Goals</div>
+						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $goals_count ); ?> Goals</div>
 					</div>
 				</div>
 			</div>
@@ -274,20 +277,20 @@ if (empty($display_name)) {
 			<div class="dashboard-welcome-section">
 				<!-- Logo above title -->
 				<div class="dashboard-logo-container">
-					<img src="<?php echo esc_url(plugins_url('assets/img/ennu-logo-black.png', dirname(__FILE__))); ?>" 
+					<img src="<?php echo esc_url( plugins_url( 'assets/img/ennu-logo-black.png', dirname( __FILE__ ) ) ); ?>" 
 						 alt="ENNU Life Logo" 
 						 class="dashboard-logo light-mode-logo">
-					<img src="<?php echo esc_url(plugins_url('assets/img/ennu-logo-white.png', dirname(__FILE__))); ?>" 
+					<img src="<?php echo esc_url( plugins_url( 'assets/img/ennu-logo-white.png', dirname( __FILE__ ) ) ); ?>" 
 						 alt="ENNU Life Logo" 
 						 class="dashboard-logo dark-mode-logo">
 				</div>
-				<h1 class="dashboard-title dashboard-title-large"><?php echo esc_html($display_name); ?>'s Biometric Canvas</h1>
+				<h1 class="dashboard-title dashboard-title-large"><?php echo esc_html( $display_name ); ?>'s Biometric Canvas</h1>
 				<p class="dashboard-subtitle">Track your progress and discover personalized insights for optimal health.</p>
 				
 				<!-- Vital Statistics Display -->
-				<?php if (!empty($age) || !empty($gender) || !empty($height) || !empty($weight) || !empty($bmi)) : ?>
+				<?php if ( ! empty( $age ) || ! empty( $gender ) || ! empty( $height ) || ! empty( $weight ) || ! empty( $bmi ) ) : ?>
 				<div class="vital-stats-display">
-					<?php if (!empty($age)) : ?>
+					<?php if ( ! empty( $age ) ) : ?>
 					<div class="vital-stat-item">
 						<span class="vital-stat-icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -295,10 +298,10 @@ if (empty($display_name)) {
 								<circle cx="12" cy="7" r="4"/>
 							</svg>
 						</span>
-						<span class="vital-stat-value"><?php echo esc_html($age); ?> years</span>
+						<span class="vital-stat-value"><?php echo esc_html( $age ); ?> years</span>
 					</div>
 					<?php endif; ?>
-					<?php if (!empty($gender)) : ?>
+					<?php if ( ! empty( $gender ) ) : ?>
 					<div class="vital-stat-item">
 						<span class="vital-stat-icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -306,10 +309,10 @@ if (empty($display_name)) {
 								<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
 							</svg>
 						</span>
-						<span class="vital-stat-value"><?php echo esc_html($gender); ?></span>
+						<span class="vital-stat-value"><?php echo esc_html( $gender ); ?></span>
 					</div>
 					<?php endif; ?>
-					<?php if (!empty($height)) : ?>
+					<?php if ( ! empty( $height ) ) : ?>
 					<div class="vital-stat-item">
 						<span class="vital-stat-icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -317,10 +320,10 @@ if (empty($display_name)) {
 								<path d="M3 6h18M3 12h18M3 18h18"/>
 							</svg>
 						</span>
-						<span class="vital-stat-value"><?php echo esc_html($height); ?></span>
+						<span class="vital-stat-value"><?php echo esc_html( $height ); ?></span>
 					</div>
 					<?php endif; ?>
-					<?php if (!empty($weight)) : ?>
+					<?php if ( ! empty( $weight ) ) : ?>
 					<div class="vital-stat-item">
 						<span class="vital-stat-icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -328,10 +331,10 @@ if (empty($display_name)) {
 								<path d="M12 6v6M8 12h8"/>
 							</svg>
 						</span>
-						<span class="vital-stat-value"><?php echo esc_html($weight); ?></span>
+						<span class="vital-stat-value"><?php echo esc_html( $weight ); ?></span>
 					</div>
 					<?php endif; ?>
-					<?php if (!empty($bmi)) : ?>
+					<?php if ( ! empty( $bmi ) ) : ?>
 					<div class="vital-stat-item">
 						<span class="vital-stat-icon">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -340,7 +343,7 @@ if (empty($display_name)) {
 								<path d="M12 3v18M3 12h18"/>
 							</svg>
 						</span>
-						<span class="vital-stat-value">BMI: <?php echo esc_html($bmi); ?></span>
+						<span class="vital-stat-value">BMI: <?php echo esc_html( $bmi ); ?></span>
 					</div>
 					<?php endif; ?>
 				</div>
@@ -359,24 +362,26 @@ if (empty($display_name)) {
 					<!-- Left Pillar Scores -->
 					<div class="pillar-scores-left">
 						<?php
-						if (is_array($average_pillar_scores)) {
+						if ( is_array( $average_pillar_scores ) ) {
 							$pillar_count = 0;
-							foreach ($average_pillar_scores as $pillar => $score) {
-								if ($pillar_count >= 2) break; // Only show first 2 pillars
-								$has_data = !empty($score);
-								$pillar_class = esc_attr(strtolower($pillar));
-								$spin_duration = $has_data ? max(2, 11 - $score) : 10;
-								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
-								$insight_text = $insights['pillars'][$pillar] ?? '';
+							foreach ( $average_pillar_scores as $pillar => $score ) {
+								if ( $pillar_count >= 2 ) {
+									break; // Only show first 2 pillars
+								}
+								$has_data      = ! empty( $score );
+								$pillar_class  = esc_attr( strtolower( $pillar ) );
+								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+								$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
+								$insight_text  = $insights['pillars'][ $pillar ] ?? '';
 								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr($style_attr); ?>" data-insight="<?php echo esc_attr($insight_text); ?>">
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
 				<svg class="pillar-orb-progress" viewBox="0 0 36 36">
 					<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr($has_data ? $score * 10 : 0); ?>;"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
 									</svg>
 									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html($pillar); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html(number_format($score, 1)) : '-'; ?></div>
+										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
 									</div>
 									<div class="floating-particles"></div>
 									<div class="decoration-dots"></div>
@@ -390,7 +395,7 @@ if (empty($display_name)) {
 
 					<!-- Center ENNU Life Score -->
 					<div class="ennu-life-score-center">
-						<div class="main-score-orb" data-score="<?php echo esc_attr($ennu_life_score ?? 0); ?>" data-insight="<?php echo esc_attr($insights['ennu_life_score'] ?? ''); ?>">
+						<div class="main-score-orb" data-score="<?php echo esc_attr( $ennu_life_score ?? 0 ); ?>" data-insight="<?php echo esc_attr( $insights['ennu_life_score'] ?? '' ); ?>">
 							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
 								<defs>
 									<linearGradient id="ennu-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -400,7 +405,7 @@ if (empty($display_name)) {
 									</linearGradient>
 								</defs>
 								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr(($ennu_life_score ?? 0) * 10); ?>;"></circle>
+								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $ennu_life_score ?? 0 ) * 10 ); ?>;"></circle>
 				</svg>
 				<div class="main-score-text">
 					<div class="main-score-value">0.0</div>
@@ -413,38 +418,40 @@ if (empty($display_name)) {
 					<!-- Right Pillar Scores -->
 					<div class="pillar-scores-right">
 				<?php
-						if (is_array($average_pillar_scores)) {
-							$pillar_count = 0;
-							$total_pillars = count($average_pillar_scores);
-							foreach ($average_pillar_scores as $pillar => $score) {
-								if ($pillar_count < 2) { // Skip first 2 pillars
-									$pillar_count++;
-									continue;
-								}
-								if ($pillar_count >= 4) break; // Only show next 2 pillars
-								$has_data = !empty($score);
-								$pillar_class = esc_attr(strtolower($pillar));
-								$spin_duration = $has_data ? max(2, 11 - $score) : 10;
-								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
-								$insight_text = $insights['pillars'][$pillar] ?? '';
+				if ( is_array( $average_pillar_scores ) ) {
+					$pillar_count  = 0;
+					$total_pillars = count( $average_pillar_scores );
+					foreach ( $average_pillar_scores as $pillar => $score ) {
+						if ( $pillar_count < 2 ) { // Skip first 2 pillars
+							$pillar_count++;
+							continue;
+						}
+						if ( $pillar_count >= 4 ) {
+							break; // Only show next 2 pillars
+						}
+						$has_data      = ! empty( $score );
+						$pillar_class  = esc_attr( strtolower( $pillar ) );
+						$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+						$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
+						$insight_text  = $insights['pillars'][ $pillar ] ?? '';
 						?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr($style_attr); ?>" data-insight="<?php echo esc_attr($insight_text); ?>">
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
 							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
 								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr($has_data ? $score * 10 : 0); ?>;"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
 							</svg>
 							<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html($pillar); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html(number_format($score, 1)) : '-'; ?></div>
+										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
 									</div>
 									<div class="floating-particles"></div>
 									<div class="decoration-dots"></div>
 								</div>
-								<?php
-								$pillar_count++;
-							}
-						}
-						?>
+						<?php
+						$pillar_count++;
+					}
+				}
+				?>
 					</div>
 				</div>
 
@@ -488,10 +495,17 @@ if (empty($display_name)) {
 							</div>
 							<?php
 						endforeach;
-						
+
 						// Add goals summary
-						$selected_count = count( array_filter( $health_goals_data['all_goals'], function( $goal ) { return $goal['selected']; } ) );
-						$total_count = count( $health_goals_data['all_goals'] );
+						$selected_count = count(
+							array_filter(
+								$health_goals_data['all_goals'],
+								function( $goal ) {
+									return $goal['selected'];
+								}
+							)
+						);
+						$total_count    = count( $health_goals_data['all_goals'] );
 						?>
 						<div class="goals-summary">
 							<div class="goals-counter">
@@ -541,6 +555,7 @@ if (empty($display_name)) {
 							<li><a href="#tab-my-symptoms">My Symptoms</a></li>
 							<li><a href="#tab-my-biomarkers">My Biomarkers</a></li>
 							<li><a href="#tab-my-trends">My Trends</a></li>
+							<li><a href="#tab-my-profile">My Profile</a></li>
 							<li><a href="#tab-my-new-life">My New Life</a></li>
 						</ul>
 					</nav>
@@ -551,29 +566,29 @@ if (empty($display_name)) {
 							<?php
 							// Define the ordered assessment pairs with inclusive logic
 							$assessment_pairs = array(
-								array('health', 'weight-loss'),
-								array('hormone', 'testosterone'), // Now gender-inclusive
-								array('hair', 'skin'),
-								array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical reasons
+								array( 'health', 'weight-loss' ),
+								array( 'hormone', 'testosterone' ), // Now gender-inclusive
+								array( 'hair', 'skin' ),
+								array( 'sleep', 'ed-treatment' ), // ED treatment remains gender-specific for medical reasons
 							);
-							
+
 							// Count assessments (gender-inclusive)
 							$completed_count = 0;
-							$total_count = 0;
-							
-							foreach ($assessment_pairs as $pair) {
-								foreach ($pair as $assessment_key) {
+							$total_count     = 0;
+
+							foreach ( $assessment_pairs as $pair ) {
+								foreach ( $pair as $assessment_key ) {
 									// Skip if assessment doesn't exist
-									if (!isset($user_assessments[$assessment_key])) {
+									if ( ! isset( $user_assessments[ $assessment_key ] ) ) {
 										continue;
 									}
-									
-									if ($assessment_key === 'ed-treatment' && $is_female) {
+
+									if ( $assessment_key === 'ed-treatment' && $is_female ) {
 										continue; // Skip ED treatment for females
 									}
-									
+
 									$total_count++;
-									if ($user_assessments[$assessment_key]['completed']) {
+									if ( $user_assessments[ $assessment_key ]['completed'] ) {
 										$completed_count++;
 									}
 								}
@@ -605,78 +620,78 @@ if (empty($display_name)) {
 								<?php
 								// Define the ordered assessment pairs with inclusive logic
 								$assessment_pairs = array(
-									array('health', 'weight-loss'),
-									array('hormone', 'testosterone'), // Now gender-inclusive
-									array('hair', 'skin'),
-									array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical reasons
+									array( 'health', 'weight-loss' ),
+									array( 'hormone', 'testosterone' ), // Now gender-inclusive
+									array( 'hair', 'skin' ),
+									array( 'sleep', 'ed-treatment' ), // ED treatment remains gender-specific for medical reasons
 								);
-								
+
 								// Gender-based assessment filtering
-								$user_gender = strtolower(trim($gender ?? ''));
-								$is_male = ($user_gender === 'male');
-								$is_female = ($user_gender === 'female');
-								
+								$user_gender = strtolower( trim( $gender ?? '' ) );
+								$is_male     = ( $user_gender === 'male' );
+								$is_female   = ( $user_gender === 'female' );
+
 								// Filter and order assessments
 								$ordered_assessments = array();
-								$card_index = 0;
-								
-								foreach ($assessment_pairs as $pair) {
+								$card_index          = 0;
+
+								foreach ( $assessment_pairs as $pair ) {
 									$pair_assessments = array();
-									
-									foreach ($pair as $assessment_key) {
+
+									foreach ( $pair as $assessment_key ) {
 										// Skip if assessment doesn't exist
-										if (!isset($user_assessments[$assessment_key])) {
+										if ( ! isset( $user_assessments[ $assessment_key ] ) ) {
 											continue;
 										}
-										
-									if ($assessment_key === 'ed-treatment' && $is_female) {
-										continue; // Skip ED treatment for females
-									}
-										
+
+										if ( $assessment_key === 'ed-treatment' && $is_female ) {
+											continue; // Skip ED treatment for females
+										}
+
 										$pair_assessments[] = array(
-											'key' => $assessment_key,
-											'data' => $user_assessments[$assessment_key],
-											'index' => ++$card_index
+											'key'   => $assessment_key,
+											'data'  => $user_assessments[ $assessment_key ],
+											'index' => ++$card_index,
 										);
 									}
-									
+
 									// Add valid pair to ordered assessments
-									if (!empty($pair_assessments)) {
-										$ordered_assessments = array_merge($ordered_assessments, $pair_assessments);
+									if ( ! empty( $pair_assessments ) ) {
+										$ordered_assessments = array_merge( $ordered_assessments, $pair_assessments );
 									}
 								}
-								
+
 								// Define assessment icons using the same style as "Speak With Expert" button
 								$assessment_icons = array(
-									'hair' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
-									'skin' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-									'health' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-									'weight-loss' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11h4"/><path d="M10 16h4"/></svg>',
-									'hormone' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+									'hair'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+									'skin'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+									'health'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+									'weight-loss'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11h4"/><path d="M10 16h4"/></svg>',
+									'hormone'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
 									'testosterone' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
-									'sleep' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+									'sleep'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
 									'ed-treatment' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-									'menopause' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+									'menopause'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
 								);
-								
+
 								// Render the ordered assessments
-								foreach ($ordered_assessments as $assessment_item) :
+								foreach ( $ordered_assessments as $assessment_item ) :
 									$assessment_key = $assessment_item['key'];
-									$assessment = $assessment_item['data'];
-									$card_index = $assessment_item['index'];
+									$assessment     = $assessment_item['data'];
+									$card_index     = $assessment_item['index'];
 									?>
 									<div class="assessment-card <?php echo $assessment['completed'] ? 'completed' : 'incomplete'; ?> animate-card" style="animation-delay: <?php echo $card_index * 0.1; ?>s;">
 										<div class="assessment-card-header">
-											<?php 
+											<?php
 											// Get assessment icon
 											$assessment_icon = '';
-											if (isset($assessment_icons[$assessment_key])) {
-												$assessment_icon = $assessment_icons[$assessment_key];
+											if ( isset( $assessment_icons[ $assessment_key ] ) ) {
+												$assessment_icon = $assessment_icons[ $assessment_key ];
 											}
 											// Debug: Let's see what's happening
 											// echo "<!-- Debug: assessment_key = '$assessment_key', icon found = " . (!empty($assessment_icon) ? 'yes' : 'no') . " -->";
 											?>
-											<?php if (!empty($assessment_icon)) : ?>
+											<?php if ( ! empty( $assessment_icon ) ) : ?>
 												<div class="assessment-icon">
 													<?php echo wp_kses_post( $assessment_icon ); ?>
 												</div>
@@ -699,7 +714,7 @@ if (empty($display_name)) {
 														</span>
 														<?php if ( ! empty( $assessment['date'] ) ) : ?>
 															<div class="assessment-timestamp">
-																<?php 
+																<?php
 																$timestamp = $assessment['date'];
 																// Format the timestamp - if it's a Unix timestamp, convert it
 																if ( is_numeric( $timestamp ) ) {
@@ -712,16 +727,16 @@ if (empty($display_name)) {
 																		$date_obj = new DateTime( $timestamp );
 																	}
 																}
-																
+
 																if ( $date_obj ) {
 																	// Get day of week
 																	$day_of_week = $date_obj->format( 'l' );
-																	
+
 																	// Get month
 																	$month = $date_obj->format( 'F' );
-																	
+
 																	// Get day with ordinal suffix
-																	$day = $date_obj->format( 'j' );
+																	$day            = $date_obj->format( 'j' );
 																	$ordinal_suffix = '';
 																	if ( $day >= 11 && $day <= 13 ) {
 																		$ordinal_suffix = 'th';
@@ -740,13 +755,13 @@ if (empty($display_name)) {
 																				$ordinal_suffix = 'th';
 																		}
 																	}
-																	
+
 																	// Get year
 																	$year = $date_obj->format( 'Y' );
-																	
+
 																	// Get time in 12-hour format with lowercase am/pm
 																	$time = $date_obj->format( 'g:i' ) . strtolower( $date_obj->format( 'A' ) );
-																	
+
 																	// Combine all parts
 																	$formatted_date = $day_of_week . ' ' . $month . ' ' . $day . $ordinal_suffix . ', ' . $year . ' @ ' . $time;
 																} else {
@@ -771,12 +786,12 @@ if (empty($display_name)) {
 										
 										<div class="assessment-card-body">
 											<p class="assessment-description">
-												<?php 
+												<?php
 												if ( $assessment['completed'] ) {
 													// For completed assessments, show primary recommendation/status
 													$primary_recommendation = '';
-													$score = $assessment['score'];
-													
+													$score                  = $assessment['score'];
+
 													// Generate status based on score
 													if ( $score >= 8.0 ) {
 														$primary_recommendation = sprintf( __( 'Excellent results! Your %s score indicates optimal health in this area.', 'ennulifeassessments' ), $assessment['label'] ?? 'assessment' );
@@ -787,11 +802,11 @@ if (empty($display_name)) {
 													} else {
 														$primary_recommendation = sprintf( __( 'Significant opportunities for improvement identified in your %s results.', 'ennulifeassessments' ), $assessment['label'] ?? 'assessment' );
 													}
-													
+
 													echo esc_html( $primary_recommendation );
 												} else {
 													// For incomplete assessments, show the default message
-													$label = $assessment['label'] ?? ucwords( str_replace( '_', ' ', $assessment['key'] ?? 'Assessment' ) );
+													$label       = $assessment['label'] ?? ucwords( str_replace( '_', ' ', $assessment['key'] ?? 'Assessment' ) );
 													$description = sprintf( __( 'Complete your %s to get personalized insights and recommendations.', 'ennulifeassessments' ), $label );
 													echo esc_html( $description );
 												}
@@ -886,327 +901,327 @@ if (empty($display_name)) {
 								<?php
 								// Enhanced symptom data with specific biomarker recommendations
 								$official_symptoms = array(
-									'Energy' => array(
-										'Fatigue' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+									'Energy'           => array(
+										'Fatigue'         => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S')
+											'biomarkers' => array( 'Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S' ),
 										),
 										'Lack of Motivation' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
+											'severity'   => 'mild',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12')
+											'biomarkers' => array( 'Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12' ),
 										),
 										'Reduced Physical Performance' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron')
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron' ),
 										),
 										'Decreased Physical Activity' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'mild',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin')
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin' ),
 										),
 										'Muscle Weakness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium')
+											'biomarkers' => array( 'Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium' ),
 										),
-										'Weakness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+										'Weakness'        => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase')
-										)
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase' ),
+										),
 									),
-									'Heart Health' => array(
-										'Chest Pain' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
+									'Heart Health'     => array(
+										'Chest Pain'      => array(
+											'severity'   => 'critical',
+											'frequency'  => 'weekly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides')
+											'biomarkers' => array( 'Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides' ),
 										),
 										'Shortness of Breath' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12')
+											'biomarkers' => array( 'BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12' ),
 										),
-										'Palpitations' => array(
-											'severity' => 'moderate', 
-											'frequency' => '3-4 times/week', 
+										'Palpitations'    => array(
+											'severity'   => 'moderate',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel')
+											'biomarkers' => array( 'Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel' ),
 										),
 										'Lightheadedness' => array(
-											'severity' => 'moderate', 
-											'frequency' => '2-3 times/week', 
+											'severity'   => 'moderate',
+											'frequency'  => '2-3 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure')
+											'biomarkers' => array( 'Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure' ),
 										),
 										'Poor Exercise Tolerance' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol')
+											'biomarkers' => array( 'VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol' ),
 										),
-										'Swelling' => array(
-											'severity' => 'mild', 
-											'frequency' => 'weekly', 
+										'Swelling'        => array(
+											'severity'   => 'mild',
+											'frequency'  => 'weekly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP')
-										)
+											'biomarkers' => array( 'BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP' ),
+										),
 									),
-									'Hormones' => array(
-										'Anxiety' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+									'Hormones'         => array(
+										'Anxiety'         => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium')
+											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium' ),
 										),
-										'Depression' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+										'Depression'      => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3')
+											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3' ),
 										),
-										'Irritability' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
+										'Irritability'    => array(
+											'severity'   => 'mild',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium')
+											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium' ),
 										),
-										'Hot Flashes' => array(
-											'severity' => 'moderate', 
-											'frequency' => '4-5 times/week', 
+										'Hot Flashes'     => array(
+											'severity'   => 'moderate',
+											'frequency'  => '4-5 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel')
+											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel' ),
 										),
-										'Night Sweats' => array(
-											'severity' => 'mild', 
-											'frequency' => '2-3 times/week', 
+										'Night Sweats'    => array(
+											'severity'   => 'mild',
+											'frequency'  => '2-3 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel')
+											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel' ),
 										),
 										'Erectile Dysfunction' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar')
+											'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
 										),
 										'Vaginal Dryness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D')
+											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D' ),
 										),
-										'Infertility' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+										'Infertility'     => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel')
-										)
+											'biomarkers' => array( 'FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel' ),
+										),
 									),
-									'Weight Loss' => array(
+									'Weight Loss'      => array(
 										'Increased Body Fat' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar')
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
 										),
 										'Abdominal Fat Gain' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP')
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP' ),
 										),
-										'Weight Changes' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+										'Weight Changes'  => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes')
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes' ),
 										),
 										'Slow Metabolism' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12')
+											'biomarkers' => array( 'Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12' ),
 										),
 										'Blood Glucose Dysregulation' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP')
+											'biomarkers' => array( 'Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP' ),
 										),
 										'High Blood Pressure' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid')
+											'biomarkers' => array( 'Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid' ),
 										),
-										'Joint Pain' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
+										'Joint Pain'      => array(
+											'severity'   => 'mild',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers')
+											'biomarkers' => array( 'CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers' ),
 										),
-										'Sleep Problems' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+										'Sleep Problems'  => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium')
-										)
+											'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium' ),
+										),
 									),
-									'Strength' => array(
-										'Muscle Loss' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+									'Strength'         => array(
+										'Muscle Loss'      => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers')
+											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
 										),
 										'Muscle Mass Loss' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine')
+											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine' ),
 										),
 										'Decreased Mobility' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers')
+											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers' ),
 										),
-										'Poor Balance' => array(
-											'severity' => 'mild', 
-											'frequency' => '2-3 times/week', 
+										'Poor Balance'     => array(
+											'severity'   => 'mild',
+											'frequency'  => '2-3 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol' ),
 										),
-										'Slow Recovery' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+										'Slow Recovery'    => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers')
+											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
 										),
 										'Prolonged Soreness' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
+											'severity'   => 'mild',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3')
-										)
+											'biomarkers' => array( 'Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3' ),
+										),
 									),
-									'Longevity' => array(
-										'Chronic Fatigue' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
+									'Longevity'        => array(
+										'Chronic Fatigue'  => array(
+											'severity'   => 'moderate',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length')
+											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length' ),
 										),
 										'Cognitive Decline' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length' ),
 										),
 										'Frequent Illness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'monthly', 
+											'severity'   => 'moderate',
+											'frequency'  => 'monthly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length')
+											'biomarkers' => array( 'Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length' ),
 										),
-										'Itchy Skin' => array(
-											'severity' => 'mild', 
-											'frequency' => 'weekly', 
+										'Itchy Skin'       => array(
+											'severity'   => 'mild',
+											'frequency'  => 'weekly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP')
+											'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP' ),
 										),
 										'Slow Healing Wounds' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'moderate',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers')
-										)
+											'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers' ),
+										),
 									),
 									'Cognitive Health' => array(
-										'Brain Fog' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+										'Brain Fog'    => array(
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine' ),
 										),
-										'Confusion' => array(
-											'severity' => 'critical', 
-											'frequency' => '3-4 times/week', 
+										'Confusion'    => array(
+											'severity'   => 'critical',
+											'frequency'  => '3-4 times/week',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
 										),
-										'Memory Loss' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+										'Memory Loss'  => array(
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE' ),
 										),
 										'Poor Concentration' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine' ),
 										),
 										'Language Problems' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
+											'severity'   => 'critical',
+											'frequency'  => 'weekly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE' ),
 										),
 										'Poor Coordination' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
+											'severity'   => 'critical',
+											'frequency'  => 'weekly',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP')
+											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
 										),
 										'Change in Personality' => array(
-											'severity' => 'critical', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'critical',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel')
+											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel' ),
 										),
 										'Mood Changes' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP')
+											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP' ),
 										),
 										'Sleep Disturbance' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
+											'severity'   => 'critical',
+											'frequency'  => 'daily',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP')
-										)
+											'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP' ),
+										),
 									),
-									'Libido' => array(
-										'Low Libido' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
+									'Libido'           => array(
+										'Low Libido'      => array(
+											'severity'   => 'mild',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12')
+											'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12' ),
 										),
 										'Low Self-Esteem' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
+											'severity'   => 'mild',
+											'frequency'  => 'ongoing',
 											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin')
-										)
-									)
+											'biomarkers' => array( 'Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin' ),
+										),
+									),
 								);
-								
+
 								$total_symptoms = 0;
-								foreach ($official_symptoms as $category => $symptoms) {
-									$total_symptoms += count($symptoms);
+								foreach ( $official_symptoms as $category => $symptoms ) {
+									$total_symptoms += count( $symptoms );
 								}
 								?>
 								
@@ -1216,7 +1231,7 @@ if (empty($display_name)) {
 										<div class="stat-label">Total Symptoms Reported</div>
 									</div>
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( count($official_symptoms) ); ?></div>
+										<div class="stat-number"><?php echo esc_html( count( $official_symptoms ) ); ?></div>
 										<div class="stat-label">Symptom Categories</div>
 									</div>
 									<div class="symptom-stat-card">
@@ -1226,20 +1241,20 @@ if (empty($display_name)) {
 								</div>
 								
 								<div class="symptoms-categories">
-									<?php foreach ($official_symptoms as $category => $symptoms) : ?>
+									<?php foreach ( $official_symptoms as $category => $symptoms ) : ?>
 										<div class="collapsible-section">
 											<div class="collapsible-header" onclick="toggleCollapsible(this)">
 												<h4 class="collapsible-title">
 													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
 														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
 													</svg>
-													<?php echo esc_html($category); ?>
+													<?php echo esc_html( $category ); ?>
 												</h4>
-												<span class="symptom-count"><?php echo count($symptoms); ?> symptoms</span>
+												<span class="symptom-count"><?php echo count( $symptoms ); ?> symptoms</span>
 											</div>
 											<div class="collapsible-content">
 												<div class="symptoms-list">
-													<?php foreach ($symptoms as $symptom => $details) : ?>
+													<?php foreach ( $symptoms as $symptom => $details ) : ?>
 														<div class="symptom-item enhanced">
 															<div class="symptom-main">
 																<div class="symptom-icon">
@@ -1250,26 +1265,26 @@ if (empty($display_name)) {
 																	</svg>
 																</div>
 																<div class="symptom-details">
-																	<span class="symptom-text"><?php echo esc_html($symptom); ?></span>
+																	<span class="symptom-text"><?php echo esc_html( $symptom ); ?></span>
 																	<div class="symptom-meta">
-																		<span class="symptom-frequency"><?php echo esc_html($details['frequency']); ?></span>
-																		<span class="symptom-assessment"><?php echo esc_html($details['assessment']); ?></span>
+																		<span class="symptom-frequency"><?php echo esc_html( $details['frequency'] ); ?></span>
+																		<span class="symptom-assessment"><?php echo esc_html( $details['assessment'] ); ?></span>
 																	</div>
 																	<!-- Enhanced biomarker display -->
 																	<div class="symptom-biomarkers">
 																		<span class="biomarkers-label">Review Biomarkers:</span>
 																		<div class="biomarkers-list">
-																			<?php foreach ($details['biomarkers'] as $biomarker) : ?>
-																				<span class="biomarker-tag"><?php echo esc_html($biomarker); ?></span>
+																			<?php foreach ( $details['biomarkers'] as $biomarker ) : ?>
+																				<span class="biomarker-tag"><?php echo esc_html( $biomarker ); ?></span>
 																			<?php endforeach; ?>
 																		</div>
 																	</div>
 																</div>
 															</div>
 															<div class="symptom-severity">
-																<div class="severity-indicator <?php echo esc_attr($details['severity']); ?>">
+																<div class="severity-indicator <?php echo esc_attr( $details['severity'] ); ?>">
 																	<span class="severity-dot"></span>
-																	<span class="severity-label"><?php echo esc_html(ucfirst($details['severity'])); ?></span>
+																	<span class="severity-label"><?php echo esc_html( ucfirst( $details['severity'] ) ); ?></span>
 																</div>
 															</div>
 														</div>
@@ -1297,7 +1312,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Priority: Hormone Optimization</h5>
 												<p>Your symptoms suggest hormonal imbalances. Lab testing recommended to identify root causes.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
 											</div>
 										</div>
 										
@@ -1310,7 +1325,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Complete Lab Panel</h5>
 												<p>Comprehensive biomarker testing to identify underlying health issues.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
 											</div>
 										</div>
 										
@@ -1324,7 +1339,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Personalized Coaching</h5>
 												<p>Work with a health coach to address symptoms systematically.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
 											</div>
 										</div>
 									</div>
@@ -1336,13 +1351,13 @@ if (empty($display_name)) {
 										<h4>Ready to Transform Your Health?</h4>
 										<p>Get personalized recommendations and track your progress with our comprehensive health assessment.</p>
 										<div class="cta-buttons">
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 												</svg>
 												ENNU Full Body Diagnostic ($599)
 											</a>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-outline btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">
 												Join ENNU LIFE Membership
 											</a>
 										</div>
@@ -1377,8 +1392,8 @@ if (empty($display_name)) {
 								// NEW: Use centralized symptoms system
 								if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
 									$centralized_symptoms = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms( get_current_user_id() );
-									$symptom_analytics = ENNU_Centralized_Symptoms_Manager::get_symptom_analytics( get_current_user_id() );
-									
+									$symptom_analytics    = ENNU_Centralized_Symptoms_Manager::get_symptom_analytics( get_current_user_id() );
+
 									if ( ! empty( $centralized_symptoms['symptoms'] ) ) {
 										echo '<div class="symptom-summary">';
 										echo '<div class="symptom-stats">';
@@ -1387,29 +1402,29 @@ if (empty($display_name)) {
 										echo '<div class="stat-item"><span class="stat-number">' . $symptom_analytics['assessments_with_symptoms'] . '</span><span class="stat-label">Assessments</span></div>';
 										echo '</div>';
 										echo '</div>';
-										
+
 										// Display symptoms by category
 										foreach ( $centralized_symptoms['by_category'] as $category => $symptom_keys ) {
 											echo '<div class="symptom-category">';
 											echo '<h4 class="category-title">' . esc_html( $category ) . '</h4>';
-											
+
 											foreach ( $symptom_keys as $symptom_key ) {
 												$symptom = $centralized_symptoms['symptoms'][ $symptom_key ];
 												echo '<div class="symptom-item">';
 												echo '<div class="symptom-name">' . esc_html( $symptom['name'] ) . '</div>';
-												
+
 												if ( ! empty( $symptom['severity'] ) ) {
 													echo '<div class="symptom-severity">Severity: ' . esc_html( $symptom['severity'][0] ) . '</div>';
 												}
-												
+
 												if ( ! empty( $symptom['frequency'] ) ) {
 													echo '<div class="symptom-frequency">Frequency: ' . esc_html( $symptom['frequency'][0] ) . '</div>';
 												}
-												
+
 												echo '<div class="symptom-assessments">From: ' . esc_html( implode( ', ', $symptom['assessments'] ) ) . '</div>';
 												echo '</div>';
 											}
-											
+
 											echo '</div>';
 										}
 									} else {
@@ -1417,330 +1432,330 @@ if (empty($display_name)) {
 									}
 								} else {
 									// FALLBACK: Enhanced symptom data with specific biomarker recommendations
-								$official_symptoms = array(
-									'Energy' => array(
-										'Fatigue' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S')
+									$official_symptoms = array(
+										'Energy'           => array(
+											'Fatigue'  => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S' ),
+											),
+											'Lack of Motivation' => array(
+												'severity' => 'mild',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12' ),
+											),
+											'Reduced Physical Performance' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron' ),
+											),
+											'Decreased Physical Activity' => array(
+												'severity' => 'mild',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin' ),
+											),
+											'Muscle Weakness' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium' ),
+											),
+											'Weakness' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase' ),
+											),
 										),
-										'Lack of Motivation' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12')
+										'Heart Health'     => array(
+											'Chest Pain'   => array(
+												'severity' => 'critical',
+												'frequency' => 'weekly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides' ),
+											),
+											'Shortness of Breath' => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12' ),
+											),
+											'Palpitations' => array(
+												'severity' => 'moderate',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel' ),
+											),
+											'Lightheadedness' => array(
+												'severity' => 'moderate',
+												'frequency' => '2-3 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure' ),
+											),
+											'Poor Exercise Tolerance' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol' ),
+											),
+											'Swelling'     => array(
+												'severity' => 'mild',
+												'frequency' => 'weekly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP' ),
+											),
 										),
-										'Reduced Physical Performance' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron')
+										'Hormones'         => array(
+											'Anxiety'      => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium' ),
+											),
+											'Depression'   => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3' ),
+											),
+											'Irritability' => array(
+												'severity' => 'mild',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium' ),
+											),
+											'Hot Flashes'  => array(
+												'severity' => 'moderate',
+												'frequency' => '4-5 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel' ),
+											),
+											'Night Sweats' => array(
+												'severity' => 'mild',
+												'frequency' => '2-3 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel' ),
+											),
+											'Erectile Dysfunction' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
+											),
+											'Vaginal Dryness' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D' ),
+											),
+											'Infertility'  => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel' ),
+											),
 										),
-										'Decreased Physical Activity' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin')
+										'Weight Loss'      => array(
+											'Increased Body Fat' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
+											),
+											'Abdominal Fat Gain' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP' ),
+											),
+											'Weight Changes' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes' ),
+											),
+											'Slow Metabolism' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12' ),
+											),
+											'Blood Glucose Dysregulation' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP' ),
+											),
+											'High Blood Pressure' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid' ),
+											),
+											'Joint Pain' => array(
+												'severity' => 'mild',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers' ),
+											),
+											'Sleep Problems' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium' ),
+											),
 										),
-										'Muscle Weakness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium')
+										'Strength'         => array(
+											'Muscle Loss'  => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
+											),
+											'Muscle Mass Loss' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine' ),
+											),
+											'Decreased Mobility' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers' ),
+											),
+											'Poor Balance' => array(
+												'severity' => 'mild',
+												'frequency' => '2-3 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol' ),
+											),
+											'Slow Recovery' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
+											),
+											'Prolonged Soreness' => array(
+												'severity' => 'mild',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3' ),
+											),
 										),
-										'Weakness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase')
-										)
-									),
-									'Heart Health' => array(
-										'Chest Pain' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides')
+										'Longevity'        => array(
+											'Chronic Fatigue' => array(
+												'severity' => 'moderate',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length' ),
+											),
+											'Cognitive Decline' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length' ),
+											),
+											'Frequent Illness' => array(
+												'severity' => 'moderate',
+												'frequency' => 'monthly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length' ),
+											),
+											'Itchy Skin' => array(
+												'severity' => 'mild',
+												'frequency' => 'weekly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP' ),
+											),
+											'Slow Healing Wounds' => array(
+												'severity' => 'moderate',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers' ),
+											),
 										),
-										'Shortness of Breath' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12')
+										'Cognitive Health' => array(
+											'Brain Fog'    => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine' ),
+											),
+											'Confusion'    => array(
+												'severity' => 'critical',
+												'frequency' => '3-4 times/week',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
+											),
+											'Memory Loss'  => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE' ),
+											),
+											'Poor Concentration' => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine' ),
+											),
+											'Language Problems' => array(
+												'severity' => 'critical',
+												'frequency' => 'weekly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE' ),
+											),
+											'Poor Coordination' => array(
+												'severity' => 'critical',
+												'frequency' => 'weekly',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
+											),
+											'Change in Personality' => array(
+												'severity' => 'critical',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel' ),
+											),
+											'Mood Changes' => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP' ),
+											),
+											'Sleep Disturbance' => array(
+												'severity' => 'critical',
+												'frequency' => 'daily',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP' ),
+											),
 										),
-										'Palpitations' => array(
-											'severity' => 'moderate', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel')
+										'Libido'           => array(
+											'Low Libido' => array(
+												'severity' => 'mild',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12' ),
+											),
+											'Low Self-Esteem' => array(
+												'severity' => 'mild',
+												'frequency' => 'ongoing',
+												'assessment' => 'Health Optimization',
+												'biomarkers' => array( 'Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin' ),
+											),
 										),
-										'Lightheadedness' => array(
-											'severity' => 'moderate', 
-											'frequency' => '2-3 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure')
-										),
-										'Poor Exercise Tolerance' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol')
-										),
-										'Swelling' => array(
-											'severity' => 'mild', 
-											'frequency' => 'weekly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP')
-										)
-									),
-									'Hormones' => array(
-										'Anxiety' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium')
-										),
-										'Depression' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3')
-										),
-										'Irritability' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium')
-										),
-										'Hot Flashes' => array(
-											'severity' => 'moderate', 
-											'frequency' => '4-5 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel')
-										),
-										'Night Sweats' => array(
-											'severity' => 'mild', 
-											'frequency' => '2-3 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel')
-										),
-										'Erectile Dysfunction' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar')
-										),
-										'Vaginal Dryness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D')
-										),
-										'Infertility' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel')
-										)
-									),
-									'Weight Loss' => array(
-										'Increased Body Fat' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar')
-										),
-										'Abdominal Fat Gain' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP')
-										),
-										'Weight Changes' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes')
-										),
-										'Slow Metabolism' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12')
-										),
-										'Blood Glucose Dysregulation' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP')
-										),
-										'High Blood Pressure' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid')
-										),
-										'Joint Pain' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers')
-										),
-										'Sleep Problems' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium')
-										)
-									),
-									'Strength' => array(
-										'Muscle Loss' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers')
-										),
-										'Muscle Mass Loss' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine')
-										),
-										'Decreased Mobility' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers')
-										),
-										'Poor Balance' => array(
-											'severity' => 'mild', 
-											'frequency' => '2-3 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol')
-										),
-										'Slow Recovery' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers')
-										),
-										'Prolonged Soreness' => array(
-											'severity' => 'mild', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3')
-										)
-									),
-									'Longevity' => array(
-										'Chronic Fatigue' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length')
-										),
-										'Cognitive Decline' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length')
-										),
-										'Frequent Illness' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'monthly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length')
-										),
-										'Itchy Skin' => array(
-											'severity' => 'mild', 
-											'frequency' => 'weekly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP')
-										),
-										'Slow Healing Wounds' => array(
-											'severity' => 'moderate', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers')
-										)
-									),
-									'Cognitive Health' => array(
-										'Brain Fog' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine')
-										),
-										'Confusion' => array(
-											'severity' => 'critical', 
-											'frequency' => '3-4 times/week', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP')
-										),
-										'Memory Loss' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE')
-										),
-										'Poor Concentration' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine')
-										),
-										'Language Problems' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE')
-										),
-										'Poor Coordination' => array(
-											'severity' => 'critical', 
-											'frequency' => 'weekly', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP')
-										),
-										'Change in Personality' => array(
-											'severity' => 'critical', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel')
-										),
-										'Mood Changes' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP')
-										),
-										'Sleep Disturbance' => array(
-											'severity' => 'critical', 
-											'frequency' => 'daily', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP')
-										)
-									),
-									'Libido' => array(
-										'Low Libido' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12')
-										),
-										'Low Self-Esteem' => array(
-											'severity' => 'mild', 
-											'frequency' => 'ongoing', 
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array('Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin')
-										)
-									)
-								);
-								
-								$total_symptoms = 0;
-								foreach ($official_symptoms as $category => $symptoms) {
-									$total_symptoms += count($symptoms);
-								}
-								?>
+									);
+
+									$total_symptoms = 0;
+									foreach ( $official_symptoms as $category => $symptoms ) {
+										$total_symptoms += count( $symptoms );
+									}
+									?>
 								
 								<?php } // End of fallback condition ?>
 								
@@ -1750,7 +1765,7 @@ if (empty($display_name)) {
 										<div class="stat-label">Total Symptoms Reported</div>
 									</div>
 									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( count($official_symptoms) ); ?></div>
+										<div class="stat-number"><?php echo esc_html( count( $official_symptoms ) ); ?></div>
 										<div class="stat-label">Symptom Categories</div>
 									</div>
 									<div class="symptom-stat-card">
@@ -1760,20 +1775,20 @@ if (empty($display_name)) {
 								</div>
 								
 								<div class="symptoms-categories">
-									<?php foreach ($official_symptoms as $category => $symptoms) : ?>
+									<?php foreach ( $official_symptoms as $category => $symptoms ) : ?>
 										<div class="collapsible-section">
 											<div class="collapsible-header" onclick="toggleCollapsible(this)">
 												<h4 class="collapsible-title">
 													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
 														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
 													</svg>
-													<?php echo esc_html($category); ?>
+													<?php echo esc_html( $category ); ?>
 												</h4>
-												<span class="symptom-count"><?php echo count($symptoms); ?> symptoms</span>
+												<span class="symptom-count"><?php echo count( $symptoms ); ?> symptoms</span>
 											</div>
 											<div class="collapsible-content">
 												<div class="symptoms-list">
-													<?php foreach ($symptoms as $symptom => $details) : ?>
+													<?php foreach ( $symptoms as $symptom => $details ) : ?>
 														<div class="symptom-item enhanced">
 															<div class="symptom-main">
 																<div class="symptom-icon">
@@ -1784,26 +1799,26 @@ if (empty($display_name)) {
 																	</svg>
 																</div>
 																<div class="symptom-details">
-																	<span class="symptom-text"><?php echo esc_html($symptom); ?></span>
+																	<span class="symptom-text"><?php echo esc_html( $symptom ); ?></span>
 																	<div class="symptom-meta">
-																		<span class="symptom-frequency"><?php echo esc_html($details['frequency']); ?></span>
-																		<span class="symptom-assessment"><?php echo esc_html($details['assessment']); ?></span>
+																		<span class="symptom-frequency"><?php echo esc_html( $details['frequency'] ); ?></span>
+																		<span class="symptom-assessment"><?php echo esc_html( $details['assessment'] ); ?></span>
 																	</div>
 																	<!-- Enhanced biomarker display -->
 																	<div class="symptom-biomarkers">
 																		<span class="biomarkers-label">Review Biomarkers:</span>
 																		<div class="biomarkers-list">
-																			<?php foreach ($details['biomarkers'] as $biomarker) : ?>
-																				<span class="biomarker-tag"><?php echo esc_html($biomarker); ?></span>
+																			<?php foreach ( $details['biomarkers'] as $biomarker ) : ?>
+																				<span class="biomarker-tag"><?php echo esc_html( $biomarker ); ?></span>
 																			<?php endforeach; ?>
 																		</div>
 																	</div>
 																</div>
 															</div>
 															<div class="symptom-severity">
-																<div class="severity-indicator <?php echo esc_attr($details['severity']); ?>">
+																<div class="severity-indicator <?php echo esc_attr( $details['severity'] ); ?>">
 																	<span class="severity-dot"></span>
-																	<span class="severity-label"><?php echo esc_html(ucfirst($details['severity'])); ?></span>
+																	<span class="severity-label"><?php echo esc_html( ucfirst( $details['severity'] ) ); ?></span>
 																</div>
 															</div>
 														</div>
@@ -1831,7 +1846,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Priority: Hormone Optimization</h5>
 												<p>Your symptoms suggest hormonal imbalances. Lab testing recommended to identify root causes.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
 											</div>
 										</div>
 										
@@ -1844,7 +1859,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Complete Lab Panel</h5>
 												<p>Comprehensive biomarker testing to identify underlying health issues.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
 											</div>
 										</div>
 										
@@ -1858,7 +1873,7 @@ if (empty($display_name)) {
 											<div class="rec-content">
 												<h5>Personalized Coaching</h5>
 												<p>Work with a health coach to address symptoms systematically.</p>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
 											</div>
 										</div>
 									</div>
@@ -1870,13 +1885,13 @@ if (empty($display_name)) {
 										<h4>Ready to Transform Your Health?</h4>
 										<p>Get personalized recommendations and track your progress with our comprehensive health assessment.</p>
 										<div class="cta-buttons">
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 												</svg>
 												ENNU Full Body Diagnostic ($599)
 											</a>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-outline btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">
 												Join ENNU LIFE Membership
 											</a>
 										</div>
@@ -1923,161 +1938,742 @@ if (empty($display_name)) {
 								$official_biomarkers = array(
 									'Physical Measurements' => array(
 										'description' => 'Direct physical measurements for body composition and vital signs',
-										'biomarkers' => array(
-											'Weight' => array('value' => '185', 'unit' => 'lbs', 'status' => 'high', 'range' => '150-180', 'trend' => 'increasing', 'priority' => 'high'),
-											'BMI (Body Mass Index)' => array('value' => '28.5', 'unit' => 'kg/m²', 'status' => 'high', 'range' => '18.5-24.9', 'trend' => 'increasing', 'priority' => 'high'),
-											'Body Fat %' => array('value' => '25', 'unit' => '%', 'status' => 'high', 'range' => '10-20', 'trend' => 'increasing', 'priority' => 'high'),
-											'Waist Measurement' => array('value' => '38', 'unit' => 'inches', 'status' => 'high', 'range' => '<40', 'trend' => 'increasing', 'priority' => 'high'),
-											'Neck Measurement' => array('value' => '16.5', 'unit' => 'inches', 'status' => 'high', 'range' => '<17', 'trend' => 'stable', 'priority' => 'medium'),
-											'Blood Pressure' => array('value' => '135/85', 'unit' => 'mmHg', 'status' => 'high', 'range' => '<120/80', 'trend' => 'increasing', 'priority' => 'critical'),
-											'Heart Rate' => array('value' => '75', 'unit' => 'bpm', 'status' => 'normal', 'range' => '60-80', 'trend' => 'stable', 'priority' => 'normal'),
-											'Temperature' => array('value' => '98.2', 'unit' => '°F', 'status' => 'normal', 'range' => '98.0-98.6', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'Weight'      => array(
+												'value'    => '185',
+												'unit'     => 'lbs',
+												'status'   => 'high',
+												'range'    => '150-180',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'BMI (Body Mass Index)' => array(
+												'value'    => '28.5',
+												'unit'     => 'kg/m²',
+												'status'   => 'high',
+												'range'    => '18.5-24.9',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Body Fat %'  => array(
+												'value'    => '25',
+												'unit'     => '%',
+												'status'   => 'high',
+												'range'    => '10-20',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Waist Measurement' => array(
+												'value'    => '38',
+												'unit'     => 'inches',
+												'status'   => 'high',
+												'range'    => '<40',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Neck Measurement' => array(
+												'value'    => '16.5',
+												'unit'     => 'inches',
+												'status'   => 'high',
+												'range'    => '<17',
+												'trend'    => 'stable',
+												'priority' => 'medium',
+											),
+											'Blood Pressure' => array(
+												'value'    => '135/85',
+												'unit'     => 'mmHg',
+												'status'   => 'high',
+												'range'    => '<120/80',
+												'trend'    => 'increasing',
+												'priority' => 'critical',
+											),
+											'Heart Rate'  => array(
+												'value'    => '75',
+												'unit'     => 'bpm',
+												'status'   => 'normal',
+												'range'    => '60-80',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Temperature' => array(
+												'value'    => '98.2',
+												'unit'     => '°F',
+												'status'   => 'normal',
+												'range'    => '98.0-98.6',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
 									'Basic Metabolic Panel' => array(
 										'description' => 'Essential metabolic markers for energy, kidney function, and electrolyte balance',
-										'biomarkers' => array(
-											'Glucose' => array('value' => '105', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '70-85', 'trend' => 'increasing', 'priority' => 'critical'),
-											'HbA1c (Hemoglobin A1c)' => array('value' => '5.8', 'unit' => '%', 'status' => 'high', 'range' => '<5.5', 'trend' => 'increasing', 'priority' => 'critical'),
-											'BUN (Blood Urea Nitrogen)' => array('value' => '18', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '7-15', 'trend' => 'increasing', 'priority' => 'high'),
-											'Creatinine' => array('value' => '1.2', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '0.7-1.1', 'trend' => 'increasing', 'priority' => 'high'),
-											'GFR (Glomerular Filtration Rate)' => array('value' => '75', 'unit' => 'mL/min/1.73m²', 'status' => 'low', 'range' => '>90', 'trend' => 'decreasing', 'priority' => 'high'),
-											'BUN/Creatinine Ratio' => array('value' => '15', 'unit' => 'ratio', 'status' => 'normal', 'range' => '10-15', 'trend' => 'stable', 'priority' => 'normal'),
-											'Sodium' => array('value' => '140', 'unit' => 'mEq/L', 'status' => 'normal', 'range' => '136-142', 'trend' => 'stable', 'priority' => 'normal'),
-											'Potassium' => array('value' => '4.2', 'unit' => 'mEq/L', 'status' => 'normal', 'range' => '3.8-4.5', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'Glucose'    => array(
+												'value'    => '105',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '70-85',
+												'trend'    => 'increasing',
+												'priority' => 'critical',
+											),
+											'HbA1c (Hemoglobin A1c)' => array(
+												'value'    => '5.8',
+												'unit'     => '%',
+												'status'   => 'high',
+												'range'    => '<5.5',
+												'trend'    => 'increasing',
+												'priority' => 'critical',
+											),
+											'BUN (Blood Urea Nitrogen)' => array(
+												'value'    => '18',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '7-15',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Creatinine' => array(
+												'value'    => '1.2',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '0.7-1.1',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'GFR (Glomerular Filtration Rate)' => array(
+												'value'    => '75',
+												'unit'     => 'mL/min/1.73m²',
+												'status'   => 'low',
+												'range'    => '>90',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'BUN/Creatinine Ratio' => array(
+												'value'    => '15',
+												'unit'     => 'ratio',
+												'status'   => 'normal',
+												'range'    => '10-15',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Sodium'     => array(
+												'value'    => '140',
+												'unit'     => 'mEq/L',
+												'status'   => 'normal',
+												'range'    => '136-142',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Potassium'  => array(
+												'value'    => '4.2',
+												'unit'     => 'mEq/L',
+												'status'   => 'normal',
+												'range'    => '3.8-4.5',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
 									'Electrolytes & Minerals' => array(
 										'description' => 'Essential minerals and electrolytes for cellular function',
-										'biomarkers' => array(
-											'Chloride' => array('value' => '102', 'unit' => 'mEq/L', 'status' => 'normal', 'range' => '98-104', 'trend' => 'stable', 'priority' => 'normal'),
-											'Carbon Dioxide' => array('value' => '25', 'unit' => 'mEq/L', 'status' => 'normal', 'range' => '23-27', 'trend' => 'stable', 'priority' => 'normal'),
-											'Calcium' => array('value' => '9.8', 'unit' => 'mg/dL', 'status' => 'normal', 'range' => '8.5-10.5', 'trend' => 'stable', 'priority' => 'normal'),
-											'Phosphorus' => array('value' => '3.2', 'unit' => 'mg/dL', 'status' => 'normal', 'range' => '2.5-4.5', 'trend' => 'stable', 'priority' => 'normal'),
-											'Magnesium' => array('value' => '1.8', 'unit' => 'mg/dL', 'status' => 'low', 'range' => '1.9-2.5', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Iron' => array('value' => '65', 'unit' => 'µg/dL', 'status' => 'low', 'range' => '70-180', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Ferritin' => array('value' => '45', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '50-300', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Zinc' => array('value' => '70', 'unit' => 'µg/dL', 'status' => 'low', 'range' => '80-120', 'trend' => 'decreasing', 'priority' => 'medium')
-										)
+										'biomarkers'  => array(
+											'Chloride'   => array(
+												'value'    => '102',
+												'unit'     => 'mEq/L',
+												'status'   => 'normal',
+												'range'    => '98-104',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Carbon Dioxide' => array(
+												'value'    => '25',
+												'unit'     => 'mEq/L',
+												'status'   => 'normal',
+												'range'    => '23-27',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Calcium'    => array(
+												'value'    => '9.8',
+												'unit'     => 'mg/dL',
+												'status'   => 'normal',
+												'range'    => '8.5-10.5',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Phosphorus' => array(
+												'value'    => '3.2',
+												'unit'     => 'mg/dL',
+												'status'   => 'normal',
+												'range'    => '2.5-4.5',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Magnesium'  => array(
+												'value'    => '1.8',
+												'unit'     => 'mg/dL',
+												'status'   => 'low',
+												'range'    => '1.9-2.5',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Iron'       => array(
+												'value'    => '65',
+												'unit'     => 'µg/dL',
+												'status'   => 'low',
+												'range'    => '70-180',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Ferritin'   => array(
+												'value'    => '45',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '50-300',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Zinc'       => array(
+												'value'    => '70',
+												'unit'     => 'µg/dL',
+												'status'   => 'low',
+												'range'    => '80-120',
+												'trend'    => 'decreasing',
+												'priority' => 'medium',
+											),
+										),
 									),
-									'Protein Panel' => array(
+									'Protein Panel'        => array(
 										'description' => 'Protein markers for nutritional status and organ function',
-										'biomarkers' => array(
-											'Total Protein' => array('value' => '7.2', 'unit' => 'g/dL', 'status' => 'normal', 'range' => '6.0-8.3', 'trend' => 'stable', 'priority' => 'normal'),
-											'Albumin' => array('value' => '4.1', 'unit' => 'g/dL', 'status' => 'normal', 'range' => '3.4-5.0', 'trend' => 'stable', 'priority' => 'normal'),
-											'Globulin' => array('value' => '3.1', 'unit' => 'g/dL', 'status' => 'normal', 'range' => '2.0-3.5', 'trend' => 'stable', 'priority' => 'normal'),
-											'A/G Ratio' => array('value' => '1.3', 'unit' => 'ratio', 'status' => 'normal', 'range' => '1.1-2.2', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'Total Protein' => array(
+												'value'    => '7.2',
+												'unit'     => 'g/dL',
+												'status'   => 'normal',
+												'range'    => '6.0-8.3',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Albumin'   => array(
+												'value'    => '4.1',
+												'unit'     => 'g/dL',
+												'status'   => 'normal',
+												'range'    => '3.4-5.0',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Globulin'  => array(
+												'value'    => '3.1',
+												'unit'     => 'g/dL',
+												'status'   => 'normal',
+												'range'    => '2.0-3.5',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'A/G Ratio' => array(
+												'value'    => '1.3',
+												'unit'     => 'ratio',
+												'status'   => 'normal',
+												'range'    => '1.1-2.2',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
-									'Liver Function' => array(
+									'Liver Function'       => array(
 										'description' => 'Liver health and function markers',
-										'biomarkers' => array(
-											'ALT (Alanine Aminotransferase)' => array('value' => '35', 'unit' => 'U/L', 'status' => 'high', 'range' => '7-35', 'trend' => 'increasing', 'priority' => 'high'),
-											'AST (Aspartate Aminotransferase)' => array('value' => '32', 'unit' => 'U/L', 'status' => 'normal', 'range' => '10-40', 'trend' => 'stable', 'priority' => 'normal'),
-											'Alkaline Phosphatase' => array('value' => '85', 'unit' => 'U/L', 'status' => 'normal', 'range' => '44-147', 'trend' => 'stable', 'priority' => 'normal'),
-											'GGT (Gamma-Glutamyl Transferase)' => array('value' => '45', 'unit' => 'U/L', 'status' => 'high', 'range' => '9-48', 'trend' => 'increasing', 'priority' => 'medium'),
-											'Bilirubin Total' => array('value' => '1.2', 'unit' => 'mg/dL', 'status' => 'normal', 'range' => '0.3-1.2', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'ALT (Alanine Aminotransferase)' => array(
+												'value'    => '35',
+												'unit'     => 'U/L',
+												'status'   => 'high',
+												'range'    => '7-35',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'AST (Aspartate Aminotransferase)' => array(
+												'value'    => '32',
+												'unit'     => 'U/L',
+												'status'   => 'normal',
+												'range'    => '10-40',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Alkaline Phosphatase' => array(
+												'value'    => '85',
+												'unit'     => 'U/L',
+												'status'   => 'normal',
+												'range'    => '44-147',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'GGT (Gamma-Glutamyl Transferase)' => array(
+												'value'    => '45',
+												'unit'     => 'U/L',
+												'status'   => 'high',
+												'range'    => '9-48',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'Bilirubin Total' => array(
+												'value'    => '1.2',
+												'unit'     => 'mg/dL',
+												'status'   => 'normal',
+												'range'    => '0.3-1.2',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
 									'Complete Blood Count' => array(
 										'description' => 'Comprehensive blood cell analysis for overall health',
-										'biomarkers' => array(
-											'White Blood Cells' => array('value' => '7.2', 'unit' => 'K/µL', 'status' => 'normal', 'range' => '4.5-11.0', 'trend' => 'stable', 'priority' => 'normal'),
-											'Red Blood Cells' => array('value' => '4.8', 'unit' => 'M/µL', 'status' => 'normal', 'range' => '4.5-5.9', 'trend' => 'stable', 'priority' => 'normal'),
-											'Hemoglobin' => array('value' => '14.2', 'unit' => 'g/dL', 'status' => 'normal', 'range' => '13.5-17.5', 'trend' => 'stable', 'priority' => 'normal'),
-											'Hematocrit' => array('value' => '42', 'unit' => '%', 'status' => 'normal', 'range' => '41-50', 'trend' => 'stable', 'priority' => 'normal'),
-											'Platelets' => array('value' => '250', 'unit' => 'K/µL', 'status' => 'normal', 'range' => '150-450', 'trend' => 'stable', 'priority' => 'normal'),
-											'MCV' => array('value' => '88', 'unit' => 'fL', 'status' => 'normal', 'range' => '80-100', 'trend' => 'stable', 'priority' => 'normal'),
-											'MCH' => array('value' => '29', 'unit' => 'pg', 'status' => 'normal', 'range' => '27-32', 'trend' => 'stable', 'priority' => 'normal'),
-											'MCHC' => array('value' => '34', 'unit' => 'g/dL', 'status' => 'normal', 'range' => '32-36', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'White Blood Cells' => array(
+												'value'    => '7.2',
+												'unit'     => 'K/µL',
+												'status'   => 'normal',
+												'range'    => '4.5-11.0',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Red Blood Cells' => array(
+												'value'    => '4.8',
+												'unit'     => 'M/µL',
+												'status'   => 'normal',
+												'range'    => '4.5-5.9',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Hemoglobin' => array(
+												'value'    => '14.2',
+												'unit'     => 'g/dL',
+												'status'   => 'normal',
+												'range'    => '13.5-17.5',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Hematocrit' => array(
+												'value'    => '42',
+												'unit'     => '%',
+												'status'   => 'normal',
+												'range'    => '41-50',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Platelets'  => array(
+												'value'    => '250',
+												'unit'     => 'K/µL',
+												'status'   => 'normal',
+												'range'    => '150-450',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'MCV'        => array(
+												'value'    => '88',
+												'unit'     => 'fL',
+												'status'   => 'normal',
+												'range'    => '80-100',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'MCH'        => array(
+												'value'    => '29',
+												'unit'     => 'pg',
+												'status'   => 'normal',
+												'range'    => '27-32',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'MCHC'       => array(
+												'value'    => '34',
+												'unit'     => 'g/dL',
+												'status'   => 'normal',
+												'range'    => '32-36',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
-									'Lipid Panel' => array(
+									'Lipid Panel'          => array(
 										'description' => 'Cholesterol and cardiovascular risk markers',
-										'biomarkers' => array(
-											'Total Cholesterol' => array('value' => '220', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<200', 'trend' => 'increasing', 'priority' => 'high'),
-											'LDL Cholesterol' => array('value' => '145', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<100', 'trend' => 'increasing', 'priority' => 'high'),
-											'HDL Cholesterol' => array('value' => '45', 'unit' => 'mg/dL', 'status' => 'low', 'range' => '>60', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Triglycerides' => array('value' => '180', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<150', 'trend' => 'increasing', 'priority' => 'high'),
-											'Non-HDL Cholesterol' => array('value' => '175', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<130', 'trend' => 'increasing', 'priority' => 'high'),
-											'VLDL Cholesterol' => array('value' => '36', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '5-30', 'trend' => 'increasing', 'priority' => 'medium'),
-											'Lipoprotein(a)' => array('value' => '45', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<30', 'trend' => 'stable', 'priority' => 'high'),
-											'ApoB' => array('value' => '95', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '<90', 'trend' => 'increasing', 'priority' => 'high')
-										)
+										'biomarkers'  => array(
+											'Total Cholesterol' => array(
+												'value'    => '220',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<200',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'LDL Cholesterol' => array(
+												'value'    => '145',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<100',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'HDL Cholesterol' => array(
+												'value'    => '45',
+												'unit'     => 'mg/dL',
+												'status'   => 'low',
+												'range'    => '>60',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Triglycerides' => array(
+												'value'    => '180',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<150',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Non-HDL Cholesterol' => array(
+												'value'    => '175',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<130',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'VLDL Cholesterol' => array(
+												'value'    => '36',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '5-30',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'Lipoprotein(a)' => array(
+												'value'    => '45',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<30',
+												'trend'    => 'stable',
+												'priority' => 'high',
+											),
+											'ApoB' => array(
+												'value'    => '95',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '<90',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+										),
 									),
-									'Hormones' => array(
+									'Hormones'             => array(
 										'description' => 'Key hormones that regulate metabolism, energy, and overall wellbeing',
-										'biomarkers' => array(
-											'Total Testosterone' => array('value' => '320', 'unit' => 'ng/dL', 'status' => 'low', 'range' => '400-1000', 'trend' => 'decreasing', 'priority' => 'critical'),
-											'Free Testosterone' => array('value' => '45', 'unit' => 'pg/mL', 'status' => 'low', 'range' => '50-250', 'trend' => 'decreasing', 'priority' => 'critical'),
-											'Estradiol (E2)' => array('value' => '28', 'unit' => 'pg/mL', 'status' => 'normal', 'range' => '20-40', 'trend' => 'stable', 'priority' => 'normal'),
-											'Progesterone' => array('value' => '0.8', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '1.0-2.0', 'trend' => 'decreasing', 'priority' => 'high'),
-											'FSH' => array('value' => '12', 'unit' => 'mIU/mL', 'status' => 'high', 'range' => '4-12', 'trend' => 'increasing', 'priority' => 'high'),
-											'LH' => array('value' => '8', 'unit' => 'mIU/mL', 'status' => 'normal', 'range' => '2-9', 'trend' => 'stable', 'priority' => 'normal'),
-											'DHEA-S' => array('value' => '180', 'unit' => 'µg/dL', 'status' => 'low', 'range' => '200-350', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Cortisol' => array('value' => '18', 'unit' => 'µg/dL', 'status' => 'high', 'range' => '6-18', 'trend' => 'increasing', 'priority' => 'high'),
-											'Prolactin' => array('value' => '15', 'unit' => 'ng/mL', 'status' => 'normal', 'range' => '4-15', 'trend' => 'stable', 'priority' => 'normal'),
-											'IGF-1' => array('value' => '180', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '200-400', 'trend' => 'decreasing', 'priority' => 'high')
-										)
+										'biomarkers'  => array(
+											'Total Testosterone' => array(
+												'value'    => '320',
+												'unit'     => 'ng/dL',
+												'status'   => 'low',
+												'range'    => '400-1000',
+												'trend'    => 'decreasing',
+												'priority' => 'critical',
+											),
+											'Free Testosterone' => array(
+												'value'    => '45',
+												'unit'     => 'pg/mL',
+												'status'   => 'low',
+												'range'    => '50-250',
+												'trend'    => 'decreasing',
+												'priority' => 'critical',
+											),
+											'Estradiol (E2)' => array(
+												'value'    => '28',
+												'unit'     => 'pg/mL',
+												'status'   => 'normal',
+												'range'    => '20-40',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Progesterone' => array(
+												'value'    => '0.8',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '1.0-2.0',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'FSH'          => array(
+												'value'    => '12',
+												'unit'     => 'mIU/mL',
+												'status'   => 'high',
+												'range'    => '4-12',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'LH'           => array(
+												'value'    => '8',
+												'unit'     => 'mIU/mL',
+												'status'   => 'normal',
+												'range'    => '2-9',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'DHEA-S'       => array(
+												'value'    => '180',
+												'unit'     => 'µg/dL',
+												'status'   => 'low',
+												'range'    => '200-350',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Cortisol'     => array(
+												'value'    => '18',
+												'unit'     => 'µg/dL',
+												'status'   => 'high',
+												'range'    => '6-18',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Prolactin'    => array(
+												'value'    => '15',
+												'unit'     => 'ng/mL',
+												'status'   => 'normal',
+												'range'    => '4-15',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'IGF-1'        => array(
+												'value'    => '180',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '200-400',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+										),
 									),
-									'Thyroid Function' => array(
+									'Thyroid Function'     => array(
 										'description' => 'Thyroid hormones that regulate metabolism and energy',
-										'biomarkers' => array(
-											'TSH' => array('value' => '3.2', 'unit' => 'µIU/mL', 'status' => 'high', 'range' => '0.4-2.5', 'trend' => 'increasing', 'priority' => 'high'),
-											'Free T3' => array('value' => '2.8', 'unit' => 'pg/mL', 'status' => 'low', 'range' => '3.0-4.5', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Free T4' => array('value' => '1.1', 'unit' => 'ng/dL', 'status' => 'low', 'range' => '1.2-1.8', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Reverse T3' => array('value' => '25', 'unit' => 'ng/dL', 'status' => 'high', 'range' => '10-24', 'trend' => 'increasing', 'priority' => 'medium'),
-											'TPO Antibodies' => array('value' => '35', 'unit' => 'IU/mL', 'status' => 'high', 'range' => '<35', 'trend' => 'stable', 'priority' => 'medium')
-										)
+										'biomarkers'  => array(
+											'TSH'        => array(
+												'value'    => '3.2',
+												'unit'     => 'µIU/mL',
+												'status'   => 'high',
+												'range'    => '0.4-2.5',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Free T3'    => array(
+												'value'    => '2.8',
+												'unit'     => 'pg/mL',
+												'status'   => 'low',
+												'range'    => '3.0-4.5',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Free T4'    => array(
+												'value'    => '1.1',
+												'unit'     => 'ng/dL',
+												'status'   => 'low',
+												'range'    => '1.2-1.8',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Reverse T3' => array(
+												'value'    => '25',
+												'unit'     => 'ng/dL',
+												'status'   => 'high',
+												'range'    => '10-24',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'TPO Antibodies' => array(
+												'value'    => '35',
+												'unit'     => 'IU/mL',
+												'status'   => 'high',
+												'range'    => '<35',
+												'trend'    => 'stable',
+												'priority' => 'medium',
+											),
+										),
 									),
 									'Vitamins & Nutrients' => array(
 										'description' => 'Essential vitamins and nutrients for optimal health',
-										'biomarkers' => array(
-											'Vitamin D (25-OH)' => array('value' => '28', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '30-80', 'trend' => 'decreasing', 'priority' => 'critical'),
-											'Vitamin B12' => array('value' => '350', 'unit' => 'pg/mL', 'status' => 'low', 'range' => '400-900', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Folate (B9)' => array('value' => '6.5', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '7-20', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Vitamin B6' => array('value' => '8.5', 'unit' => 'ng/mL', 'status' => 'normal', 'range' => '5-50', 'trend' => 'stable', 'priority' => 'normal'),
-											'Omega-3 Index' => array('value' => '4.2', 'unit' => '%', 'status' => 'low', 'range' => '6-8', 'trend' => 'decreasing', 'priority' => 'high'),
-											'Homocysteine' => array('value' => '12', 'unit' => 'µmol/L', 'status' => 'high', 'range' => '<10', 'trend' => 'increasing', 'priority' => 'high'),
-											'CRP (C-Reactive Protein)' => array('value' => '3.2', 'unit' => 'mg/L', 'status' => 'high', 'range' => '<3.0', 'trend' => 'increasing', 'priority' => 'high'),
-											'ESR (Erythrocyte Sedimentation Rate)' => array('value' => '18', 'unit' => 'mm/hr', 'status' => 'high', 'range' => '<15', 'trend' => 'increasing', 'priority' => 'medium')
-										)
+										'biomarkers'  => array(
+											'Vitamin D (25-OH)' => array(
+												'value'    => '28',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '30-80',
+												'trend'    => 'decreasing',
+												'priority' => 'critical',
+											),
+											'Vitamin B12'  => array(
+												'value'    => '350',
+												'unit'     => 'pg/mL',
+												'status'   => 'low',
+												'range'    => '400-900',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Folate (B9)'  => array(
+												'value'    => '6.5',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '7-20',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Vitamin B6'   => array(
+												'value'    => '8.5',
+												'unit'     => 'ng/mL',
+												'status'   => 'normal',
+												'range'    => '5-50',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Omega-3 Index' => array(
+												'value'    => '4.2',
+												'unit'     => '%',
+												'status'   => 'low',
+												'range'    => '6-8',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'Homocysteine' => array(
+												'value'    => '12',
+												'unit'     => 'µmol/L',
+												'status'   => 'high',
+												'range'    => '<10',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'CRP (C-Reactive Protein)' => array(
+												'value'    => '3.2',
+												'unit'     => 'mg/L',
+												'status'   => 'high',
+												'range'    => '<3.0',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'ESR (Erythrocyte Sedimentation Rate)' => array(
+												'value'    => '18',
+												'unit'     => 'mm/hr',
+												'status'   => 'high',
+												'range'    => '<15',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+										),
 									),
-									'Cardiovascular Risk' => array(
+									'Cardiovascular Risk'  => array(
 										'description' => 'Advanced cardiovascular risk assessment markers',
-										'biomarkers' => array(
-											'Troponin I' => array('value' => '0.02', 'unit' => 'ng/mL', 'status' => 'normal', 'range' => '<0.04', 'trend' => 'stable', 'priority' => 'normal'),
-											'BNP' => array('value' => '35', 'unit' => 'pg/mL', 'status' => 'normal', 'range' => '<100', 'trend' => 'stable', 'priority' => 'normal'),
-											'Uric Acid' => array('value' => '7.2', 'unit' => 'mg/dL', 'status' => 'high', 'range' => '3.4-7.0', 'trend' => 'increasing', 'priority' => 'medium'),
-											'Creatine Kinase' => array('value' => '180', 'unit' => 'U/L', 'status' => 'high', 'range' => '38-174', 'trend' => 'increasing', 'priority' => 'medium'),
-											'Lactate Dehydrogenase' => array('value' => '220', 'unit' => 'U/L', 'status' => 'normal', 'range' => '140-280', 'trend' => 'stable', 'priority' => 'normal')
-										)
+										'biomarkers'  => array(
+											'Troponin I' => array(
+												'value'    => '0.02',
+												'unit'     => 'ng/mL',
+												'status'   => 'normal',
+												'range'    => '<0.04',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'BNP'        => array(
+												'value'    => '35',
+												'unit'     => 'pg/mL',
+												'status'   => 'normal',
+												'range'    => '<100',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+											'Uric Acid'  => array(
+												'value'    => '7.2',
+												'unit'     => 'mg/dL',
+												'status'   => 'high',
+												'range'    => '3.4-7.0',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'Creatine Kinase' => array(
+												'value'    => '180',
+												'unit'     => 'U/L',
+												'status'   => 'high',
+												'range'    => '38-174',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'Lactate Dehydrogenase' => array(
+												'value'    => '220',
+												'unit'     => 'U/L',
+												'status'   => 'normal',
+												'range'    => '140-280',
+												'trend'    => 'stable',
+												'priority' => 'normal',
+											),
+										),
 									),
-									'Advanced Markers' => array(
+									'Advanced Markers'     => array(
 										'description' => 'Specialized markers for comprehensive health assessment',
-										'biomarkers' => array(
-											'Insulin' => array('value' => '18', 'unit' => 'µIU/mL', 'status' => 'high', 'range' => '3-15', 'trend' => 'increasing', 'priority' => 'high'),
-											'Leptin' => array('value' => '25', 'unit' => 'ng/mL', 'status' => 'high', 'range' => '2-20', 'trend' => 'increasing', 'priority' => 'high'),
-											'Adiponectin' => array('value' => '8', 'unit' => 'µg/mL', 'status' => 'low', 'range' => '10-30', 'trend' => 'decreasing', 'priority' => 'medium'),
-											'Myostatin' => array('value' => '8.5', 'unit' => 'ng/mL', 'status' => 'high', 'range' => '3-8', 'trend' => 'increasing', 'priority' => 'medium'),
-											'Telomere Length' => array('value' => '6.2', 'unit' => 'kb', 'status' => 'low', 'range' => '7-10', 'trend' => 'decreasing', 'priority' => 'high'),
-											'BDNF' => array('value' => '18', 'unit' => 'ng/mL', 'status' => 'low', 'range' => '20-40', 'trend' => 'decreasing', 'priority' => 'medium')
-										)
-									)
+										'biomarkers'  => array(
+											'Insulin'     => array(
+												'value'    => '18',
+												'unit'     => 'µIU/mL',
+												'status'   => 'high',
+												'range'    => '3-15',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Leptin'      => array(
+												'value'    => '25',
+												'unit'     => 'ng/mL',
+												'status'   => 'high',
+												'range'    => '2-20',
+												'trend'    => 'increasing',
+												'priority' => 'high',
+											),
+											'Adiponectin' => array(
+												'value'    => '8',
+												'unit'     => 'µg/mL',
+												'status'   => 'low',
+												'range'    => '10-30',
+												'trend'    => 'decreasing',
+												'priority' => 'medium',
+											),
+											'Myostatin'   => array(
+												'value'    => '8.5',
+												'unit'     => 'ng/mL',
+												'status'   => 'high',
+												'range'    => '3-8',
+												'trend'    => 'increasing',
+												'priority' => 'medium',
+											),
+											'Telomere Length' => array(
+												'value'    => '6.2',
+												'unit'     => 'kb',
+												'status'   => 'low',
+												'range'    => '7-10',
+												'trend'    => 'decreasing',
+												'priority' => 'high',
+											),
+											'BDNF'        => array(
+												'value'    => '18',
+												'unit'     => 'ng/mL',
+												'status'   => 'low',
+												'range'    => '20-40',
+												'trend'    => 'decreasing',
+												'priority' => 'medium',
+											),
+										),
+									),
 								);
-								
+
 								// Calculate summary statistics
 								$total_biomarkers = 0;
-								$abnormal_count = 0;
-								$critical_count = 0;
-								
-								foreach ($official_biomarkers as $category => $data) {
-									foreach ($data['biomarkers'] as $biomarker => $details) {
+								$abnormal_count   = 0;
+								$critical_count   = 0;
+
+								foreach ( $official_biomarkers as $category => $data ) {
+									foreach ( $data['biomarkers'] as $biomarker => $details ) {
 										$total_biomarkers++;
-										if ($details['status'] === 'high' || $details['status'] === 'low') {
+										if ( $details['status'] === 'high' || $details['status'] === 'low' ) {
 											$abnormal_count++;
 										}
-										if ($details['status'] === 'high' && in_array($biomarker, ['Total Testosterone', 'Free Testosterone', 'Glucose', 'HbA1c'])) {
+										if ( $details['status'] === 'high' && in_array( $biomarker, array( 'Total Testosterone', 'Free Testosterone', 'Glucose', 'HbA1c' ) ) ) {
 											$critical_count++;
 										}
 									}
@@ -2107,28 +2703,28 @@ if (empty($display_name)) {
 								</div>
 								
 								<div class="biomarkers-grid">
-									<?php foreach ($official_biomarkers as $category => $data) : ?>
+									<?php foreach ( $official_biomarkers as $category => $data ) : ?>
 										<div class="collapsible-section">
 											<div class="collapsible-header" onclick="toggleCollapsible(this)">
 												<h4 class="collapsible-title">
 													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
 														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
 													</svg>
-													<?php echo esc_html($category); ?>
+													<?php echo esc_html( $category ); ?>
 												</h4>
 												<div class="category-info">
-													<p class="category-description"><?php echo esc_html($data['description']); ?></p>
-													<span class="category-count"><?php echo count($data['biomarkers']); ?> markers</span>
+													<p class="category-description"><?php echo esc_html( $data['description'] ); ?></p>
+													<span class="category-count"><?php echo count( $data['biomarkers'] ); ?> markers</span>
 												</div>
 											</div>
 											<div class="collapsible-content">
 												<div class="biomarkers-list">
-													<?php foreach ($data['biomarkers'] as $biomarker => $details) : ?>
-														<div class="biomarker-item enhanced <?php echo esc_attr($details['priority']); ?>-priority">
+													<?php foreach ( $data['biomarkers'] as $biomarker => $details ) : ?>
+														<div class="biomarker-item enhanced <?php echo esc_attr( $details['priority'] ); ?>-priority">
 															<div class="biomarker-info">
 																<div class="biomarker-header">
-																	<div class="biomarker-name"><?php echo esc_html($biomarker); ?></div>
-																	<?php if ($details['priority'] === 'critical') : ?>
+																	<div class="biomarker-name"><?php echo esc_html( $biomarker ); ?></div>
+																	<?php if ( $details['priority'] === 'critical' ) : ?>
 																		<div class="priority-badge critical">
 																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
 																				<circle cx="12" cy="12" r="10"/>
@@ -2137,7 +2733,7 @@ if (empty($display_name)) {
 																			</svg>
 																			Critical
 																		</div>
-																	<?php elseif ($details['priority'] === 'high') : ?>
+																	<?php elseif ( $details['priority'] === 'high' ) : ?>
 																		<div class="priority-badge high">
 																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
 																				<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -2149,26 +2745,26 @@ if (empty($display_name)) {
 																	<?php endif; ?>
 																</div>
 																<div class="biomarker-value">
-																	<span class="value-number"><?php echo esc_html($details['value']); ?></span>
-																	<span class="value-unit"><?php echo esc_html($details['unit']); ?></span>
+																	<span class="value-number"><?php echo esc_html( $details['value'] ); ?></span>
+																	<span class="value-unit"><?php echo esc_html( $details['unit'] ); ?></span>
 																</div>
 															</div>
 															<div class="biomarker-status">
-																<div class="status-indicator <?php echo esc_attr($details['status']); ?>">
+																<div class="status-indicator <?php echo esc_attr( $details['status'] ); ?>">
 																	<span class="status-dot"></span>
-																	<span class="status-label"><?php echo esc_html(ucfirst($details['status'])); ?></span>
+																	<span class="status-label"><?php echo esc_html( ucfirst( $details['status'] ) ); ?></span>
 																</div>
 																<div class="biomarker-range">
 																	<span class="range-label">Range:</span>
-																	<span class="range-value"><?php echo esc_html($details['range']); ?></span>
+																	<span class="range-value"><?php echo esc_html( $details['range'] ); ?></span>
 																</div>
 																<div class="biomarker-trend">
-																	<span class="trend-icon <?php echo esc_attr($details['trend']); ?>">
-																		<?php if ($details['trend'] === 'increasing') : ?>
+																	<span class="trend-icon <?php echo esc_attr( $details['trend'] ); ?>">
+																		<?php if ( $details['trend'] === 'increasing' ) : ?>
 																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
 																				<polyline points="18,15 12,9 6,15"/>
 																			</svg>
-																		<?php elseif ($details['trend'] === 'decreasing') : ?>
+																		<?php elseif ( $details['trend'] === 'decreasing' ) : ?>
 																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
 																				<polyline points="6,9 12,15 18,9"/>
 																			</svg>
@@ -2178,7 +2774,7 @@ if (empty($display_name)) {
 																			</svg>
 																		<?php endif; ?>
 																	</span>
-																	<span class="trend-label"><?php echo esc_html(ucfirst($details['trend'])); ?></span>
+																	<span class="trend-label"><?php echo esc_html( ucfirst( $details['trend'] ) ); ?></span>
 																</div>
 															</div>
 														</div>
@@ -2190,7 +2786,7 @@ if (empty($display_name)) {
 								</div>
 								
 								<!-- Critical Issues Alert -->
-								<?php if ($critical_count > 0) : ?>
+								<?php if ( $critical_count > 0 ) : ?>
 								<div class="critical-alert">
 									<div class="alert-header">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
@@ -2201,7 +2797,7 @@ if (empty($display_name)) {
 										<h4>Critical Health Issues Detected</h4>
 									</div>
 									<p>You have <?php echo esc_html( $critical_count ); ?> critical biomarker values that require immediate attention. These issues are likely contributing to your symptoms and overall health concerns.</p>
-									<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">
+									<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 											<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 										</svg>
@@ -2235,13 +2831,13 @@ if (empty($display_name)) {
 											</div>
 										</div>
 										<div class="cta-buttons">
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 													<path d="M9 11H1l8-8 8 8h-8v8z"/>
 												</svg>
 												Order Lab Tests - $497
 											</a>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-secondary btn-pill">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-pill">
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 												</svg>
@@ -2258,9 +2854,9 @@ if (empty($display_name)) {
 					<div id="tab-my-trends" class="my-story-tab-content">
 						<?php
 						// Initialize Trends Visualization System
-						if (class_exists('ENNU_Trends_Visualization_System')) {
+						if ( class_exists( 'ENNU_Trends_Visualization_System' ) ) {
 							$trends_system = new ENNU_Trends_Visualization_System();
-							echo $trends_system->get_my_trends_content($user_id);
+							echo $trends_system->get_my_trends_content( $user_id );
 						} else {
 							echo '<div class="trends-placeholder">
 								<h3 class="tab-section-title">My Trends</h3>
@@ -2270,7 +2866,31 @@ if (empty($display_name)) {
 						?>
 					</div>
 					
-					<!-- Tab 5: My New Life -->
+					<!-- Tab 5: My Profile -->
+					<div id="tab-my-profile" class="my-story-tab-content">
+						<div class="profile-container">
+							<h3 class="tab-section-title">Profile Completeness</h3>
+							<?php
+							if ( class_exists( 'ENNU_Enhanced_Dashboard_Manager' ) ) {
+								$dashboard_manager = new ENNU_Enhanced_Dashboard_Manager();
+								echo $dashboard_manager->get_profile_completeness_display( get_current_user_id() );
+								echo '<div class="ennu-profile-accuracy">';
+								echo $dashboard_manager->get_data_accuracy_indicators( get_current_user_id() );
+								echo '</div>';
+								echo '<div class="ennu-profile-guidance">';
+								echo $dashboard_manager->get_improvement_guidance( get_current_user_id() );
+								echo '</div>';
+							} else {
+								echo '<div class="profile-placeholder">
+									<h3 class="tab-section-title">Profile Completeness</h3>
+									<p>Enhanced dashboard features are loading...</p>
+								</div>';
+							}
+							?>
+						</div>
+					</div>
+					
+					<!-- Tab 6: My New Life -->
 					<div id="tab-my-new-life" class="my-story-tab-content">
 						<div class="new-life-container">
 							<div class="new-life-overview">
@@ -2378,13 +2998,13 @@ if (empty($display_name)) {
 												<div class="pricing-period">per month</div>
 											</div>
 											<div class="coach-cta-buttons">
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill coach-cta">
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill coach-cta">
 													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
 														<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 													</svg>
 													Schedule Free Consultation - $0
 												</a>
-												<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-outline btn-sm">
+												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-sm">
 													Learn More About Coaching
 												</a>
 											</div>
@@ -2457,7 +3077,7 @@ if (empty($display_name)) {
 															<span class="rec-tag">Cognitive Enhancement</span>
 														</div>
 														<div class="pillar-actions">
-															<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-sm btn-primary">
+															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
 																Optimize Mind
 															</a>
 														</div>
@@ -2488,7 +3108,7 @@ if (empty($display_name)) {
 															<span class="rec-tag">Recovery Optimization</span>
 														</div>
 														<div class="pillar-actions">
-															<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-sm btn-primary">
+															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
 																Optimize Body
 															</a>
 														</div>
@@ -2520,7 +3140,7 @@ if (empty($display_name)) {
 															<span class="rec-tag">Environment Design</span>
 														</div>
 														<div class="pillar-actions">
-															<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-sm btn-primary">
+															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
 																Optimize Lifestyle
 															</a>
 														</div>
@@ -2551,7 +3171,7 @@ if (empty($display_name)) {
 															<span class="rec-tag">Hair Health</span>
 														</div>
 														<div class="pillar-actions">
-															<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-sm btn-primary">
+															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
 																Optimize Aesthetics
 															</a>
 														</div>
@@ -2758,7 +3378,7 @@ if (empty($display_name)) {
 													<span>Your Story: Comprehensive health report</span>
 												</div>
 											</div>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-outline btn-pill">Get Started</a>
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">Get Started</a>
 										</div>
 										
 										<div class="program-card premium featured">
@@ -2816,7 +3436,7 @@ if (empty($display_name)) {
 													<span class="period">Monthly</span>
 												</div>
 											</div>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill">Choose Membership</a>
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">Choose Membership</a>
 										</div>
 										
 										<div class="program-card elite">
@@ -2862,7 +3482,7 @@ if (empty($display_name)) {
 													<span>Guaranteed Score Improvement or Money Back</span>
 												</div>
 											</div>
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-outline btn-pill">Learn More</a>
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">Learn More</a>
 										</div>
 									</div>
 								</div>
@@ -2892,7 +3512,7 @@ if (empty($display_name)) {
 											</div>
 										</div>
 										<div class="cta-buttons">
-											<a href="<?php echo esc_url($shortcode_instance->get_page_id_url('call')); ?>" class="btn btn-primary btn-pill btn-large">
+											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill btn-large">
 												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
 													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 												</svg>
@@ -3326,16 +3946,16 @@ if (empty($display_name)) {
 		<?php
 		$biomarker_data = get_user_meta( $user_id, 'ennu_biomarker_data', true ) ?: array();
 		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
-		
+
 		if ( ! empty( $biomarker_data ) ) {
 			echo '<div class="biomarker-grid">';
 			foreach ( $biomarker_data as $biomarker => $data ) {
 				$current_value = $data['value'];
-				$target_value = $doctor_targets[ $biomarker ] ?? null;
-				$status = $data['status'] ?? 'unknown';
-				$unit = $data['unit'] ?? '';
-				$test_date = $data['test_date'] ?? $data['import_date'] ?? '';
-				
+				$target_value  = $doctor_targets[ $biomarker ] ?? null;
+				$status        = $data['status'] ?? 'unknown';
+				$unit          = $data['unit'] ?? '';
+				$test_date     = $data['test_date'] ?? $data['import_date'] ?? '';
+
 				echo '<div class="biomarker-card biomarker-' . esc_attr( $status ) . '">';
 				echo '<h4>' . esc_html( $data['name'] ?? ucwords( str_replace( '_', ' ', $biomarker ) ) ) . '</h4>';
 				echo '<div class="biomarker-values">';
@@ -3377,20 +3997,20 @@ if (empty($display_name)) {
 		</div>
 		
 		<?php
-		$current_score = get_user_meta( $user_id, 'ennu_life_score', true ) ?: 0;
+		$current_score  = get_user_meta( $user_id, 'ennu_life_score', true ) ?: 0;
 		$new_life_score = get_user_meta( $user_id, 'ennu_new_life_score', true );
 		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
-		
+
 		if ( ! $new_life_score && ! empty( $doctor_targets ) ) {
 			if ( class_exists( 'ENNU_New_Life_Score_Calculator' ) ) {
-				$health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true ) ?: array();
+				$health_goals        = get_user_meta( $user_id, 'ennu_global_health_goals', true ) ?: array();
 				$new_life_calculator = new ENNU_New_Life_Score_Calculator( $user_id, $pillar_scores, $health_goals );
-				$new_life_score = $new_life_calculator->calculate();
+				$new_life_score      = $new_life_calculator->calculate();
 			}
 		}
-		
+
 		if ( $new_life_score ) {
-			$improvement = $new_life_score - $current_score;
+			$improvement            = $new_life_score - $current_score;
 			$improvement_percentage = $current_score > 0 ? ( $improvement / $current_score ) * 100 : 0;
 			?>
 			
@@ -3422,11 +4042,12 @@ if (empty($display_name)) {
 					<div class="targets-overview">
 						<p>Based on your lab results, your doctor has set <?php echo count( $doctor_targets ); ?> target values to help you achieve your New Life Score:</p>
 						<div class="targets-grid">
-							<?php foreach ( $doctor_targets as $biomarker => $target_value ) : 
-								$current_data = $biomarker_data[ $biomarker ] ?? null;
+							<?php
+							foreach ( $doctor_targets as $biomarker => $target_value ) :
+								$current_data  = $biomarker_data[ $biomarker ] ?? null;
 								$current_value = $current_data['value'] ?? 'Not tested';
-								$unit = $current_data['unit'] ?? '';
-							?>
+								$unit          = $current_data['unit'] ?? '';
+								?>
 								<div class="target-item">
 									<div class="biomarker-name"><?php echo esc_html( ucwords( str_replace( '_', ' ', $biomarker ) ) ); ?></div>
 									<div class="target-progress">
@@ -3554,4 +4175,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script>                           
+</script>                             

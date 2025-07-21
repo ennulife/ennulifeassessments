@@ -105,7 +105,7 @@ class ENNU_AJAX_Security {
 			}
 
 					// 2. Nonce Verification (Critical)
-		if ( ! self::verify_nonce( 'ennu_ajax_nonce' ) ) {
+			if ( ! self::verify_nonce( 'ennu_ajax_nonce' ) ) {
 				self::log_security_event(
 					'invalid_nonce',
 					array(
@@ -114,7 +114,7 @@ class ENNU_AJAX_Security {
 						'user_id' => $user_id,
 					)
 				);
-				return new WP_Error( 'invalid_nonce', 'Security verification failed. Please refresh the page and try again.' );
+					return new WP_Error( 'invalid_nonce', 'Security verification failed. Please refresh the page and try again.' );
 			}
 
 			// 3. User Capability Check

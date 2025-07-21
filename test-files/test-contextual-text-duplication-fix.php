@@ -1,7 +1,7 @@
 <?php
 /**
  * Test Script: Contextual Text Duplication Fix Verification
- * 
+ *
  * This script verifies that the contextual text duplication issue has been fixed:
  * - No duplicate text appears on hover
  * - Only one contextual text system is active
@@ -10,18 +10,18 @@
  */
 
 // Prevent direct access
-if (!defined('ABSPATH')) {
-    require_once('../../../wp-load.php');
+if ( ! defined( 'ABSPATH' ) ) {
+	require_once '../../../wp-load.php';
 }
 
 // Ensure user is logged in for testing
-if (!is_user_logged_in()) {
-    wp_die('Please log in to test the dashboard.');
+if ( ! is_user_logged_in() ) {
+	wp_die( 'Please log in to test the dashboard.' );
 }
 
 // Get current user
 $current_user = wp_get_current_user();
-$user_id = $current_user->ID;
+$user_id      = $current_user->ID;
 
 echo "<!DOCTYPE html>
 <html>
@@ -51,126 +51,126 @@ echo "<!DOCTYPE html>
 echo "<div class='test-section'>
     <div class='test-title'>1. Template Element Removal Test</div>";
 
-$template_file = plugin_dir_path(__FILE__) . 'templates/user-dashboard.php';
-if (file_exists($template_file)) {
-    $template_content = file_get_contents($template_file);
-    
-    if (strpos($template_content, 'main-score-insight') === false) {
-        echo "<div class='test-result success'>✅ main-score-insight element completely removed from template</div>";
-    } else {
-        echo "<div class='test-result error'>❌ main-score-insight element still exists in template</div>";
-    }
-    
-    if (strpos($template_content, 'data-insight=') !== false) {
-        echo "<div class='test-result success'>✅ data-insight attribute properly implemented</div>";
-    } else {
-        echo "<div class='test-result error'>❌ data-insight attribute missing from template</div>";
-    }
+$template_file = plugin_dir_path( __FILE__ ) . 'templates/user-dashboard.php';
+if ( file_exists( $template_file ) ) {
+	$template_content = file_get_contents( $template_file );
+
+	if ( strpos( $template_content, 'main-score-insight' ) === false ) {
+		echo "<div class='test-result success'>✅ main-score-insight element completely removed from template</div>";
+	} else {
+		echo "<div class='test-result error'>❌ main-score-insight element still exists in template</div>";
+	}
+
+	if ( strpos( $template_content, 'data-insight=' ) !== false ) {
+		echo "<div class='test-result success'>✅ data-insight attribute properly implemented</div>";
+	} else {
+		echo "<div class='test-result error'>❌ data-insight attribute missing from template</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Template file not found</div>";
+	echo "<div class='test-result error'>❌ Template file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 2: Check if JavaScript references to old element are removed
 echo "<div class='test-section'>
     <div class='test-title'>2. JavaScript Cleanup Test</div>";
 
-$js_file = plugin_dir_path(__FILE__) . 'assets/js/user-dashboard.js';
-if (file_exists($js_file)) {
-    $js_content = file_get_contents($js_file);
-    
-    if (strpos($js_content, 'mainScoreInsight') === false) {
-        echo "<div class='test-result success'>✅ All mainScoreInsight references removed from JavaScript</div>";
-    } else {
-        echo "<div class='test-result error'>❌ mainScoreInsight references still exist in JavaScript</div>";
-    }
-    
-    if (strpos($js_content, '.main-score-insight') === false) {
-        echo "<div class='test-result success'>✅ All .main-score-insight selector references removed</div>";
-    } else {
-        echo "<div class='test-result error'>❌ .main-score-insight selector references still exist</div>";
-    }
-    
-    if (strpos($js_content, 'dataset.insight') !== false) {
-        echo "<div class='test-result success'>✅ JavaScript properly uses dataset.insight method</div>";
-    } else {
-        echo "<div class='test-result error'>❌ JavaScript does not use dataset.insight method</div>";
-    }
+$js_file = plugin_dir_path( __FILE__ ) . 'assets/js/user-dashboard.js';
+if ( file_exists( $js_file ) ) {
+	$js_content = file_get_contents( $js_file );
+
+	if ( strpos( $js_content, 'mainScoreInsight' ) === false ) {
+		echo "<div class='test-result success'>✅ All mainScoreInsight references removed from JavaScript</div>";
+	} else {
+		echo "<div class='test-result error'>❌ mainScoreInsight references still exist in JavaScript</div>";
+	}
+
+	if ( strpos( $js_content, '.main-score-insight' ) === false ) {
+		echo "<div class='test-result success'>✅ All .main-score-insight selector references removed</div>";
+	} else {
+		echo "<div class='test-result error'>❌ .main-score-insight selector references still exist</div>";
+	}
+
+	if ( strpos( $js_content, 'dataset.insight' ) !== false ) {
+		echo "<div class='test-result success'>✅ JavaScript properly uses dataset.insight method</div>";
+	} else {
+		echo "<div class='test-result error'>❌ JavaScript does not use dataset.insight method</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ JavaScript file not found</div>";
+	echo "<div class='test-result error'>❌ JavaScript file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 3: Check if CSS rules for old element are removed
 echo "<div class='test-section'>
     <div class='test-title'>3. CSS Cleanup Test</div>";
 
-$css_file = plugin_dir_path(__FILE__) . 'assets/css/user-dashboard.css';
-if (file_exists($css_file)) {
-    $css_content = file_get_contents($css_file);
-    
-    if (strpos($css_content, '.main-score-insight') === false) {
-        echo "<div class='test-result success'>✅ All .main-score-insight CSS rules removed</div>";
-    } else {
-        echo "<div class='test-result error'>❌ .main-score-insight CSS rules still exist</div>";
-    }
-    
-    if (strpos($css_content, '.contextual-text') !== false) {
-        echo "<div class='test-result success'>✅ Contextual text CSS rules properly maintained</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Contextual text CSS rules missing</div>";
-    }
+$css_file = plugin_dir_path( __FILE__ ) . 'assets/css/user-dashboard.css';
+if ( file_exists( $css_file ) ) {
+	$css_content = file_get_contents( $css_file );
+
+	if ( strpos( $css_content, '.main-score-insight' ) === false ) {
+		echo "<div class='test-result success'>✅ All .main-score-insight CSS rules removed</div>";
+	} else {
+		echo "<div class='test-result error'>❌ .main-score-insight CSS rules still exist</div>";
+	}
+
+	if ( strpos( $css_content, '.contextual-text' ) !== false ) {
+		echo "<div class='test-result success'>✅ Contextual text CSS rules properly maintained</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Contextual text CSS rules missing</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ CSS file not found</div>";
+	echo "<div class='test-result error'>❌ CSS file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 4: Check plugin version
 echo "<div class='test-section'>
     <div class='test-title'>4. Plugin Version Test</div>";
 
-$plugin_file = plugin_dir_path(__FILE__) . 'ennu-life-plugin.php';
-if (file_exists($plugin_file)) {
-    $plugin_content = file_get_contents($plugin_file);
-    
-    if (preg_match('/Version:\s*62\.1\.33/', $plugin_content)) {
-        echo "<div class='test-result success'>✅ Plugin version updated to 62.1.33</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Plugin version NOT updated to 62.1.33</div>";
-    }
+$plugin_file = plugin_dir_path( __FILE__ ) . 'ennu-life-plugin.php';
+if ( file_exists( $plugin_file ) ) {
+	$plugin_content = file_get_contents( $plugin_file );
+
+	if ( preg_match( '/Version:\s*62\.1\.33/', $plugin_content ) ) {
+		echo "<div class='test-result success'>✅ Plugin version updated to 62.1.33</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Plugin version NOT updated to 62.1.33</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Plugin file not found</div>";
+	echo "<div class='test-result error'>❌ Plugin file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 5: Check changelog
 echo "<div class='test-section'>
     <div class='test-title'>5. Changelog Test</div>";
 
-$changelog_file = plugin_dir_path(__FILE__) . 'CHANGELOG.md';
-if (file_exists($changelog_file)) {
-    $changelog_content = file_get_contents($changelog_file);
-    
-    if (strpos($changelog_content, 'Version 62.1.33 - Contextual Text Duplication Fix') !== false) {
-        echo "<div class='test-result success'>✅ Version 62.1.33 changelog entry found</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Version 62.1.33 changelog entry NOT found</div>";
-    }
-    
-    if (strpos($changelog_content, 'Fixed Double Text Issue') !== false) {
-        echo "<div class='test-result success'>✅ Changelog mentions double text fix</div>";
-    } else {
-        echo "<div class='test-result error'>❌ Changelog does NOT mention double text fix</div>";
-    }
+$changelog_file = plugin_dir_path( __FILE__ ) . 'CHANGELOG.md';
+if ( file_exists( $changelog_file ) ) {
+	$changelog_content = file_get_contents( $changelog_file );
+
+	if ( strpos( $changelog_content, 'Version 62.1.33 - Contextual Text Duplication Fix' ) !== false ) {
+		echo "<div class='test-result success'>✅ Version 62.1.33 changelog entry found</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Version 62.1.33 changelog entry NOT found</div>";
+	}
+
+	if ( strpos( $changelog_content, 'Fixed Double Text Issue' ) !== false ) {
+		echo "<div class='test-result success'>✅ Changelog mentions double text fix</div>";
+	} else {
+		echo "<div class='test-result error'>❌ Changelog does NOT mention double text fix</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Changelog file not found</div>";
+	echo "<div class='test-result error'>❌ Changelog file not found</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 6: Live Dashboard Test
 echo "<div class='test-section'>
@@ -181,22 +181,22 @@ echo "<div class='test-section'>
 $shortcode_instance = new ENNU_Assessment_Shortcodes();
 
 // Get user data for dashboard
-$user_data = $shortcode_instance->get_user_dashboard_data($user_id);
+$user_data = $shortcode_instance->get_user_dashboard_data( $user_id );
 
-if ($user_data) {
-    echo "<div class='test-result success'>✅ User dashboard data retrieved successfully</div>";
-    
-    // Check if insights are available
-    if (isset($user_data['insights']) && isset($user_data['insights']['ennu_life_score'])) {
-        echo "<div class='test-result success'>✅ ENNU Life score insight available in dashboard data</div>";
-    } else {
-        echo "<div class='test-result info'>ℹ️ ENNU Life score insight not available in dashboard data</div>";
-    }
+if ( $user_data ) {
+	echo "<div class='test-result success'>✅ User dashboard data retrieved successfully</div>";
+
+	// Check if insights are available
+	if ( isset( $user_data['insights'] ) && isset( $user_data['insights']['ennu_life_score'] ) ) {
+		echo "<div class='test-result success'>✅ ENNU Life score insight available in dashboard data</div>";
+	} else {
+		echo "<div class='test-result info'>ℹ️ ENNU Life score insight not available in dashboard data</div>";
+	}
 } else {
-    echo "<div class='test-result error'>❌ Failed to retrieve user dashboard data</div>";
+	echo "<div class='test-result error'>❌ Failed to retrieve user dashboard data</div>";
 }
 
-echo "</div>";
+echo '</div>';
 
 // Test 7: Technical Implementation Details
 echo "<div class='test-section'>
@@ -285,7 +285,8 @@ echo "<div class='test-section'>
     </div>
 </div>";
 
-echo "</div>
+echo '</div>
 </body>
-</html>";
-?> 
+</html>';
+
+

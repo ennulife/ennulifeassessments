@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$report_data = $report_data ?? array();
+$report_data  = $report_data ?? array();
 $symptom_data = $symptom_data ?? array();
 ?>
 

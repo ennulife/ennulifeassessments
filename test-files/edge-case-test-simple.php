@@ -1,10 +1,10 @@
 <?php
 /**
  * ENNU Life Simple Edge Case Test
- * 
+ *
  * This script tests the core logic for page creation and menu creation
  * without requiring WordPress authentication.
- * 
+ *
  * @package ENNU_Life
  * @version 62.1.4
  */
@@ -23,10 +23,10 @@ th { background-color: #f8f9fa; font-weight: bold; }
 </style>';
 
 // Initialize test counters
-$total_tests = 0;
-$passed_tests = 0;
-$failed_tests = 0;
-$warnings = 0;
+$total_tests     = 0;
+$passed_tests    = 0;
+$failed_tests    = 0;
+$warnings        = 0;
 $critical_issues = 0;
 
 // ============================================================================
@@ -38,64 +38,64 @@ echo '<h2>1. Assessment Definitions Analysis</h2>';
 
 // Simulate assessment definitions based on the codebase analysis
 $all_definitions = array(
-	'hair_assessment' => array(
-		'title' => 'Hair Loss Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'hair_assessment'                => array(
+		'title'     => 'Hair Loss Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'ed_treatment_assessment' => array(
-		'title' => 'ED Treatment Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'ed_treatment_assessment'        => array(
+		'title'     => 'ED Treatment Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'weight_loss_assessment' => array(
-		'title' => 'Weight Loss Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'weight_loss_assessment'         => array(
+		'title'     => 'Weight Loss Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'health_assessment' => array(
-		'title' => 'Health Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'health_assessment'              => array(
+		'title'     => 'Health Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
 	'health_optimization_assessment' => array(
-		'title' => 'Health Optimization Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+		'title'     => 'Health Optimization Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'skin_assessment' => array(
-		'title' => 'Skin Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'skin_assessment'                => array(
+		'title'     => 'Skin Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'hormone_assessment' => array(
-		'title' => 'Hormone Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'hormone_assessment'             => array(
+		'title'     => 'Hormone Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'testosterone_assessment' => array(
-		'title' => 'Testosterone Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'testosterone_assessment'        => array(
+		'title'     => 'Testosterone Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'menopause_assessment' => array(
-		'title' => 'Menopause Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'menopause_assessment'           => array(
+		'title'     => 'Menopause Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'sleep_assessment' => array(
-		'title' => 'Sleep Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
+	'sleep_assessment'               => array(
+		'title'     => 'Sleep Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
 	),
-	'welcome_assessment' => array(
-		'title' => 'Welcome Assessment',
-		'questions' => array('q1', 'q2', 'q3'),
-		'scoring' => array('category1' => 10)
-	)
+	'welcome_assessment'             => array(
+		'title'     => 'Welcome Assessment',
+		'questions' => array( 'q1', 'q2', 'q3' ),
+		'scoring'   => array( 'category1' => 10 ),
+	),
 );
 
-$assessment_issues = array();
+$assessment_issues   = array();
 $assessment_warnings = array();
 
 echo '<div class="test-subsection">';
@@ -106,47 +106,47 @@ echo '<tr><th>Config File</th><th>Assessment Key</th><th>Title</th><th>Status</t
 foreach ( $all_definitions as $key => $config ) {
 	$issues = array();
 	$status = '<span class="success">✅ Valid</span>';
-	
+
 	// Check for missing title
-	if ( empty($config['title']) ) {
-		$issues[] = 'Missing title';
-		$status = '<span class="error">❌ Invalid</span>';
+	if ( empty( $config['title'] ) ) {
+		$issues[]            = 'Missing title';
+		$status              = '<span class="error">❌ Invalid</span>';
 		$assessment_issues[] = "Assessment '{$key}' missing title";
 	}
-	
+
 	// Check for missing questions
-	if ( empty($config['questions']) || !is_array($config['questions']) ) {
-		$issues[] = 'Missing or invalid questions array';
-		$status = '<span class="error">❌ Invalid</span>';
+	if ( empty( $config['questions'] ) || ! is_array( $config['questions'] ) ) {
+		$issues[]            = 'Missing or invalid questions array';
+		$status              = '<span class="error">❌ Invalid</span>';
 		$assessment_issues[] = "Assessment '{$key}' missing questions";
 	}
-	
+
 	// Check for missing scoring
-	if ( empty($config['scoring']) || !is_array($config['scoring']) ) {
-		$issues[] = 'Missing or invalid scoring array';
-		$status = '<span class="warning">⚠️ Warning</span>';
+	if ( empty( $config['scoring'] ) || ! is_array( $config['scoring'] ) ) {
+		$issues[]              = 'Missing or invalid scoring array';
+		$status                = '<span class="warning">⚠️ Warning</span>';
 		$assessment_warnings[] = "Assessment '{$key}' missing scoring configuration";
 	}
-	
+
 	// Check for special characters in title
-	if ( isset($config['title']) && preg_match('/[<>"\']/', $config['title']) ) {
-		$issues[] = 'Special characters in title';
-		$status = '<span class="warning">⚠️ Warning</span>';
+	if ( isset( $config['title'] ) && preg_match( '/[<>"\']/', $config['title'] ) ) {
+		$issues[]              = 'Special characters in title';
+		$status                = '<span class="warning">⚠️ Warning</span>';
 		$assessment_warnings[] = "Assessment '{$key}' has special characters in title";
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $key . '.php</td>';
 	echo '<td>' . $key . '</td>';
-	echo '<td>' . (isset($config['title']) ? htmlspecialchars($config['title']) : 'No title') . '</td>';
+	echo '<td>' . ( isset( $config['title'] ) ? htmlspecialchars( $config['title'] ) : 'No title' ) . '</td>';
 	echo '<td>' . $status . '</td>';
-	echo '<td>' . (empty($issues) ? '-' : implode(', ', $issues)) . '</td>';
+	echo '<td>' . ( empty( $issues ) ? '-' : implode( ', ', $issues ) ) . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
-	if ( empty($issues) ) {
+	if ( empty( $issues ) ) {
 		$passed_tests++;
-	} elseif ( strpos($status, 'error') !== false ) {
+	} elseif ( strpos( $status, 'error' ) !== false ) {
 		$failed_tests++;
 		$critical_issues++;
 	} else {
@@ -162,48 +162,48 @@ echo '<table>';
 echo '<tr><th>Assessment Key</th><th>Generated Slug</th><th>Potential Issues</th><th>Status</th></tr>';
 
 $slug_mapping_issues = array();
-$used_slugs = array();
+$used_slugs          = array();
 
 foreach ( $all_definitions as $key => $config ) {
-	$slug = str_replace('_', '-', $key);
+	$slug   = str_replace( '_', '-', $key );
 	$issues = array();
 	$status = '<span class="success">✅ Valid</span>';
-	
+
 	// Check for duplicate slugs
-	if ( in_array($slug, $used_slugs) ) {
-		$issues[] = 'Duplicate slug';
-		$status = '<span class="error">❌ Critical</span>';
+	if ( in_array( $slug, $used_slugs ) ) {
+		$issues[]              = 'Duplicate slug';
+		$status                = '<span class="error">❌ Critical</span>';
 		$slug_mapping_issues[] = "Duplicate slug '{$slug}' for assessment '{$key}'";
 		$critical_issues++;
 	}
 	$used_slugs[] = $slug;
-	
+
 	// Check for empty slug
-	if ( empty($slug) ) {
-		$issues[] = 'Empty slug';
-		$status = '<span class="error">❌ Critical</span>';
+	if ( empty( $slug ) ) {
+		$issues[]              = 'Empty slug';
+		$status                = '<span class="error">❌ Critical</span>';
 		$slug_mapping_issues[] = "Empty slug for assessment '{$key}'";
 		$critical_issues++;
 	}
-	
+
 	// Check for invalid characters
-	if ( preg_match('/[^a-z0-9\-]/', $slug) ) {
-		$issues[] = 'Invalid characters';
-		$status = '<span class="warning">⚠️ Warning</span>';
+	if ( preg_match( '/[^a-z0-9\-]/', $slug ) ) {
+		$issues[]              = 'Invalid characters';
+		$status                = '<span class="warning">⚠️ Warning</span>';
 		$assessment_warnings[] = "Assessment '{$key}' has invalid characters in slug";
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $key . '</td>';
 	echo '<td>' . $slug . '</td>';
-	echo '<td>' . (empty($issues) ? '-' : implode(', ', $issues)) . '</td>';
+	echo '<td>' . ( empty( $issues ) ? '-' : implode( ', ', $issues ) ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
-	if ( empty($issues) ) {
+	if ( empty( $issues ) ) {
 		$passed_tests++;
-	} elseif ( strpos($status, 'error') !== false ) {
+	} elseif ( strpos( $status, 'error' ) !== false ) {
 		$failed_tests++;
 	} else {
 		$warnings++;
@@ -221,7 +221,7 @@ echo '</div>';
 echo '<div class="test-section">';
 echo '<h2>2. Page Creation Process Edge Cases</h2>';
 
-$page_creation_issues = array();
+$page_creation_issues   = array();
 $page_creation_warnings = array();
 
 echo '<div class="test-subsection">';
@@ -232,47 +232,47 @@ $test_assessment_keys = array_keys( $all_definitions );
 $test_pages_to_create = array();
 
 // Build the complete page structure
-foreach ($test_assessment_keys as $key) {
-	$slug = str_replace('_', '-', $key);
-	
+foreach ( $test_assessment_keys as $key ) {
+	$slug = str_replace( '_', '-', $key );
+
 	// Skip welcome assessment - it's now at root level
 	if ( 'welcome' === $key ) {
 		continue;
 	}
-	
+
 	// Form Page (child of assessments)
-	$test_pages_to_create["assessments/{$slug}"] = array(
-		'title' => 'Test Title',
+	$test_pages_to_create[ "assessments/{$slug}" ] = array(
+		'title'      => 'Test Title',
 		'menu_label' => 'Test Label',
-		'content' => "[ennu-{$slug}]",
-		'parent' => "assessments"
+		'content'    => "[ennu-{$slug}]",
+		'parent'     => 'assessments',
 	);
-	
+
 	// Results Page (child of specific assessment)
 	$results_slug = $slug . '-results';
-	$test_pages_to_create["assessments/{$slug}/results"] = array(
-		'title' => 'Test Results Title',
+	$test_pages_to_create[ "assessments/{$slug}/results" ] = array(
+		'title'      => 'Test Results Title',
 		'menu_label' => 'Results',
-		'content' => "[ennu-{$results_slug}]",
-		'parent' => "assessments/{$slug}"
+		'content'    => "[ennu-{$results_slug}]",
+		'parent'     => "assessments/{$slug}",
 	);
 
 	// Details Page (child of specific assessment)
 	$details_slug = $slug . '-assessment-details';
-	$test_pages_to_create["assessments/{$slug}/details"] = array(
-		'title' => 'Test Details Title',
+	$test_pages_to_create[ "assessments/{$slug}/details" ] = array(
+		'title'      => 'Test Details Title',
 		'menu_label' => 'Treatment Options',
-		'content' => "[ennu-{$details_slug}]",
-		'parent' => "assessments/{$slug}"
+		'content'    => "[ennu-{$details_slug}]",
+		'parent'     => "assessments/{$slug}",
 	);
 
 	// Consultation Page (child of specific assessment)
 	$booking_slug = $slug . '-consultation';
-	$test_pages_to_create["assessments/{$slug}/consultation"] = array(
-		'title' => 'Test Consultation Title',
+	$test_pages_to_create[ "assessments/{$slug}/consultation" ] = array(
+		'title'      => 'Test Consultation Title',
 		'menu_label' => 'Book Consultation',
-		'content' => "[ennu-{$booking_slug}]",
-		'parent' => "assessments/{$slug}"
+		'content'    => "[ennu-{$booking_slug}]",
+		'parent'     => "assessments/{$slug}",
 	);
 }
 
@@ -281,11 +281,11 @@ echo '<tr><th>Page Path</th><th>Shortcode</th><th>Parent</th><th>Parent Status</
 
 foreach ( $test_pages_to_create as $path => $page_data ) {
 	$shortcode = $page_data['content'];
-	
+
 	// Check if parent exists
 	$parent_exists = false;
 	$parent_status = '<span class="error">❌ Missing</span>';
-	
+
 	if ( $page_data['parent'] === 0 ) {
 		$parent_exists = true;
 		$parent_status = '<span class="success">✅ Root</span>';
@@ -298,13 +298,13 @@ foreach ( $test_pages_to_create as $path => $page_data ) {
 			}
 		}
 	}
-	
+
 	$overall_status = '<span class="success">✅ Valid</span>';
-	if ( !$parent_exists ) {
-		$overall_status = '<span class="error">❌ Invalid</span>';
+	if ( ! $parent_exists ) {
+		$overall_status         = '<span class="error">❌ Invalid</span>';
 		$page_creation_issues[] = "Page '{$path}' has missing parent '{$page_data['parent']}'";
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $path . '</td>';
 	echo '<td>' . $shortcode . '</td>';
@@ -312,7 +312,7 @@ foreach ( $test_pages_to_create as $path => $page_data ) {
 	echo '<td>' . $parent_status . '</td>';
 	echo '<td>' . $overall_status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
 	if ( $parent_exists ) {
 		$passed_tests++;
@@ -328,13 +328,13 @@ echo '<div class="test-subsection">';
 echo '<h3>2.2 Parent-Child Relationship Validation</h3>';
 
 $parent_child_issues = array();
-$parent_child_test = array();
+$parent_child_test   = array();
 
 // Build parent-child relationship map
 foreach ( $test_pages_to_create as $path => $page_data ) {
 	$parent = $page_data['parent'];
 	if ( $parent !== 0 ) {
-		$parent_child_test[$parent][] = $path;
+		$parent_child_test[ $parent ][] = $path;
 	}
 }
 
@@ -349,21 +349,21 @@ foreach ( $parent_child_test as $parent => $children ) {
 			break;
 		}
 	}
-	
+
 	$status = '<span class="success">✅ Valid</span>';
-	if ( !$parent_exists ) {
-		$status = '<span class="error">❌ Parent Missing</span>';
-		$parent_child_issues[] = "Parent '{$parent}' missing for children: " . implode(', ', $children);
+	if ( ! $parent_exists ) {
+		$status                = '<span class="error">❌ Parent Missing</span>';
+		$parent_child_issues[] = "Parent '{$parent}' missing for children: " . implode( ', ', $children );
 		$critical_issues++;
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $parent . '</td>';
-	echo '<td>' . implode(', ', $children) . '</td>';
-	echo '<td>' . count($children) . '</td>';
+	echo '<td>' . implode( ', ', $children ) . '</td>';
+	echo '<td>' . count( $children ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
 	if ( $parent_exists ) {
 		$passed_tests++;
@@ -383,24 +383,24 @@ $logic_issues = array();
 $circular_deps = array();
 foreach ( $test_pages_to_create as $path => $page_data ) {
 	$current_parent = $page_data['parent'];
-	$visited = array($path);
-	
+	$visited        = array( $path );
+
 	while ( $current_parent !== 0 ) {
-		if ( in_array($current_parent, $visited) ) {
-			$circular_deps[] = "Circular dependency detected: " . implode(' → ', $visited) . " → {$current_parent}";
+		if ( in_array( $current_parent, $visited ) ) {
+			$circular_deps[] = 'Circular dependency detected: ' . implode( ' → ', $visited ) . " → {$current_parent}";
 			break;
 		}
 		$visited[] = $current_parent;
-		
+
 		$found_parent = false;
 		foreach ( $test_pages_to_create as $parent_path => $parent_data ) {
 			if ( $parent_path === $current_parent ) {
 				$current_parent = $parent_data['parent'];
-				$found_parent = true;
+				$found_parent   = true;
 				break;
 			}
 		}
-		if ( !$found_parent ) {
+		if ( ! $found_parent ) {
 			break;
 		}
 	}
@@ -417,7 +417,7 @@ foreach ( $test_pages_to_create as $path => $page_data ) {
 				break;
 			}
 		}
-		if ( !$parent_exists ) {
+		if ( ! $parent_exists ) {
 			$orphaned_pages[] = "Page '{$path}' has non-existent parent '{$page_data['parent']}'";
 		}
 	}
@@ -425,9 +425,9 @@ foreach ( $test_pages_to_create as $path => $page_data ) {
 
 // Edge Case 3: Check for duplicate paths
 $duplicate_paths = array();
-$paths = array();
+$paths           = array();
 foreach ( $test_pages_to_create as $path => $page_data ) {
-	if ( in_array($path, $paths) ) {
+	if ( in_array( $path, $paths ) ) {
 		$duplicate_paths[] = "Duplicate path: '{$path}'";
 	}
 	$paths[] = $path;
@@ -436,42 +436,42 @@ foreach ( $test_pages_to_create as $path => $page_data ) {
 // Edge Case 4: Check for invalid page titles
 $invalid_titles = array();
 foreach ( $test_pages_to_create as $path => $page_data ) {
-	if ( empty($page_data['title']) ) {
+	if ( empty( $page_data['title'] ) ) {
 		$invalid_titles[] = "Empty title for page '{$path}'";
 	}
-	if ( strlen($page_data['title']) > 255 ) {
+	if ( strlen( $page_data['title'] ) > 255 ) {
 		$invalid_titles[] = "Title too long for page '{$path}'";
 	}
 }
 
 // Combine all logic issues
-$logic_issues = array_merge($circular_deps, $orphaned_pages, $duplicate_paths, $invalid_titles);
+$logic_issues = array_merge( $circular_deps, $orphaned_pages, $duplicate_paths, $invalid_titles );
 
 echo '<table>';
 echo '<tr><th>Edge Case Type</th><th>Issues Found</th><th>Status</th></tr>';
 
 $edge_case_types = array(
 	'Circular Dependencies' => $circular_deps,
-	'Orphaned Pages' => $orphaned_pages,
-	'Duplicate Paths' => $duplicate_paths,
-	'Invalid Titles' => $invalid_titles
+	'Orphaned Pages'        => $orphaned_pages,
+	'Duplicate Paths'       => $duplicate_paths,
+	'Invalid Titles'        => $invalid_titles,
 );
 
 foreach ( $edge_case_types as $type => $issues ) {
 	$status = '<span class="success">✅ None</span>';
-	if ( !empty($issues) ) {
-		$status = '<span class="error">❌ ' . count($issues) . ' found</span>';
-		$critical_issues += count($issues);
+	if ( ! empty( $issues ) ) {
+		$status           = '<span class="error">❌ ' . count( $issues ) . ' found</span>';
+		$critical_issues += count( $issues );
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $type . '</td>';
-	echo '<td>' . (empty($issues) ? 'None' : implode('<br>', $issues)) . '</td>';
+	echo '<td>' . ( empty( $issues ) ? 'None' : implode( '<br>', $issues ) ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
-	if ( empty($issues) ) {
+	if ( empty( $issues ) ) {
 		$passed_tests++;
 	} else {
 		$failed_tests++;
@@ -489,7 +489,7 @@ echo '</div>';
 echo '<div class="test-section">';
 echo '<h2>3. Menu Creation and Menu Item Placement Edge Cases</h2>';
 
-$menu_issues = array();
+$menu_issues   = array();
 $menu_warnings = array();
 
 echo '<div class="test-subsection">';
@@ -497,24 +497,99 @@ echo '<h3>3.1 Menu Structure Validation</h3>';
 
 // Test menu structure logic from update_primary_menu_structure()
 $menu_structure = array(
-	'root' => array(
-		array('slug' => 'registration', 'menu_label' => 'Registration', 'order' => 1, 'parent' => 0),
-		array('slug' => 'assessments', 'menu_label' => 'Assessments', 'order' => 2, 'parent' => 0),
-		array('slug' => 'dashboard', 'menu_label' => 'Dashboard', 'order' => 3, 'parent' => 0),
-		array('slug' => 'call', 'menu_label' => 'Schedule Call', 'order' => 4, 'parent' => 0),
-		array('slug' => 'ennu-life-score', 'menu_label' => 'ENNU Life Score', 'order' => 5, 'parent' => 0),
+	'root'        => array(
+		array(
+			'slug'       => 'registration',
+			'menu_label' => 'Registration',
+			'order'      => 1,
+			'parent'     => 0,
+		),
+		array(
+			'slug'       => 'assessments',
+			'menu_label' => 'Assessments',
+			'order'      => 2,
+			'parent'     => 0,
+		),
+		array(
+			'slug'       => 'dashboard',
+			'menu_label' => 'Dashboard',
+			'order'      => 3,
+			'parent'     => 0,
+		),
+		array(
+			'slug'       => 'call',
+			'menu_label' => 'Schedule Call',
+			'order'      => 4,
+			'parent'     => 0,
+		),
+		array(
+			'slug'       => 'ennu-life-score',
+			'menu_label' => 'ENNU Life Score',
+			'order'      => 5,
+			'parent'     => 0,
+		),
 	),
 	'assessments' => array(
-		array('slug' => 'assessments/hair', 'menu_label' => 'Hair Loss', 'order' => 1, 'parent' => 'assessments'),
-		array('slug' => 'assessments/ed-treatment', 'menu_label' => 'ED Treatment', 'order' => 2, 'parent' => 'assessments'),
-		array('slug' => 'assessments/weight-loss', 'menu_label' => 'Weight Loss', 'order' => 3, 'parent' => 'assessments'),
-		array('slug' => 'assessments/health', 'menu_label' => 'General Health', 'order' => 4, 'parent' => 'assessments'),
-		array('slug' => 'assessments/health-optimization', 'menu_label' => 'Health Optimization', 'order' => 5, 'parent' => 'assessments'),
-		array('slug' => 'assessments/skin', 'menu_label' => 'Skin Health', 'order' => 6, 'parent' => 'assessments'),
-		array('slug' => 'assessments/hormone', 'menu_label' => 'Hormone Balance', 'order' => 7, 'parent' => 'assessments'),
-		array('slug' => 'assessments/testosterone', 'menu_label' => 'Testosterone', 'order' => 8, 'parent' => 'assessments'),
-		array('slug' => 'assessments/menopause', 'menu_label' => 'Menopause', 'order' => 9, 'parent' => 'assessments'),
-		array('slug' => 'assessments/sleep', 'menu_label' => 'Sleep Quality', 'order' => 10, 'parent' => 'assessments'),
+		array(
+			'slug'       => 'assessments/hair',
+			'menu_label' => 'Hair Loss',
+			'order'      => 1,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/ed-treatment',
+			'menu_label' => 'ED Treatment',
+			'order'      => 2,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/weight-loss',
+			'menu_label' => 'Weight Loss',
+			'order'      => 3,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/health',
+			'menu_label' => 'General Health',
+			'order'      => 4,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/health-optimization',
+			'menu_label' => 'Health Optimization',
+			'order'      => 5,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/skin',
+			'menu_label' => 'Skin Health',
+			'order'      => 6,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/hormone',
+			'menu_label' => 'Hormone Balance',
+			'order'      => 7,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/testosterone',
+			'menu_label' => 'Testosterone',
+			'order'      => 8,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/menopause',
+			'menu_label' => 'Menopause',
+			'order'      => 9,
+			'parent'     => 'assessments',
+		),
+		array(
+			'slug'       => 'assessments/sleep',
+			'menu_label' => 'Sleep Quality',
+			'order'      => 10,
+			'parent'     => 'assessments',
+		),
 	),
 );
 
@@ -531,22 +606,22 @@ foreach ( $menu_structure['root'] as $item ) {
 			break;
 		}
 	}
-	
+
 	$status = '<span class="success">✅ Valid</span>';
-	if ( !$page_exists ) {
-		$status = '<span class="error">❌ Page Missing</span>';
+	if ( ! $page_exists ) {
+		$status             = '<span class="error">❌ Page Missing</span>';
 		$root_menu_issues[] = "Root menu item '{$item['menu_label']}' references non-existent page '{$item['slug']}'";
 		$critical_issues++;
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $item['menu_label'] . '</td>';
 	echo '<td>' . $item['slug'] . '</td>';
 	echo '<td>' . $item['order'] . '</td>';
-	echo '<td>' . ($page_exists ? 'Yes' : 'No') . '</td>';
+	echo '<td>' . ( $page_exists ? 'Yes' : 'No' ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
 	if ( $page_exists ) {
 		$passed_tests++;
@@ -562,9 +637,9 @@ echo '<tr><th>Menu Item</th><th>Slug</th><th>Parent</th><th>Order</th><th>Page E
 
 $assessment_menu_issues = array();
 foreach ( $menu_structure['assessments'] as $item ) {
-	$page_exists = false;
+	$page_exists   = false;
 	$parent_exists = false;
-	
+
 	// Check if page exists
 	foreach ( $test_pages_to_create as $path => $page_data ) {
 		if ( $path === $item['slug'] ) {
@@ -572,7 +647,7 @@ foreach ( $menu_structure['assessments'] as $item ) {
 			break;
 		}
 	}
-	
+
 	// Check if parent exists
 	foreach ( $menu_structure['root'] as $root_item ) {
 		if ( $root_item['slug'] === $item['parent'] ) {
@@ -580,36 +655,36 @@ foreach ( $menu_structure['assessments'] as $item ) {
 			break;
 		}
 	}
-	
+
 	$status = '<span class="success">✅ Valid</span>';
 	$issues = array();
-	
-	if ( !$page_exists ) {
-		$issues[] = 'Page missing';
+
+	if ( ! $page_exists ) {
+		$issues[]                 = 'Page missing';
 		$assessment_menu_issues[] = "Assessment menu item '{$item['menu_label']}' references non-existent page '{$item['slug']}'";
 		$critical_issues++;
 	}
-	
-	if ( !$parent_exists ) {
-		$issues[] = 'Parent missing';
+
+	if ( ! $parent_exists ) {
+		$issues[]                 = 'Parent missing';
 		$assessment_menu_issues[] = "Assessment menu item '{$item['menu_label']}' has non-existent parent '{$item['parent']}'";
 		$critical_issues++;
 	}
-	
-	if ( !empty($issues) ) {
-		$status = '<span class="error">❌ ' . implode(', ', $issues) . '</span>';
+
+	if ( ! empty( $issues ) ) {
+		$status = '<span class="error">❌ ' . implode( ', ', $issues ) . '</span>';
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $item['menu_label'] . '</td>';
 	echo '<td>' . $item['slug'] . '</td>';
 	echo '<td>' . $item['parent'] . '</td>';
 	echo '<td>' . $item['order'] . '</td>';
-	echo '<td>' . ($page_exists ? 'Yes' : 'No') . '</td>';
-	echo '<td>' . ($parent_exists ? 'Yes' : 'No') . '</td>';
+	echo '<td>' . ( $page_exists ? 'Yes' : 'No' ) . '</td>';
+	echo '<td>' . ( $parent_exists ? 'Yes' : 'No' ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
 	if ( $page_exists && $parent_exists ) {
 		$passed_tests++;
@@ -627,11 +702,11 @@ $placement_issues = array();
 
 // Edge Case 1: Check for duplicate menu positions
 $position_conflicts = array();
-$used_positions = array();
+$used_positions     = array();
 
 foreach ( $menu_structure['root'] as $item ) {
 	$position = $item['order'];
-	if ( in_array($position, $used_positions) ) {
+	if ( in_array( $position, $used_positions ) ) {
 		$position_conflicts[] = "Duplicate position {$position} in root menu";
 	}
 	$used_positions[] = $position;
@@ -640,7 +715,7 @@ foreach ( $menu_structure['root'] as $item ) {
 $used_positions = array();
 foreach ( $menu_structure['assessments'] as $item ) {
 	$position = $item['order'];
-	if ( in_array($position, $used_positions) ) {
+	if ( in_array( $position, $used_positions ) ) {
 		$position_conflicts[] = "Duplicate position {$position} in assessments submenu";
 	}
 	$used_positions[] = $position;
@@ -649,19 +724,19 @@ foreach ( $menu_structure['assessments'] as $item ) {
 // Edge Case 2: Check for invalid menu labels
 $invalid_labels = array();
 foreach ( $menu_structure['root'] as $item ) {
-	if ( empty($item['menu_label']) ) {
+	if ( empty( $item['menu_label'] ) ) {
 		$invalid_labels[] = "Empty menu label for root item '{$item['slug']}'";
 	}
-	if ( strlen($item['menu_label']) > 50 ) {
+	if ( strlen( $item['menu_label'] ) > 50 ) {
 		$invalid_labels[] = "Menu label too long for root item '{$item['slug']}'";
 	}
 }
 
 foreach ( $menu_structure['assessments'] as $item ) {
-	if ( empty($item['menu_label']) ) {
+	if ( empty( $item['menu_label'] ) ) {
 		$invalid_labels[] = "Empty menu label for assessment item '{$item['slug']}'";
 	}
-	if ( strlen($item['menu_label']) > 50 ) {
+	if ( strlen( $item['menu_label'] ) > 50 ) {
 		$invalid_labels[] = "Menu label too long for assessment item '{$item['slug']}'";
 	}
 }
@@ -674,32 +749,32 @@ foreach ( $menu_structure['assessments'] as $item ) {
 	}
 }
 
-$placement_issues = array_merge($position_conflicts, $invalid_labels, $circular_menu_refs);
+$placement_issues = array_merge( $position_conflicts, $invalid_labels, $circular_menu_refs );
 
 echo '<table>';
 echo '<tr><th>Placement Issue Type</th><th>Issues Found</th><th>Status</th></tr>';
 
 $placement_types = array(
-	'Position Conflicts' => $position_conflicts,
-	'Invalid Labels' => $invalid_labels,
-	'Circular References' => $circular_menu_refs
+	'Position Conflicts'  => $position_conflicts,
+	'Invalid Labels'      => $invalid_labels,
+	'Circular References' => $circular_menu_refs,
 );
 
 foreach ( $placement_types as $type => $issues ) {
 	$status = '<span class="success">✅ None</span>';
-	if ( !empty($issues) ) {
-		$status = '<span class="error">❌ ' . count($issues) . ' found</span>';
-		$critical_issues += count($issues);
+	if ( ! empty( $issues ) ) {
+		$status           = '<span class="error">❌ ' . count( $issues ) . ' found</span>';
+		$critical_issues += count( $issues );
 	}
-	
+
 	echo '<tr>';
 	echo '<td>' . $type . '</td>';
-	echo '<td>' . (empty($issues) ? 'None' : implode('<br>', $issues)) . '</td>';
+	echo '<td>' . ( empty( $issues ) ? 'None' : implode( '<br>', $issues ) ) . '</td>';
 	echo '<td>' . $status . '</td>';
 	echo '</tr>';
-	
+
 	$total_tests++;
-	if ( empty($issues) ) {
+	if ( empty( $issues ) ) {
 		$passed_tests++;
 	} else {
 		$failed_tests++;
@@ -731,13 +806,13 @@ $all_critical_issues = array_merge(
 	$placement_issues
 );
 
-if ( empty($all_critical_issues) ) {
+if ( empty( $all_critical_issues ) ) {
 	echo '<p class="success">✅ No critical issues found!</p>';
 } else {
-	echo '<p class="error">❌ Found ' . count($all_critical_issues) . ' critical issues:</p>';
+	echo '<p class="error">❌ Found ' . count( $all_critical_issues ) . ' critical issues:</p>';
 	echo '<ul>';
 	foreach ( $all_critical_issues as $issue ) {
-		echo '<li class="error">' . htmlspecialchars($issue) . '</li>';
+		echo '<li class="error">' . htmlspecialchars( $issue ) . '</li>';
 	}
 	echo '</ul>';
 }
@@ -746,15 +821,15 @@ echo '</div>';
 echo '<div class="test-subsection">';
 echo '<h3>4.2 Warning Summary</h3>';
 
-$all_warnings = array_merge($assessment_warnings, $page_creation_warnings, $menu_warnings);
+$all_warnings = array_merge( $assessment_warnings, $page_creation_warnings, $menu_warnings );
 
-if ( empty($all_warnings) ) {
+if ( empty( $all_warnings ) ) {
 	echo '<p class="success">✅ No warnings found!</p>';
 } else {
-	echo '<p class="warning">⚠️ Found ' . count($all_warnings) . ' warnings:</p>';
+	echo '<p class="warning">⚠️ Found ' . count( $all_warnings ) . ' warnings:</p>';
 	echo '<ul>';
 	foreach ( $all_warnings as $warning ) {
-		echo '<li class="warning">' . htmlspecialchars($warning) . '</li>';
+		echo '<li class="warning">' . htmlspecialchars( $warning ) . '</li>';
 	}
 	echo '</ul>';
 }
@@ -763,15 +838,15 @@ echo '</div>';
 echo '<div class="test-subsection">';
 echo '<h3>4.3 Test Results Summary</h3>';
 
-$success_rate = $total_tests > 0 ? round(($passed_tests / $total_tests) * 100, 1) : 0;
+$success_rate = $total_tests > 0 ? round( ( $passed_tests / $total_tests ) * 100, 1 ) : 0;
 
 echo '<table>';
 echo '<tr><th>Metric</th><th>Count</th><th>Percentage</th></tr>';
 echo '<tr><td>Total Tests</td><td>' . $total_tests . '</td><td>100%</td></tr>';
-echo '<tr><td>Passed Tests</td><td>' . $passed_tests . '</td><td>' . round(($passed_tests / $total_tests) * 100, 1) . '%</td></tr>';
-echo '<tr><td>Failed Tests</td><td>' . $failed_tests . '</td><td>' . round(($failed_tests / $total_tests) * 100, 1) . '%</td></tr>';
-echo '<tr><td>Warnings</td><td>' . $warnings . '</td><td>' . round(($warnings / $total_tests) * 100, 1) . '%</td></tr>';
-echo '<tr><td>Critical Issues</td><td>' . $critical_issues . '</td><td>' . round(($critical_issues / $total_tests) * 100, 1) . '%</td></tr>';
+echo '<tr><td>Passed Tests</td><td>' . $passed_tests . '</td><td>' . round( ( $passed_tests / $total_tests ) * 100, 1 ) . '%</td></tr>';
+echo '<tr><td>Failed Tests</td><td>' . $failed_tests . '</td><td>' . round( ( $failed_tests / $total_tests ) * 100, 1 ) . '%</td></tr>';
+echo '<tr><td>Warnings</td><td>' . $warnings . '</td><td>' . round( ( $warnings / $total_tests ) * 100, 1 ) . '%</td></tr>';
+echo '<tr><td>Critical Issues</td><td>' . $critical_issues . '</td><td>' . round( ( $critical_issues / $total_tests ) * 100, 1 ) . '%</td></tr>';
 echo '</table>';
 
 if ( $critical_issues === 0 && $failed_tests === 0 ) {
@@ -839,7 +914,7 @@ echo '<h2>🏁 Comprehensive Edge Case Test Complete</h2>';
 
 echo '<h3>Final Test Results</h3>';
 echo '<p><strong>Test Version:</strong> 62.1.4</p>';
-echo '<p><strong>Test Date:</strong> ' . date('Y-m-d H:i:s') . '</p>';
+echo '<p><strong>Test Date:</strong> ' . date( 'Y-m-d H:i:s' ) . '</p>';
 echo '<p><strong>Total Tests:</strong> ' . $total_tests . '</p>';
 echo '<p><strong>Success Rate:</strong> ' . $success_rate . '%</p>';
 echo '<p><strong>Critical Issues:</strong> ' . $critical_issues . '</p>';
@@ -853,4 +928,5 @@ if ( $critical_issues === 0 ) {
 
 echo '<p class="info">This comprehensive test covers the entire page creation process and menu creation/menu item placement process with extensive edge case testing. All potential failure points have been identified and analyzed.</p>';
 echo '</div>';
-?> 
+
+
