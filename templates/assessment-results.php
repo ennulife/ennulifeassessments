@@ -16,23 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 // This removes the need for local variables with null coalescing.
 
 // Defensive checks for required variables
-$score = $score ?? 0;
-$result_content = $result_content ?? array();
-$assessment_title = $assessment_title ?? 'Assessment Results';
-$category_scores = $category_scores ?? array();
-$matched_recs = $matched_recs ?? array();
+$score              = $score ?? 0;
+$result_content     = $result_content ?? array();
+$assessment_title   = $assessment_title ?? 'Assessment Results';
+$category_scores    = $category_scores ?? array();
+$matched_recs       = $matched_recs ?? array();
 $shortcode_instance = $shortcode_instance ?? null;
-$assessment_type = $assessment_type ?? '';
+$assessment_type    = $assessment_type ?? '';
 
-if (empty($shortcode_instance) || !is_object($shortcode_instance)) {
-    echo '<div class="ennu-error">ERROR: Shortcode instance is missing. Please contact support.</div>';
-    return;
+if ( empty( $shortcode_instance ) || ! is_object( $shortcode_instance ) ) {
+	echo '<div class="ennu-error">ERROR: Shortcode instance is missing. Please contact support.</div>';
+	return;
 }
 
 // Defensive check for assessment_type
-if (empty($assessment_type)) {
-    echo '<div class="ennu-error">ERROR: Assessment type is missing. Please contact support.</div>';
-    return;
+if ( empty( $assessment_type ) ) {
+	echo '<div class="ennu-error">ERROR: Assessment type is missing. Please contact support.</div>';
+	return;
 }
 
 ?>
@@ -57,13 +57,15 @@ if (empty($assessment_type)) {
 			<?php if ( function_exists( 'ennu_render_logo' ) ) : ?>
 				<div class="ennu-logo-container" style="text-align: center; margin-bottom: 30px;">
 					<?php
-					ennu_render_logo([
-						'color' => 'white',
-						'size' => 'medium',
-						'link' => home_url( '/' ),
-						'alt' => 'ENNU Life',
-						'class' => ''
-					]);
+					ennu_render_logo(
+						array(
+							'color' => 'white',
+							'size'  => 'medium',
+							'link'  => home_url( '/' ),
+							'alt'   => 'ENNU Life',
+							'class' => '',
+						)
+					);
 					?>
 				</div>
 			<?php endif; ?>

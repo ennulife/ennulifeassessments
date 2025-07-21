@@ -80,13 +80,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php
 	if ( function_exists( 'ennu_render_logo' ) ) {
 		echo '<div class="ennu-logo-container">';
-		ennu_render_logo([
-			'color' => 'black',
-			'size' => 'medium',
-			'link' => admin_url('admin.php?page=ennu-life'),
-			'alt' => 'ENNU Life',
-			'class' => ''
-		]);
+		ennu_render_logo(
+			array(
+				'color' => 'black',
+				'size'  => 'medium',
+				'link'  => admin_url( 'admin.php?page=ennu-life' ),
+				'alt'   => 'ENNU Life',
+				'class' => '',
+			)
+		);
 		echo '</div>';
 	}
 	?>

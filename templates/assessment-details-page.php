@@ -25,13 +25,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( function_exists( 'ennu_render_logo' ) ) : ?>
 				<div class="ennu-logo-container" style="text-align: center; margin-bottom: 30px;">
 					<?php
-					ennu_render_logo([
-						'color' => 'white',
-						'size' => 'medium',
-						'link' => home_url( '/' ),
-						'alt' => 'ENNU Life',
-						'class' => ''
-					]);
+					ennu_render_logo(
+						array(
+							'color' => 'white',
+							'size'  => 'medium',
+							'link'  => home_url( '/' ),
+							'alt'   => 'ENNU Life',
+							'class' => '',
+						)
+					);
 					?>
 				</div>
 			<?php endif; ?>
@@ -71,7 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="ennu-pillar-grid">
 						<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
 							<?php
-							$has_data = ! empty( $pillar_score );
+							$has_data     = ! empty( $pillar_score );
 							$pillar_class = esc_attr( strtolower( $pillar ) );
 							?>
 							<div class="ennu-pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>">

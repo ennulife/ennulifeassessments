@@ -1,22 +1,22 @@
 <?php
 /**
  * Test Script: ENNU Life Header Integration Verification
- * 
+ *
  * This script tests that the ENNU Life header is properly integrated
  * into all assessment templates and consultation pages.
- * 
+ *
  * @package ENNU Life Assessments
  * @version 62.2.20
  */
 
 // Prevent direct access
-if (!defined('ABSPATH')) {
-    require_once('../../../wp-load.php');
+if ( ! defined( 'ABSPATH' ) ) {
+	require_once '../../../wp-load.php';
 }
 
 // Ensure we're in WordPress context
-if (!function_exists('get_option')) {
-    die('WordPress not loaded');
+if ( ! function_exists( 'get_option' ) ) {
+	die( 'WordPress not loaded' );
 }
 
 echo "<h1>ENNU Life Header Integration Test</h1>\n";
@@ -29,18 +29,22 @@ $shortcode_instance = new ENNU_Assessment_Shortcodes();
 echo "<h2>1. Testing render_ennu_header() Method</h2>\n";
 
 // Use reflection to access private method for testing
-$reflection = new ReflectionClass($shortcode_instance);
-$render_header_method = $reflection->getMethod('render_ennu_header');
-$render_header_method->setAccessible(true);
+$reflection           = new ReflectionClass( $shortcode_instance );
+$render_header_method = $reflection->getMethod( 'render_ennu_header' );
+$render_header_method->setAccessible( true );
 
-$header_html = $render_header_method->invoke($shortcode_instance, 'test_assessment', array(
-    'title' => 'Test Assessment',
-    'description' => 'This is a test assessment description'
-));
+$header_html = $render_header_method->invoke(
+	$shortcode_instance,
+	'test_assessment',
+	array(
+		'title'       => 'Test Assessment',
+		'description' => 'This is a test assessment description',
+	)
+);
 
 echo "<div style='background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;'>\n";
 echo "<h3>Generated Header HTML:</h3>\n";
-echo "<pre style='background: white; padding: 15px; border-radius: 5px; overflow-x: auto;'>" . htmlspecialchars($header_html) . "</pre>\n";
+echo "<pre style='background: white; padding: 15px; border-radius: 5px; overflow-x: auto;'>" . htmlspecialchars( $header_html ) . "</pre>\n";
 echo "</div>\n";
 
 // Test header content
@@ -49,33 +53,33 @@ echo "<table border='1' style='border-collapse: collapse; width: 100%;'>\n";
 echo "<tr><th>Element</th><th>Expected Content</th><th>Status</th></tr>\n";
 
 $tests = array(
-    'Logo' => array(
-        'expected' => 'ennu-logo',
-        'found' => strpos($header_html, 'ennu-logo') !== false
-    ),
-    'Title' => array(
-        'expected' => "Test Assessment",
-        'found' => strpos($header_html, 'Test Assessment') !== false
-    ),
-    'Subtitle' => array(
-        'expected' => 'This is a test assessment description',
-        'found' => strpos($header_html, 'This is a test assessment description') !== false
-    ),
-    'Container' => array(
-        'expected' => 'ennu-header-container',
-        'found' => strpos($header_html, 'ennu-header-container') !== false
-    )
+	'Logo'      => array(
+		'expected' => 'ennu-logo',
+		'found'    => strpos( $header_html, 'ennu-logo' ) !== false,
+	),
+	'Title'     => array(
+		'expected' => 'Test Assessment',
+		'found'    => strpos( $header_html, 'Test Assessment' ) !== false,
+	),
+	'Subtitle'  => array(
+		'expected' => 'This is a test assessment description',
+		'found'    => strpos( $header_html, 'This is a test assessment description' ) !== false,
+	),
+	'Container' => array(
+		'expected' => 'ennu-header-container',
+		'found'    => strpos( $header_html, 'ennu-header-container' ) !== false,
+	),
 );
 
-foreach ($tests as $element => $test) {
-    $status = $test['found'] ? '✓ PASS' : '✗ FAIL';
-    $status_color = $test['found'] ? 'green' : 'red';
-    
-    echo "<tr>";
-    echo "<td><strong>$element</strong></td>";
-    echo "<td><code>{$test['expected']}</code></td>";
-    echo "<td style='color: $status_color; font-weight: bold;'>$status</td>";
-    echo "</tr>\n";
+foreach ( $tests as $element => $test ) {
+	$status       = $test['found'] ? '✓ PASS' : '✗ FAIL';
+	$status_color = $test['found'] ? 'green' : 'red';
+
+	echo '<tr>';
+	echo "<td><strong>$element</strong></td>";
+	echo "<td><code>{$test['expected']}</code></td>";
+	echo "<td style='color: $status_color; font-weight: bold;'>$status</td>";
+	echo "</tr>\n";
 }
 echo "</table>\n";
 
@@ -85,25 +89,25 @@ echo "<table border='1' style='border-collapse: collapse; width: 100%;'>\n";
 echo "<tr><th>CSS Class</th><th>Purpose</th><th>Status</th></tr>\n";
 
 $css_classes = array(
-    'ennu-header-container' => 'Main header container',
-    'ennu-logo-container' => 'Logo wrapper',
-    'ennu-logo' => 'Logo image styling',
-    'ennu-logo' => 'Logo image styling',
-    'ennu-header-content' => 'Content wrapper',
-    'ennu-header-title' => 'Main title styling',
-    'ennu-header-subtitle' => 'Subtitle styling'
+	'ennu-header-container' => 'Main header container',
+	'ennu-logo-container'   => 'Logo wrapper',
+	'ennu-logo'             => 'Logo image styling',
+	'ennu-logo'             => 'Logo image styling',
+	'ennu-header-content'   => 'Content wrapper',
+	'ennu-header-title'     => 'Main title styling',
+	'ennu-header-subtitle'  => 'Subtitle styling',
 );
 
-foreach ($css_classes as $class => $purpose) {
-    $found = strpos($header_html, $class) !== false;
-    $status = $found ? '✓ PASS' : '✗ FAIL';
-    $status_color = $found ? 'green' : 'red';
-    
-    echo "<tr>";
-    echo "<td><code>$class</code></td>";
-    echo "<td>$purpose</td>";
-    echo "<td style='color: $status_color; font-weight: bold;'>$status</td>";
-    echo "</tr>\n";
+foreach ( $css_classes as $class => $purpose ) {
+	$found        = strpos( $header_html, $class ) !== false;
+	$status       = $found ? '✓ PASS' : '✗ FAIL';
+	$status_color = $found ? 'green' : 'red';
+
+	echo '<tr>';
+	echo "<td><code>$class</code></td>";
+	echo "<td>$purpose</td>";
+	echo "<td style='color: $status_color; font-weight: bold;'>$status</td>";
+	echo "</tr>\n";
 }
 echo "</table>\n";
 
@@ -112,20 +116,20 @@ echo "<h2>4. Testing Assessment Template Integration</h2>\n";
 
 // Simulate assessment rendering
 $test_config = array(
-    'title' => 'Test Assessment',
-    'description' => 'This is a test assessment'
+	'title'       => 'Test Assessment',
+	'description' => 'This is a test assessment',
 );
 
 $test_atts = array(
-    'theme' => 'default',
-    'show_progress' => 'true'
+	'theme'         => 'default',
+	'show_progress' => 'true',
 );
 
 // Use reflection to access private method
-$render_assessment_method = $reflection->getMethod('render_default_assessment');
-$render_assessment_method->setAccessible(true);
+$render_assessment_method = $reflection->getMethod( 'render_default_assessment' );
+$render_assessment_method->setAccessible( true );
 
-$assessment_html = $render_assessment_method->invoke($shortcode_instance, 'test_assessment', $test_config, $test_atts, array());
+$assessment_html = $render_assessment_method->invoke( $shortcode_instance, 'test_assessment', $test_config, $test_atts, array() );
 
 echo "<div style='background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;'>\n";
 echo "<h3>Assessment Template with Header:</h3>\n";
@@ -135,23 +139,23 @@ echo "</div>\n";
 echo "</div>\n";
 
 // Check if header is included in assessment
-$header_in_assessment = strpos($assessment_html, 'ennu-header-container') !== false;
-echo "<p><strong>Header in Assessment Template:</strong> " . ($header_in_assessment ? '✅ YES' : '❌ NO') . "</p>\n";
+$header_in_assessment = strpos( $assessment_html, 'ennu-header-container' ) !== false;
+echo '<p><strong>Header in Assessment Template:</strong> ' . ( $header_in_assessment ? '✅ YES' : '❌ NO' ) . "</p>\n";
 
 // Test consultation integration
 echo "<h2>5. Testing Consultation Page Integration</h2>\n";
 
 // Use reflection to access private method for consultation config
-$get_consultation_config_method = $reflection->getMethod('get_consultation_config');
-$get_consultation_config_method->setAccessible(true);
+$get_consultation_config_method = $reflection->getMethod( 'get_consultation_config' );
+$get_consultation_config_method->setAccessible( true );
 
-$consultation_config = $get_consultation_config_method->invoke($shortcode_instance, 'hair_restoration');
+$consultation_config = $get_consultation_config_method->invoke( $shortcode_instance, 'hair_restoration' );
 
-if ($consultation_config) {
-    echo "<p><strong>Consultation Config Found:</strong> ✅ YES</p>\n";
-    echo "<p><strong>Consultation Title:</strong> " . esc_html($consultation_config['title']) . "</p>\n";
+if ( $consultation_config ) {
+	echo "<p><strong>Consultation Config Found:</strong> ✅ YES</p>\n";
+	echo '<p><strong>Consultation Title:</strong> ' . esc_html( $consultation_config['title'] ) . "</p>\n";
 } else {
-    echo "<p><strong>Consultation Config Found:</strong> ❌ NO</p>\n";
+	echo "<p><strong>Consultation Config Found:</strong> ❌ NO</p>\n";
 }
 
 echo "<h2>6. Summary</h2>\n";
@@ -166,17 +170,17 @@ echo "<li>✅ The design matches the user dashboard header</li>\n";
 echo "</ul>\n";
 
 $all_tests_passed = true;
-foreach ($tests as $test) {
-    if (!$test['found']) {
-        $all_tests_passed = false;
-        break;
-    }
+foreach ( $tests as $test ) {
+	if ( ! $test['found'] ) {
+		$all_tests_passed = false;
+		break;
+	}
 }
 
-if ($all_tests_passed && $header_in_assessment) {
-    echo "<p style='color: green; font-weight: bold; font-size: 18px;'>✅ SUCCESS: ENNU Life header is properly integrated across all templates!</p>\n";
+if ( $all_tests_passed && $header_in_assessment ) {
+	echo "<p style='color: green; font-weight: bold; font-size: 18px;'>✅ SUCCESS: ENNU Life header is properly integrated across all templates!</p>\n";
 } else {
-    echo "<p style='color: red; font-weight: bold; font-size: 18px;'>❌ FAILURE: Some header integration tests failed!</p>\n";
+	echo "<p style='color: red; font-weight: bold; font-size: 18px;'>❌ FAILURE: Some header integration tests failed!</p>\n";
 }
 
 echo "<h2>7. What This Integration Achieves</h2>\n";
@@ -190,4 +194,5 @@ echo "<li>🎨 <strong>Professional Branding:</strong> Maintains brand consisten
 echo "</ul>\n";
 
 echo "<p><strong>Test completed!</strong></p>\n";
-?> 
+
+

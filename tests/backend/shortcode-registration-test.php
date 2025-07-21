@@ -20,7 +20,7 @@ class ENNU_Shortcode_Registration_Test {
 	 */
 	public function test_assessment_shortcodes_registered() {
 		global $shortcode_tags;
-		
+
 		$expected_shortcodes = array(
 			'ennu-welcome-assessment',
 			'ennu-hair-assessment',
@@ -56,7 +56,7 @@ class ENNU_Shortcode_Registration_Test {
 	 */
 	public function test_results_shortcodes_registered() {
 		global $shortcode_tags;
-		
+
 		$expected_shortcodes = array(
 			'ennu-hair-results',
 			'ennu-ed-treatment-results',
@@ -91,7 +91,7 @@ class ENNU_Shortcode_Registration_Test {
 	 */
 	public function test_core_shortcodes_registered() {
 		global $shortcode_tags;
-		
+
 		$expected_shortcodes = array(
 			'ennu-user-dashboard',
 			'ennu-assessment-results',
@@ -118,9 +118,9 @@ class ENNU_Shortcode_Registration_Test {
 	 */
 	public function run_all_tests() {
 		error_log( 'ENNU Test: Starting shortcode registration tests...' );
-		
+
 		$tests_passed = 0;
-		$total_tests = 3;
+		$total_tests  = 3;
 
 		if ( $this->test_assessment_shortcodes_registered() ) {
 			$tests_passed++;
@@ -135,7 +135,7 @@ class ENNU_Shortcode_Registration_Test {
 		}
 
 		error_log( "ENNU Test: Shortcode registration tests completed. {$tests_passed}/{$total_tests} tests passed." );
-		
+
 		return $tests_passed === $total_tests;
 	}
 }
@@ -144,4 +144,4 @@ class ENNU_Shortcode_Registration_Test {
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	$test = new ENNU_Shortcode_Registration_Test();
 	$test->run_all_tests();
-} 
+}

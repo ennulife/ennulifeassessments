@@ -98,21 +98,21 @@ class ScoringSystemTest extends WP_UnitTestCase {
 	 * Test performance benchmarks for scoring calculations
 	 */
 	public function test_scoring_performance_benchmarks() {
-		$start_time = microtime(true);
-		$responses = array(
+		$start_time = microtime( true );
+		$responses  = array(
 			'hair_q1' => 'male',
 			'hair_q2' => 'receding',
 			'hair_q6' => 'high',
 			'hair_q7' => 'yes',
-			'hair_q8' => 'moderate'
+			'hair_q8' => 'moderate',
 		);
-		
-		$result = ENNU_Assessment_Scoring::calculate_scores('hair_assessment', $responses);
-		$execution_time = microtime(true) - $start_time;
-		
-		$this->assertLessThan(0.1, $execution_time, 'Scoring calculation should complete within 100ms');
-		$this->assertIsArray($result);
-		$this->assertArrayHasKey('overall_score', $result);
+
+		$result         = ENNU_Assessment_Scoring::calculate_scores( 'hair_assessment', $responses );
+		$execution_time = microtime( true ) - $start_time;
+
+		$this->assertLessThan( 0.1, $execution_time, 'Scoring calculation should complete within 100ms' );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'overall_score', $result );
 	}
 
 	/**
@@ -120,24 +120,39 @@ class ScoringSystemTest extends WP_UnitTestCase {
 	 */
 	public function test_score_interpretation_accuracy() {
 		$test_cases = array(
-			array('score' => 9.5, 'expected_range' => 'excellent'),
-			array('score' => 8.0, 'expected_range' => 'good'),
-			array('score' => 6.5, 'expected_range' => 'fair'),
-			array('score' => 4.0, 'expected_range' => 'needs_attention'),
-			array('score' => 2.0, 'expected_range' => 'critical')
+			array(
+				'score'          => 9.5,
+				'expected_range' => 'excellent',
+			),
+			array(
+				'score'          => 8.0,
+				'expected_range' => 'good',
+			),
+			array(
+				'score'          => 6.5,
+				'expected_range' => 'fair',
+			),
+			array(
+				'score'          => 4.0,
+				'expected_range' => 'needs_attention',
+			),
+			array(
+				'score'          => 2.0,
+				'expected_range' => 'critical',
+			),
 		);
-		
-		foreach ($test_cases as $case) {
-			if ($case['score'] >= 9.0) {
-				$this->assertGreaterThanOrEqual(9.0, $case['score'], 'Excellent scores should be >= 9.0');
-			} elseif ($case['score'] >= 7.0) {
-				$this->assertGreaterThanOrEqual(7.0, $case['score'], 'Good scores should be >= 7.0');
-			} elseif ($case['score'] >= 5.0) {
-				$this->assertGreaterThanOrEqual(5.0, $case['score'], 'Fair scores should be >= 5.0');
-			} elseif ($case['score'] >= 3.0) {
-				$this->assertGreaterThanOrEqual(3.0, $case['score'], 'Needs attention scores should be >= 3.0');
+
+		foreach ( $test_cases as $case ) {
+			if ( $case['score'] >= 9.0 ) {
+				$this->assertGreaterThanOrEqual( 9.0, $case['score'], 'Excellent scores should be >= 9.0' );
+			} elseif ( $case['score'] >= 7.0 ) {
+				$this->assertGreaterThanOrEqual( 7.0, $case['score'], 'Good scores should be >= 7.0' );
+			} elseif ( $case['score'] >= 5.0 ) {
+				$this->assertGreaterThanOrEqual( 5.0, $case['score'], 'Fair scores should be >= 5.0' );
+			} elseif ( $case['score'] >= 3.0 ) {
+				$this->assertGreaterThanOrEqual( 3.0, $case['score'], 'Needs attention scores should be >= 3.0' );
 			} else {
-				$this->assertLessThan(3.0, $case['score'], 'Critical scores should be < 3.0');
+				$this->assertLessThan( 3.0, $case['score'], 'Critical scores should be < 3.0' );
 			}
 		}
 	}
@@ -146,23 +161,23 @@ class ScoringSystemTest extends WP_UnitTestCase {
 	 * Test edge cases and error handling
 	 */
 	public function test_scoring_edge_cases_extended() {
-		$result = ENNU_Assessment_Scoring::calculate_scores('hair_assessment', null);
-		$this->assertIsArray($result);
-		$this->assertArrayHasKey('overall_score', $result);
-		
+		$result = ENNU_Assessment_Scoring::calculate_scores( 'hair_assessment', null );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'overall_score', $result );
+
 		$empty_responses = array(
 			'hair_q1' => '',
 			'hair_q2' => '',
 		);
-		$result = ENNU_Assessment_Scoring::calculate_scores('hair_assessment', $empty_responses);
-		$this->assertIsArray($result);
-		$this->assertEquals(0, $result['overall_score']);
-		
+		$result          = ENNU_Assessment_Scoring::calculate_scores( 'hair_assessment', $empty_responses );
+		$this->assertIsArray( $result );
+		$this->assertEquals( 0, $result['overall_score'] );
+
 		$large_responses = array();
-		for ($i = 1; $i <= 100; $i++) {
-			$large_responses["question_$i"] = "answer_$i";
+		for ( $i = 1; $i <= 100; $i++ ) {
+			$large_responses[ "question_$i" ] = "answer_$i";
 		}
-		$result = ENNU_Assessment_Scoring::calculate_scores('comprehensive_assessment', $large_responses);
-		$this->assertIsArray($result);
+		$result = ENNU_Assessment_Scoring::calculate_scores( 'comprehensive_assessment', $large_responses );
+		$this->assertIsArray( $result );
 	}
 }

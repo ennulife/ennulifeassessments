@@ -2,13 +2,13 @@
 /**
  * Test Script: Assessment Counting Logic Fix Verification
  * Version: 62.1.30
- * 
+ *
  * This script tests the fix for assessment counting to exclude welcome and health optimization assessments.
  */
 
 // Prevent direct access
-if (!defined('ABSPATH')) {
-    require_once('../../../wp-load.php');
+if ( ! defined( 'ABSPATH' ) ) {
+	require_once '../../../wp-load.php';
 }
 
 echo "<h1>Assessment Counting Fix Test - Version 62.1.30</h1>\n";
@@ -16,119 +16,119 @@ echo "<p>Testing the fix for assessment counting to exclude welcome and health o
 
 // Test 1: Check if enhanced database class exists
 echo "<h2>Test 1: Enhanced Database Class Check</h2>\n";
-$database_file = plugin_dir_path(__FILE__) . 'includes/class-enhanced-database.php';
-if (file_exists($database_file)) {
-    echo "✅ Enhanced database class exists: " . basename($database_file) . "\n";
+$database_file = plugin_dir_path( __FILE__ ) . 'includes/class-enhanced-database.php';
+if ( file_exists( $database_file ) ) {
+	echo '✅ Enhanced database class exists: ' . basename( $database_file ) . "\n";
 } else {
-    echo "❌ Enhanced database class missing: " . basename($database_file) . "\n";
+	echo '❌ Enhanced database class missing: ' . basename( $database_file ) . "\n";
 }
 
 // Test 2: Check for updated assessment arrays in database methods
 echo "<h2>Test 2: Database Methods Assessment Arrays Check</h2>\n";
-$database_content = file_get_contents($database_file);
+$database_content = file_get_contents( $database_file );
 
-$method_checks = [
-    'Count Completed Assessments Method' => 'count_completed_assessments',
-    'Update Overall Health Metrics Method' => 'update_overall_health_metrics',
-    'Get User Assessment History Method' => 'get_user_assessment_history',
-    'Exclude Welcome Assessment Comment' => 'Exclude welcome_assessment',
-    'Exclude Health Optimization Comment' => 'Exclude.*health_optimization_assessment'
-];
+$method_checks = array(
+	'Count Completed Assessments Method'   => 'count_completed_assessments',
+	'Update Overall Health Metrics Method' => 'update_overall_health_metrics',
+	'Get User Assessment History Method'   => 'get_user_assessment_history',
+	'Exclude Welcome Assessment Comment'   => 'Exclude welcome_assessment',
+	'Exclude Health Optimization Comment'  => 'Exclude.*health_optimization_assessment',
+);
 
-foreach ($method_checks as $name => $method) {
-    if (strpos($database_content, $method) !== false) {
-        echo "✅ Found $name: $method\n";
-    } else {
-        echo "❌ Missing $name: $method\n";
-    }
+foreach ( $method_checks as $name => $method ) {
+	if ( strpos( $database_content, $method ) !== false ) {
+		echo "✅ Found $name: $method\n";
+	} else {
+		echo "❌ Missing $name: $method\n";
+	}
 }
 
 // Test 3: Check for complete assessment lists
 echo "<h2>Test 3: Complete Assessment Lists Check</h2>\n";
-$assessment_checks = [
-    'Hair Assessment' => 'hair_assessment',
-    'Weight Loss Assessment' => 'weight_loss_assessment',
-    'Health Assessment' => 'health_assessment',
-    'ED Treatment Assessment' => 'ed_treatment_assessment',
-    'Skin Assessment' => 'skin_assessment',
-    'Sleep Assessment' => 'sleep_assessment',
-    'Hormone Assessment' => 'hormone_assessment',
-    'Menopause Assessment' => 'menopause_assessment',
-    'Testosterone Assessment' => 'testosterone_assessment'
-];
+$assessment_checks = array(
+	'Hair Assessment'         => 'hair_assessment',
+	'Weight Loss Assessment'  => 'weight_loss_assessment',
+	'Health Assessment'       => 'health_assessment',
+	'ED Treatment Assessment' => 'ed_treatment_assessment',
+	'Skin Assessment'         => 'skin_assessment',
+	'Sleep Assessment'        => 'sleep_assessment',
+	'Hormone Assessment'      => 'hormone_assessment',
+	'Menopause Assessment'    => 'menopause_assessment',
+	'Testosterone Assessment' => 'testosterone_assessment',
+);
 
-foreach ($assessment_checks as $name => $assessment) {
-    if (strpos($database_content, $assessment) !== false) {
-        echo "✅ Found $name: $assessment\n";
-    } else {
-        echo "❌ Missing $name: $assessment\n";
-    }
+foreach ( $assessment_checks as $name => $assessment ) {
+	if ( strpos( $database_content, $assessment ) !== false ) {
+		echo "✅ Found $name: $assessment\n";
+	} else {
+		echo "❌ Missing $name: $assessment\n";
+	}
 }
 
 // Test 4: Check for excluded assessments
 echo "<h2>Test 4: Excluded Assessments Check</h2>\n";
-$excluded_checks = [
-    'Welcome Assessment Not in Count' => 'welcome_assessment',
-    'Health Optimization Not in Count' => 'health_optimization_assessment'
-];
+$excluded_checks = array(
+	'Welcome Assessment Not in Count'  => 'welcome_assessment',
+	'Health Optimization Not in Count' => 'health_optimization_assessment',
+);
 
-foreach ($excluded_checks as $name => $excluded) {
-    // Check if these assessments are NOT in the counting arrays
-    $count_methods = [
-        'count_completed_assessments',
-        'update_overall_health_metrics', 
-        'get_user_assessment_history'
-    ];
-    
-    $found_in_counting = false;
-    foreach ($count_methods as $method) {
-        if (strpos($database_content, $method) !== false) {
-            // Extract the assessment array from the method
-            $method_start = strpos($database_content, $method);
-            $array_start = strpos($database_content, 'array(', $method_start);
-            if ($array_start !== false) {
-                $array_end = strpos($database_content, ');', $array_start);
-                if ($array_end !== false) {
-                    $array_content = substr($database_content, $array_start, $array_end - $array_start);
-                    if (strpos($array_content, $excluded) !== false) {
-                        $found_in_counting = true;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    
-    if (!$found_in_counting) {
-        echo "✅ $name: $excluded correctly excluded from counting\n";
-    } else {
-        echo "❌ $name: $excluded incorrectly included in counting\n";
-    }
+foreach ( $excluded_checks as $name => $excluded ) {
+	// Check if these assessments are NOT in the counting arrays
+	$count_methods = array(
+		'count_completed_assessments',
+		'update_overall_health_metrics',
+		'get_user_assessment_history',
+	);
+
+	$found_in_counting = false;
+	foreach ( $count_methods as $method ) {
+		if ( strpos( $database_content, $method ) !== false ) {
+			// Extract the assessment array from the method
+			$method_start = strpos( $database_content, $method );
+			$array_start  = strpos( $database_content, 'array(', $method_start );
+			if ( $array_start !== false ) {
+				$array_end = strpos( $database_content, ');', $array_start );
+				if ( $array_end !== false ) {
+					$array_content = substr( $database_content, $array_start, $array_end - $array_start );
+					if ( strpos( $array_content, $excluded ) !== false ) {
+						$found_in_counting = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if ( ! $found_in_counting ) {
+		echo "✅ $name: $excluded correctly excluded from counting\n";
+	} else {
+		echo "❌ $name: $excluded incorrectly included in counting\n";
+	}
 }
 
 // Test 5: Check template counting logic
 echo "<h2>Test 5: Template Counting Logic Check</h2>\n";
-$template_file = plugin_dir_path(__FILE__) . 'templates/user-dashboard.php';
-if (file_exists($template_file)) {
-    echo "✅ User dashboard template exists: " . basename($template_file) . "\n";
-    
-    $template_content = file_get_contents($template_file);
-    $template_checks = [
-        'Count Assessments Comment' => 'Count assessments first (excluding welcome and health optimization)',
-        'Welcome Assessment Skip' => '$assessment_key === \'welcome_assessment\'',
-        'Health Optimization Skip' => '$assessment_key === \'health_optimization_assessment\'',
-        'Continue Statement' => 'continue;'
-    ];
-    
-    foreach ($template_checks as $name => $template_rule) {
-        if (strpos($template_content, $template_rule) !== false) {
-            echo "✅ Found $name: $template_rule\n";
-        } else {
-            echo "❌ Missing $name: $template_rule\n";
-        }
-    }
+$template_file = plugin_dir_path( __FILE__ ) . 'templates/user-dashboard.php';
+if ( file_exists( $template_file ) ) {
+	echo '✅ User dashboard template exists: ' . basename( $template_file ) . "\n";
+
+	$template_content = file_get_contents( $template_file );
+	$template_checks  = array(
+		'Count Assessments Comment' => 'Count assessments first (excluding welcome and health optimization)',
+		'Welcome Assessment Skip'   => '$assessment_key === \'welcome_assessment\'',
+		'Health Optimization Skip'  => '$assessment_key === \'health_optimization_assessment\'',
+		'Continue Statement'        => 'continue;',
+	);
+
+	foreach ( $template_checks as $name => $template_rule ) {
+		if ( strpos( $template_content, $template_rule ) !== false ) {
+			echo "✅ Found $name: $template_rule\n";
+		} else {
+			echo "❌ Missing $name: $template_rule\n";
+		}
+	}
 } else {
-    echo "❌ User dashboard template missing: " . basename($template_file) . "\n";
+	echo '❌ User dashboard template missing: ' . basename( $template_file ) . "\n";
 }
 
 // Test 6: Check for correct assessment count
@@ -137,47 +137,47 @@ $expected_count = 9; // hair, weight_loss, health, ed_treatment, skin, sleep, ho
 echo "Expected standard assessment count: $expected_count\n";
 
 // Count the assessments in the database methods
-$count_methods = [
-    'count_completed_assessments',
-    'update_overall_health_metrics',
-    'get_user_assessment_history'
-];
+$count_methods = array(
+	'count_completed_assessments',
+	'update_overall_health_metrics',
+	'get_user_assessment_history',
+);
 
-foreach ($count_methods as $method) {
-    if (strpos($database_content, $method) !== false) {
-        $method_start = strpos($database_content, $method);
-        $array_start = strpos($database_content, 'array(', $method_start);
-        if ($array_start !== false) {
-            $array_end = strpos($database_content, ');', $array_start);
-            if ($array_end !== false) {
-                $array_content = substr($database_content, $array_start, $array_end - $array_start);
-                $assessment_count = substr_count($array_content, '_assessment');
-                echo "✅ $method contains $assessment_count assessments\n";
-                
-                if ($assessment_count === $expected_count) {
-                    echo "✅ $method has correct assessment count\n";
-                } else {
-                    echo "❌ $method has incorrect assessment count (expected $expected_count, found $assessment_count)\n";
-                }
-            }
-        }
-    }
+foreach ( $count_methods as $method ) {
+	if ( strpos( $database_content, $method ) !== false ) {
+		$method_start = strpos( $database_content, $method );
+		$array_start  = strpos( $database_content, 'array(', $method_start );
+		if ( $array_start !== false ) {
+			$array_end = strpos( $database_content, ');', $array_start );
+			if ( $array_end !== false ) {
+				$array_content    = substr( $database_content, $array_start, $array_end - $array_start );
+				$assessment_count = substr_count( $array_content, '_assessment' );
+				echo "✅ $method contains $assessment_count assessments\n";
+
+				if ( $assessment_count === $expected_count ) {
+					echo "✅ $method has correct assessment count\n";
+				} else {
+					echo "❌ $method has incorrect assessment count (expected $expected_count, found $assessment_count)\n";
+				}
+			}
+		}
+	}
 }
 
 // Test 7: Check for comments explaining exclusions
 echo "<h2>Test 7: Documentation Check</h2>\n";
-$documentation_checks = [
-    'Count Method Comment' => 'Exclude welcome_assessment and health_optimization_assessment from counting',
-    'Metrics Method Comment' => 'Exclude welcome_assessment and health_optimization_assessment from metrics calculation',
-    'History Method Comment' => 'Exclude welcome_assessment and health_optimization_assessment from history'
-];
+$documentation_checks = array(
+	'Count Method Comment'   => 'Exclude welcome_assessment and health_optimization_assessment from counting',
+	'Metrics Method Comment' => 'Exclude welcome_assessment and health_optimization_assessment from metrics calculation',
+	'History Method Comment' => 'Exclude welcome_assessment and health_optimization_assessment from history',
+);
 
-foreach ($documentation_checks as $name => $comment) {
-    if (strpos($database_content, $comment) !== false) {
-        echo "✅ Found $name: $comment\n";
-    } else {
-        echo "❌ Missing $name: $comment\n";
-    }
+foreach ( $documentation_checks as $name => $comment ) {
+	if ( strpos( $database_content, $comment ) !== false ) {
+		echo "✅ Found $name: $comment\n";
+	} else {
+		echo "❌ Missing $name: $comment\n";
+	}
 }
 
 echo "<h2>Test Summary</h2>\n";
@@ -210,4 +210,5 @@ echo "<li>Verify database methods return correct counts</li>\n";
 echo "</ol>\n";
 
 echo "<p><strong>Version 62.1.30</strong> - Assessment counting logic fixed!</p>\n";
-?> 
+
+

@@ -23,13 +23,15 @@ $retake_url    = isset( $assessment_type ) ? ennu_life()->get_shortcodes()->get_
 			<?php
 			if ( function_exists( 'ennu_render_logo' ) ) {
 				echo '<div class="ennu-logo-container">';
-				ennu_render_logo([
-					'color' => 'white',
-					'size' => 'medium',
-					'link' => home_url( '/' ),
-					'alt' => 'ENNU Life',
-					'class' => ''
-				]);
+				ennu_render_logo(
+					array(
+						'color' => 'white',
+						'size'  => 'medium',
+						'link'  => home_url( '/' ),
+						'alt'   => 'ENNU Life',
+						'class' => '',
+					)
+				);
 				echo '</div>';
 			}
 			?>
