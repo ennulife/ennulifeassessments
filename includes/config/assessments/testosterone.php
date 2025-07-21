@@ -9,7 +9,6 @@
 return array(
     'title' => 'Testosterone Assessment',
     'assessment_engine' => 'quantitative',
-    'gender_filter' => 'male',
     'questions' => array(
         'testosterone_q1' => array(
             'title' => 'Which of the following symptoms, often associated with low testosterone, are you experiencing?',
@@ -58,4 +57,4 @@ return array(
             'required' => true,
         ),
     ),
-); 
+);  

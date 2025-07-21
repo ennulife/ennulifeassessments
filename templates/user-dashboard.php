@@ -358,20 +358,20 @@ if (empty($display_name)) {
 					<div id="tab-my-assessments" class="my-story-tab-content my-story-tab-active">
 						<div class="assessment-cards-container">
 							<?php
-							// Define the ordered assessment pairs with gender logic (same as display logic)
+							// Define the ordered assessment pairs with inclusive logic (same as display logic)
 							$assessment_pairs = array(
 								array('health', 'weight-loss'),
-								array('hormone', 'testosterone'), // Will be filtered by gender
+								array('hormone', 'testosterone'), // Testosterone now available to all genders
 								array('hair', 'skin'),
-								array('sleep', 'ed-treatment') // Will be filtered by gender
+								array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical accuracy
 							);
 							
-							// Gender-based assessment filtering
+							// Gender-inclusive assessment access
 							$user_gender = strtolower(trim($gender ?? ''));
 							$is_male = ($user_gender === 'male');
 							$is_female = ($user_gender === 'female');
 							
-							// Count assessments with gender-based filtering
+							// Count assessments with inclusive filtering
 							$completed_count = 0;
 							$total_count = 0;
 							
@@ -382,15 +382,12 @@ if (empty($display_name)) {
 										continue;
 									}
 									
-									// Gender-based filtering (same logic as display)
-									if ($assessment_key === 'testosterone' && $is_female) {
-										continue; // Skip testosterone for females
-									}
+									// Gender-inclusive filtering - testosterone now available to all genders
 									if ($assessment_key === 'hormone' && $is_male) {
 										continue; // Skip hormone for males (show testosterone instead)
 									}
 									if ($assessment_key === 'ed-treatment' && $is_female) {
-										continue; // Skip ED treatment for females
+										continue; // Skip ED treatment for females (medical specificity)
 									}
 									
 									$total_count++;
@@ -424,15 +421,15 @@ if (empty($display_name)) {
 							
 							<div class="assessment-cards-grid">
 								<?php
-								// Define the ordered assessment pairs with gender logic
+								// Define the ordered assessment pairs with inclusive logic
 								$assessment_pairs = array(
 									array('health', 'weight-loss'),
-									array('hormone', 'testosterone'), // Will be filtered by gender
+									array('hormone', 'testosterone'), // Testosterone now available to all genders
 									array('hair', 'skin'),
-									array('sleep', 'ed-treatment') // Will be filtered by gender
+									array('sleep', 'ed-treatment') // ED treatment remains gender-specific for medical accuracy
 								);
 								
-								// Gender-based assessment filtering
+								// Gender-inclusive assessment filtering
 								$user_gender = strtolower(trim($gender ?? ''));
 								$is_male = ($user_gender === 'male');
 								$is_female = ($user_gender === 'female');
@@ -450,15 +447,12 @@ if (empty($display_name)) {
 											continue;
 										}
 										
-										// Gender-based filtering
-										if ($assessment_key === 'testosterone' && $is_female) {
-											continue; // Skip testosterone for females
-										}
+										// Gender-inclusive filtering - testosterone now available to all genders
 										if ($assessment_key === 'hormone' && $is_male) {
 											continue; // Skip hormone for males (show testosterone instead)
 										}
 										if ($assessment_key === 'ed-treatment' && $is_female) {
-											continue; // Skip ED treatment for females
+											continue; // Skip ED treatment for females (medical specificity)
 										}
 										
 										$pair_assessments[] = array(
@@ -2387,4 +2381,4 @@ if (empty($display_name)) {
 			observer.observe(el);
 		});
 	}
-</script> 
+</script>    
