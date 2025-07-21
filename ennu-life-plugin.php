@@ -436,6 +436,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize Phase 3 components
 			$this->init_phase_3_components();
 			
+			// Initialize Phase 4 components
+			$this->init_phase_4_components();
+			
 			// Initialize REST API
 			add_action( 'rest_api_init', array( $this, 'init_rest_api' ) );
 			
@@ -451,6 +454,16 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . 'includes/class-enhanced-health-goals.php';
 			
 			error_log('ENNU Life Plugin: Initialized Phase 3 components');
+		}
+
+		/**
+		 * Initialize Phase 4 components (Lab Data Integration)
+		 */
+		private function init_phase_4_components() {
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-enhanced-lab-data-manager.php';
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-correlation-analyzer.php';
+			
+			error_log('ENNU Life Plugin: Initialized Phase 4 components');
 		}
 
 		/**
