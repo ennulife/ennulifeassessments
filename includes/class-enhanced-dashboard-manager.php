@@ -57,74 +57,109 @@ class ENNU_Enhanced_Dashboard_Manager {
 			return '<div class="ennu-error">Profile completeness tracker not available</div>';
 		}
 
-		$completeness_data = ENNU_Profile_Completeness_Tracker::get_completeness_for_display( $user_id );
-
-		$html  = '<div class="ennu-profile-completeness-widget">';
-		$html .= '<div class="ennu-widget-header">';
-		$html .= '<h3>Profile Completeness</h3>';
-		$html .= '<div class="ennu-completeness-percentage">' . esc_html( $completeness_data['overall_percentage'] ) . '%</div>';
-		$html .= '</div>';
-
-		$html .= '<div class="ennu-progress-bar">';
-		$html .= '<div class="ennu-progress-fill" style="width: ' . esc_attr( $completeness_data['overall_percentage'] ) . '%"></div>';
-		$html .= '</div>';
-
-		$accuracy_class  = 'ennu-accuracy-' . $completeness_data['data_accuracy_level'];
-		$accuracy_labels = array(
-			'high'     => 'High Accuracy',
-			'medium'   => 'Medium Accuracy',
-			'moderate' => 'Moderate Accuracy',
-			'low'      => 'Low Accuracy',
-		);
-
-		$html .= '<div class="ennu-data-accuracy ' . $accuracy_class . '">';
-		$html .= '<span class="ennu-accuracy-label">Data Accuracy: ' . esc_html( $accuracy_labels[ $completeness_data['data_accuracy_level'] ] ) . '</span>';
-		$html .= '</div>';
-
-		if ( ! empty( $completeness_data['completed_sections'] ) ) {
-			$html .= '<div class="ennu-completed-sections">';
-			$html .= '<h4>Completed Sections</h4>';
-			$html .= '<ul>';
-			foreach ( $completeness_data['completed_sections'] as $section ) {
-				$section_name = $this->get_section_display_name( $section );
-				$html        .= '<li class="ennu-completed-section"><span class="ennu-checkmark">✓</span> ' . esc_html( $section_name ) . '</li>';
-			}
-			$html .= '</ul>';
-			$html .= '</div>';
+		try {
+			$completeness_data = ENNU_Profile_Completeness_Tracker::get_completeness_for_display( $user_id );
+			$summary = ENNU_Profile_Completeness_Tracker::get_completeness_summary( $user_id );
+		} catch ( Exception $e ) {
+			error_log( 'ENNU Enhanced Dashboard: Error getting completeness data: ' . $e->getMessage() );
+			return '<div class="ennu-error">Error loading profile completeness data: ' . esc_html( $e->getMessage() ) . '</div>';
 		}
 
-		if ( ! empty( $completeness_data['missing_sections'] ) ) {
-			$html .= '<div class="ennu-missing-sections">';
-			$html .= '<h4>Areas for Improvement</h4>';
-			foreach ( $completeness_data['missing_sections'] as $missing_section ) {
-				$section_name = $this->get_section_display_name( $missing_section['section'] );
-				$html        .= '<div class="ennu-missing-section">';
-				$html        .= '<div class="ennu-section-header">';
-				$html        .= '<span class="ennu-section-name">' . esc_html( $section_name ) . '</span>';
-				$html        .= '<span class="ennu-section-percentage">' . esc_html( $missing_section['percentage'] ) . '% complete</span>';
-				$html        .= '</div>';
-				$html        .= '<div class="ennu-section-progress">';
-				$html        .= '<div class="ennu-section-progress-fill" style="width: ' . esc_attr( $missing_section['percentage'] ) . '%"></div>';
-				$html        .= '</div>';
-				$html        .= '</div>';
-			}
-			$html .= '</div>';
-		}
+		$html = '<div class="profile-completeness-widget" style="background: rgba(255,255,255,0.05); border-radius: 16px; padding: 25px; border: 1px solid rgba(255,255,255,0.1);">';
+		
+		// Header
+		$html .= '<div class="completeness-header" style="display: flex; align-items: center; margin-bottom: 25px;">';
+		$html .= '<div class="completeness-icon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">';
+		$html .= '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color: white;">';
+		$html .= '<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+		$html .= '</svg>';
+		$html .= '</div>';
+		$html .= '<div>';
+		$html .= '<h3 style="margin: 0; color: var(--text-primary); font-size: 18px; font-weight: 600;">Profile Completeness</h3>';
+		$html .= '<p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 14px;">Your health profile completion status</p>';
+		$html .= '</div>';
+		$html .= '</div>';
 
-		if ( ! empty( $completeness_data['recommendations'] ) ) {
-			$html .= '<div class="ennu-recommendations">';
-			$html .= '<h4>Recommended Actions</h4>';
-			foreach ( $completeness_data['recommendations'] as $recommendation ) {
-				$priority_class = 'ennu-priority-' . $recommendation['priority'];
-				$html          .= '<div class="ennu-recommendation ' . $priority_class . '">';
-				$html          .= '<div class="ennu-recommendation-header">';
-				$html          .= '<h5>' . esc_html( $recommendation['title'] ) . '</h5>';
-				$html          .= '<span class="ennu-estimated-time">' . esc_html( $recommendation['estimated_time'] ) . '</span>';
-				$html          .= '</div>';
-				$html          .= '<p>' . esc_html( $recommendation['description'] ) . '</p>';
-				if ( ! empty( $recommendation['action_url'] ) ) {
-					$html .= '<a href="' . esc_url( $recommendation['action_url'] ) . '" class="ennu-action-button">Take Action</a>';
+		// Overall Progress
+		$html .= '<div class="completeness-overview" style="margin-bottom: 25px;">';
+		$html .= '<div class="progress-display" style="text-align: center; margin-bottom: 20px;">';
+		$html .= '<div class="progress-circle" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#10b981 0deg ' . ($completeness_data['overall_percentage'] * 3.6) . 'deg, rgba(255,255,255,0.1) ' . ($completeness_data['overall_percentage'] * 3.6) . 'deg 360deg); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; position: relative;">';
+		$html .= '<div class="progress-inner" style="width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">';
+		$html .= '<div class="progress-text">';
+		$html .= '<div class="progress-percentage" style="font-size: 24px; font-weight: 700; color: var(--text-primary);">' . esc_html($completeness_data['overall_percentage']) . '%</div>';
+		$html .= '<div class="progress-label" style="font-size: 12px; color: var(--text-secondary);">Complete</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+
+		// Accuracy Level
+		$accuracy_class = 'accuracy-' . $completeness_data['data_accuracy_level'];
+		$accuracy_color = $this->get_accuracy_color($completeness_data['data_accuracy_level']);
+		$html .= '<div class="accuracy-indicator" style="text-align: center; margin-bottom: 25px;">';
+		$html .= '<div class="accuracy-badge" style="display: inline-flex; align-items: center; padding: 8px 16px; background: ' . $accuracy_color . '; border-radius: 20px; font-size: 14px; font-weight: 600; color: white;">';
+		$html .= '<span style="margin-right: 8px;">📊</span>';
+		$html .= 'Data Accuracy: ' . esc_html(ENNU_Profile_Completeness_Tracker::get_accuracy_level_display_name($completeness_data['data_accuracy_level']));
+		$html .= '</div>';
+		$html .= '</div>';
+
+		// Section Details
+		$html .= '<div class="section-details" style="margin-bottom: 25px;">';
+		$html .= '<h4 style="margin: 0 0 15px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">Section Progress</h4>';
+		
+		if (!empty($completeness_data['section_details']) && is_array($completeness_data['section_details'])) {
+			foreach ($completeness_data['section_details'] as $section_key => $section_data) {
+				if (!is_array($section_data)) continue;
+				
+				$section_name = ENNU_Profile_Completeness_Tracker::get_section_display_name($section_key);
+				$percentage = isset($section_data['percentage']) ? $section_data['percentage'] : 0;
+				$is_completed = $percentage >= 80;
+				
+				$html .= '<div class="section-item" style="margin-bottom: 12px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid ' . ($is_completed ? '#10b981' : '#f59e0b') . ';">';
+				$html .= '<div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">';
+				$html .= '<span class="section-name" style="font-weight: 600; color: var(--text-primary);">' . esc_html($section_name) . '</span>';
+				$html .= '<span class="section-percentage" style="font-size: 14px; font-weight: 600; color: ' . ($is_completed ? '#10b981' : '#f59e0b') . ';">' . esc_html($percentage) . '%</span>';
+				$html .= '</div>';
+				
+				$html .= '<div class="section-progress" style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">';
+				$html .= '<div class="section-progress-fill" style="height: 100%; background: ' . ($is_completed ? '#10b981' : '#f59e0b') . '; width: ' . esc_attr($percentage) . '%; transition: width 0.3s ease;"></div>';
+				$html .= '</div>';
+				
+				if (!$is_completed && !empty($section_data['missing_fields']) && is_array($section_data['missing_fields'])) {
+					$html .= '<div class="section-missing" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">';
+					$html .= 'Missing: ' . esc_html(count($section_data['missing_fields'])) . ' field' . (count($section_data['missing_fields']) !== 1 ? 's' : '');
+					$html .= '</div>';
 				}
+				$html .= '</div>';
+			}
+		} else {
+			$html .= '<div class="no-section-data" style="text-align: center; padding: 20px; color: var(--text-secondary);">';
+			$html .= '<p>No section data available</p>';
+			$html .= '</div>';
+		}
+		$html .= '</div>';
+
+		// Recommendations
+		if (!empty($completeness_data['recommendations']) && is_array($completeness_data['recommendations'])) {
+			$html .= '<div class="recommendations-section">';
+			$html .= '<h4 style="margin: 0 0 15px 0; color: var(--text-primary); font-size: 16px; font-weight: 600;">Recommended Actions</h4>';
+			
+			foreach (array_slice($completeness_data['recommendations'], 0, 3) as $index => $recommendation) {
+				if (!is_array($recommendation)) continue;
+				
+				$priority_color = $this->get_priority_color(isset($recommendation['priority']) ? $recommendation['priority'] : 'medium');
+				$icon = isset($recommendation['icon']) ? $recommendation['icon'] : '📋';
+				$title = isset($recommendation['title']) ? $recommendation['title'] : 'Complete Profile';
+				$description = isset($recommendation['description']) ? $recommendation['description'] : 'Add missing information to improve your profile.';
+				$estimated_time = isset($recommendation['estimated_time']) ? $recommendation['estimated_time'] : '5 minutes';
+				
+				$html .= '<div class="recommendation-item" style="margin-bottom: 12px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid ' . $priority_color . ';">';
+				$html .= '<div class="recommendation-header" style="display: flex; align-items: center; margin-bottom: 8px;">';
+				$html .= '<span class="recommendation-icon" style="font-size: 18px; margin-right: 10px;">' . esc_html($icon) . '</span>';
+				$html .= '<span class="recommendation-title" style="font-weight: 600; color: var(--text-primary);">' . esc_html($title) . '</span>';
+				$html .= '<span class="recommendation-time" style="margin-left: auto; font-size: 12px; color: var(--text-secondary);">' . esc_html($estimated_time) . '</span>';
+				$html .= '</div>';
+				$html .= '<p class="recommendation-description" style="margin: 0; font-size: 14px; color: var(--text-secondary); line-height: 1.4;">' . esc_html($description) . '</p>';
 				$html .= '</div>';
 			}
 			$html .= '</div>';
@@ -383,5 +418,40 @@ class ENNU_Enhanced_Dashboard_Manager {
 		);
 
 		return $widgets;
+	}
+
+	/**
+	 * Get accuracy level color
+	 *
+	 * @param string $accuracy_level Accuracy level
+	 * @return string Color code
+	 */
+	private function get_accuracy_color($accuracy_level) {
+		$colors = array(
+			'excellent' => '#10b981',
+			'high'      => '#3b82f6',
+			'medium'    => '#f59e0b',
+			'moderate'  => '#f97316',
+			'low'       => '#ef4444',
+		);
+		
+		return isset($colors[$accuracy_level]) ? $colors[$accuracy_level] : '#6b7280';
+	}
+
+	/**
+	 * Get priority color
+	 *
+	 * @param string $priority Priority level
+	 * @return string Color code
+	 */
+	private function get_priority_color($priority) {
+		$colors = array(
+			'critical' => '#ef4444',
+			'high'     => '#f59e0b',
+			'medium'   => '#3b82f6',
+			'low'      => '#6b7280',
+		);
+		
+		return isset($colors[$priority]) ? $colors[$priority] : '#6b7280';
 	}
 }

@@ -16,18 +16,18 @@ class ENNU_User_Manager {
 	private $cache;
 
 	public function __construct() {
-		$this->cache = new ENNU_Score_Cache();
+		// ENNU_Score_Cache uses static methods, no instance needed
 	}
 
 	/**
 	 * Get user assessment data with caching
 	 */
 	public function get_user_assessments( $user_id ) {
-		$cache_key = "user_assessments_{$user_id}";
-		$cached    = $this->cache->get( $cache_key );
+		// Try to get from cache first
+		$cached = ENNU_Score_Cache::get_cached_score( $user_id, 'user_assessments' );
 
 		if ( $cached !== false ) {
-			return $cached;
+			return $cached['score_data'];
 		}
 
 		global $wpdb;
@@ -40,7 +40,8 @@ class ENNU_User_Manager {
 			)
 		);
 
-		$this->cache->set( $cache_key, $assessments, 300 );
+		// Cache the results
+		ENNU_Score_Cache::cache_score( $user_id, 'user_assessments', $assessments );
 		return $assessments;
 	}
 
@@ -51,10 +52,11 @@ class ENNU_User_Manager {
 		$global_keys = array(
 			'ennu_global_health_goals',
 			'ennu_global_gender',
-			'ennu_global_height_feet',
-			'ennu_global_height_inches',
-			'ennu_global_weight',
+			'ennu_global_height_weight',
 			'ennu_global_date_of_birth',
+			'ennu_global_exact_age',
+			'ennu_global_age_range',
+			'ennu_global_age_category',
 		);
 
 		$data = array();
@@ -62,6 +64,14 @@ class ENNU_User_Manager {
 			$value = get_user_meta( $user_id, $key, true );
 			if ( ! empty( $value ) ) {
 				$data[ $key ] = $this->validate_global_field( $key, $value );
+			}
+		}
+
+		// Get comprehensive age data if DOB exists
+		if ( ! empty( $data['ennu_global_date_of_birth'] ) ) {
+			$age_data = ENNU_Age_Management_System::get_user_age_data( $user_id );
+			if ( ! empty( $age_data ) ) {
+				$data = array_merge( $data, $age_data );
 			}
 		}
 
@@ -76,14 +86,26 @@ class ENNU_User_Manager {
 			case 'ennu_global_gender':
 				return in_array( $value, array( 'male', 'female', 'other' ), true ) ? $value : 'other';
 
-			case 'ennu_global_height_feet':
-				return is_numeric( $value ) && $value >= 3 && $value <= 8 ? (int) $value : 5;
+			case 'ennu_global_height_weight':
+				if ( is_array( $value ) && isset( $value['ft'], $value['in'], $value['lbs'] ) ) {
+					$ft = is_numeric( $value['ft'] ) && $value['ft'] >= 3 && $value['ft'] <= 8 ? (int) $value['ft'] : 5;
+					$in = is_numeric( $value['in'] ) && $value['in'] >= 0 && $value['in'] <= 11 ? (int) $value['in'] : 6;
+					$lbs = is_numeric( $value['lbs'] ) && $value['lbs'] >= 50 && $value['lbs'] <= 1000 ? (float) $value['lbs'] : 150;
+					return array( 'ft' => $ft, 'in' => $in, 'lbs' => $lbs );
+				}
+				return array( 'ft' => 5, 'in' => 6, 'lbs' => 150 );
 
-			case 'ennu_global_height_inches':
-				return is_numeric( $value ) && $value >= 0 && $value <= 11 ? (int) $value : 6;
+			case 'ennu_global_date_of_birth':
+				return ENNU_Age_Management_System::is_valid_dob( $value ) ? $value : '';
 
-			case 'ennu_global_weight':
-				return is_numeric( $value ) && $value >= 50 && $value <= 1000 ? (float) $value : 150;
+			case 'ennu_global_exact_age':
+				return is_numeric( $value ) && $value >= ENNU_Age_Management_System::MIN_AGE && $value <= ENNU_Age_Management_System::MAX_AGE ? (int) $value : 0;
+
+			case 'ennu_global_age_range':
+				return ENNU_Age_Management_System::get_age_range_label( $value ) ? $value : '';
+
+			case 'ennu_global_age_category':
+				return ENNU_Age_Management_System::get_age_category_label( $value ) ? $value : '';
 
 			case 'ennu_global_health_goals':
 				if ( is_array( $value ) ) {
@@ -109,20 +131,39 @@ class ENNU_User_Manager {
 			$updated[ $key ] = $validated_value;
 		}
 
-		$this->cache->delete( "user_assessments_{$user_id}" );
+		// Handle age data updates
+		if ( isset( $data['ennu_global_date_of_birth'] ) && ! empty( $data['ennu_global_date_of_birth'] ) ) {
+			$age_data = ENNU_Age_Management_System::update_user_age_data( $user_id, $data['ennu_global_date_of_birth'] );
+			if ( $age_data ) {
+				$updated = array_merge( $updated, $age_data );
+			}
+		}
+
+		ENNU_Score_Cache::invalidate_cache( $user_id );
 
 		return $updated;
+	}
+
+	/**
+	 * Update user age data specifically
+	 *
+	 * @param int $user_id User ID
+	 * @param string $dob Date of birth
+	 * @return array|false Updated age data or false if invalid
+	 */
+	public function update_user_age_data( $user_id, $dob ) {
+		return ENNU_Age_Management_System::update_user_age_data( $user_id, $dob );
 	}
 
 	/**
 	 * Get user statistics with caching
 	 */
 	public function get_user_stats( $user_id ) {
-		$cache_key = "user_stats_{$user_id}";
-		$cached    = $this->cache->get( $cache_key );
+		// Try to get from cache first
+		$cached = ENNU_Score_Cache::get_cached_score( $user_id, 'user_stats' );
 
 		if ( $cached !== false ) {
-			return $cached;
+			return $cached['score_data'];
 		}
 
 		$stats = array(
@@ -132,7 +173,8 @@ class ENNU_User_Manager {
 			'health_goals_count' => $this->count_health_goals( $user_id ),
 		);
 
-		$this->cache->set( $cache_key, $stats, 600 );
+		// Cache the results
+		ENNU_Score_Cache::cache_score( $user_id, 'user_stats', $stats );
 		return $stats;
 	}
 

@@ -90,12 +90,12 @@ return array(
 	'addon_packages'        => array(
 		'hormone_optimization'    => array(
 			'id'                    => 'hormone_optimization_package',
-			'name'                  => 'Hormone Optimization Package',
-			'price'                 => 399,
+			'name'                  => 'Hormone Optimization Panel',
+			'price'                 => 484,
 			'billing'               => 'one_time',
 			'biomarkers'            => array( 'estradiol_e2', 'progesterone', 'shbg', 'cortisol', 'free_t3', 'free_t4' ),
 			'biomarker_count'       => 6,
-			'description'           => 'Complete hormone optimization panel for comprehensive hormonal health assessment',
+			'description'           => 'Advanced hormonal health and optimization',
 			'target_audience'       => 'Individuals with hormonal imbalances or optimization goals',
 			'features'              => array(
 				'comprehensive_hormone_panel'          => true,

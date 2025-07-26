@@ -1,0 +1,614 @@
+/**
+ * ENNU Life Theme System
+ * 
+ * Centralized theme management styles for dark/light mode switching
+ * across all ENNU Life plugin templates and components.
+ * 
+ * @package ENNU Life Assessments
+ * @since 62.2.30
+ */
+
+/* ===== CSS VARIABLES ===== */
+:root {
+	/* Dark Mode (Default) */
+	--base-bg: #0d1117;
+	--card-bg: #161b22;
+	--border-color: #30363d;
+	--text-light: #c9d1d9;
+	--text-dark: #f0f6fc;
+	--text-color: #f0f6fc;
+	--text-muted: #8b949e;
+	--accent-primary: #10b981;
+	--accent-secondary: #059669;
+	--accent-color: #10b981;
+	--accent-hover: #059669;
+	--shadow-color: rgba(2, 8, 20, 0.5);
+	--star-color-1: #ffffff;
+	--star-color-2: #8b949e;
+	--gradient-start: #0d1117;
+	--gradient-end: #161b22;
+	--glass-bg: rgba(255, 255, 255, 0.05);
+	--glass-border: rgba(255, 255, 255, 0.1);
+	--toggle-bg: #30363d;
+	--toggle-thumb: #ffffff;
+	--toggle-shadow: rgba(0, 0, 0, 0.3);
+	--spacing-1: 0.25rem;
+	--spacing-2: 0.5rem;
+	--spacing-3: 0.75rem;
+	--spacing-4: 1rem;
+	--spacing-5: 1.25rem;
+	--spacing-6: 1.5rem;
+	--rounded-md: 0.375rem;
+	--rounded-lg: 0.75rem;
+	--rounded-full: 9999px;
+	--shadow-md: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+	--shadow-lg: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+	--shadow-xl: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color);
+	--transition-fast: 0.15s ease;
+	--transition-normal: 0.3s ease;
+	--transition-slow: 0.5s ease;
+}
+
+/* Light Mode Variables */
+[data-theme="light"],
+.ennu-unified-container[data-theme="light"],
+.ennu-user-dashboard[data-theme="light"],
+body[data-theme="light"],
+html[data-theme="light"] {
+	--base-bg: #ffffff;
+	--card-bg: #f8fafc;
+	--border-color: #e2e8f0;
+	--text-light: #64748b;
+	--text-dark: #1e293b;
+	--text-color: #1e293b;
+	--text-muted: #64748b;
+	--accent-primary: #10b981;
+	--accent-secondary: #059669;
+	--accent-color: #10b981;
+	--accent-hover: #059669;
+	--shadow-color: rgba(0, 0, 0, 0.1);
+	--star-color-1: #1e293b;
+	--star-color-2: #64748b;
+	--gradient-start: #ffffff;
+	--gradient-end: #f8fafc;
+	--glass-bg: rgba(255, 255, 255, 0.8);
+	--glass-border: rgba(0, 0, 0, 0.1);
+	--toggle-bg: #e2e8f0;
+	--toggle-thumb: #ffffff;
+	--toggle-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Variables (Explicit) */
+[data-theme="dark"],
+.ennu-unified-container[data-theme="dark"],
+.ennu-user-dashboard[data-theme="dark"],
+body[data-theme="dark"],
+html[data-theme="dark"] {
+	--base-bg: #0f172a;
+	--card-bg: #1e293b;
+	--border-color: #334155;
+	--text-light: #94a3b8;
+	--text-dark: #f1f5f9;
+	--text-color: #f1f5f9;
+	--text-muted: #94a3b8;
+	--accent-primary: #10b981;
+	--accent-secondary: #059669;
+	--accent-color: #10b981;
+	--accent-hover: #059669;
+	--shadow-color: rgba(0, 0, 0, 0.3);
+	--star-color-1: #f1f5f9;
+	--star-color-2: #94a3b8;
+	--gradient-start: #0f172a;
+	--gradient-end: #1e293b;
+	--glass-bg: rgba(30, 41, 59, 0.8);
+	--glass-border: rgba(255, 255, 255, 0.1);
+	--toggle-bg: #334155;
+	--toggle-thumb: #f1f5f9;
+	--toggle-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* ===== UNIFIED THEME TOGGLE ===== */
+.ennu-theme-toggle {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 1000;
+}
+
+.ennu-theme-btn {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border: 1px solid var(--glass-border);
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all var(--transition-normal);
+	box-shadow: var(--shadow-md);
+	color: var(--text-color);
+}
+
+.ennu-theme-btn:hover {
+	transform: scale(1.1);
+	box-shadow: var(--shadow-lg);
+	background: var(--glass-bg);
+	border-color: var(--accent-primary);
+}
+
+.ennu-theme-btn:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.ennu-theme-btn:active {
+	transform: scale(0.95);
+}
+
+.ennu-theme-icon {
+	width: 24px;
+	height: 24px;
+	color: var(--text-color);
+	transition: all var(--transition-normal);
+}
+
+.ennu-sun-icon {
+	display: block;
+	opacity: 1;
+	transform: rotate(0deg);
+}
+
+.ennu-moon-icon {
+	display: none;
+	opacity: 0;
+	transform: rotate(-90deg);
+}
+
+[data-theme="light"] .ennu-sun-icon {
+	display: none;
+	opacity: 0;
+	transform: rotate(90deg);
+}
+
+[data-theme="light"] .ennu-moon-icon {
+	display: block;
+	opacity: 1;
+	transform: rotate(0deg);
+}
+
+/* ===== DASHBOARD THEME TOGGLE ===== */
+.theme-toggle-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 1000;
+}
+
+.theme-toggle {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	width: 60px;
+	height: 30px;
+	border-radius: 15px;
+	position: relative;
+	transition: all var(--transition-normal);
+	box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:hover {
+	box-shadow: var(--shadow-lg);
+}
+
+.theme-toggle:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+.toggle-track {
+	width: 100%;
+	height: 100%;
+	background: var(--toggle-bg);
+	border-radius: 15px;
+	position: relative;
+	transition: background var(--transition-normal);
+	display: flex;
+	align-items: center;
+	padding: 2px;
+}
+
+.toggle-thumb {
+	width: 26px;
+	height: 26px;
+	background: var(--toggle-thumb);
+	border-radius: 50%;
+	position: absolute;
+	left: 2px;
+	transition: transform var(--transition-normal);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .toggle-thumb,
+.ennu-user-dashboard[data-theme="light"] .toggle-thumb,
+body[data-theme="light"] .toggle-thumb,
+html[data-theme="light"] .toggle-thumb {
+	transform: translateX(30px);
+}
+
+[data-theme="dark"] .toggle-thumb,
+.ennu-user-dashboard[data-theme="dark"] .toggle-thumb,
+body[data-theme="dark"] .toggle-thumb,
+html[data-theme="dark"] .toggle-thumb {
+	transform: translateX(0);
+}
+
+.toggle-icon {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	transition: opacity var(--transition-normal);
+	color: var(--text-color);
+}
+
+.sun-icon {
+	opacity: 1;
+	left: 6px;
+}
+
+.moon-icon {
+	opacity: 0;
+	right: 6px;
+}
+
+[data-theme="light"] .sun-icon {
+	opacity: 0;
+}
+
+[data-theme="light"] .moon-icon {
+	opacity: 1;
+}
+
+[data-theme="dark"] .sun-icon {
+	opacity: 1;
+}
+
+[data-theme="dark"] .moon-icon {
+	opacity: 0;
+}
+
+/* ===== THEME TRANSITIONS ===== */
+* {
+	transition: background-color var(--transition-normal), 
+				color var(--transition-normal), 
+				border-color var(--transition-normal), 
+				box-shadow var(--transition-normal);
+}
+
+/* Exclude certain elements from transitions */
+
+.star,
+.ennu-theme-btn,
+.theme-toggle,
+.toggle-thumb,
+.toggle-icon,
+.ennu-sun-icon,
+.ennu-moon-icon {
+	transition: none;
+}
+
+/* ===== LIGHT MODE SPECIFIC IMPROVEMENTS ===== */
+[data-theme="light"] .ennu-life-score-center .main-score-value {
+	color: #1e293b !important;
+	text-shadow: none !important;
+	background: transparent;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: #565e68;
+	background-clip: unset;
+	font-weight: 900;
+}
+
+[data-theme="light"] .ennu-life-score-center .main-score-label {
+	color: #08140a !important;
+	font-weight: 700;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .assessment-title {
+	color: #1e293b !important;
+	font-weight: 600;
+}
+
+[data-theme="light"] .goal-pill {
+	background: linear-gradient(
+		45deg,
+		#10b981 5%,
+		#ffffff 10%,
+		#10b981 30%,
+		#059669 50%,
+		#10b981 70%,
+		#ffffff 80%,
+		#059669 95%
+	);
+	border: 2px solid #e2e8f0;
+	color: #1e293b;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	--goal-pill-color: #059669;
+	--goal-pill-glow: rgba(5, 150, 105, 0.4);
+	--goal-pill-shine: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="light"] .goal-pill:hover {
+	background: linear-gradient(
+		45deg,
+		#059669 5%,
+		#ffffff 10%,
+		#10b981 30%,
+		#059669 50%,
+		#10b981 70%,
+		#ffffff 80%,
+		#059669 95%
+	);
+	border-color: #cbd5e1;
+	box-shadow: 
+		0 0 0 2px rgba(16, 185, 129, 0.3),
+		0 0 20px rgba(16, 185, 129, 0.15),
+		0 0 40px rgba(16, 185, 129, 0.08),
+		0 8px 25px rgba(0, 0, 0, 0.1),
+		inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .goal-pill.selected {
+	background: linear-gradient(
+		45deg,
+		#059669 5%,
+		#ffffff 10%,
+		#10b981 30%,
+		#059669 50%,
+		#10b981 70%,
+		#ffffff 80%,
+		#059669 95%
+	);
+	border-color: #10b981;
+	color: #ffffff;
+	box-shadow: 
+		0 0 0 1px rgba(16, 185, 129, 0.2),
+		0 0 15px rgba(16, 185, 129, 0.1),
+		0 0 30px rgba(16, 185, 129, 0.05),
+		0 4px 20px rgba(0, 0, 0, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="light"] .goal-pill.selected .goal-pill-text {
+	color: #ffffff;
+}
+
+[data-theme="light"] .goal-pill-icon svg {
+	color: #64748b;
+}
+
+[data-theme="light"] .goal-pill.selected .goal-pill-icon svg {
+	color: #ffffff;
+}
+
+[data-theme="light"] .goals-boost-indicator {
+	background: rgba(16, 185, 129, 0.1);
+	border: 1px solid rgba(16, 185, 129, 0.2);
+	color: #059669;
+}
+
+[data-theme="light"] .goals-boost-indicator svg {
+	color: #10b981;
+}
+
+[data-theme="light"] .contextual-text {
+	color: #1e293b !important;
+	background: transparent;
+	border: none !important;
+	box-shadow: none !important;
+	text-shadow: none !important;
+	font-weight: 500;
+}
+
+[data-theme="light"] .pillar-orb:hover .contextual-text {
+	background: rgba(255, 255, 255, 0.98) !important;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="light"] .vital-stats-display {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .vital-stat-item {
+	background: rgba(255, 255, 255, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .vital-stat-item:hover {
+	background: rgba(255, 255, 255, 0.9);
+	border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="light"] .vital-stat-value {
+	color: #1e293b;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+	.ennu-theme-toggle,
+	.theme-toggle-container {
+		top: 15px;
+		right: 15px;
+	}
+	
+	.ennu-theme-btn {
+		width: 45px;
+		height: 45px;
+	}
+	
+	.ennu-theme-icon {
+		width: 20px;
+		height: 20px;
+	}
+	
+	.theme-toggle {
+		width: 50px;
+		height: 25px;
+	}
+	
+	.toggle-thumb {
+		width: 21px;
+		height: 21px;
+	}
+	
+	[data-theme="light"] .toggle-thumb {
+		transform: translateX(25px);
+	}
+	
+	.toggle-icon {
+		width: 12px;
+		height: 12px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-theme-toggle,
+	.theme-toggle-container {
+		top: 10px;
+		right: 10px;
+	}
+	
+	.ennu-theme-btn {
+		width: 40px;
+		height: 40px;
+	}
+	
+	.ennu-theme-icon {
+		width: 18px;
+		height: 18px;
+	}
+	
+	.theme-toggle {
+		width: 45px;
+		height: 22px;
+	}
+	
+	.toggle-thumb {
+		width: 18px;
+		height: 18px;
+	}
+	
+	[data-theme="light"] .toggle-thumb {
+		transform: translateX(23px);
+	}
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+	}
+	
+	.ennu-theme-btn,
+	.theme-toggle,
+	.toggle-thumb {
+		transition: none !important;
+	}
+}
+
+@media (prefers-contrast: high) {
+	:root {
+		--border-color: #ffffff;
+		--text-light: #ffffff;
+		--text-dark: #ffffff;
+		--card-bg: #000000;
+	}
+	
+	[data-theme="light"] {
+		--border-color: #000000;
+		--text-light: #000000;
+		--text-dark: #000000;
+		--card-bg: #ffffff;
+	}
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+	.ennu-theme-toggle,
+	.theme-toggle-container {
+		display: none !important;
+	}
+	
+	* {
+		background: #ffffff !important;
+		color: #000000 !important;
+		box-shadow: none !important;
+	}
+}
+
+/* ===== FOCUS INDICATORS ===== */
+.ennu-theme-btn:focus-visible,
+.theme-toggle:focus-visible {
+	outline: 2px solid var(--accent-primary);
+	outline-offset: 2px;
+}
+
+/* ===== LOADING STATES ===== */
+.theme-toggle.loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.theme-toggle.loading .toggle-thumb {
+	animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* ===== THEME CHANGE ANIMATION ===== */
+.theme-change-transition {
+	transition: all var(--transition-slow);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.theme-dark {
+	--theme-override: dark;
+}
+
+.theme-light {
+	--theme-override: light;
+}
+
+[data-theme="auto"] {
+	/* Auto theme will use system preference */
+}
+
+/* ===== DEBUG MODE ===== */
+.theme-debug {
+	outline: 2px solid red !important;
+}
+
+.theme-debug::before {
+	content: attr(data-theme);
+	position: absolute;
+	top: -20px;
+	left: 0;
+	background: red;
+	color: white;
+	padding: 2px 4px;
+	font-size: 10px;
+	z-index: 9999;
+} 

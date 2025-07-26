@@ -1,0 +1,492 @@
+/**
+ * ENNU Life User CSV Import Styles
+ * Frontend styles for user biomarker import shortcode
+ */
+
+.ennu-user-csv-import-container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 30px;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.ennu-import-header {
+	text-align: center;
+	margin-bottom: 30px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #f0f0f0;
+}
+
+.ennu-import-header h2 {
+	color: #2c3e50;
+	font-size: 2em;
+	margin: 0 0 10px 0;
+	font-weight: 600;
+}
+
+.ennu-import-header p {
+	color: #7f8c8d;
+	font-size: 1.1em;
+	margin: 0;
+}
+
+.ennu-user-info {
+	background: #f8f9fa;
+	padding: 20px;
+	border-radius: 8px;
+	margin-bottom: 25px;
+	border-left: 4px solid #3498db;
+}
+
+.ennu-user-info p {
+	margin: 5px 0;
+	color: #2c3e50;
+}
+
+.ennu-user-info strong {
+	color: #34495e;
+}
+
+.ennu-import-instructions {
+	background: #e8f4fd;
+	border: 1px solid #bee5eb;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 25px;
+}
+
+.ennu-import-instructions h3 {
+	color: #0c5460;
+	margin: 0 0 15px 0;
+	font-size: 1.3em;
+}
+
+.ennu-import-instructions ol {
+	margin: 0;
+	padding-left: 20px;
+	color: #0c5460;
+}
+
+.ennu-import-instructions li {
+	margin-bottom: 8px;
+	line-height: 1.5;
+}
+
+#ennu-user-csv-import-form {
+	margin-bottom: 30px;
+}
+
+.ennu-form-group {
+	margin-bottom: 20px;
+}
+
+.ennu-form-group label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	color: #2c3e50;
+	font-size: 1em;
+}
+
+.ennu-form-group input[type="file"] {
+	width: 100%;
+	padding: 15px;
+	border: 2px dashed #ddd;
+	border-radius: 8px;
+	background: #fafafa;
+	transition: all 0.3s ease;
+	font-size: 14px;
+}
+
+.ennu-form-group input[type="file"]:hover {
+	border-color: #3498db;
+	background: #f0f8ff;
+}
+
+.ennu-form-group input[type="file"]:focus {
+	outline: none;
+	border-color: #3498db;
+	box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.ennu-form-group small {
+	display: block;
+	margin-top: 5px;
+	color: #7f8c8d;
+	font-size: 0.9em;
+}
+
+.ennu-checkbox-label {
+	display: flex !important;
+	align-items: center;
+	margin-bottom: 15px;
+	font-weight: 500 !important;
+	color: #2c3e50;
+	cursor: pointer;
+}
+
+.ennu-checkbox-label input[type="checkbox"] {
+	margin-right: 10px;
+	transform: scale(1.2);
+}
+
+.ennu-form-actions {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-top: 25px;
+}
+
+.ennu-import-btn {
+	background: linear-gradient(135deg, #3498db, #2980b9);
+	color: white;
+	padding: 15px 30px;
+	border: none;
+	border-radius: 8px;
+	font-size: 1.1em;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.ennu-import-btn:hover {
+	background: linear-gradient(135deg, #2980b9, #1f5f8b);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+}
+
+.ennu-import-btn:disabled {
+	background: #bdc3c7;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.ennu-spinner {
+	width: 20px;
+	height: 20px;
+	border: 2px solid #f3f3f3;
+	border-top: 2px solid #3498db;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* Import Results */
+#ennu-user-import-results {
+	margin-top: 30px;
+	padding: 25px;
+	border-radius: 8px;
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+}
+
+#ennu-user-import-results h3 {
+	margin: 0 0 20px 0;
+	color: #2c3e50;
+	font-size: 1.4em;
+}
+
+#ennu-user-import-summary {
+	margin-bottom: 20px;
+	padding: 15px;
+	border-radius: 6px;
+	font-weight: 500;
+}
+
+#ennu-user-import-summary.success {
+	background: #d4edda;
+	border: 1px solid #c3e6cb;
+	color: #155724;
+}
+
+#ennu-user-import-summary.error {
+	background: #f8d7da;
+	border: 1px solid #f5c6cb;
+	color: #721c24;
+}
+
+#ennu-user-import-details {
+	font-size: 0.95em;
+}
+
+.import-detail-section {
+	margin-bottom: 15px;
+}
+
+.import-detail-section h4 {
+	margin: 0 0 10px 0;
+	color: #495057;
+	font-size: 1.1em;
+}
+
+.import-detail-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.import-detail-list li {
+	padding: 6px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.import-detail-list li:last-child {
+	border-bottom: none;
+}
+
+.import-detail-list .error {
+	color: #dc3545;
+}
+
+.import-detail-list .warning {
+	color: #856404;
+}
+
+.import-detail-list .success {
+	color: #155724;
+}
+
+/* Sample Section */
+.ennu-sample-section {
+	margin-top: 30px;
+	padding: 25px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
+}
+
+.ennu-sample-section h3 {
+	margin: 0 0 15px 0;
+	color: #2c3e50;
+	font-size: 1.3em;
+}
+
+.ennu-sample-csv {
+	background: #2c3e50;
+	color: #ecf0f1;
+	padding: 20px;
+	border-radius: 6px;
+	margin: 15px 0;
+	overflow-x: auto;
+}
+
+.ennu-sample-csv pre {
+	margin: 0;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+	line-height: 1.4;
+}
+
+.ennu-download-sample {
+	display: inline-block;
+	background: #27ae60;
+	color: white;
+	padding: 10px 20px;
+	text-decoration: none;
+	border-radius: 6px;
+	font-weight: 500;
+	transition: background 0.3s ease;
+}
+
+.ennu-download-sample:hover {
+	background: #229954;
+	color: white;
+	text-decoration: none;
+}
+
+/* Supported Biomarkers */
+.ennu-supported-biomarkers {
+	margin-top: 30px;
+	padding: 25px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
+}
+
+.ennu-supported-biomarkers h3 {
+	margin: 0 0 15px 0;
+	color: #2c3e50;
+	font-size: 1.3em;
+}
+
+.ennu-supported-biomarkers p {
+	margin: 0 0 15px 0;
+	color: #7f8c8d;
+}
+
+.ennu-biomarker-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ennu-biomarker-tag {
+	background: #3498db;
+	color: white;
+	padding: 6px 12px;
+	border-radius: 20px;
+	font-size: 0.85em;
+	font-weight: 500;
+}
+
+/* Login Message */
+.ennu-login-message {
+	text-align: center;
+	padding: 40px 20px;
+}
+
+.ennu-login-message h2 {
+	color: #2c3e50;
+	margin: 0 0 15px 0;
+	font-size: 1.8em;
+}
+
+.ennu-login-message p {
+	color: #7f8c8d;
+	margin: 0 0 25px 0;
+	font-size: 1.1em;
+}
+
+.ennu-login-actions {
+	display: flex;
+	gap: 15px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.ennu-btn {
+	display: inline-block;
+	padding: 12px 24px;
+	text-decoration: none;
+	border-radius: 6px;
+	font-weight: 600;
+	transition: all 0.3s ease;
+}
+
+.ennu-btn-primary {
+	background: #3498db;
+	color: white;
+}
+
+.ennu-btn-primary:hover {
+	background: #2980b9;
+	color: white;
+	text-decoration: none;
+}
+
+.ennu-btn-secondary {
+	background: #95a5a6;
+	color: white;
+}
+
+.ennu-btn-secondary:hover {
+	background: #7f8c8d;
+	color: white;
+	text-decoration: none;
+}
+
+/* Loading States */
+.ennu-import-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.ennu-import-loading .ennu-spinner {
+	display: block !important;
+}
+
+/* Success Animation */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+#ennu-user-import-results {
+	animation: fadeInUp 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.ennu-user-csv-import-container {
+		padding: 20px;
+		margin: 10px;
+	}
+	
+	.ennu-import-header h2 {
+		font-size: 1.6em;
+	}
+	
+	.ennu-form-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	
+	.ennu-import-btn {
+		width: 100%;
+	}
+	
+	.ennu-login-actions {
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.ennu-biomarker-list {
+		justify-content: center;
+	}
+}
+
+/* Drag and Drop States */
+.ennu-drag-over input[type="file"] {
+	border-color: #3498db;
+	background-color: #f0f8ff;
+}
+
+/* File Upload Progress */
+.ennu-upload-progress {
+	width: 100%;
+	height: 4px;
+	background: #f0f0f0;
+	border-radius: 2px;
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+.ennu-upload-progress-bar {
+	height: 100%;
+	background: #3498db;
+	width: 0%;
+	transition: width 0.3s ease;
+}
+
+/* Error States */
+.ennu-form-group.error input[type="file"] {
+	border-color: #e74c3c;
+	background: #fdf2f2;
+}
+
+.ennu-error-message {
+	color: #e74c3c;
+	font-size: 0.9em;
+	margin-top: 5px;
+}
+
+/* Success States */
+.ennu-form-group.success input[type="file"] {
+	border-color: #27ae60;
+	background: #f2fdf2;
+} 

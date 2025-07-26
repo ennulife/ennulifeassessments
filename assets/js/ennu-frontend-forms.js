@@ -88,7 +88,7 @@ class ENNUAssessmentForm {
 
         // DOB calculation
         this.form.addEventListener('change', (e) => {
-            if (['dob_day', 'dob_month', 'dob_year'].includes(e.target.name)) {
+            if (['ennu_global_date_of_birth_day', 'ennu_global_date_of_birth_month', 'ennu_global_date_of_birth_year'].includes(e.target.name)) {
                 this.calculateAge();
             }
         });
@@ -242,10 +242,10 @@ class ENNUAssessmentForm {
     }
 
     calculateAge() {
-        const day = this.form.querySelector('select[name="dob_day"]')?.value;
-        const month = this.form.querySelector('select[name="dob_month"]')?.value;
-        const year = this.form.querySelector('select[name="dob_year"]')?.value;
-        const ageDisplay = this.form.querySelector('.age-display');
+        const day = this.form.querySelector('select[name="ennu_global_date_of_birth_day"]')?.value;
+        const month = this.form.querySelector('select[name="ennu_global_date_of_birth_month"]')?.value;
+        const year = this.form.querySelector('select[name="ennu_global_date_of_birth_year"]')?.value;
+        const ageDisplay = this.form.querySelector('.calculated-age-display');
 
         if (day && month && year) {
             const birthDate = new Date(year, month - 1, day);
@@ -268,10 +268,10 @@ class ENNUAssessmentForm {
     }
 
     combineDOB() {
-        const year = this.form.querySelector('select[name="dob_year"]')?.value;
-        const month = this.form.querySelector('select[name="dob_month"]')?.value;
-        const day = this.form.querySelector('select[name="dob_day"]')?.value;
-        const combinedField = this.form.querySelector('input[name="dob_combined"]');
+        const year = this.form.querySelector('select[name="ennu_global_date_of_birth_year"]')?.value;
+        const month = this.form.querySelector('select[name="ennu_global_date_of_birth_month"]')?.value;
+        const day = this.form.querySelector('select[name="ennu_global_date_of_birth_day"]')?.value;
+        const combinedField = this.form.querySelector('input[name="ennu_global_date_of_birth"]');
 
         if (month && day && year && combinedField) {
             const dobString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;

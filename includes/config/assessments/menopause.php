@@ -5,7 +5,7 @@
  * Evidence-based endocrinology implementation
  *
  * @package ENNU_Life
- * @version 62.3.2
+ * @version 62.11.0
  */
 
 return array(
@@ -13,30 +13,25 @@ return array(
 	'assessment_engine' => 'quantitative',
 	'gender_filter'     => 'female',
 	'questions'         => array(
-		'menopause_q_age' => array(
-			'title'    => 'What is your age?',
-			'type'     => 'radio',
-			'options'  => array(
-				'under_35' => 'Under 35',
-				'35_40'    => '35-40',
-				'41_45'    => '41-45',
-				'46_50'    => '46-50',
-				'51_55'    => '51-55',
-				'over_55'  => 'Over 55',
-			),
-			'scoring'  => array(
+		'menopause_q_dob' => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
+			'scoring'    => array(
 				'category' => 'Age Factors',
 				'weight'   => 1.5,
-				'answers'  => array(
-					'under_35' => 8,
-					'35_40'    => 7,
-					'41_45'    => 6,
-					'46_50'    => 5,
-					'51_55'    => 4,
-					'over_55'  => 3,
+				'calculation' => 'age_from_dob',
+				'age_scores' => array(
+					'18-25' => 8,
+					'26-35' => 7,
+					'36-45' => 6,
+					'46-55' => 5,
+					'56-65' => 4,
+					'66-75' => 3,
+					'76+'   => 2,
 				),
 			),
-			'required' => true,
 		),
 		'menopause_q1'    => array(
 			'title'    => 'Which of the following menopausal symptoms are you experiencing?',

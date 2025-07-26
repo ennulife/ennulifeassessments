@@ -57,20 +57,26 @@ class ENNU_Biomarker_Flag_Manager {
 	 *
 	 * @param int $user_id User ID
 	 * @param string $biomarker_name Biomarker name
-	 * @param string $flag_type Flag type (manual, auto_flagged, critical)
+	 * @param string $flag_type Flag type (manual, auto_flagged, critical, symptom_triggered)
 	 * @param string $reason Reason for flagging
 	 * @param int $flagged_by User ID of person who flagged (optional)
+	 * @param string $assessment_source Assessment that triggered the flag (optional)
+	 * @param string $symptom_trigger Symptom that triggered the flag (optional)
 	 * @return bool Success status
 	 */
-	public function flag_biomarker( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null ) {
+	public function flag_biomarker( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null, $assessment_source = '', $symptom_trigger = '' ) {
+		error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+		
 		$flag_data = array(
-			'user_id'        => $user_id,
-			'biomarker_name' => $biomarker_name,
-			'flag_type'      => $flag_type,
-			'reason'         => $reason,
-			'flagged_by'     => $flagged_by ?: get_current_user_id(),
-			'flagged_at'     => current_time( 'mysql' ),
-			'status'         => 'active',
+			'user_id'            => $user_id,
+			'biomarker_name'     => $biomarker_name,
+			'flag_type'          => $flag_type,
+			'reason'             => $reason,
+			'flagged_by'         => $flagged_by ?: get_current_user_id(),
+			'flagged_at'         => current_time( 'mysql' ),
+			'status'             => 'active',
+			'assessment_source'  => $assessment_source,
+			'symptom_trigger'    => $symptom_trigger,
 		);
 
 		$existing_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
@@ -81,11 +87,18 @@ class ENNU_Biomarker_Flag_Manager {
 		$flag_id                    = $biomarker_name . '_' . time();
 		$existing_flags[ $flag_id ] = $flag_data;
 
+		error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
+
 		$success = update_user_meta( $user_id, 'ennu_biomarker_flags', $existing_flags );
+
+		error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
 
 		if ( $success ) {
 			$this->log_flag_action( $user_id, $biomarker_name, 'flagged', $flag_data );
 			do_action( 'ennu_biomarker_flagged', $user_id, $biomarker_name, $flag_data );
+			error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
+		} else {
+			error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		}
 
 		return $success;
@@ -130,11 +143,41 @@ class ENNU_Biomarker_Flag_Manager {
 	}
 
 	/**
+	 * Get biomarker flags for a specific biomarker
+	 *
+	 * @param int $user_id User ID
+	 * @param string $biomarker_name Biomarker name
+	 * @return array Array of flags for the biomarker
+	 */
+	public function get_biomarker_flags( $user_id, $biomarker_name ) {
+		$all_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
+		
+		if ( empty( $all_flags ) || ! is_array( $all_flags ) ) {
+			return array();
+		}
+
+		$biomarker_flags = array();
+		foreach ( $all_flags as $flag_id => $flag_data ) {
+			if ( isset( $flag_data['biomarker_name'] ) && $flag_data['biomarker_name'] === $biomarker_name ) {
+				if ( isset( $flag_data['status'] ) && $flag_data['status'] === 'active' ) {
+					$biomarker_flags[] = array(
+						'type' => $flag_data['flag_type'],
+						'reason' => $flag_data['reason'],
+						'flagged_at' => $flag_data['flagged_at']
+					);
+				}
+			}
+		}
+
+		return $biomarker_flags;
+	}
+
+	/**
 	 * Get flagged biomarkers for a user
 	 *
 	 * @param int $user_id User ID
-	 * @param string $status Flag status (active, removed, all)
-	 * @return array Flagged biomarkers
+	 * @param string $status Flag status (active, resolved, all)
+	 * @return array Array of flagged biomarkers
 	 */
 	public function get_flagged_biomarkers( $user_id, $status = 'active' ) {
 		$all_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
@@ -150,6 +193,61 @@ class ENNU_Biomarker_Flag_Manager {
 		}
 
 		return $filtered_flags;
+	}
+
+	/**
+	 * Get flagged biomarkers grouped by assessment source
+	 *
+	 * @param int $user_id User ID
+	 * @param string $status Flag status (active, resolved, all)
+	 * @return array Array of flagged biomarkers grouped by assessment
+	 */
+	public function get_flagged_biomarkers_by_assessment( $user_id, $status = 'active' ) {
+		$all_flags = $this->get_flagged_biomarkers( $user_id, $status );
+		
+		$grouped_flags = array();
+		
+		foreach ( $all_flags as $flag_id => $flag_data ) {
+			$assessment_source = $flag_data['assessment_source'] ?? 'Unknown Assessment';
+			
+			// Clean up assessment source name for display
+			$assessment_display_name = $this->get_assessment_display_name( $assessment_source );
+			
+			if ( ! isset( $grouped_flags[ $assessment_display_name ] ) ) {
+				$grouped_flags[ $assessment_display_name ] = array();
+			}
+			
+			$grouped_flags[ $assessment_display_name ][ $flag_id ] = $flag_data;
+		}
+		
+		return $grouped_flags;
+	}
+
+	/**
+	 * Get assessment display name from assessment source
+	 *
+	 * @param string $assessment_source Assessment source identifier
+	 * @return string Human-readable assessment name
+	 */
+	private function get_assessment_display_name( $assessment_source ) {
+		$assessment_names = array(
+			'health_optimization_assessment' => 'Health Optimization Assessment',
+			'testosterone_assessment' => 'Testosterone Assessment',
+			'hormone_assessment' => 'Hormone Assessment',
+			'menopause_assessment' => 'Menopause Assessment',
+			'ed_treatment_assessment' => 'ED Treatment Assessment',
+			'skin_assessment' => 'Skin Assessment',
+			'hair_assessment' => 'Hair Assessment',
+			'sleep_assessment' => 'Sleep Assessment',
+			'weight_loss_assessment' => 'Weight Loss Assessment',
+			'welcome_assessment' => 'Welcome Assessment',
+			'auto_flagged' => 'Lab Results Analysis',
+			'manual' => 'Manual Flag',
+			'critical' => 'Critical Alert',
+			'' => 'Unknown Assessment',
+		);
+		
+		return $assessment_names[ $assessment_source ] ?? ucwords( str_replace( '_', ' ', $assessment_source ) );
 	}
 
 	/**

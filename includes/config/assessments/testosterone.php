@@ -5,35 +5,32 @@
  * Evidence-based endocrinology implementation
  *
  * @package ENNU_Life
- * @version 62.3.2
+ * @version 62.11.0
  */
 
 return array(
 	'title'             => 'Testosterone Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'testosterone_q_age' => array(
-			'title'    => 'What is your age?',
-			'type'     => 'radio',
-			'options'  => array(
-				'under_25' => 'Under 25',
-				'25_35'    => '25-35',
-				'36_45'    => '36-45',
-				'46_55'    => '46-55',
-				'over_55'  => 'Over 55',
-			),
-			'scoring'  => array(
+		'testosterone_q_dob' => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
+			'scoring'    => array(
 				'category' => 'Age Factors',
 				'weight'   => 1.5,
-				'answers'  => array(
-					'under_25' => 8,
-					'25_35'    => 7,
-					'36_45'    => 6,
-					'46_55'    => 4,
-					'over_55'  => 3,
+				'calculation' => 'age_from_dob',
+				'age_scores' => array(
+					'18-25' => 8,
+					'26-35' => 7,
+					'36-45' => 6,
+					'46-55' => 4,
+					'56-65' => 3,
+					'66-75' => 2,
+					'76+'   => 1,
 				),
 			),
-			'required' => true,
 		),
 		'testosterone_q1'    => array(
 			'title'    => 'Which of the following symptoms, often associated with low testosterone, are you experiencing?',

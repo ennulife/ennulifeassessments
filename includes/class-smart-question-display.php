@@ -27,6 +27,8 @@ class ENNU_Smart_Question_Display {
 	 * Enqueue smart question display scripts
 	 */
 	public static function enqueue_scripts() {
+		// Commented out - file doesn't exist
+		/*
 		wp_enqueue_script(
 			'ennu-smart-question-display',
 			plugin_dir_url( __FILE__ ) . '../assets/js/smart-question-display.js',
@@ -51,6 +53,7 @@ class ENNU_Smart_Question_Display {
 				),
 			)
 		);
+		*/
 	}
 
 	/**

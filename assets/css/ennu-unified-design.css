@@ -70,30 +70,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	color: var(--text-dark);
 }
 
-/* ===== STARFIELD ANIMATION ===== */
-.starfield {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-image: 
-		radial-gradient(2px 2px at 20px 30px, var(--star-color-1), transparent),
-		radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-		radial-gradient(1px 1px at 90px 40px, var(--star-color-1), transparent),
-		radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
-		radial-gradient(2px 2px at 160px 100px, var(--star-color-2), transparent);
-	background-repeat: repeat;
-	background-size: 200px 100px;
-	animation: sparkle 20s linear infinite;
-	z-index: 1;
-	pointer-events: none;
-}
 
-@keyframes sparkle {
-	from { transform: translateY(0px); }
-	to { transform: translateY(-100px); }
-}
 
 /* ===== GRID LAYOUTS ===== */
 .ennu-grid {
@@ -606,9 +583,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 		transition: none;
 	}
 	
-	.starfield {
-		animation: none;
-	}
+
 }
 
 /* ===== HIGH CONTRAST MODE ===== */
@@ -623,9 +598,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 
 /* ===== PRINT STYLES ===== */
 @media print {
-	.starfield {
-		display: none;
-	}
+
 	
 	.ennu-unified-container {
 		background: #ffffff;
@@ -893,3 +866,273 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	margin: 30px 0;
 	box-shadow: 0 2px 12px rgba(239, 68, 68, 0.08);
 } 
+
+/* ===== TRANSIENT STATE & DEBUG MESSAGES STYLING ===== */
+/* Comprehensive styling for any transient state or debug messages */
+
+/* Transient State Container */
+.transient-state-container,
+.results-transient-state,
+.debug-transient-state {
+	background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.05) 100%);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-6);
+	margin: var(--spacing-4) 0;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Transient State Header */
+.transient-state-header,
+.results-transient-state h1,
+.results-transient-state h2,
+.results-transient-state h3 {
+	color: var(--text-primary);
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-bottom: var(--spacing-4);
+	text-align: center;
+	background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+/* Transient State Content */
+.transient-state-content,
+.results-transient-state p,
+.results-transient-state div {
+	color: var(--text-light);
+	font-size: 1rem;
+	line-height: 1.6;
+	margin-bottom: var(--spacing-3);
+	text-align: center;
+}
+
+/* Transient State Status */
+.transient-state-status {
+	display: inline-block;
+	background: rgba(16, 185, 129, 0.1);
+	color: #10b981;
+	padding: 0.5rem 1rem;
+	border-radius: var(--rounded-md);
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: var(--spacing-2) 0;
+	border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Transient State Error */
+.transient-state-error {
+	background: rgba(239, 68, 68, 0.1);
+	color: #ef4444;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Transient State Warning */
+.transient-state-warning {
+	background: rgba(245, 158, 11, 0.1);
+	color: #f59e0b;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Transient State Loading */
+.transient-state-loading {
+	background: rgba(59, 130, 246, 0.1);
+	color: #3b82f6;
+	border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Transient State Icon */
+.transient-state-icon {
+	font-size: 2rem;
+	margin-bottom: var(--spacing-3);
+	text-align: center;
+}
+
+.transient-state-icon.success {
+	color: #10b981;
+}
+
+.transient-state-icon.error {
+	color: #ef4444;
+}
+
+.transient-state-icon.warning {
+	color: #f59e0b;
+}
+
+.transient-state-icon.loading {
+	color: #3b82f6;
+	animation: pulse 2s infinite;
+}
+
+/* Transient State Actions */
+.transient-state-actions {
+	display: flex;
+	justify-content: center;
+	gap: var(--spacing-3);
+	margin-top: var(--spacing-4);
+	flex-wrap: wrap;
+}
+
+.transient-state-actions .btn {
+	background: var(--accent-primary);
+	color: #fff;
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--rounded-md);
+	text-decoration: none;
+	font-weight: 600;
+	transition: all 0.2s ease;
+	border: none;
+	cursor: pointer;
+	font-size: 0.875rem;
+}
+
+.transient-state-actions .btn:hover {
+	background: var(--accent-secondary);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.transient-state-actions .btn-secondary {
+	background: var(--card-bg);
+	color: var(--text-light);
+	border: 1px solid var(--border-color);
+}
+
+.transient-state-actions .btn-secondary:hover {
+	background: var(--border-color);
+	color: var(--text-primary);
+}
+
+/* Transient State Progress */
+.transient-state-progress {
+	width: 100%;
+	height: 4px;
+	background: var(--border-color);
+	border-radius: 2px;
+	margin: var(--spacing-3) 0;
+	overflow: hidden;
+}
+
+.transient-state-progress-bar {
+	height: 100%;
+	background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+	border-radius: 2px;
+	transition: width 0.3s ease;
+	animation: progress-pulse 2s infinite;
+}
+
+/* Transient State Grid */
+.transient-state-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--spacing-4);
+	margin: var(--spacing-4) 0;
+}
+
+.transient-state-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-4);
+	text-align: center;
+	transition: all 0.2s ease;
+}
+
+.transient-state-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Transient State Responsive */
+@media (max-width: 768px) {
+	.transient-state-container,
+	.results-transient-state,
+	.debug-transient-state {
+		padding: var(--spacing-4);
+		margin: var(--spacing-2) 0;
+	}
+	
+	.transient-state-header,
+	.results-transient-state h1,
+	.results-transient-state h2,
+	.results-transient-state h3 {
+		font-size: 1.25rem;
+	}
+	
+	.transient-state-actions {
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.transient-state-actions .btn {
+		width: 100%;
+		max-width: 300px;
+	}
+	
+	.transient-state-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Transient State Animations */
+@keyframes progress-pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* Transient State Dark Mode Enhancements */
+[data-theme="dark"] .transient-state-container,
+[data-theme="dark"] .results-transient-state,
+[data-theme="dark"] .debug-transient-state {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .transient-state-card {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Transient State Focus States */
+.transient-state-container:focus-within,
+.results-transient-state:focus-within,
+.debug-transient-state:focus-within {
+	outline: 2px solid var(--accent-primary);
+	outline-offset: 2px;
+}
+
+/* Transient State Print Styles */
+@media print {
+	.transient-state-container,
+	.results-transient-state,
+	.debug-transient-state {
+		background: white;
+		border: 1px solid #ccc;
+		color: black;
+		box-shadow: none;
+	}
+	
+	.transient-state-actions {
+		display: none;
+	}
+}
+
+/* ===== END TRANSIENT STATE STYLING ===== */ 

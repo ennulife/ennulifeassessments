@@ -12,18 +12,18 @@
 return array(
 	// Energy & Fatigue
 	'Fatigue'                     => array(
-		'Testosterone',
-		'Vitamin D',
-		'Vitamin B12',
-		'Iron',
-		'Ferritin',
-		'Cortisol',
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'Glucose',
-		'HbA1c',
-		'Insulin',
+		// Core Energy Biomarkers
+		'ferritin', 'vitamin_d', 'vitamin_b12', 'cortisol', 'tsh', 'free_t3', 'free_t4',
+		// Physical Indicators
+		'weight', 'bmi', 'body_fat_percent',
+		// Advanced Energy
+		'coq10', 'nad', 'folate',
+		// Toxicity Impact
+		'arsenic', 'lead', 'mercury', 'heavy_metals_panel',
+		// Metabolic Health
+		'glucose', 'hba1c', 'insulin',
+		// Cardiovascular Impact
+		'blood_pressure', 'heart_rate'
 	),
 
 	// Mental Health
@@ -54,29 +54,25 @@ return array(
 	),
 
 	'Brain Fog'                   => array(
-		'Vitamin B12',
-		'Vitamin D',
-		'Homocysteine',
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'Cortisol',
-		'Iron',
-		'Ferritin',
-		'Glucose',
-		'HbA1c',
+		// Brain Health Markers
+		'apoe_genotype', 'ptau_217', 'beta_amyloid_ratio', 'gfap',
+		// Cognitive Support
+		'vitamin_b12', 'vitamin_d', 'homocysteine', 'tsh', 'free_t3', 'free_t4',
+		// Energy for Brain
+		'ferritin', 'coq10', 'heavy_metals_panel',
+		// Metabolic Impact
+		'glucose', 'hba1c', 'cortisol'
 	),
 
 	'Memory Problems'             => array(
-		'Vitamin B12',
-		'Vitamin D',
-		'Homocysteine',
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'ApoE Genotype',
-		'Glucose',
-		'HbA1c',
+		// Brain Health Markers
+		'apoe_genotype', 'ptau_217', 'beta_amyloid_ratio', 'gfap',
+		// Cognitive Support
+		'vitamin_b12', 'vitamin_d', 'homocysteine', 'tsh', 'free_t3', 'free_t4',
+		// Energy for Brain
+		'ferritin', 'coq10', 'folate',
+		// Metabolic Impact
+		'glucose', 'hba1c'
 	),
 
 	// Sexual Health
@@ -110,55 +106,51 @@ return array(
 
 	// Weight & Metabolism
 	'Weight Gain'                 => array(
-		'Testosterone',
-		'Cortisol',
-		'Insulin',
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'Glucose',
-		'HbA1c',
-		'Leptin',
-		'Adiponectin',
+		// Physical Measurements
+		'weight', 'bmi', 'body_fat_percent', 'waist_measurement', 'neck_measurement',
+		// Metabolic Health
+		'insulin', 'fasting_insulin', 'homa_ir', 'glucose', 'hba1c', 'glycomark', 'uric_acid',
+		// Weight Regulation
+		'leptin', 'ghrelin', 'adiponectin', 'one_five_ag',
+		// Hormonal Impact
+		'testosterone_free', 'testosterone_total', 'cortisol', 'tsh', 'free_t3', 'free_t4'
 	),
 
 	'Abdominal Fat Gain'          => array(
-		'Testosterone',
-		'Cortisol',
-		'Insulin',
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'Glucose',
-		'HbA1c',
-		'Leptin',
-		'Adiponectin',
-		'CRP',
+		// Physical Measurements
+		'weight', 'bmi', 'body_fat_percent', 'waist_measurement', 'neck_measurement',
+		// Metabolic Health
+		'insulin', 'fasting_insulin', 'homa_ir', 'glucose', 'hba1c', 'glycomark', 'uric_acid',
+		// Weight Regulation
+		'leptin', 'ghrelin', 'adiponectin', 'one_five_ag',
+		// Hormonal Impact
+		'testosterone_free', 'testosterone_total', 'cortisol', 'tsh', 'free_t3', 'free_t4',
+		// Inflammation
+		'hs_crp'
 	),
 
 	'Slow Metabolism'             => array(
-		'TSH',
-		'Free T3',
-		'Free T4',
-		'Testosterone',
-		'Cortisol',
-		'Insulin',
-		'Leptin',
-		'Adiponectin',
-		'Vitamin D',
-		'Vitamin B12',
+		// Thyroid Function
+		'tsh', 't4', 't3', 'free_t3', 'free_t4',
+		// Metabolic Health
+		'insulin', 'fasting_insulin', 'homa_ir', 'glucose', 'hba1c',
+		// Weight Regulation
+		'leptin', 'ghrelin', 'adiponectin',
+		// Hormonal Impact
+		'testosterone_free', 'testosterone_total', 'cortisol',
+		// Support Nutrients
+		'vitamin_d', 'vitamin_b12'
 	),
 
 	'Blood Glucose Dysregulation' => array(
-		'Glucose',
-		'HbA1c',
-		'Insulin',
-		'C-Peptide',
-		'Leptin',
-		'Adiponectin',
-		'Lipid Panel',
-		'CRP',
-		'Cortisol',
+		// Metabolic Health
+		'glucose', 'hba1c', 'insulin', 'fasting_insulin', 'homa_ir', 'glycomark',
+		// Weight Regulation
+		'leptin', 'ghrelin', 'adiponectin',
+		// Cardiovascular Impact
+		'cholesterol', 'triglycerides', 'hdl', 'ldl', 'hs_crp',
+		// Hormonal Impact
+		'cortisol'
 	),
 
 	// Sleep
@@ -203,55 +195,48 @@ return array(
 	),
 
 	'Muscle Weakness'             => array(
-		'Testosterone',
-		'IGF-1',
-		'Creatine Kinase',
-		'Vitamin D',
-		'B12',
-		'Iron',
-		'Protein Markers',
-		'Creatinine',
-		'TSH',
-		'Free T3',
-		'Free T4',
+		// Performance Biomarkers
+		'testosterone_free', 'testosterone_total', 'igf_1', 'creatine_kinase', 'grip_strength',
+		// Support Nutrients
+		'vitamin_d', 'vitamin_b12', 'ferritin',
+		// Thyroid Function
+		'tsh', 'free_t3', 'free_t4',
+		// Physical Indicators
+		'weight', 'bmi', 'body_fat_percent'
 	),
 
 	'Muscle Loss'                 => array(
-		'Testosterone',
-		'IGF-1',
-		'Creatine Kinase',
-		'Myostatin',
-		'Vitamin D',
-		'B12',
-		'Iron',
-		'Protein Markers',
+		// Performance Biomarkers
+		'testosterone_free', 'testosterone_total', 'igf_1', 'creatine_kinase', 'grip_strength',
+		// Support Nutrients
+		'vitamin_d', 'vitamin_b12', 'ferritin',
+		// Physical Indicators
+		'weight', 'bmi', 'body_fat_percent'
 	),
 
 	'Poor Exercise Tolerance'     => array(
-		'VO2 Max',
-		'Lactate Threshold',
-		'Hemoglobin',
-		'Iron',
-		'Ferritin',
-		'Testosterone',
-		'Cortisol',
-		'TSH',
-		'Free T3',
-		'Free T4',
+		// Performance Biomarkers
+		'igf_1', 'creatine_kinase', 'grip_strength',
+		// Energy Support
+		'ferritin', 'vitamin_d', 'vitamin_b12',
+		// Hormonal Impact
+		'testosterone_free', 'testosterone_total', 'cortisol',
+		// Thyroid Function
+		'tsh', 'free_t3', 'free_t4',
+		// Cardiovascular Health
+		'blood_pressure', 'heart_rate'
 	),
 
 	// Cardiovascular
 	'Chest Pain'                  => array(
-		'CRP',
-		'Homocysteine',
-		'Lipid Panel',
-		'ApoB',
-		'Lp(a)',
-		'Troponin',
-		'BNP',
-		'Blood Pressure',
-		'Glucose',
-		'HbA1c',
+		// Core Cardiovascular
+		'blood_pressure', 'heart_rate', 'cholesterol', 'triglycerides', 'hdl', 'ldl',
+		// Advanced Cardiovascular
+		'apob', 'hs_crp', 'homocysteine', 'lp_a', 'omega_3_index', 'tmao', 'nmr_lipoprofile',
+		// Metabolic Impact
+		'glucose', 'hba1c', 'insulin',
+		// Physical Indicators
+		'weight', 'bmi', 'body_fat_percent'
 	),
 
 	'High Blood Pressure'         => array(

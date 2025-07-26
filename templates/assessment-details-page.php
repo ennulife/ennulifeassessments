@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="ennu-unified-container">
-	<div class="starfield"></div>
+<div class="ennu-unified-container" data-theme="light">
+
 	
 	<div class="ennu-grid">
 		<!-- Sidebar -->

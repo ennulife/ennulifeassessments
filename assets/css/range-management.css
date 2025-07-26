@@ -1,0 +1,2267 @@
+/**
+ * ENNU Range Management CSS
+ * 
+ * Styles for the biomarker range management interface
+ */
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Biomarker Selector */
+.ennu-biomarker-selector {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.ennu-biomarker-select {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Range Form */
+.ennu-range-form {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ennu-form-row {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ennu-form-row label {
+    min-width: 80px;
+    font-weight: 600;
+    color: #333;
+}
+
+.ennu-form-row input[type="text"],
+.ennu-form-row input[type="number"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.ennu-form-row input[type="text"]:focus,
+.ennu-form-row input[type="number"]:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+/* Range Sections */
+.ennu-range-form h4 {
+    margin: 25px 0 15px 0;
+    padding: 10px 0;
+    border-bottom: 2px solid #0073aa;
+    color: #0073aa;
+    font-size: 16px;
+}
+
+/* Range Preview */
+.range-preview {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.range-bar {
+    position: relative;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.range-segment {
+    position: absolute;
+    height: 100%;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.range-segment.poor {
+    background: #dc3545;
+    opacity: 0.7;
+}
+
+.range-segment.suboptimal {
+    background: #ffc107;
+    opacity: 0.8;
+}
+
+.range-segment.optimal {
+    background: #28a745;
+    opacity: 0.9;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+}
+
+.range-label {
+    font-weight: 600;
+}
+
+/* Validation Tab */
+.ennu-validation-tab {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Import/Export Tab */
+.ennu-import-export-tab {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.ennu-import-section,
+.ennu-export-section {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.ennu-import-section h3,
+.ennu-export-section h3 {
+    margin-top: 0;
+    color: #0073aa;
+}
+
+/* Analytics Tab */
+.ennu-analytics-tab {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ennu-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .ennu-form-row label {
+        min-width: auto;
+    }
+    
+    .ennu-import-export-tab {
+        grid-template-columns: 1fr;
+    }
+    
+    .ennu-range-form {
+        padding: 20px;
+    }
+}
+
+/* Status Indicators */
+.ennu-status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.ennu-status-indicator.valid {
+    background: #28a745;
+}
+
+.ennu-status-indicator.warning {
+    background: #ffc107;
+}
+
+.ennu-status-indicator.error {
+    background: #dc3545;
+}
+
+/* Loading States */
+.ennu-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ennu-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error Messages */
+.ennu-message {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.ennu-message.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.ennu-message.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.ennu-message.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+/* Button Styles */
+.ennu-button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.ennu-button-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.ennu-button-secondary:hover {
+    background: #5a6268;
+    border-color: #545b62;
+}
+
+/* Form Validation Styles */
+.ennu-form-row.error input {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 1px #dc3545;
+}
+
+.ennu-form-row.error .error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Range Comparison Table */
+.ennu-range-comparison {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.ennu-range-comparison th,
+.ennu-range-comparison td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.ennu-range-comparison th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.ennu-range-comparison tr:hover {
+    background: #f8f9fa;
+}
+
+/* Evidence Source Display */
+.ennu-evidence-sources {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #0073aa;
+}
+
+.ennu-evidence-source {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.ennu-evidence-source:last-child {
+    border-bottom: none;
+}
+
+.ennu-evidence-level {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ennu-evidence-level.a {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ennu-evidence-level.b {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ennu-evidence-level.c {
+    background: #f8d7da;
+    color: #721c24;
+} 
+
+/* ========================================
+ * ENHANCED BIOMARKER RANGE MANAGEMENT UI
+ * Phase 6.2 - Professional Panel-Based Design
+ * ======================================== */
+
+/* Main Container */
+.ennu-range-management-tab {
+    max-width: 1200px;
+    margin: 20px 0;
+}
+
+/* Header Section */
+.ennu-admin-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.ennu-admin-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.ennu-admin-header .dashicons {
+    margin-right: 10px;
+    font-size: 24px;
+}
+
+.ennu-admin-description {
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Panel Selector */
+.ennu-panel-selector {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-panel-selector h3 {
+    margin: 0 0 20px 0;
+    color: #23282d;
+    font-size: 20px;
+}
+
+.ennu-panel-selector .dashicons {
+    margin-right: 8px;
+    color: #0073aa;
+}
+
+.ennu-panel-select,
+.ennu-biomarker-select {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.ennu-panel-select:focus,
+.ennu-biomarker-select:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,115,170,0.1);
+}
+
+/* Statistics Overview */
+.ennu-stats-overview {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-stats-overview h3 {
+    margin: 0 0 20px 0;
+    color: #23282d;
+    font-size: 20px;
+}
+
+.ennu-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.ennu-stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ennu-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.ennu-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0073aa;
+    margin-bottom: 5px;
+}
+
+.ennu-stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Panel Breakdown */
+.ennu-panel-breakdown {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-panel-breakdown h3 {
+    margin: 0 0 20px 0;
+    color: #23282d;
+    font-size: 20px;
+}
+
+.ennu-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.ennu-panel-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #0073aa;
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ennu-panel-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.ennu-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ennu-panel-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.ennu-panel-price {
+    background: #0073aa;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ennu-panel-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ennu-panel-count {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.ennu-panel-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Biomarker Details */
+.ennu-biomarker-details {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-biomarker-header {
+    border-bottom: 2px solid #f1f3f4;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.ennu-biomarker-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    color: #23282d;
+}
+
+.ennu-biomarker-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.ennu-unit {
+    background: #e9ecef;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.ennu-panel-badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Range Sections */
+.ennu-range-section,
+.ennu-evidence-section {
+    margin-bottom: 25px;
+}
+
+.ennu-range-section h4,
+.ennu-evidence-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #23282d;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 8px;
+}
+
+.ennu-range-grid,
+.ennu-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.ennu-range-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ennu-range-group label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+}
+
+.ennu-range-group input {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.ennu-evidence-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.ennu-evidence-item label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.ennu-confidence-score,
+.ennu-validation-status,
+.ennu-research-specialist {
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.ennu-confidence-score {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.ennu-validation-status {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ennu-research-specialist {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Form Actions */
+.ennu-form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Loading and Error States */
+.ennu-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.ennu-error {
+    color: #dc3545;
+    background: #f8d7da;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ennu-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .ennu-panel-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ennu-range-grid,
+    .ennu-evidence-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ennu-form-actions {
+        flex-direction: column;
+    }
+    
+    .ennu-biomarker-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .ennu-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ennu-admin-header {
+        padding: 20px;
+    }
+    
+    .ennu-admin-header h2 {
+        font-size: 24px;
+    }
+} 
+
+/* ========================================
+ * ACCORDION PANEL DISPLAY SYSTEM
+ * Phase 6.2 - Enhanced Panel Interface
+ * ======================================== */
+
+/* Biomarker Filter */
+.ennu-biomarker-filter {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-biomarker-filter h3 {
+    margin: 0 0 20px 0;
+    color: #23282d;
+    font-size: 20px;
+}
+
+.ennu-biomarker-filter-select {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.ennu-biomarker-filter-select:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,115,170,0.1);
+}
+
+/* Panels Accordion */
+.ennu-panels-accordion {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.ennu-panels-accordion h3 {
+    margin: 0 0 25px 0;
+    color: #23282d;
+    font-size: 20px;
+}
+
+/* Individual Panel Accordion */
+.ennu-panel-accordion {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #0073aa;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.ennu-panel-accordion:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.ennu-panel-accordion[open] {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Panel Summary */
+.ennu-panel-summary {
+    padding: 20px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.ennu-panel-summary:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.ennu-panel-summary::-webkit-details-marker {
+    display: none;
+}
+
+.ennu-panel-summary-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ennu-panel-summary-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ennu-panel-summary-left .dashicons {
+    font-size: 24px;
+    color: #0073aa;
+    width: 24px;
+    height: 24px;
+}
+
+.ennu-panel-summary-text h4 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.ennu-panel-summary-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.ennu-panel-summary-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ennu-panel-price {
+    background: #0073aa;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ennu-panel-count {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.ennu-panel-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Panel Content */
+.ennu-panel-content {
+    padding: 25px;
+    background: white;
+    border-top: 1px solid #dee2e6;
+}
+
+.ennu-panel-biomarkers {
+    margin-top: 15px;
+}
+
+.ennu-biomarkers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.ennu-biomarker-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.ennu-biomarker-card:hover {
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.ennu-biomarker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ennu-biomarker-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.ennu-biomarker-unit {
+    background: #e9ecef;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.ennu-biomarker-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.ennu-edit-biomarker,
+.ennu-view-biomarker {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.ennu-edit-biomarker:hover {
+    background: #005a87;
+    border-color: #005a87;
+}
+
+.ennu-view-biomarker:hover {
+    background: #5a6268;
+    border-color: #545b62;
+}
+
+.ennu-no-biomarkers {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 40px 20px;
+}
+
+/* Modal Styles */
+.ennu-modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.ennu-modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ennu-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+.ennu-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #23282d;
+}
+
+.ennu-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.ennu-modal-close:hover {
+    background: #dc3545;
+    color: white;
+}
+
+#biomarker-modal-body {
+    padding: 25px;
+}
+
+/* Biomarker Details View */
+.ennu-biomarker-details-view {
+    max-width: 100%;
+}
+
+.ennu-biomarker-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ennu-biomarker-info p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
+.ennu-biomarker-info p:last-child {
+    margin-bottom: 0;
+}
+
+.ennu-range-display,
+.ennu-evidence-display {
+    margin-bottom: 20px;
+}
+
+.ennu-range-display h4,
+.ennu-evidence-display h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #23282d;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 8px;
+}
+
+.ennu-range-values p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.ennu-evidence-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ennu-evidence-source {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.ennu-source-name {
+    font-weight: 600;
+    color: #495057;
+}
+
+.ennu-evidence-level {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ennu-evidence-level.a {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ennu-evidence-level.b {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ennu-evidence-level.c {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsive Design for Accordion */
+@media (max-width: 768px) {
+    .ennu-panel-summary-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .ennu-panel-summary-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .ennu-biomarkers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ennu-biomarker-actions {
+        flex-direction: column;
+    }
+    
+    .ennu-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .ennu-panel-summary {
+        padding: 15px;
+    }
+    
+    .ennu-panel-content {
+        padding: 20px;
+    }
+    
+    .ennu-biomarker-card {
+        padding: 15px;
+    }
+    
+    .ennu-modal-header {
+        padding: 15px 20px;
+    }
+    
+    #biomarker-modal-body {
+        padding: 20px;
+    }
+}
+
+/* NEW TABLE-BASED DESIGN STYLES */
+
+/* Range Management Interface */
+.ennu-range-management-interface {
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+/* Header with Panel Filter Buttons */
+.ennu-range-management-header {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ennu-range-management-header h2 {
+	margin: 0 0 10px 0;
+	color: #23282d;
+	font-size: 24px;
+}
+
+.ennu-range-management-header .dashicons {
+	color: #0073aa;
+	margin-right: 8px;
+}
+
+.ennu-range-management-header p {
+	margin: 0 0 20px 0;
+	color: #666;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+/* Search Section */
+.ennu-search-section {
+	margin: 15px 0;
+	padding: 15px;
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	border-radius: 8px;
+	border: 1px solid #dee2e6;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+	position: relative;
+	overflow: hidden;
+}
+
+.ennu-search-section::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #0073aa, #00a32a, #d63638);
+}
+
+.ennu-search-section h3 {
+	margin: 0 0 12px 0;
+	color: #2c3e50;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	letter-spacing: -0.3px;
+}
+
+.ennu-search-section h3 .dashicons {
+	color: #0073aa;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.ennu-search-container {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	max-width: 600px;
+}
+
+.ennu-search-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	font-size: 13px;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.ennu-search-input:focus {
+	border-color: #0073aa;
+	box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+	outline: none;
+	transform: translateY(-1px);
+}
+
+.ennu-search-input::placeholder {
+	color: #6c757d;
+	font-style: italic;
+}
+
+#clear-search {
+	padding: 8px 16px;
+	background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	color: #fff;
+	font-weight: 500;
+	font-size: 12px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+#clear-search:hover {
+	background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#search-results-message {
+	margin: 20px 0;
+	padding: 15px 20px;
+	border-radius: 8px;
+	border-left: 4px solid #0073aa;
+	background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+#search-results-message p {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: #1565c0;
+}
+
+/* Panel Filter Buttons */
+.ennu-panel-filter-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.ennu-panel-filter-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+	color: #495057;
+	font-weight: 500;
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	text-decoration: none;
+	position: relative;
+	min-height: 36px; /* Minimum touch target */
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+}
+
+.ennu-panel-filter-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--panel-color, #0073aa);
+	transform: scaleX(0);
+	transition: transform 0.3s ease;
+}
+
+.ennu-panel-filter-btn:hover {
+	border-color: var(--panel-color, #0073aa);
+	color: var(--panel-color, #0073aa);
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 115, 170, 0.15);
+}
+
+.ennu-panel-filter-btn:hover::before {
+	transform: scaleX(1);
+}
+
+.ennu-panel-filter-btn.active {
+	border-color: var(--panel-color, #0073aa);
+	background: linear-gradient(135deg, var(--panel-color, #0073aa) 0%, #005a87 100%);
+	color: #fff;
+	box-shadow: 0 8px 20px rgba(0, 115, 170, 0.25);
+	transform: translateY(-1px);
+}
+
+.ennu-panel-filter-btn.active::before {
+	transform: scaleX(1);
+}
+
+.ennu-panel-filter-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* Panel Count Badge Styling */
+.ennu-panel-count-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 20px;
+	padding: 2px 6px;
+	background: rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 700;
+	color: inherit;
+	line-height: 1;
+	text-align: center;
+	transition: all 0.3s ease;
+	backdrop-filter: blur(4px);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Count badge styling for inactive buttons */
+.ennu-panel-filter-btn:not(.active) .ennu-panel-count-badge {
+	background: #f8f9fa;
+	border: 1px solid #dee2e6;
+	color: #6c757d;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Count badge styling for hover state */
+.ennu-panel-filter-btn:hover .ennu-panel-count-badge {
+	background: rgba(0, 115, 170, 0.1);
+	border-color: rgba(0, 115, 170, 0.2);
+	color: #0073aa;
+	transform: scale(1.05);
+}
+
+/* Count badge styling for active state */
+.ennu-panel-filter-btn.active .ennu-panel-count-badge {
+	background: rgba(255, 255, 255, 0.25);
+	border-color: rgba(255, 255, 255, 0.4);
+	color: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	transform: scale(1.1);
+}
+
+/* Responsive adjustments for count badges */
+@media (max-width: 768px) {
+	.ennu-panel-count-badge {
+		min-width: 20px;
+		height: 18px;
+		padding: 1px 5px;
+		font-size: 10px;
+	}
+}
+
+/* ========================================
+ * COMMERCIAL PANEL FILTERING SYSTEM
+ * Phase 6.3 - Business-Focused Filtering
+ * ======================================== */
+
+/* Filter Sections */
+.ennu-filter-section {
+	margin-bottom: 24px;
+	padding: 20px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+	position: relative;
+	overflow: hidden;
+}
+
+.ennu-filter-section::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, #0073aa, #00a32a, #d63638, #f56e28);
+}
+
+.ennu-filter-section h3 {
+	margin: 0 0 20px 0;
+	color: #2c3e50;
+	font-size: 18px;
+	font-weight: 600;
+	border-bottom: 2px solid #0073aa;
+	padding-bottom: 12px;
+	letter-spacing: -0.3px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.ennu-filter-section h3 .dashicons {
+	color: #0073aa;
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+}
+
+.ennu-filter-section h4 {
+	margin: 20px 0 15px 0;
+	color: #495057;
+	font-size: 16px;
+	font-weight: 600;
+	letter-spacing: -0.2px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.ennu-filter-section h4 .dashicons {
+	color: #6c757d;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+/* Commercial Panel Filter Buttons */
+.ennu-commercial-panel-filter-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.ennu-commercial-panel-filter-btn {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+	color: #495057;
+	font-weight: 500;
+	font-size: 13px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	text-decoration: none;
+	position: relative;
+	min-width: 120px;
+	max-width: 140px;
+	min-height: 44px; /* Apple's minimum touch target */
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+}
+
+.ennu-commercial-panel-filter-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--panel-color, #0073aa);
+	transform: scaleX(0);
+	transition: transform 0.3s ease;
+}
+
+.ennu-commercial-panel-filter-btn:hover {
+	border-color: var(--panel-color, #0073aa);
+	color: var(--panel-color, #0073aa);
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 115, 170, 0.15);
+}
+
+.ennu-commercial-panel-filter-btn:hover::before {
+	transform: scaleX(1);
+}
+
+.ennu-commercial-panel-filter-btn.active {
+	border-color: var(--panel-color, #0073aa);
+	background: linear-gradient(135deg, var(--panel-color, #0073aa) 0%, #005a87 100%);
+	color: #fff;
+	box-shadow: 0 8px 20px rgba(0, 115, 170, 0.25);
+	transform: translateY(-1px);
+}
+
+.ennu-commercial-panel-filter-btn.active::before {
+	transform: scaleX(1);
+}
+
+.ennu-commercial-panel-filter-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* Commercial Tier Sections */
+.ennu-commercial-tier-section {
+	margin-bottom: 15px;
+	padding: 12px;
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	border-radius: 6px;
+	border: 1px solid #dee2e6;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+	position: relative;
+	overflow: hidden;
+}
+
+.ennu-commercial-tier-section::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: linear-gradient(90deg, #0073aa, #00a32a);
+}
+
+.ennu-commercial-tier-section:last-child {
+	margin-bottom: 0;
+}
+
+
+
+/* Commercial Filter Message */
+#commercial-filter-message {
+	margin: 25px 0;
+	padding: 20px 25px;
+	border-radius: 12px;
+	border-left: 5px solid #0073aa;
+	background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	animation: slideIn 0.4s ease-out;
+	position: relative;
+	overflow: hidden;
+}
+
+#commercial-filter-message::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: linear-gradient(90deg, #0073aa, #00a32a);
+}
+
+#commercial-filter-message p {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: #1565c0;
+	letter-spacing: -0.2px;
+	line-height: 1.5;
+}
+
+/* Responsive Design for Commercial Panels */
+@media (max-width: 1200px) {
+	.ennu-commercial-panel-filter-btn {
+		min-width: 100px;
+		max-width: 120px;
+		padding: 8px 12px;
+		font-size: 12px;
+		min-height: 40px;
+	}
+}
+
+@media (max-width: 768px) {
+	.ennu-filter-section {
+		padding: 16px;
+	}
+	
+	.ennu-commercial-panel-filter-buttons {
+		flex-direction: column;
+		gap: 10px;
+	}
+	
+	.ennu-commercial-panel-filter-btn {
+		min-width: auto;
+		max-width: none;
+		justify-content: center;
+		padding: 10px 16px;
+		font-size: 13px;
+		min-height: 44px;
+	}
+	
+	.ennu-commercial-tier-section {
+		padding: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-filter-section h3 {
+		font-size: 16px;
+	}
+	
+	.ennu-filter-section h4 {
+		font-size: 13px;
+	}
+	
+	.ennu-commercial-panel-filter-btn {
+		padding: 8px 12px;
+		font-size: 12px;
+	}
+}
+
+/* Action Buttons (Same as User Profile) */
+.ennu-biomarker-controls {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+}
+
+.ennu-biomarker-controls .button {
+	padding: 10px 20px;
+	font-weight: 600;
+	border-radius: 6px;
+	transition: all 0.3s ease;
+}
+
+.ennu-biomarker-controls .button-primary {
+	background: #0073aa;
+	border-color: #0073aa;
+	color: #fff;
+}
+
+.ennu-biomarker-controls .button-primary:hover {
+	background: #005a87;
+	border-color: #005a87;
+}
+
+.ennu-biomarker-controls .button-secondary {
+	background: #6c757d;
+	border-color: #6c757d;
+	color: #fff;
+}
+
+.ennu-biomarker-controls .button-secondary:hover {
+	background: #545b62;
+	border-color: #545b62;
+}
+
+/* Main Table Container (Same as User Profile) */
+.ennu-biomarker-table-container {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	margin-bottom: 20px;
+}
+
+.ennu-biomarker-management-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.ennu-biomarker-management-table thead {
+	background: #f8f9fa;
+}
+
+.ennu-biomarker-management-table th {
+	padding: 15px 12px;
+	text-align: left;
+	font-weight: 600;
+	color: #23282d;
+	border-bottom: 2px solid #dee2e6;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ennu-biomarker-management-table td {
+	padding: 12px;
+	border-bottom: 1px solid #e9ecef;
+	vertical-align: top;
+}
+
+/* Panel Header Rows */
+.ennu-panel-header {
+	background: #f8f9fa;
+}
+
+.ennu-panel-header td {
+	padding: 15px 12px;
+	border-bottom: 2px solid #dee2e6;
+}
+
+.ennu-panel-header-content {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.ennu-panel-header-content .dashicons {
+	font-size: 20px;
+}
+
+.ennu-panel-header-content h3 {
+	margin: 0;
+	color: #23282d;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.ennu-panel-count {
+	background: #0073aa;
+	color: #fff;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	margin-left: auto;
+}
+
+/* Biomarker Rows */
+.ennu-biomarker-row {
+	transition: background-color 0.3s ease;
+}
+
+.ennu-biomarker-row:hover {
+	background: #f8f9fa;
+}
+
+.ennu-biomarker-row:nth-child(even) {
+	background: #fafbfc;
+}
+
+.ennu-biomarker-row:nth-child(even):hover {
+	background: #f0f2f5;
+}
+
+/* Biomarker Name Column */
+.ennu-biomarker-name strong {
+	color: #23282d;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.ennu-biomarker-name small {
+	color: #666;
+	font-size: 12px;
+}
+
+/* Reference Range Display (Read-Only) */
+.ennu-reference-ranges,
+.ennu-default-ranges,
+.ennu-optimal-ranges {
+	min-width: 180px;
+}
+
+.ennu-reference-range-display {
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	padding: 12px;
+	margin-bottom: 8px;
+}
+
+.ennu-range-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.ennu-range-item:last-child {
+	margin-bottom: 0;
+}
+
+.ennu-range-label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #495057;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ennu-range-value {
+	font-size: 12px;
+	font-weight: 600;
+	color: #23282d;
+	background: #ffffff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	border: 1px solid #dee2e6;
+}
+
+.ennu-range-value.optimal {
+	color: #28a745;
+	background: #d4edda;
+	border-color: #c3e6cb;
+}
+
+.ennu-range-source {
+	text-align: center;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #dee2e6;
+}
+
+.ennu-range-source small {
+	font-size: 10px;
+	color: #6c757d;
+	font-style: italic;
+}
+
+/* Legacy Range Input Columns (for backward compatibility) */
+.ennu-range-inputs {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ennu-range-inputs label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #666;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ennu-range-inputs input {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.ennu-range-inputs input:focus {
+	border-color: #0073aa;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(0,115,170,0.2);
+}
+
+/* Age Adjustments Column */
+.ennu-age-groups {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.ennu-age-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.ennu-age-group label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #666;
+	min-width: 40px;
+}
+
+.ennu-age-group input {
+	width: 60px;
+	padding: 4px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-size: 11px;
+}
+
+/* Gender Adjustments Column */
+.ennu-gender-groups {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.ennu-gender-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.ennu-gender-group label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #666;
+	min-width: 50px;
+}
+
+.ennu-gender-group input {
+	width: 60px;
+	padding: 4px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-size: 11px;
+}
+
+/* Evidence & Validation Column */
+.ennu-evidence-info {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.ennu-evidence-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.ennu-evidence-item label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #666;
+	min-width: 70px;
+}
+
+.ennu-evidence-item input,
+.ennu-evidence-item select {
+	padding: 4px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-size: 11px;
+}
+
+.ennu-evidence-item input[type="number"] {
+	width: 50px;
+}
+
+.ennu-evidence-item select {
+	width: 100px;
+}
+
+/* Panel Assignment Column */
+.ennu-panel-assignment select {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 12px;
+	background: #fff;
+}
+
+.ennu-panel-assignment select:focus {
+	border-color: #0073aa;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(0,115,170,0.2);
+}
+
+/* Biomarker Summary Section (Same as User Profile) */
+.ennu-biomarker-summary {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ennu-biomarker-summary h3 {
+	margin: 0 0 20px 0;
+	color: #23282d;
+	font-size: 18px;
+	border-bottom: 2px solid #e9ecef;
+	padding-bottom: 10px;
+}
+
+.ennu-summary-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
+}
+
+.ennu-summary-card {
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	padding: 20px;
+	text-align: center;
+	transition: all 0.3s ease;
+}
+
+.ennu-summary-card:hover {
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ennu-summary-number {
+	font-size: 32px;
+	font-weight: 700;
+	color: #0073aa;
+	margin-bottom: 8px;
+}
+
+.ennu-summary-label {
+	color: #666;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* Responsive Design for Table */
+@media (max-width: 1200px) {
+	.ennu-biomarker-management-table {
+		font-size: 12px;
+	}
+	
+	.ennu-biomarker-management-table th,
+	.ennu-biomarker-management-table td {
+		padding: 8px 6px;
+	}
+	
+	.ennu-range-inputs input,
+	.ennu-age-group input,
+	.ennu-gender-group input {
+		width: 50px;
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 768px) {
+	.ennu-range-management-interface {
+		padding: 10px;
+	}
+	
+	.ennu-panel-filter-buttons {
+		flex-direction: column;
+	}
+	
+	.ennu-panel-filter-btn {
+		justify-content: center;
+	}
+	
+	.ennu-biomarker-controls {
+		flex-direction: column;
+	}
+	
+	.ennu-biomarker-management-table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+	
+	.ennu-summary-cards {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-summary-cards {
+		grid-template-columns: 1fr;
+	}
+	
+	.ennu-panel-header-content {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+	
+	.ennu-panel-count {
+		margin-left: 0;
+	}
+}
+
+/* Range Determination Evidence Section */
+.ennu-range-determination-evidence-section {
+	margin-top: 30px;
+	padding: 20px;
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 8px;
+}
+
+.ennu-range-determination-evidence-section h3 {
+	margin: 0 0 15px 0;
+	color: #495057;
+	font-size: 16px;
+	font-weight: 600;
+	border-bottom: 2px solid #0073aa;
+	padding-bottom: 8px;
+}
+
+.ennu-evidence-overview {
+	background: #fff;
+	padding: 15px;
+	border-radius: 6px;
+	border: 1px solid #dee2e6;
+}
+
+.ennu-evidence-info {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 15px;
+}
+
+.ennu-evidence-sources, .ennu-validation-status, .ennu-confidence-score, 
+.ennu-research-specialist, .ennu-research-date, .ennu-range-categories {
+	padding: 10px;
+	background: #f8f9fa;
+	border-radius: 4px;
+	border-left: 3px solid #0073aa;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.ennu-evidence-sources strong, .ennu-validation-status strong, 
+.ennu-confidence-score strong, .ennu-research-specialist strong, 
+.ennu-research-date strong, .ennu-range-categories strong {
+	color: #495057;
+	font-weight: 600;
+	display: block;
+	margin-bottom: 4px;
+}
+
+.ennu-validation-status[style*="green"] {
+	color: #28a745 !important;
+	border-left-color: #28a745;
+}
+
+.ennu-validation-status[style*="orange"] {
+	color: #fd7e14 !important;
+	border-left-color: #fd7e14;
+}
+
+.ennu-confidence-score {
+	color: #007bff;
+	border-left-color: #007bff;
+}
+
+.ennu-research-specialist {
+	color: #6f42c1;
+	border-left-color: #6f42c1;
+}
+
+.ennu-research-date {
+	color: #e83e8c;
+	border-left-color: #e83e8c;
+}
+
+.ennu-range-categories {
+	color: #20c997;
+	border-left-color: #20c997;
+}
+
+@media (max-width: 768px) {
+	.ennu-evidence-info {
+		grid-template-columns: 1fr;
+	}
+	
+	.ennu-range-determination-evidence-section {
+		padding: 15px;
+	}
+} 

@@ -5,7 +5,7 @@
  * Evidence-based cardiology and urology implementation
  *
  * @package ENNU_Life
- * @version 62.3.2
+ * @version 62.11.0
  */
 
 return array(
@@ -13,28 +13,25 @@ return array(
 	'assessment_engine' => 'quantitative',
 	'gender_filter'     => 'male',
 	'questions'         => array(
-		'ed_q_age' => array(
-			'title'    => 'What is your age?',
-			'type'     => 'radio',
-			'options'  => array(
-				'under_30' => 'Under 30',
-				'30_40'    => '30-40',
-				'41_50'    => '41-50',
-				'51_60'    => '51-60',
-				'over_60'  => 'Over 60',
-			),
-			'scoring'  => array(
+		'ed_q_dob' => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
+			'scoring'    => array(
 				'category' => 'Age Factors',
 				'weight'   => 1.5,
-				'answers'  => array(
-					'under_30' => 8,
-					'30_40'    => 7,
-					'41_50'    => 6,
-					'51_60'    => 4,
-					'over_60'  => 3,
+				'calculation' => 'age_from_dob',
+				'age_scores' => array(
+					'18-25' => 8,
+					'26-35' => 7,
+					'36-45' => 6,
+					'46-55' => 4,
+					'56-65' => 3,
+					'66-75' => 2,
+					'76+'   => 1,
 				),
 			),
-			'required' => true,
 		),
 		'ed_q1'    => array(
 			'title'    => 'How would you describe your ability to achieve and maintain an erection sufficient for satisfactory sexual performance?',

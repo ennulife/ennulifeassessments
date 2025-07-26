@@ -1,0 +1,208 @@
+[
+  {
+    "name": "assessment_type",
+    "label": "Assessment Type",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Type of health assessment completed",
+    "options": [
+      {
+        "label": "Comprehensive Health Assessment",
+        "value": "comprehensive_health",
+        "displayOrder": 1
+      },
+      {
+        "label": "Biomarker Assessment",
+        "value": "biomarker",
+        "displayOrder": 2
+      },
+      {
+        "label": "Symptom Assessment",
+        "value": "symptom",
+        "displayOrder": 3
+      },
+      {
+        "label": "Lifestyle Assessment",
+        "value": "lifestyle",
+        "displayOrder": 4
+      },
+      {
+        "label": "Nutrition Assessment",
+        "value": "nutrition",
+        "displayOrder": 5
+      },
+      {
+        "label": "Fitness Assessment",
+        "value": "fitness",
+        "displayOrder": 6
+      },
+      {
+        "label": "Mental Health Assessment",
+        "value": "mental_health",
+        "displayOrder": 7
+      },
+      {
+        "label": "Sleep Assessment",
+        "value": "sleep",
+        "displayOrder": 8
+      }
+    ]
+  },
+  {
+    "name": "assessment_score",
+    "label": "Overall Score",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Overall assessment score (0-100)"
+  },
+  {
+    "name": "assessment_date",
+    "label": "Assessment Date",
+    "type": "date",
+    "fieldType": "date",
+    "description": "Date when the assessment was completed"
+  },
+  {
+    "name": "assessment_status",
+    "label": "Status",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Current status of the assessment",
+    "options": [
+      {
+        "label": "In Progress",
+        "value": "in_progress",
+        "displayOrder": 1
+      },
+      {
+        "label": "Completed",
+        "value": "completed",
+        "displayOrder": 2
+      },
+      {
+        "label": "Reviewed",
+        "value": "reviewed",
+        "displayOrder": 3
+      },
+      {
+        "label": "Follow-up Required",
+        "value": "follow_up_required",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "name": "assessment_completion",
+    "label": "Completion Percentage",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Percentage of assessment completed (0-100)"
+  },
+  {
+    "name": "assessment_duration",
+    "label": "Duration (Minutes)",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Time taken to complete the assessment in minutes"
+  },
+  {
+    "name": "assessment_reviewer",
+    "label": "Reviewed By",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Name of the healthcare provider who reviewed the assessment"
+  },
+  {
+    "name": "assessment_review_date",
+    "label": "Review Date",
+    "type": "date",
+    "fieldType": "date",
+    "description": "Date when the assessment was reviewed by healthcare provider"
+  },
+  {
+    "name": "assessment_notes",
+    "label": "Assessment Notes",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "Notes and observations from the assessment"
+  },
+  {
+    "name": "assessment_recommendations",
+    "label": "Recommendations",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "Recommendations based on assessment results"
+  },
+  {
+    "name": "assessment_risk_level",
+    "label": "Risk Level",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Overall health risk level identified",
+    "options": [
+      {
+        "label": "Low Risk",
+        "value": "low_risk",
+        "displayOrder": 1
+      },
+      {
+        "label": "Moderate Risk",
+        "value": "moderate_risk",
+        "displayOrder": 2
+      },
+      {
+        "label": "High Risk",
+        "value": "high_risk",
+        "displayOrder": 3
+      },
+      {
+        "label": "Critical Risk",
+        "value": "critical_risk",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "name": "assessment_priority",
+    "label": "Priority Level",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Priority level for follow-up actions",
+    "options": [
+      {
+        "label": "Low Priority",
+        "value": "low_priority",
+        "displayOrder": 1
+      },
+      {
+        "label": "Medium Priority",
+        "value": "medium_priority",
+        "displayOrder": 2
+      },
+      {
+        "label": "High Priority",
+        "value": "high_priority",
+        "displayOrder": 3
+      },
+      {
+        "label": "Urgent",
+        "value": "urgent",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "name": "assessment_follow_up_date",
+    "label": "Follow-up Date",
+    "type": "date",
+    "fieldType": "date",
+    "description": "Scheduled follow-up date for reassessment"
+  },
+  {
+    "name": "assessment_version",
+    "label": "Assessment Version",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Version of the assessment tool used"
+  }
+] 

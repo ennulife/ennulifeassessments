@@ -3,7 +3,7 @@
  * Assessment Definition: Weight Loss Assessment
  *
  * @package ENNU_Life
- * @version 60.0.0
+ * @version 62.11.0
  */
 
 return array(
@@ -20,6 +20,12 @@ return array(
 			),
 			'required'   => true,
 			'global_key' => 'gender',
+		),
+		'wl_q_dob' => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
 		),
 		'wl_q1'       => array(
 			'title'      => 'What is your current height and weight?',

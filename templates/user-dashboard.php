@@ -2,6 +2,851 @@
 /**
  * Template for the user assessment dashboard - "The Bio-Metric Canvas"
  */
+
+// Ensure biomarker auto-sync is triggered for weight and BMI
+if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
+	$auto_sync = new ENNU_Biomarker_Auto_Sync();
+	$auto_sync->ensure_biomarker_sync();
+}
+
+// Add inline JavaScript for toggle functions to ensure they're available immediately
+?>
+<script type="text/javascript">
+// Inline toggle functions - available immediately
+window.togglePanel = function(panelKey) {
+    console.log('togglePanel called with:', panelKey);
+    const panelContent = document.getElementById('panel-content-' + panelKey);
+    if (!panelContent) {
+        console.error('Panel content not found for:', panelKey);
+        return;
+    }
+    const panelHeader = panelContent.previousElementSibling;
+    if (!panelHeader) {
+        console.error('Panel header not found for:', panelKey);
+        return;
+    }
+    const expandIcon = panelHeader.querySelector('.panel-expand-icon');
+    if (!expandIcon) {
+        console.error('Panel expand icon not found for:', panelKey);
+        return;
+    }
+    
+    if (panelContent.style.display === 'none' || panelContent.style.display === '') {
+        panelContent.style.display = 'block';
+        expandIcon.textContent = '▼';
+        panelHeader.classList.add('expanded');
+    } else {
+        panelContent.style.display = 'none';
+        expandIcon.textContent = '▶';
+        panelHeader.classList.remove('expanded');
+    }
+};
+
+window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarkerKey) {
+    console.log('toggleBiomarkerMeasurements called with:', panelKey, vectorCategory, biomarkerKey);
+    const containerId = 'biomarker-measurement-' + panelKey + '-' + vectorCategory + '-' + biomarkerKey;
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error('Biomarker container not found for:', containerId);
+        return;
+    }
+    const listItem = container.previousElementSibling;
+    if (!listItem) {
+        console.error('Biomarker list item not found for:', containerId);
+        return;
+    }
+    const expandIcon = listItem.querySelector('.biomarker-list-expand');
+    if (!expandIcon) {
+        console.error('Biomarker expand icon not found for:', containerId);
+        return;
+    }
+    
+    if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        listItem.classList.add('expanded');
+        expandIcon.textContent = '▼';
+    } else {
+        container.style.display = 'none';
+        listItem.classList.remove('expanded');
+        expandIcon.textContent = '▶';
+    }
+};
+
+window.toggleVectorCategory = function(panelKey, vectorCategory) {
+    console.log('toggleVectorCategory called with:', panelKey, vectorCategory);
+    const vectorContainer = document.querySelector('[data-panel="' + panelKey + '"][data-vector="' + vectorCategory + '"]');
+    if (!vectorContainer) {
+        console.error('Vector container not found for:', panelKey, vectorCategory);
+        return;
+    }
+    const biomarkerItems = vectorContainer.querySelectorAll('.biomarker-list-item');
+    const isExpanded = biomarkerItems[0] && biomarkerItems[0].classList.contains('expanded');
+    
+    biomarkerItems.forEach(function(item) {
+        const biomarkerKey = item.getAttribute('data-biomarker');
+        const container = document.getElementById('biomarker-measurement-' + panelKey + '-' + vectorCategory + '-' + biomarkerKey);
+        const expandIcon = item.querySelector('.biomarker-list-expand');
+        
+        if (isExpanded) {
+            // Collapse all
+            container.style.display = 'none';
+            item.classList.remove('expanded');
+            expandIcon.textContent = '▶';
+        } else {
+            // Expand all
+            container.style.display = 'block';
+            item.classList.add('expanded');
+            expandIcon.textContent = '▼';
+        }
+    });
+};
+
+console.log('Inline toggle functions loaded successfully');
+</script>
+<?php
+
+// Helper function to get category icons (SVG Line Icons)
+if (!function_exists('get_category_icon')) {
+function get_category_icon($category) {
+    $icons = array(
+        'Physical Measurements' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>',
+        'Basic Metabolic Panel' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>',
+        'Electrolytes & Minerals' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+        'Protein Panel' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+        'Liver Function' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>',
+        'Complete Blood Count' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/><path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"/><path d="M12 3c0 1-1 2-2 2s-2-1-2-2 1-2 2-2 2 1 2 2z"/><path d="M12 21c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z"/></svg>',
+        'Lipid Panel' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+        'Hormones' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        'Thyroid' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/><path d="M8 14h8"/></svg>',
+        'Advanced Cardiovascular' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><path d="M12 8v8M8 12h8"/></svg>',
+        'Advanced Longevity' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>',
+        'Advanced Performance' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+        'Advanced Cognitive' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>',
+        'Advanced Energy' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M12 8v8M8 12h8"/></svg>',
+        'Advanced Metabolic' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M12 8v8M8 12h8"/></svg>',
+        'Performance' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'
+    );
+    
+    return isset($icons[$category]) ? $icons[$category] : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>';
+}
+
+function get_biomarker_category($biomarker_key) {
+    $categories = array(
+        // Physical Measurements (8 biomarkers)
+        'weight' => 'Physical Measurements',
+        'bmi' => 'Physical Measurements',
+        'body_fat_percent' => 'Physical Measurements',
+        'waist_measurement' => 'Physical Measurements',
+        'neck_measurement' => 'Physical Measurements',
+        'blood_pressure' => 'Physical Measurements',
+        'heart_rate' => 'Physical Measurements',
+        'temperature' => 'Physical Measurements',
+        'grip_strength' => 'Physical Measurements',
+        'body_composition' => 'Physical Measurements',
+        
+        // Basic Metabolic Panel (8 biomarkers)
+        'glucose' => 'Basic Metabolic Panel',
+        'hba1c' => 'Basic Metabolic Panel',
+        'bun' => 'Basic Metabolic Panel',
+        'creatinine' => 'Basic Metabolic Panel',
+        'gfr' => 'Basic Metabolic Panel',
+        'bun_creatinine_ratio' => 'Basic Metabolic Panel',
+        'alt' => 'Basic Metabolic Panel',
+        'ast' => 'Basic Metabolic Panel',
+        'alkaline_phosphatase' => 'Basic Metabolic Panel',
+        'egfr' => 'Basic Metabolic Panel',
+        
+        // Electrolytes & Minerals (4 biomarkers)
+        'sodium' => 'Electrolytes & Minerals',
+        'potassium' => 'Electrolytes & Minerals',
+        'chloride' => 'Electrolytes & Minerals',
+        'carbon_dioxide' => 'Electrolytes & Minerals',
+        'calcium' => 'Electrolytes & Minerals',
+        'magnesium' => 'Electrolytes & Minerals',
+        'phosphorus' => 'Electrolytes & Minerals',
+        
+        // Protein Panel (2 biomarkers)
+        'protein' => 'Protein Panel',
+        'albumin' => 'Protein Panel',
+        
+        // Lipid Panel (5 biomarkers)
+        'cholesterol' => 'Lipid Panel',
+        'hdl' => 'Lipid Panel',
+        'ldl' => 'Lipid Panel',
+        'vldl' => 'Lipid Panel',
+        'triglycerides' => 'Lipid Panel',
+        'total_cholesterol' => 'Lipid Panel',
+        
+        // Advanced Cardiovascular (7 biomarkers)
+        'apob' => 'Advanced Cardiovascular',
+        'hs_crp' => 'Advanced Cardiovascular',
+        'homocysteine' => 'Advanced Cardiovascular',
+        'lp_a' => 'Advanced Cardiovascular',
+        'omega_3_index' => 'Advanced Cardiovascular',
+        'tmao' => 'Advanced Cardiovascular',
+        'nmr_lipoprofile' => 'Advanced Cardiovascular',
+        'crp' => 'Advanced Cardiovascular',
+        'lipoprotein_a' => 'Advanced Cardiovascular',
+        'esr' => 'Advanced Cardiovascular',
+        'il_6' => 'Advanced Cardiovascular',
+        'tnf_alpha' => 'Advanced Cardiovascular',
+        'fibrinogen' => 'Advanced Cardiovascular',
+        
+        // Hormones (6 biomarkers)
+        'testosterone_total' => 'Hormones',
+        'testosterone_free' => 'Hormones',
+        'free_testosterone' => 'Hormones',
+        'estradiol' => 'Hormones',
+        'progesterone' => 'Hormones',
+        'fsh' => 'Hormones',
+        'lh' => 'Hormones',
+        'cortisol' => 'Hormones',
+        'dhea_s' => 'Hormones',
+        'dhea' => 'Hormones',
+        'prolactin' => 'Hormones',
+        'shbg' => 'Hormones',
+        'igf_1' => 'Hormones',
+        'testosterone' => 'Hormones',
+        
+        // Thyroid (3 biomarkers)
+        'tsh' => 'Thyroid',
+        't3' => 'Thyroid',
+        't4' => 'Thyroid',
+        'free_t3' => 'Thyroid',
+        'free_t4' => 'Thyroid',
+        
+        // Complete Blood Count (8 biomarkers)
+        'wbc' => 'Complete Blood Count',
+        'rbc' => 'Complete Blood Count',
+        'hemoglobin' => 'Complete Blood Count',
+        'hematocrit' => 'Complete Blood Count',
+        'mcv' => 'Complete Blood Count',
+        'mch' => 'Complete Blood Count',
+        'mchc' => 'Complete Blood Count',
+        'rdw' => 'Complete Blood Count',
+        'platelets' => 'Complete Blood Count',
+        'neutrophils' => 'Complete Blood Count',
+        'lymphocytes' => 'Complete Blood Count',
+        'monocytes' => 'Complete Blood Count',
+        'eosinophils' => 'Complete Blood Count',
+        'basophils' => 'Complete Blood Count',
+        
+        // Advanced Metabolic (7 biomarkers)
+        'vitamin_d' => 'Advanced Metabolic',
+        'vitamin_b12' => 'Advanced Metabolic',
+        'folate' => 'Advanced Metabolic',
+        'iron' => 'Advanced Metabolic',
+        'ferritin' => 'Advanced Metabolic',
+        'zinc' => 'Advanced Metabolic',
+        'copper' => 'Advanced Metabolic',
+        'selenium' => 'Advanced Metabolic',
+        'b12' => 'Advanced Metabolic',
+        'blood_sugar' => 'Advanced Metabolic',
+        'insulin' => 'Advanced Metabolic',
+        'fasting_insulin' => 'Advanced Metabolic',
+        'homa_ir' => 'Advanced Metabolic',
+        'glycomark' => 'Advanced Metabolic',
+        'uric_acid' => 'Advanced Metabolic',
+        'leptin' => 'Advanced Metabolic',
+        'ghrelin' => 'Advanced Metabolic',
+        'adiponectin' => 'Advanced Metabolic',
+        'one_five_ag' => 'Advanced Metabolic',
+        '1_5_ag' => 'Advanced Metabolic',
+        
+        // Advanced Cognitive (4 biomarkers)
+        'apoe_genotype' => 'Advanced Cognitive',
+        'ptau_217' => 'Advanced Cognitive',
+        'beta_amyloid_42_40_ratio' => 'Advanced Cognitive',
+        'beta_amyloid_ratio' => 'Advanced Cognitive',
+        'gfap' => 'Advanced Cognitive',
+        'omega_3' => 'Advanced Cognitive',
+        'bdnf' => 'Advanced Cognitive',
+        'cognitive_function' => 'Advanced Cognitive',
+        
+        // Advanced Longevity (4 biomarkers)
+        'telomere_length' => 'Advanced Longevity',
+        'nad' => 'Advanced Longevity',
+        'nad_plus' => 'Advanced Longevity',
+        'mitochondrial_function' => 'Advanced Longevity',
+        'oxidative_stress' => 'Advanced Longevity',
+        
+        // Advanced Performance (3 biomarkers)
+        'creatine_kinase' => 'Advanced Performance',
+        'lactate_dehydrogenase' => 'Advanced Performance',
+        'vo2_max' => 'Advanced Performance',
+        'lactate_threshold' => 'Advanced Performance',
+        'muscle_mass' => 'Advanced Performance',
+        'bone_density' => 'Advanced Performance',
+        
+        // Advanced Energy (3 biomarkers)
+        'coq10' => 'Advanced Energy',
+        'atp_levels' => 'Advanced Energy',
+        'mitochondrial_biomarkers' => 'Advanced Energy',
+        'energy_metabolism' => 'Advanced Energy',
+        
+        // Heavy Metals & Toxicity (4 biomarkers)
+        'arsenic' => 'Heavy Metals & Toxicity',
+        'lead' => 'Heavy Metals & Toxicity',
+        'mercury' => 'Heavy Metals & Toxicity',
+        'heavy_metals_panel' => 'Heavy Metals & Toxicity',
+        
+        // Performance (1 biomarker)
+        'performance' => 'Performance'
+    );
+    
+    return isset($categories[$biomarker_key]) ? $categories[$biomarker_key] : 'Other';
+}
+
+// Helper function for relative time formatting
+function get_relative_time($timestamp) {
+    $time_diff = time() - strtotime($timestamp);
+    
+    if ($time_diff < 60) {
+        return 'Just now';
+    } elseif ($time_diff < 3600) {
+        $minutes = floor($time_diff / 60);
+        return $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ago';
+    } elseif ($time_diff < 86400) {
+        $hours = floor($time_diff / 3600);
+        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+    } elseif ($time_diff < 604800) {
+        $days = floor($time_diff / 86400);
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+    } elseif ($time_diff < 2592000) {
+        $weeks = floor($time_diff / 604800);
+        return $weeks . ' week' . ($weeks > 1 ? 's' : '') . ' ago';
+    } elseif ($time_diff < 31536000) {
+        $months = floor($time_diff / 2592000);
+        return $months . ' month' . ($months > 1 ? 's' : '') . ' ago';
+    } else {
+        $years = floor($time_diff / 31536000);
+        return $years . ' year' . ($years > 1 ? 's' : '') . ' ago';
+    }
+}
+
+// Helper function to get assessment name from type
+function get_assessment_name($assessment_type) {
+    $assessment_names = array(
+        'ennu-menopause' => 'Menopause Assessment',
+        'ennu-skin' => 'Skin Health Assessment',
+        'ennu-sleep' => 'Sleep Quality Assessment',
+        'ennu-testosterone' => 'Testosterone Assessment',
+        'ennu-weight-loss' => 'Weight Loss Assessment',
+        'ennu-welcome' => 'Welcome Assessment',
+        'ennu-hair-consultation' => 'Hair Consultation',
+        'ennu-ed-treatment-consultation' => 'ED Treatment Consultation',
+        'ennu-weight-loss-consultation' => 'Weight Loss Consultation',
+        'ennu-health-optimization-consultation' => 'Health Optimization Consultation',
+        'ennu-skin-consultation' => 'Skin Consultation',
+        'ennu-health-consultation' => 'Health Consultation',
+        'ennu-hormone-consultation' => 'Hormone Consultation',
+        'ennu-menopause-consultation' => 'Menopause Consultation',
+        'ennu-testosterone-consultation' => 'Testosterone Consultation',
+        'ennu-sleep-consultation' => 'Sleep Consultation'
+    );
+    
+    return isset($assessment_names[$assessment_type]) ? $assessment_names[$assessment_type] : ucwords(str_replace('-', ' ', $assessment_type));
+}
+
+// Helper function to get assessment display name from source
+function get_assessment_display_name_from_source($assessment_source) {
+	$assessment_names = array(
+		// Core assessments
+		'health_optimization_assessment' => 'Health Optimization Assessment',
+		'testosterone_assessment' => 'Testosterone Assessment',
+		'hormone_assessment' => 'Hormone Assessment',
+		'menopause_assessment' => 'Menopause Assessment',
+		'ed_treatment_assessment' => 'ED Treatment Assessment',
+		'skin_assessment' => 'Skin Assessment',
+		'hair_assessment' => 'Hair Assessment',
+		'sleep_assessment' => 'Sleep Assessment',
+		'weight_loss_assessment' => 'Weight Loss Assessment',
+		'welcome_assessment' => 'Welcome Assessment',
+		
+		// Flag types
+		'auto_flagged' => 'Lab Results Analysis',
+		'manual' => 'Manual Flag',
+		'critical' => 'Critical Alert',
+		'symptom_assessment' => 'Health Optimization Assessment',
+		'symptom_triggered' => 'Health Optimization Assessment',
+		'unknown_assessment' => 'Unknown Assessment',
+		'' => 'Unknown Assessment',
+		
+		// Health vector categories (fallback)
+		'Physical Measurements' => 'Physical Measurements',
+		'Basic Metabolic Panel' => 'Basic Metabolic Panel',
+		'Electrolytes & Minerals' => 'Electrolytes & Minerals',
+		'Lipid Panel' => 'Lipid Panel',
+		'Advanced Cardiovascular' => 'Advanced Cardiovascular',
+		'Hormones' => 'Hormones',
+		'Thyroid' => 'Thyroid',
+		'Complete Blood Count' => 'Complete Blood Count',
+		'Advanced Metabolic' => 'Advanced Metabolic',
+		'Advanced Cognitive' => 'Advanced Cognitive',
+		'Advanced Longevity' => 'Advanced Longevity',
+		'Advanced Performance' => 'Advanced Performance',
+		'Performance' => 'Performance',
+		'Advanced Energy' => 'Advanced Energy',
+		'Heavy Metals & Toxicity' => 'Heavy Metals & Toxicity',
+		'Protein Panel' => 'Protein Panel',
+		'Other' => 'Other',
+	);
+	
+	return $assessment_names[$assessment_source] ?? ucwords(str_replace('_', ' ', $assessment_source));
+}
+
+// Helper function to get assessment display info (icon and color) - SVG Line Icons
+function get_assessment_display_info($assessment_name) {
+	$assessment_info = array(
+		// Core assessments
+		'Health Optimization Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#3b82f6'),
+		'Testosterone Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', 'color' => '#ef4444'),
+		'Hormone Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'color' => '#8b5cf6'),
+		'Menopause Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', 'color' => '#ec4899'),
+		'ED Treatment Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', 'color' => '#dc2626'),
+		'Skin Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>', 'color' => '#f59e0b'),
+		'Hair Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'color' => '#059669'),
+		'Sleep Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>', 'color' => '#6366f1'),
+		'Weight Loss Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'color' => '#10b981'),
+		'Welcome Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h6"/></svg>', 'color' => '#6b7280'),
+		
+		// Flag types
+		'Lab Results Analysis' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#059669'),
+		'Manual Flag' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>', 'color' => '#f59e0b'),
+		'Critical Alert' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 'color' => '#dc2626'),
+
+		'Unknown Assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>', 'color' => '#6b7280'),
+		
+		// Health vector categories
+		'Physical Measurements' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>', 'color' => '#6366f1'),
+		'Basic Metabolic Panel' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#14b8a6'),
+		'Electrolytes & Minerals' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', 'color' => '#06b6d4'),
+		'Lipid Panel' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', 'color' => '#dc2626'),
+		'Advanced Cardiovascular' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#ef4444'),
+		'Hormones' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'color' => '#10b981'),
+		'Thyroid' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/><path d="M8 14h8"/></svg>', 'color' => '#7c3aed'),
+		'Complete Blood Count' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/><path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"/><path d="M12 3c0 1-1 2-2 2s-2-1-2-2 1-2 2-2 2 1 2 2z"/><path d="M12 21c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z"/></svg>', 'color' => '#3b82f6'),
+		'Advanced Metabolic' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#f59e0b'),
+		'Advanced Cognitive' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>', 'color' => '#8b5cf6'),
+		'Advanced Longevity' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>', 'color' => '#ec4899'),
+		'Advanced Performance' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', 'color' => '#6366f1'),
+		'Performance' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', 'color' => '#059669'),
+		'Advanced Energy' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#b45309'),
+		'Heavy Metals & Toxicity' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 'color' => '#dc2626'),
+		'Protein Panel' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', 'color' => '#059669'),
+		'Other' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>', 'color' => '#6b7280'),
+		
+		// Assessment source mappings (fallback)
+		'auto_flagged' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#059669'),
+		'manual' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>', 'color' => '#f59e0b'),
+		'critical' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 'color' => '#dc2626'),
+		'symptom_assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#3b82f6'),
+		'symptom_triggered' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#3b82f6'),
+		'unknown_assessment' => array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>', 'color' => '#6b7280'),
+	);
+	
+	return $assessment_info[$assessment_name] ?? array('icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#6366f1');
+}
+}
+
+/**
+ * Render biomarker measurement component
+ *
+ * @param array $measurement_data Measurement data from ENNU_Biomarker_Manager
+ * @return string HTML output
+ */
+if (!function_exists('render_biomarker_measurement')) {
+function render_biomarker_measurement($measurement_data) {
+    // Debug: Function is being called
+    error_log("ENNU DEBUG: render_biomarker_measurement called for biomarker: " . ($measurement_data['biomarker_id'] ?? 'unknown'));
+    
+    if (isset($measurement_data['error'])) {
+        return '<div class="biomarker-error">' . esc_html($measurement_data['error']) . '</div>';
+    }
+    
+    // Use null coalescing operator to handle missing array keys with defaults
+    $biomarker_id = $measurement_data['biomarker_id'] ?? '';
+    $current_value = $measurement_data['current_value'] ?? 0;
+    $target_value = $measurement_data['target_value'] ?? null;
+    $unit = $measurement_data['unit'] ?? '';
+    $optimal_min = $measurement_data['optimal_min'] ?? 0;
+    $optimal_max = $measurement_data['optimal_max'] ?? 100;
+    $percentage_position = $measurement_data['percentage_position'] ?? 50;
+    $target_position = $measurement_data['target_position'] ?? null;
+    $status = $measurement_data['status'] ?? array('status' => 'normal', 'status_text' => 'Normal', 'status_class' => 'normal');
+    $has_flags = $measurement_data['has_flags'] ?? false;
+    $flags = $measurement_data['flags'] ?? array();
+    $achievement_status = $measurement_data['achievement_status'] ?? array('status' => 'normal', 'text' => 'Normal', 'icon_class' => 'normal');
+    $health_vector = $measurement_data['health_vector'] ?? '';
+    $has_admin_override = $measurement_data['has_admin_override'] ?? false;
+    $display_name = $measurement_data['display_name'] ?? ($measurement_data['biomarker_name'] ?? '');
+    $has_user_data = $measurement_data['has_user_data'] ?? false;
+    
+    // Get complete range data for ruler display
+    $range_manager = new ENNU_Recommended_Range_Manager();
+    $user_data = array(
+        'age' => get_user_meta(get_current_user_id(), 'ennu_global_exact_age', true) ?: 35,
+        'gender' => get_user_meta(get_current_user_id(), 'ennu_global_gender', true) ?: 'male'
+    );
+    $complete_range = $range_manager->get_recommended_range($biomarker_id, $user_data);
+    
+    // Calculate target value using the target algorithm if not set
+    if (!$target_value && class_exists('ENNU_Biomarker_Target_Calculator')) {
+        // Ensure we have valid range data for the target calculator
+        if (isset($complete_range['optimal_min']) && isset($complete_range['optimal_max']) && 
+            $complete_range['optimal_min'] !== null && $complete_range['optimal_max'] !== null) {
+            
+            // Use current value if available, otherwise use midpoint of optimal range
+            $value_for_calculation = $current_value ?: ($optimal_min + (($optimal_max - $optimal_min) / 2));
+            
+            $target_data = ENNU_Biomarker_Target_Calculator::calculate_personalized_target(
+                $biomarker_id,
+                $value_for_calculation,
+                $complete_range,
+                $user_data['age'],
+                $user_data['gender']
+            );
+            if ($target_data && isset($target_data['target_value'])) {
+                $target_value = $target_data['target_value'];
+                $target_position = calculate_percentage_position($target_value, $optimal_min, $optimal_max);
+            }
+        } else {
+            // Fallback to midpoint of optimal range if range data is invalid
+            $optimal_min = is_numeric($optimal_min) ? (float)$optimal_min : 0;
+            $optimal_max = is_numeric($optimal_max) ? (float)$optimal_max : 1;
+            $target_value = (float)$optimal_min + (((float)$optimal_max - (float)$optimal_min) / 2);
+            $target_position = 50; // Middle position
+            error_log("ENNU DEBUG: Using fallback target for $biomarker_id - range data invalid");
+        }
+    }
+    
+    // If still no target value, provide a default optimal target for educational purposes
+    if (!$target_value && isset($complete_range['optimal_min']) && isset($complete_range['optimal_max'])) {
+        $optimal_min = is_numeric($optimal_min) ? (float)$optimal_min : 0;
+        $optimal_max = is_numeric($optimal_max) ? (float)$optimal_max : 1;
+        $target_value = (float)$optimal_min + (((float)$optimal_max - (float)$optimal_min) / 2);
+        $target_position = 50; // Middle position
+    }
+    
+    // FINAL SAFETY CHECK: Ensure target_value is always a valid number
+    if ($target_value === null || !is_numeric($target_value)) {
+        if (isset($complete_range['optimal_min']) && isset($complete_range['optimal_max']) && 
+            is_numeric($complete_range['optimal_min']) && is_numeric($complete_range['optimal_max'])) {
+            $target_value = (float)$complete_range['optimal_min'] + (((float)$complete_range['optimal_max'] - (float)$complete_range['optimal_min']) / 2);
+        } else {
+            $target_value = 0; // Ultimate fallback
+        }
+        $target_position = 50; // Middle position
+        error_log("ENNU DEBUG: Applied final safety fallback for $biomarker_id - target_value: $target_value");
+    }
+    
+    // Get range boundaries for ruler - use the complete range from AI Medical Team
+    $optimal_min = is_numeric($optimal_min) ? (float)$optimal_min : 0;
+    $optimal_max = is_numeric($optimal_max) ? (float)$optimal_max : 1;
+    $normal_min = isset($complete_range['normal_min']) && is_numeric($complete_range['normal_min']) ? (float)$complete_range['normal_min'] : $optimal_min;
+    $normal_max = isset($complete_range['normal_max']) && is_numeric($complete_range['normal_max']) ? (float)$complete_range['normal_max'] : $optimal_max;
+    $critical_min = isset($complete_range['critical_min']) && is_numeric($complete_range['critical_min']) ? (float)$complete_range['critical_min'] : $normal_min;
+    $critical_max = isset($complete_range['critical_max']) && is_numeric($complete_range['critical_max']) ? (float)$complete_range['critical_max'] : $normal_max;
+    
+    // Calculate initial range width
+    $range_width = $critical_max - $critical_min;
+    
+    // Ensure we have valid range values and handle narrow ranges
+    if ($critical_min === $critical_max || $range_width <= 0) {
+        // Fallback to a reasonable range if values are invalid
+        $optimal_range_width = $optimal_max - $optimal_min;
+        if ($optimal_range_width <= 0) {
+            // If optimal range is also invalid, create a minimum range
+            $optimal_range_width = 1;
+            $optimal_min = is_numeric($optimal_min) ? (float)$optimal_min : 0;
+            $optimal_max = $optimal_min + $optimal_range_width;
+        }
+        
+        $critical_min = $optimal_min - ($optimal_range_width * 0.5);
+        $critical_max = $optimal_max + ($optimal_range_width * 0.5);
+        $range_width = $critical_max - $critical_min;
+    }
+    
+    // Ensure optimal range has minimum visibility (at least 5% of total range)
+    $optimal_range_width = $optimal_max - $optimal_min;
+    $min_optimal_width_percent = 5; // 5% minimum width
+    $min_optimal_width = ($range_width * $min_optimal_width_percent) / 100;
+    
+    if ($optimal_range_width < $min_optimal_width) {
+        $optimal_center = ($optimal_min + $optimal_max) / 2;
+        $optimal_min = $optimal_center - ($min_optimal_width / 2);
+        $optimal_max = $optimal_center + ($min_optimal_width / 2);
+        error_log("ENNU DEBUG: Expanded optimal range for biomarker $biomarker_id to ensure visibility");
+    }
+    
+    // Recalculate positions with adjusted ranges
+    $range_width = $critical_max - $critical_min;
+    
+    // Final safety check for division by zero
+    if ($range_width <= 0) {
+        // Use fallback values to prevent division by zero
+        $range_width = 1;
+        $critical_min = $optimal_min - 0.5;
+        $critical_max = $optimal_max + 0.5;
+        $range_width = $critical_max - $critical_min;
+        error_log("ENNU DEBUG: Fixed division by zero for biomarker $biomarker_id - using fallback range");
+    }
+    
+    $optimal_start_pos = (($optimal_min - $critical_min) / $range_width) * 100;
+    $optimal_end_pos = (($optimal_max - $critical_min) / $range_width) * 100;
+    $normal_start_pos = (($normal_min - $critical_min) / $range_width) * 100;
+    $normal_end_pos = (($normal_max - $critical_min) / $range_width) * 100;
+    
+    // Calculate current and target positions on the full range ruler
+    $current_ruler_position = $has_user_data && $current_value && is_numeric($current_value) ? (($current_value - $critical_min) / $range_width) * 100 : null;
+    $target_ruler_position = $target_value && is_numeric($target_value) ? (($target_value - $critical_min) / $range_width) * 100 : null;
+    
+    // Clamp positions to 0-100 range
+    $current_ruler_position = $current_ruler_position !== null ? max(0, min(100, $current_ruler_position)) : null;
+    $target_ruler_position = $target_ruler_position !== null ? max(0, min(100, $target_ruler_position)) : null;
+    
+    // Debug output for troubleshooting
+    error_log("ENNU DEBUG: Biomarker $biomarker_id - Critical: $critical_min-$critical_max, Normal: $normal_min-$normal_max, Optimal: $optimal_min-$optimal_max, Current: $current_value, Target: $target_value, Range Width: $range_width");
+    
+    // Also output to browser for immediate debugging
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        echo "<!-- DEBUG: Biomarker $biomarker_id - Critical: $critical_min-$critical_max, Normal: $normal_min-$normal_max, Optimal: $optimal_min-$optimal_max -->";
+    }
+    
+    // Add visible debug info for troubleshooting ruler positioning
+    $debug_info = array(
+        'biomarker_id' => $biomarker_id,
+        'critical_range' => "$critical_min - $critical_max",
+        'normal_range' => "$normal_min - $normal_max",
+        'optimal_range' => "$optimal_min - $optimal_max",
+        'current_value' => $current_value,
+        'target_value' => $target_value,
+        'range_width' => $range_width,
+        'current_position' => $current_ruler_position,
+        'target_position' => $target_ruler_position
+    );
+    
+    ob_start();
+    ?>
+    <div class="biomarker-measurement <?php echo $has_user_data ? 'has-data' : 'no-data'; ?>" data-biomarker-id="<?php echo esc_attr($biomarker_id); ?>">
+        <!-- Header -->
+        <div class="biomarker-measurement-header">
+            <h4 class="biomarker-measurement-title"><?php echo esc_html($display_name); ?></h4>
+            <div class="biomarker-measurement-icons">
+                <?php if ($has_flags): ?>
+                    								<span class="biomarker-flag-icon" title="Flagged for review">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+										<path d="M3 3v18h18"/>
+										<path d="M18 17V9"/>
+										<path d="M13 17V5"/>
+										<path d="M8 17v-3"/>
+									</svg>
+								</span>
+                <?php endif; ?>
+                <span class="biomarker-info-icon" title="View details"></span>
+            </div>
+        </div>
+        
+        <!-- Enhanced Range Ruler -->
+        <div class="biomarker-range-ruler-container" 
+             data-critical-min="<?php echo esc_attr($critical_min); ?>"
+             data-critical-max="<?php echo esc_attr($critical_max); ?>"
+             data-normal-min="<?php echo esc_attr($normal_min); ?>"
+             data-normal-max="<?php echo esc_attr($normal_max); ?>"
+             data-optimal-min="<?php echo esc_attr($optimal_min); ?>"
+             data-optimal-max="<?php echo esc_attr($optimal_max); ?>"
+             data-unit="<?php echo esc_attr($unit); ?>"
+             data-biomarker-id="<?php echo esc_attr($biomarker_id); ?>"
+             data-debug="<?php echo esc_attr(json_encode($debug_info)); ?>">
+            
+            <!-- Dynamic 2-Line Tooltip -->
+            <div class="biomarker-dynamic-tooltip" style="display: none;">
+                <div class="tooltip-range-line"></div>
+                <div class="tooltip-value-line"></div>
+            </div>
+            
+            <!-- Ruler Bar with Notch Marks -->
+            <div class="biomarker-range-ruler">
+                <!-- Critical Range (Red) -->
+                <div class="biomarker-range-segment critical-range" style="left: 0%; width: 100%;"></div>
+                
+                <!-- Normal Range (Yellow) -->
+                <div class="biomarker-range-segment normal-range" 
+                     style="left: <?php echo esc_attr($normal_start_pos); ?>%; width: <?php echo esc_attr($normal_end_pos - $normal_start_pos); ?>%;"></div>
+                
+                <!-- Optimal Range (Green) -->
+                <div class="biomarker-range-segment optimal-range" 
+                     style="left: <?php echo esc_attr($optimal_start_pos); ?>%; width: <?php echo esc_attr($optimal_end_pos - $optimal_start_pos); ?>%;"></div>
+                
+                <!-- Ruler Notch Marks -->
+                <div class="biomarker-ruler-notches">
+                    <div class="biomarker-notch critical-min" style="left: 0%;" title="Critical Min: <?php echo esc_attr($critical_min . ' ' . $unit); ?>"></div>
+                    <div class="biomarker-notch normal-min" style="left: <?php echo esc_attr($normal_start_pos); ?>%;" title="Normal Min: <?php echo esc_attr($normal_min . ' ' . $unit); ?>"></div>
+                    <div class="biomarker-notch optimal-min" style="left: <?php echo esc_attr($optimal_start_pos); ?>%;" title="Optimal Min: <?php echo esc_attr($optimal_min . ' ' . $unit); ?>"></div>
+                    <div class="biomarker-notch optimal-max" style="left: <?php echo esc_attr($optimal_end_pos); ?>%;" title="Optimal Max: <?php echo esc_attr($optimal_max . ' ' . $unit); ?>"></div>
+                    <div class="biomarker-notch normal-max" style="left: <?php echo esc_attr($normal_end_pos); ?>%;" title="Normal Max: <?php echo esc_attr($normal_max . ' ' . $unit); ?>"></div>
+                    <div class="biomarker-notch critical-max" style="left: 100%;" title="Critical Max: <?php echo esc_attr($critical_max . ' ' . $unit); ?>"></div>
+                </div>
+                
+                <!-- X-axis Interval Labels -->
+                <div style="position: absolute; bottom: -25px; left: 0; width: 100%; height: 20px; pointer-events: none;">
+                    <div style="position: absolute; font-size: 10px; color: #dc2626; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: 0%;"><?php echo esc_html($critical_min . ' ' . $unit); ?></div>
+                    <div style="position: absolute; font-size: 10px; color: #ea580c; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: <?php echo esc_attr($normal_start_pos); ?>%;"><?php echo esc_html($normal_min . ' ' . $unit); ?></div>
+                    <div style="position: absolute; font-size: 10px; color: #16a34a; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: <?php echo esc_attr($optimal_start_pos); ?>%;"><?php echo esc_html($optimal_min . ' ' . $unit); ?></div>
+                    <div style="position: absolute; font-size: 10px; color: #16a34a; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: <?php echo esc_attr($optimal_end_pos); ?>%;"><?php echo esc_html($optimal_max . ' ' . $unit); ?></div>
+                    <div style="position: absolute; font-size: 10px; color: #ea580c; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: <?php echo esc_attr($normal_end_pos); ?>%;"><?php echo esc_html($normal_max . ' ' . $unit); ?></div>
+                    <div style="position: absolute; font-size: 10px; color: #dc2626; font-weight: 600; text-align: center; transform: translateX(-50%); white-space: nowrap; left: 100%;"><?php echo esc_html($critical_max . ' ' . $unit); ?></div>
+                </div>
+                
+                <!-- Debug markers for testing -->
+                <?php if (true): // Always show for debugging ?>
+                <div style="position: absolute; top: -40px; left: 0; width: 100%; font-size: 9px; color: #999;">
+                    <div style="position: absolute; left: 0%;">0%</div>
+                    <div style="position: absolute; left: 25%;">25%</div>
+                    <div style="position: absolute; left: 50%;">50%</div>
+                    <div style="position: absolute; left: 75%;">75%</div>
+                    <div style="position: absolute; left: 100%;">100%</div>
+                    <div style="position: absolute; left: <?php echo esc_attr($target_ruler_position); ?>%; color: purple; font-weight: bold;">T:<?php echo round($target_ruler_position, 1); ?>%</div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Current Value Dot -->
+                <?php if ($has_user_data && $current_ruler_position !== null): ?>
+                    <div class="biomarker-current-dot" 
+                         style="left: <?php echo esc_attr($current_ruler_position); ?>%;"
+                         data-biomarker-name="<?php echo esc_attr($display_name); ?>"
+                         data-value="<?php echo esc_attr($current_value); ?>"
+                         data-unit="<?php echo esc_attr($unit); ?>">
+                        <div class="biomarker-dot-label"><?php echo esc_html($current_value); ?></div>
+                        <div class="biomarker-dot-tooltip">
+                            <div class="tooltip-line-1">Your Current <?php echo esc_html($display_name); ?></div>
+                            <div class="tooltip-line-2"><?php echo esc_html($current_value . ' ' . $unit); ?></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Target Value Dot - Always show if target exists -->
+                <?php if ($target_value && $target_ruler_position !== null): ?>
+                    <div class="biomarker-target-dot" 
+                         style="left: <?php echo esc_attr($target_ruler_position); ?>%;"
+                         data-biomarker-name="<?php echo esc_attr($display_name); ?>"
+                         data-value="<?php echo esc_attr($target_value); ?>"
+                         data-unit="<?php echo esc_attr($unit); ?>">
+                        <div class="biomarker-dot-label"><?php echo esc_html($target_value); ?></div>
+                        <div class="biomarker-dot-tooltip">
+                            <div class="tooltip-line-1">Your Target <?php echo esc_html($display_name); ?></div>
+                            <div class="tooltip-line-2"><?php echo esc_html($target_value . ' ' . $unit); ?></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Range Labels - Hidden by default, shown as tooltips -->
+            <div class="biomarker-range-labels" style="display: none;">
+                <span class="biomarker-range-label critical"><?php echo esc_html($critical_min . ' ' . $unit); ?></span>
+                <span class="biomarker-range-label normal"><?php echo esc_html($normal_min . ' ' . $unit); ?></span>
+                <span class="biomarker-range-label optimal"><?php echo esc_html($optimal_min . ' ' . $unit); ?></span>
+                <span class="biomarker-range-label optimal"><?php echo esc_html($optimal_max . ' ' . $unit); ?></span>
+                <span class="biomarker-range-label normal"><?php echo esc_html($normal_max . ' ' . $unit); ?></span>
+                <span class="biomarker-range-label critical"><?php echo esc_html($critical_max . ' ' . $unit); ?></span>
+            </div>
+        </div>
+        
+        <!-- Compact Status Bar -->
+        <div class="biomarker-compact-status">
+            <!-- Status Badge -->
+            <div class="biomarker-status-badge <?php echo esc_attr($status['status_class']); ?>">
+                								<span class="status-icon">
+									<?php if ($status['status'] === 'optimal'): ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<polyline points="20,6 9,17 4,12"></polyline>
+										</svg>
+									<?php elseif ($status['status'] === 'suboptimal'): ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+											<line x1="12" y1="9" x2="12" y2="13"/>
+											<line x1="12" y1="17" x2="12.01" y2="17"/>
+										</svg>
+									<?php else: ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+										</svg>
+									<?php endif; ?>
+								</span>
+                <span class="status-text"><?php echo esc_html($status['status_text']); ?></span>
+            </div>
+            
+            <!-- Health Vector Badge -->
+            <div class="biomarker-health-badge">
+                <span class="health-text"><?php echo esc_html($health_vector); ?></span>
+        </div>
+        
+            <!-- Achievement Indicator -->
+            <div class="biomarker-achievement-badge <?php echo esc_attr($achievement_status['icon_class']); ?>">
+                								<span class="achievement-icon">
+									<?php if ($achievement_status['status'] === 'achieved'): ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<circle cx="12" cy="12" r="10"/>
+											<path d="M12 6v6l4 2"/>
+										</svg>
+									<?php elseif ($achievement_status['status'] === 'educational'): ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+											<polyline points="14,2 14,8 20,8"/>
+											<line x1="16" y1="13" x2="8" y2="13"/>
+											<line x1="16" y1="17" x2="8" y2="17"/>
+											<polyline points="10,9 9,9 8,9"/>
+										</svg>
+									<?php else: ?>
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+											<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+											<path d="M21 3v5h-5"/>
+											<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+											<path d="M3 21v-5h5"/>
+										</svg>
+									<?php endif; ?>
+								</span>
+                <span class="achievement-text"><?php echo esc_html($achievement_status['text']); ?></span>
+        </div>
+        </div>
+        
+        <!-- Values Row (only when user has data) -->
+        <?php if ($has_user_data): ?>
+        <div class="biomarker-values-row">
+            <div class="biomarker-current-display">
+                <span class="value-label">Current:</span>
+                <span class="value-number"><?php echo esc_html($current_value . ' ' . $unit); ?></span>
+        </div>
+            <div class="biomarker-target-display">
+                <span class="value-label">Target:</span>
+                <span class="value-number"><?php echo esc_html($target_value . ' ' . $unit); ?></span>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Admin Override Indicator -->
+        <?php if ($has_admin_override): ?>
+            <div class="biomarker-override-indicator">
+                <span class="biomarker-override-text">Custom Range Set</span>
+            </div>
+        <?php endif; ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+// Helper function to calculate percentage position
+function calculate_percentage_position($value, $min_range, $max_range) {
+    if ($max_range <= $min_range) {
+        return 50; // Default to middle if range is invalid
+    }
+    
+    $position = (($value - $min_range) / ($max_range - $min_range)) * 100;
+    
+    // Clamp to 0-100 range
+    return max(0, min(100, $position));
+}
+}
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -10,7 +855,7 @@ if ( isset( $template_args ) && is_array( $template_args ) ) {
 
 // Defensive checks for required variables
 if ( ! isset( $current_user ) || ! is_object( $current_user ) ) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__( 'ERROR: $current_user is not set or not an object.', 'ennulifeassessments' ) . '</div>';
+	echo '<div class="error-message">' . esc_html__( 'ERROR: $current_user is not set or not an object.', 'ennulifeassessments' ) . '</div>';
 	return;
 }
 $age                        = $age ?? '';
@@ -22,8 +867,13 @@ $user_assessments           = $user_assessments ?? array();
 $insights                   = $insights ?? array();
 $health_optimization_report = $health_optimization_report ?? array();
 $shortcode_instance         = $shortcode_instance ?? null;
+
+// Define missing variables to prevent warnings
+$is_female = ( strtolower( trim( $gender ?? '' ) ) === 'female' );
+$is_completed = ! empty( $user_assessments );
+$health_opt_assessment = isset( $user_assessments['health_optimization_assessment'] ) ? $user_assessments['health_optimization_assessment'] : null;
 if ( ! $shortcode_instance ) {
-	echo '<div style="color: red; background: #fff3f3; padding: 20px; border: 2px solid #f00;">' . esc_html__( 'ERROR: $shortcode_instance is not set.', 'ennulifeassessments' ) . '</div>';
+	echo '<div class="error-message">' . esc_html__( 'ERROR: $shortcode_instance is not set.', 'ennulifeassessments' ) . '</div>';
 	return;
 }
 
@@ -37,124 +887,7 @@ if ( empty( $display_name ) ) {
 }
 ?>
 <div class="ennu-user-dashboard">
-	<!-- Four-Engine Scoring Breakdown -->
-	<div class="ennu-scoring-engines" style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px;">
-		<h3 style="margin-bottom: 20px; color: var(--text-primary);">Your Four-Engine Scoring Breakdown</h3>
-		
-		<div class="engine-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-				<h4 style="color: var(--accent-color); margin-bottom: 10px;">1. Quantitative Engine</h4>
-				<p style="font-size: 14px; margin-bottom: 8px;">Base assessment scores from your completed evaluations</p>
-				<?php
-				$base_score = get_user_meta( $user_id, 'ennu_life_score', true );
-				echo '<p style="font-weight: bold;">Current Score: ' . esc_html( $base_score ? round( $base_score, 1 ) : 'N/A' ) . '</p>';
-				?>
-			</div>
-			
-			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-				<h4 style="color: var(--accent-color); margin-bottom: 10px;">2. Qualitative Engine</h4>
-				<?php
-				$qualitative_data = get_user_meta( $user_id, 'ennu_qualitative_data', true );
-				if ( ! empty( $qualitative_data['penalty_summary'] ) ) {
-					$summary = $qualitative_data['penalty_summary'];
-					echo '<p style="font-size: 14px;">Symptoms analyzed: ' . esc_html( $summary['total_symptoms'] ) . '</p>';
-					if ( ! empty( $summary['pillars_penalized'] ) ) {
-						echo '<p style="font-size: 14px;">Pillars affected: ' . esc_html( implode( ', ', $summary['pillars_penalized'] ) ) . '</p>';
-					}
-					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $qualitative_data['user_explanation'] ?? '' ) . '</p>';
-				} else {
-					echo '<p style="font-size: 14px;">No symptom penalties applied</p>';
-					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Complete Health Assessment</a></p>';
-				}
-				?>
-			</div>
-			
-			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-				<h4 style="color: var(--accent-color); margin-bottom: 10px;">3. Objective Engine</h4>
-				<?php
-				$objective_data = get_user_meta( $user_id, 'ennu_objective_data', true );
-				if ( ! empty( $objective_data['adjustment_summary'] ) ) {
-					$summary = $objective_data['adjustment_summary'];
-					echo '<p style="font-size: 14px;">Biomarkers analyzed: ' . esc_html( $summary['total_biomarkers'] ) . '</p>';
-					echo '<p style="font-size: 14px;">Adjustments applied: ' . esc_html( $summary['adjustments_applied'] ) . '</p>';
-					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $objective_data['user_explanation'] ?? '' ) . '</p>';
-				} else {
-					echo '<p style="font-size: 14px;">No biomarker data available</p>';
-					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Upload Lab Results</a></p>';
-				}
-				?>
-			</div>
-			
-			<div class="engine-card" style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-				<h4 style="color: var(--accent-color); margin-bottom: 10px;">4. Intentionality Engine</h4>
-				<?php
-				$intentionality_data = get_user_meta( $user_id, 'ennu_intentionality_data', true );
-				if ( ! empty( $intentionality_data['boost_summary'] ) ) {
-					$summary = $intentionality_data['boost_summary'];
-					echo '<p style="font-size: 14px;">Goals aligned: ' . esc_html( $summary['total_goals'] ) . '</p>';
-					echo '<p style="font-size: 14px;">Boosts applied: ' . esc_html( $summary['boosts_applied'] ) . '</p>';
-					echo '<p style="font-size: 12px; color: var(--text-secondary);">' . esc_html( $intentionality_data['user_explanation'] ?? '' ) . '</p>';
-				} else {
-					echo '<p style="font-size: 14px;">No goal alignment boosts</p>';
-					echo '<p><a href="#" class="ennu-btn" style="font-size: 12px; padding: 5px 10px;">Set Health Goals</a></p>';
-				}
-				?>
-			</div>
-		</div>
-	</div>
 
-	<!-- Goal Boost Explanation Section -->
-	<div class="goal-boost-explanation" style="margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2);">
-		<div class="explanation-header" style="display: flex; align-items: center; margin-bottom: 20px;">
-			<div class="explanation-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" style="color: white;">
-					<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-				</svg>
-			</div>
-			<div class="explanation-title">
-				<h3 style="margin: 0; color: var(--text-primary); font-size: 20px; font-weight: 600;">How Goal Boosts Work</h3>
-				<p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 14px;">Understanding your scoring system and goal alignment</p>
-			</div>
-		</div>
-		
-		<div class="explanation-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-			<div class="explanation-card" style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-				<h4 style="color: var(--accent-color); margin-bottom: 15px; font-size: 16px;">🎯 Goal Boost Application</h4>
-				<p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 10px;">
-					<strong>Goal boosts are applied to your CURRENT scores</strong>, not your New Life scores. When you select health goals, the Intentionality Engine (4th engine) applies percentage boosts to specific health pillars.
-				</p>
-				<div style="background: rgba(16, 185, 129, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #10b981;">
-					<p style="font-size: 13px; margin: 0; color: var(--text-primary);">
-						<strong>Example:</strong> "Weight Loss" goal gives +15% boost to Body pillar and +10% boost to Lifestyle pillar
-					</p>
-				</div>
-			</div>
-			
-			<div class="explanation-card" style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-				<h4 style="color: var(--accent-color); margin-bottom: 15px; font-size: 16px;">📊 Scoring Impact</h4>
-				<p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 10px;">
-					<strong>Every assessment question with scoring configuration impacts your scores.</strong> Questions without scoring are used for data collection and personalization only.
-				</p>
-				<div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-					<p style="font-size: 13px; margin: 0; color: var(--text-primary);">
-						<strong>Scoring happens:</strong> Immediately after assessment completion, with real-time updates via AJAX
-					</p>
-				</div>
-			</div>
-			
-			<div class="explanation-card" style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-				<h4 style="color: var(--accent-color); margin-bottom: 15px; font-size: 16px;">🚀 New Life Score Calculation</h4>
-				<p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 10px;">
-					<strong>New Life scores are aspirational</strong> - they show your potential health transformation based on doctor-recommended biomarker targets and your selected health goals.
-				</p>
-				<div style="background: rgba(168, 85, 247, 0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #a855f7;">
-					<p style="font-size: 13px; margin: 0; color: var(--text-primary);">
-						<strong>Formula:</strong> Current Scores + Doctor Targets + Goal Boosts = New Life Score
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<!-- Light/Dark Mode Toggle -->
 	<div class="theme-toggle-container">
@@ -180,7 +913,7 @@ if ( empty( $display_name ) ) {
 		</button>
 	</div>
 
-	<div class="starfield"></div>
+
 
 
 
@@ -202,76 +935,7 @@ if ( empty( $display_name ) ) {
 		?>
 
 		<main class="dashboard-main-content">
-			<!-- Journey Start Date Section -->
-			<div class="journey-start-section" style="margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2);">
-				<div class="journey-header" style="display: flex; align-items: center; margin-bottom: 20px;">
-					<div class="journey-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" style="color: white;">
-							<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-						</svg>
-					</div>
-					<div class="journey-title">
-						<h2 style="margin: 0; color: var(--text-primary); font-size: 24px; font-weight: 600;">Your Health Journey</h2>
-						<p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 16px;">Started on your path to optimal health</p>
-					</div>
-				</div>
-				
-				<div class="journey-details" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-					<?php
-					// Get journey start date (user registration or first assessment)
-					$user_registered         = $current_user->user_registered ?? '';
-					$first_assessment        = get_user_meta( $user_id, 'ennu_first_assessment_completed', true );
-					$journey_start_date      = $first_assessment ?: $user_registered;
-					$journey_start_formatted = $journey_start_date ? date( 'F j, Y', strtotime( $journey_start_date ) ) : 'Recently';
 
-					// Calculate journey duration
-					$journey_days     = $journey_start_date ? floor( ( time() - strtotime( $journey_start_date ) ) / ( 60 * 60 * 24 ) ) : 0;
-					$journey_duration = $journey_days > 0 ? $journey_days . ' days' : 'Just started';
-
-					// Get assessment completion stats
-					$completed_assessments = 0;
-					$total_assessments     = 11; // Total available assessments
-					$assessment_types      = array( 'welcome', 'hair', 'health', 'skin', 'sleep', 'hormone', 'menopause', 'testosterone', 'weight_loss', 'ed_treatment', 'health_optimization' );
-
-					foreach ( $assessment_types as $type ) {
-						$score = get_user_meta( $user_id, 'ennu_' . $type . '_calculated_score', true );
-						if ( ! empty( $score ) ) {
-							$completed_assessments++;
-						}
-					}
-					$completion_rate = $total_assessments > 0 ? round( ( $completed_assessments / $total_assessments ) * 100 ) : 0;
-					?>
-					
-					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">📅</div>
-						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Journey Started</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $journey_start_formatted ); ?></div>
-					</div>
-					
-					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
-						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Journey Duration</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $journey_duration ); ?></div>
-					</div>
-					
-					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">📊</div>
-						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Assessments Completed</div>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $completed_assessments ); ?>/<?php echo esc_html( $total_assessments ); ?></div>
-						<div class="stat-subtitle" style="font-size: 12px; color: var(--accent-color);"><?php echo esc_html( $completion_rate ); ?>% Complete</div>
-					</div>
-					
-					<div class="journey-stat" style="text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-						<div class="stat-icon" style="font-size: 24px; margin-bottom: 8px;">🎯</div>
-						<div class="stat-label" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 5px;">Health Goals Set</div>
-						<?php
-						$health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
-						$goals_count  = is_array( $health_goals ) ? count( $health_goals ) : 0;
-						?>
-						<div class="stat-value" style="font-size: 18px; font-weight: 600; color: var(--text-primary);"><?php echo esc_html( $goals_count ); ?> Goals</div>
-					</div>
-				</div>
-			</div>
 
 			<!-- Welcome Section -->
 			<div class="dashboard-welcome-section">
@@ -284,7 +948,86 @@ if ( empty( $display_name ) ) {
 						 alt="ENNU Life Logo" 
 						 class="dashboard-logo dark-mode-logo">
 				</div>
-				<h1 class="dashboard-title dashboard-title-large"><?php echo esc_html( $display_name ); ?>'s Biometric Canvas</h1>
+				<h1 class="dashboard-title dashboard-title-large" id="dynamic-greeting"><?php echo esc_html( $display_name ); ?>'s Biometric Canvas</h1>
+				<script>
+				// Dynamic greeting system using user's local time
+				(function() {
+					function getLocalTimeGreeting(displayName) {
+						const hour = new Date().getHours();
+						
+						// Morning variations (5 AM - 12 PM)
+						const morningGreetings = [
+							`Good morning, ${displayName}`,
+							`Morning, ${displayName}`,
+							`Rise and shine, ${displayName}`,
+							`Good morning, ${displayName}`,
+							`Morning, ${displayName}`
+						];
+						
+						// Afternoon variations (12 PM - 5 PM)
+						const afternoonGreetings = [
+							`Good afternoon, ${displayName}`,
+							`Afternoon, ${displayName}`,
+							`Good afternoon, ${displayName}`,
+							`Afternoon, ${displayName}`,
+							`Good afternoon, ${displayName}`
+						];
+						
+						// Evening variations (5 PM - 9 PM)
+						const eveningGreetings = [
+							`Good evening, ${displayName}`,
+							`Evening, ${displayName}`,
+							`Good evening, ${displayName}`,
+							`Evening, ${displayName}`,
+							`Good evening, ${displayName}`
+						];
+						
+						// Night variations (9 PM - 12 AM)
+						const nightGreetings = [
+							`Good evening, ${displayName}`,
+							`Evening, ${displayName}`,
+							`Good evening, ${displayName}`,
+							`Evening, ${displayName}`,
+							`Good evening, ${displayName}`
+						];
+						
+						// Late night variations (12 AM - 5 AM)
+						const lateNightGreetings = [
+							`Still up, ${displayName}?`,
+							`Late night, ${displayName}`,
+							`Night owl, ${displayName}`,
+							`Late night, ${displayName}`,
+							`Still awake, ${displayName}?`
+						];
+						
+						// Select greeting based on user's local time
+						let greetings;
+						if (hour >= 5 && hour < 12) {
+							greetings = morningGreetings;
+						} else if (hour >= 12 && hour < 17) {
+							greetings = afternoonGreetings;
+						} else if (hour >= 17 && hour < 21) {
+							greetings = eveningGreetings;
+						} else if (hour >= 21 && hour < 24) {
+							greetings = nightGreetings;
+						} else {
+							greetings = lateNightGreetings;
+						}
+						
+						// Randomly select one greeting
+						return greetings[Math.floor(Math.random() * greetings.length)];
+					}
+					
+					// Update the greeting when page loads
+					document.addEventListener('DOMContentLoaded', function() {
+						const greetingElement = document.getElementById('dynamic-greeting');
+						if (greetingElement) {
+							const displayName = '<?php echo esc_js( $display_name ); ?>';
+							greetingElement.textContent = getLocalTimeGreeting(displayName);
+						}
+					});
+				})();
+				</script>
 				<p class="dashboard-subtitle">Track your progress and discover personalized insights for optimal health.</p>
 				
 				<!-- Vital Statistics Display -->
@@ -351,107 +1094,39 @@ if ( empty( $display_name ) ) {
 			</div>
 
 			<!-- Scores Row -->
-			<div class="dashboard-scores-row">
-				<!-- Scores Title -->
-				<div class="scores-title-container">
+			<details class="dashboard-scores-accordion">
+				<summary class="scores-title-container">
 					<h2 class="scores-title">MY LIFE SCORES</h2>
-			</div>
+				</summary>
 
-				<!-- Scores Content Grid -->
-				<div class="scores-content-grid">
-					<!-- Left Pillar Scores -->
-					<div class="pillar-scores-left">
+				<!-- Enhanced Score Presentations -->
+				<div class="enhanced-scores-container">
+					<!-- ENNU Life Score Presentation -->
+					<div class="main-score-presentation">
+						<?php echo do_shortcode( '[ennu_score_presentation type="lifescore" show_pillars="true" show_history="true" show_interpretation="true" animation="true" size="large"]' ); ?>
+					</div>
+					
+					<!-- Individual Pillar Score Presentations -->
+					<div class="pillar-scores-grid">
 						<?php
 						if ( is_array( $average_pillar_scores ) ) {
-							$pillar_count = 0;
+							$pillar_map = array(
+								'mind' => 'pmind',
+								'body' => 'pbody', 
+								'lifestyle' => 'plifestyle',
+								'aesthetics' => 'paesthetics'
+							);
+							
 							foreach ( $average_pillar_scores as $pillar => $score ) {
-								if ( $pillar_count >= 2 ) {
-									break; // Only show first 2 pillars
-								}
-								$has_data      = ! empty( $score );
-								$pillar_class  = esc_attr( strtolower( $pillar ) );
-								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
-								$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
-								$insight_text  = $insights['pillars'][ $pillar ] ?? '';
+								$pillar_type = $pillar_map[ strtolower( $pillar ) ] ?? 'pmind';
 								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
-				<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-					<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
-									</svg>
-									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
+								<div class="pillar-score-presentation">
+									<?php echo do_shortcode( '[ennu_score_presentation type="' . $pillar_type . '" show_pillars="false" show_history="false" show_interpretation="true" animation="true" size="small"]' ); ?>
 								</div>
 								<?php
-								$pillar_count++;
 							}
 						}
 						?>
-					</div>
-
-					<!-- Center ENNU Life Score -->
-					<div class="ennu-life-score-center">
-						<div class="main-score-orb" data-score="<?php echo esc_attr( $ennu_life_score ?? 0 ); ?>" data-insight="<?php echo esc_attr( $insights['ennu_life_score'] ?? '' ); ?>">
-							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-								<defs>
-									<linearGradient id="ennu-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-										<stop offset="0%" stop-color="rgba(16, 185, 129, 0.6)"/>
-										<stop offset="50%" stop-color="rgba(5, 150, 105, 0.6)"/>
-										<stop offset="100%" stop-color="rgba(4, 120, 87, 0.6)"/>
-									</linearGradient>
-								</defs>
-								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $ennu_life_score ?? 0 ) * 10 ); ?>;"></circle>
-				</svg>
-				<div class="main-score-text">
-					<div class="main-score-value">0.0</div>
-					<div class="main-score-label">ENNU Life Score</div>
-							</div>
-							<div class="decoration-dots"></div>
-				</div>
-			</div>
-
-					<!-- Right Pillar Scores -->
-					<div class="pillar-scores-right">
-				<?php
-				if ( is_array( $average_pillar_scores ) ) {
-					$pillar_count  = 0;
-					$total_pillars = count( $average_pillar_scores );
-					foreach ( $average_pillar_scores as $pillar => $score ) {
-						if ( $pillar_count < 2 ) { // Skip first 2 pillars
-							$pillar_count++;
-							continue;
-						}
-						if ( $pillar_count >= 4 ) {
-							break; // Only show next 2 pillars
-						}
-						$has_data      = ! empty( $score );
-						$pillar_class  = esc_attr( strtolower( $pillar ) );
-						$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
-						$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
-						$insight_text  = $insights['pillars'][ $pillar ] ?? '';
-						?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
-							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
-							</svg>
-							<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
-								</div>
-						<?php
-						$pillar_count++;
-					}
-				}
-				?>
 					</div>
 				</div>
 
@@ -461,13 +1136,13 @@ if ( empty( $display_name ) ) {
 						<!-- This will be populated by JavaScript -->
 					</div>
 				</div>
-			</div>
+			</details>
 
 			<!-- My Health Goals Section -->
-			<div class="health-goals-section">
-				<div class="scores-title-container">
+			<details class="health-goals-accordion">
+				<summary class="scores-title-container">
 					<h2 class="scores-title">MY HEALTH GOALS</h2>
-				</div>
+				</summary>
 				<div class="health-goals-grid" role="group" aria-label="Select your health goals">
 					<?php
 					if ( isset( $health_goals_data ) && isset( $health_goals_data['all_goals'] ) ) :
@@ -481,7 +1156,7 @@ if ( empty( $display_name ) ) {
 								 aria-label="<?php echo esc_attr( $goal['label'] . ( $goal['selected'] ? ' - Currently selected' : ' - Click to select' ) ); ?>"
 								 title="<?php echo esc_attr( $goal['description'] ?? $goal['label'] ); ?>">
 								<div class="goal-pill-icon" aria-hidden="true">
-									<?php echo wp_kses_post( $goal['icon'] ); ?>
+									<?php echo $goal['icon']; ?>
 								</div>
 								<span class="goal-pill-text"><?php echo esc_html( $goal['label'] ); ?></span>
 								<span class="goal-pill-check <?php echo $goal['selected'] ? 'visible' : ''; ?>" aria-hidden="true">
@@ -540,7 +1215,7 @@ if ( empty( $display_name ) ) {
 					endif;
 					?>
 				</div>
-			</div>
+			</details>
 
 			<!-- My Story Tabbed Section -->
 			<div class="my-story-section">
@@ -551,17 +1226,19 @@ if ( empty( $display_name ) ) {
 				<div class="my-story-tabs">
 					<nav class="my-story-tab-nav">
 						<ul>
-							<li><a href="#tab-my-assessments" class="my-story-tab-active">My Assessments</a></li>
+							<li><a href="#tab-my-assessments">My Assessments</a></li>
+							<li><a href="#tab-my-biomarkers" class="my-story-tab-active">My Biomarkers</a></li>
 							<li><a href="#tab-my-symptoms">My Symptoms</a></li>
-							<li><a href="#tab-my-biomarkers">My Biomarkers</a></li>
-							<li><a href="#tab-my-trends">My Trends</a></li>
-							<li><a href="#tab-my-profile">My Profile</a></li>
-							<li><a href="#tab-my-new-life">My New Life</a></li>
 						</ul>
 					</nav>
 					
 					<!-- Tab 1: My Assessments -->
-					<div id="tab-my-assessments" class="my-story-tab-content my-story-tab-active">
+					<div id="tab-my-assessments" class="my-story-tab-content">
+						<!-- Header Section - Matching My Story Styling -->
+						<div class="scores-title-container">
+							<h2 class="scores-title">MY ASSESSMENTS</h2>
+						</div>
+						
 						<div class="assessment-cards-container">
 							<?php
 							// Define the ordered assessment pairs with inclusive logic
@@ -688,21 +1365,26 @@ if ( empty( $display_name ) ) {
 											if ( isset( $assessment_icons[ $assessment_key ] ) ) {
 												$assessment_icon = $assessment_icons[ $assessment_key ];
 											}
-											// Debug: Let's see what's happening
-											// echo "<!-- Debug: assessment_key = '$assessment_key', icon found = " . (!empty($assessment_icon) ? 'yes' : 'no') . " -->";
 											?>
 											<?php if ( ! empty( $assessment_icon ) ) : ?>
 												<div class="assessment-icon">
-													<?php echo wp_kses_post( $assessment_icon ); ?>
+													<?php echo $assessment_icon; ?>
 												</div>
 											<?php endif; ?>
 											<h3 class="assessment-title"><?php echo esc_html( $assessment['label'] ?? ucwords( str_replace( '_', ' ', $assessment['key'] ?? 'Assessment' ) ) ); ?></h3>
 											<div class="assessment-status">
 												<?php if ( $assessment['completed'] && isset( $assessment['score'] ) ) : ?>
+													<?php if ( $assessment['key'] === 'health_optimization_assessment' ) : ?>
+														<div class="assessment-analysis-display">
+															<span class="analysis-value"><?php echo esc_html( $assessment['score'] ); ?></span>
+															<span class="analysis-label">Analysis</span>
+														</div>
+													<?php else : ?>
 													<div class="assessment-score-display">
 														<span class="score-value"><?php echo esc_html( number_format( $assessment['score'], 1 ) ); ?></span>
 														<span class="score-label">Score</span>
 													</div>
+													<?php endif; ?>
 												<?php endif; ?>
 												<?php if ( $assessment['completed'] ) : ?>
 													<div class="status-completed-container">
@@ -892,2707 +1574,979 @@ if ( empty( $display_name ) ) {
 					<!-- Tab 2: My Symptoms -->
 					<div id="tab-my-symptoms" class="my-story-tab-content">
 						<div class="symptoms-container">
+							<!-- Header Section - Matching My Story Styling -->
+							<div class="scores-title-container">
+								<h2 class="scores-title">MY SYMPTOMS</h2>
+							</div>
+							
 							<div class="symptoms-overview">
-								<div class="symptoms-header">
-									<h3 class="tab-section-title">My Symptoms</h3>
-									<p class="tab-subtitle">Track your health symptoms and the biomarkers that should be reviewed</p>
-								</div>
-								
 								<?php
-								// Enhanced symptom data with specific biomarker recommendations
-								$official_symptoms = array(
-									'Energy'           => array(
-										'Fatigue'         => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S' ),
-										),
-										'Lack of Motivation' => array(
-											'severity'   => 'mild',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12' ),
-										),
-										'Reduced Physical Performance' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron' ),
-										),
-										'Decreased Physical Activity' => array(
-											'severity'   => 'mild',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin' ),
-										),
-										'Muscle Weakness' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium' ),
-										),
-										'Weakness'        => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase' ),
-										),
-									),
-									'Heart Health'     => array(
-										'Chest Pain'      => array(
-											'severity'   => 'critical',
-											'frequency'  => 'weekly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides' ),
-										),
-										'Shortness of Breath' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12' ),
-										),
-										'Palpitations'    => array(
-											'severity'   => 'moderate',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel' ),
-										),
-										'Lightheadedness' => array(
-											'severity'   => 'moderate',
-											'frequency'  => '2-3 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure' ),
-										),
-										'Poor Exercise Tolerance' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol' ),
-										),
-										'Swelling'        => array(
-											'severity'   => 'mild',
-											'frequency'  => 'weekly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP' ),
-										),
-									),
-									'Hormones'         => array(
-										'Anxiety'         => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium' ),
-										),
-										'Depression'      => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3' ),
-										),
-										'Irritability'    => array(
-											'severity'   => 'mild',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium' ),
-										),
-										'Hot Flashes'     => array(
-											'severity'   => 'moderate',
-											'frequency'  => '4-5 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel' ),
-										),
-										'Night Sweats'    => array(
-											'severity'   => 'mild',
-											'frequency'  => '2-3 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel' ),
-										),
-										'Erectile Dysfunction' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
-										),
-										'Vaginal Dryness' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D' ),
-										),
-										'Infertility'     => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel' ),
-										),
-									),
-									'Weight Loss'      => array(
-										'Increased Body Fat' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
-										),
-										'Abdominal Fat Gain' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP' ),
-										),
-										'Weight Changes'  => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes' ),
-										),
-										'Slow Metabolism' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12' ),
-										),
-										'Blood Glucose Dysregulation' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP' ),
-										),
-										'High Blood Pressure' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid' ),
-										),
-										'Joint Pain'      => array(
-											'severity'   => 'mild',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers' ),
-										),
-										'Sleep Problems'  => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium' ),
-										),
-									),
-									'Strength'         => array(
-										'Muscle Loss'      => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
-										),
-										'Muscle Mass Loss' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine' ),
-										),
-										'Decreased Mobility' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers' ),
-										),
-										'Poor Balance'     => array(
-											'severity'   => 'mild',
-											'frequency'  => '2-3 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol' ),
-										),
-										'Slow Recovery'    => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
-										),
-										'Prolonged Soreness' => array(
-											'severity'   => 'mild',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3' ),
-										),
-									),
-									'Longevity'        => array(
-										'Chronic Fatigue'  => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length' ),
-										),
-										'Cognitive Decline' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length' ),
-										),
-										'Frequent Illness' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'monthly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length' ),
-										),
-										'Itchy Skin'       => array(
-											'severity'   => 'mild',
-											'frequency'  => 'weekly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP' ),
-										),
-										'Slow Healing Wounds' => array(
-											'severity'   => 'moderate',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers' ),
-										),
-									),
-									'Cognitive Health' => array(
-										'Brain Fog'    => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine' ),
-										),
-										'Confusion'    => array(
-											'severity'   => 'critical',
-											'frequency'  => '3-4 times/week',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
-										),
-										'Memory Loss'  => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE' ),
-										),
-										'Poor Concentration' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine' ),
-										),
-										'Language Problems' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'weekly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE' ),
-										),
-										'Poor Coordination' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'weekly',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
-										),
-										'Change in Personality' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel' ),
-										),
-										'Mood Changes' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP' ),
-										),
-										'Sleep Disturbance' => array(
-											'severity'   => 'critical',
-											'frequency'  => 'daily',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP' ),
-										),
-									),
-									'Libido'           => array(
-										'Low Libido'      => array(
-											'severity'   => 'mild',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12' ),
-										),
-										'Low Self-Esteem' => array(
-											'severity'   => 'mild',
-											'frequency'  => 'ongoing',
-											'assessment' => 'Health Optimization',
-											'biomarkers' => array( 'Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin' ),
-										),
-									),
-								);
-
-								$total_symptoms = 0;
-								foreach ( $official_symptoms as $category => $symptoms ) {
-									$total_symptoms += count( $symptoms );
-								}
+								// Get centralized symptoms from the manager
+								$centralized_symptoms = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms($user_id);
+								$current_symptoms = $centralized_symptoms['symptoms'] ?? array();
+								$symptoms_by_assessment = $centralized_symptoms['by_assessment'] ?? array();
+								
+								// Get symptom history
+								$symptom_history = get_user_meta($user_id, 'ennu_symptom_history', true);
+								$symptom_history = is_array($symptom_history) ? $symptom_history : array();
+								
+								// Get flagged biomarkers
+								$flag_manager = new ENNU_Biomarker_Flag_Manager();
+								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+								
+								// Calculate statistics
+								$total_symptoms = count($current_symptoms);
+								$active_symptoms = count(array_filter($current_symptoms, function($symptom) {
+									return isset($symptom['status']) && $symptom['status'] === 'active';
+								}));
+								$biomarker_correlations = count($flagged_biomarkers);
+								$trending_symptoms = count(array_filter($current_symptoms, function($symptom) {
+									return isset($symptom['occurrence_count']) && $symptom['occurrence_count'] > 1;
+								}));
 								?>
 								
-								<div class="symptoms-stats">
-									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( $total_symptoms ); ?></div>
-										<div class="stat-label">Total Symptoms Reported</div>
+								<!-- Clean Stats Row -->
+								<div class="biomarkers-stats-row">
+									<div class="stat-item">
+										<span class="stat-number"><?php echo $total_symptoms; ?></span>
+										<span class="stat-label">Symptoms Logged</span>
 									</div>
-									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( count( $official_symptoms ) ); ?></div>
-										<div class="stat-label">Symptom Categories</div>
+									<div class="stat-item">
+										<span class="stat-number"><?php 
+											$flag_manager = new ENNU_Biomarker_Flag_Manager();
+											$flagged_count = count($flag_manager->get_flagged_biomarkers($user_id, 'active'));
+											echo $flagged_count;
+										?></span>
+										<span class="stat-label">Biomarkers Flagged</span>
 									</div>
-									<div class="symptom-stat-card">
-										<div class="stat-number">4</div>
-										<div class="stat-label">Assessments Completed</div>
+									<div class="stat-item">
+										<span class="stat-number"><?php echo $active_symptoms; ?></span>
+										<span class="stat-label">Active Symptoms</span>
 									</div>
 								</div>
 								
-								<div class="symptoms-categories">
-									<?php foreach ( $official_symptoms as $category => $symptoms ) : ?>
-										<div class="collapsible-section">
-											<div class="collapsible-header" onclick="toggleCollapsible(this)">
-												<h4 class="collapsible-title">
-													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
-														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-													</svg>
-													<?php echo esc_html( $category ); ?>
-												</h4>
-												<span class="symptom-count"><?php echo count( $symptoms ); ?> symptoms</span>
-											</div>
-											<div class="collapsible-content">
-												<div class="symptoms-list">
-													<?php foreach ( $symptoms as $symptom => $details ) : ?>
-														<div class="symptom-item enhanced">
-															<div class="symptom-main">
-																<div class="symptom-icon">
-																	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-																		<circle cx="12" cy="12" r="3"/>
-																		<path d="M12 1v6m0 6v6"/>
-																		<path d="M17.5 7.5l-5.5 5.5-5.5-5.5"/>
-																	</svg>
-																</div>
-																<div class="symptom-details">
-																	<span class="symptom-text"><?php echo esc_html( $symptom ); ?></span>
-																	<div class="symptom-meta">
-																		<span class="symptom-frequency"><?php echo esc_html( $details['frequency'] ); ?></span>
-																		<span class="symptom-assessment"><?php echo esc_html( $details['assessment'] ); ?></span>
-																	</div>
-																	<!-- Enhanced biomarker display -->
-																	<div class="symptom-biomarkers">
-																		<span class="biomarkers-label">Review Biomarkers:</span>
-																		<div class="biomarkers-list">
-																			<?php foreach ( $details['biomarkers'] as $biomarker ) : ?>
-																				<span class="biomarker-tag"><?php echo esc_html( $biomarker ); ?></span>
-																			<?php endforeach; ?>
-																		</div>
-																	</div>
-																</div>
-															</div>
-															<div class="symptom-severity">
-																<div class="severity-indicator <?php echo esc_attr( $details['severity'] ); ?>">
-																	<span class="severity-dot"></span>
-																	<span class="severity-label"><?php echo esc_html( ucfirst( $details['severity'] ) ); ?></span>
-																</div>
-															</div>
-														</div>
-													<?php endforeach; ?>
-												</div>
-											</div>
-										</div>
-									<?php endforeach; ?>
-								</div>
-								
-								<!-- Symptom Analysis & Recommendations -->
-								<div class="symptom-analysis">
-									<div class="analysis-header">
-										<h4 class="analysis-title">Symptom Analysis & Recommendations</h4>
-										<p class="analysis-subtitle">Based on your reported symptoms, here's what we recommend:</p>
+								<!-- Current Symptoms Section -->
+								<div class="current-symptoms-section">
+									<div class="section-header">
+										<h4>Current Symptoms</h4>
+										<p>Active symptoms extracted from your assessments and health data</p>
 									</div>
 									
-									<div class="recommendations-grid">
-										<div class="recommendation-card priority">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Priority: Hormone Optimization</h5>
-												<p>Your symptoms suggest hormonal imbalances. Lab testing recommended to identify root causes.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
-											</div>
-										</div>
-										
-										<div class="recommendation-card">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2v20M2 12h20"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Complete Lab Panel</h5>
-												<p>Comprehensive biomarker testing to identify underlying health issues.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
-											</div>
-										</div>
-										
-										<div class="recommendation-card">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-													<circle cx="12" cy="7" r="4"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Personalized Coaching</h5>
-												<p>Work with a health coach to address symptoms systematically.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Symptom Tracking CTA -->
-								<div class="symptom-tracking-cta">
-									<div class="cta-content">
-										<h4>Ready to Transform Your Health?</h4>
-										<p>Get personalized recommendations and track your progress with our comprehensive health assessment.</p>
-										<div class="cta-buttons">
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-												</svg>
-												ENNU Full Body Diagnostic ($599)
-											</a>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">
-												Join ENNU LIFE Membership
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-||||||| f31b4df
-					<p class="report-subtitle">
-						<?php if ( $is_completed ) : ?>
-							Your key health vectors. Expand to see related symptoms and biomarkers.
-						<?php else : ?>
-							Explore health vectors to understand symptoms and biomarkers for each area.
-						<?php endif; ?>
-					</p>
-
-					<?php if ( ! $is_completed && $health_opt_assessment ) : ?>
-						<div class="empty-state-actions" style="margin: 15px 0;">
-							<a href="<?php echo esc_url( $health_opt_assessment['url'] ); ?>" class="action-button button-report" style="width: 100%; text-align: center;">Start Health Optimization</a>
-						</div>
-					<?php endif; ?>
-					
-					<!-- Tab 2: My Symptoms -->
-					<div id="tab-my-symptoms" class="my-story-tab-content">
-						<div class="symptoms-container">
-							<div class="symptoms-overview">
-								<div class="symptoms-header">
-									<h3 class="tab-section-title">My Symptoms</h3>
-									<p class="tab-subtitle">Track your health symptoms and the biomarkers that should be reviewed</p>
-								</div>
-								
-								<?php
-								// NEW: Use centralized symptoms system
-								if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
-									$centralized_symptoms = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms( get_current_user_id() );
-									$symptom_analytics    = ENNU_Centralized_Symptoms_Manager::get_symptom_analytics( get_current_user_id() );
-
-									if ( ! empty( $centralized_symptoms['symptoms'] ) ) {
-										echo '<div class="symptom-summary">';
-										echo '<div class="symptom-stats">';
-										echo '<div class="stat-item"><span class="stat-number">' . $symptom_analytics['total_symptoms'] . '</span><span class="stat-label">Total Symptoms</span></div>';
-										echo '<div class="stat-item"><span class="stat-number">' . $symptom_analytics['unique_symptoms'] . '</span><span class="stat-label">Unique Symptoms</span></div>';
-										echo '<div class="stat-item"><span class="stat-number">' . $symptom_analytics['assessments_with_symptoms'] . '</span><span class="stat-label">Assessments</span></div>';
-										echo '</div>';
-										echo '</div>';
-
-										// Display symptoms by category
-										foreach ( $centralized_symptoms['by_category'] as $category => $symptom_keys ) {
-											echo '<div class="symptom-category">';
-											echo '<h4 class="category-title">' . esc_html( $category ) . '</h4>';
-
-											foreach ( $symptom_keys as $symptom_key ) {
-												$symptom = $centralized_symptoms['symptoms'][ $symptom_key ];
-												echo '<div class="symptom-item">';
-												echo '<div class="symptom-name">' . esc_html( $symptom['name'] ) . '</div>';
-
-												if ( ! empty( $symptom['severity'] ) ) {
-													echo '<div class="symptom-severity">Severity: ' . esc_html( $symptom['severity'][0] ) . '</div>';
-												}
-
-												if ( ! empty( $symptom['frequency'] ) ) {
-													echo '<div class="symptom-frequency">Frequency: ' . esc_html( $symptom['frequency'][0] ) . '</div>';
-												}
-
-												echo '<div class="symptom-assessments">From: ' . esc_html( implode( ', ', $symptom['assessments'] ) ) . '</div>';
-												echo '</div>';
-											}
-
-											echo '</div>';
-										}
-									} else {
-										echo '<div class="no-symptoms">No symptoms reported yet. Complete assessments to see your symptoms here.</div>';
-									}
-								} else {
-									// FALLBACK: Enhanced symptom data with specific biomarker recommendations
-									$official_symptoms = array(
-										'Energy'           => array(
-											'Fatigue'  => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'TSH', 'Free T3', 'Free T4', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Testosterone', 'DHEA-S' ),
-											),
-											'Lack of Motivation' => array(
-												'severity' => 'mild',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'DHEA-S', 'Cortisol', 'Dopamine', 'Serotonin', 'Vitamin D', 'B12' ),
-											),
-											'Reduced Physical Performance' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Creatine Kinase', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron' ),
-											),
-											'Decreased Physical Activity' => array(
-												'severity' => 'mild',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin' ),
-											),
-											'Muscle Weakness' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Creatine Kinase', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium' ),
-											),
-											'Weakness' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'Calcium', 'Magnesium', 'Creatine Kinase' ),
-											),
-										),
-										'Heart Health'     => array(
-											'Chest Pain'   => array(
-												'severity' => 'critical',
-												'frequency' => 'weekly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Troponin', 'CK-MB', 'BNP', 'CRP', 'Homocysteine', 'Lipoprotein(a)', 'ApoB', 'LDL-C', 'HDL-C', 'Triglycerides' ),
-											),
-											'Shortness of Breath' => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'BNP', 'Troponin', 'CRP', 'D-Dimer', 'Hemoglobin', 'Iron', 'Ferritin', 'Vitamin B12' ),
-											),
-											'Palpitations' => array(
-												'severity' => 'moderate',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Troponin', 'BNP', 'Electrolytes', 'Magnesium', 'Calcium', 'Potassium', 'Sodium', 'Thyroid Panel' ),
-											),
-											'Lightheadedness' => array(
-												'severity' => 'moderate',
-												'frequency' => '2-3 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Hemoglobin', 'Iron', 'Ferritin', 'B12', 'Electrolytes', 'Cortisol', 'Blood Pressure' ),
-											),
-											'Poor Exercise Tolerance' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'VO2 Max', 'Lactate Threshold', 'Hemoglobin', 'Iron', 'Ferritin', 'Testosterone', 'Cortisol' ),
-											),
-											'Swelling'     => array(
-												'severity' => 'mild',
-												'frequency' => 'weekly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'BNP', 'Albumin', 'Creatinine', 'eGFR', 'Electrolytes', 'CRP' ),
-											),
-										),
-										'Hormones'         => array(
-											'Anxiety'      => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Magnesium' ),
-											),
-											'Depression'   => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3' ),
-											),
-											'Irritability' => array(
-												'severity' => 'mild',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Blood Sugar', 'Magnesium' ),
-											),
-											'Hot Flashes'  => array(
-												'severity' => 'moderate',
-												'frequency' => '4-5 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Thyroid Panel' ),
-											),
-											'Night Sweats' => array(
-												'severity' => 'mild',
-												'frequency' => '2-3 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'Cortisol', 'Thyroid Panel' ),
-											),
-											'Erectile Dysfunction' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Prolactin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
-											),
-											'Vaginal Dryness' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Estradiol', 'Progesterone', 'FSH', 'LH', 'Testosterone', 'DHEA-S', 'Vitamin D' ),
-											),
-											'Infertility'  => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'FSH', 'LH', 'Estradiol', 'Progesterone', 'Testosterone', 'Prolactin', 'AMH', 'Inhibin B', 'Thyroid Panel' ),
-											),
-										),
-										'Weight Loss'      => array(
-											'Increased Body Fat' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar' ),
-											),
-											'Abdominal Fat Gain' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Lipid Panel', 'Blood Sugar', 'CRP' ),
-											),
-											'Weight Changes' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Thyroid Panel', 'Blood Sugar', 'Electrolytes' ),
-											),
-											'Slow Metabolism' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Thyroid Panel', 'Testosterone', 'Cortisol', 'Insulin', 'Leptin', 'Adiponectin', 'Vitamin D', 'B12' ),
-											),
-											'Blood Glucose Dysregulation' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Fasting Glucose', 'HbA1c', 'Insulin', 'C-Peptide', 'Leptin', 'Adiponectin', 'Lipid Panel', 'CRP' ),
-											),
-											'High Blood Pressure' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Renin', 'Aldosterone', 'Cortisol', 'Catecholamines', 'Lipid Panel', 'CRP', 'Homocysteine', 'Uric Acid' ),
-											),
-											'Joint Pain' => array(
-												'severity' => 'mild',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'CRP', 'ESR', 'Uric Acid', 'Vitamin D', 'Calcium', 'Magnesium', 'Omega-3', 'Collagen Markers' ),
-											),
-											'Sleep Problems' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium' ),
-											),
-										),
-										'Strength'         => array(
-											'Muscle Loss'  => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
-											),
-											'Muscle Mass Loss' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Myostatin', 'Vitamin D', 'B12', 'Iron', 'Protein Markers', 'Creatinine' ),
-											),
-											'Decreased Mobility' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'Vitamin D', 'Calcium', 'Magnesium', 'CRP', 'Collagen Markers' ),
-											),
-											'Poor Balance' => array(
-												'severity' => 'mild',
-												'frequency' => '2-3 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Iron', 'Calcium', 'Magnesium', 'Testosterone', 'Cortisol' ),
-											),
-											'Slow Recovery' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'IGF-1', 'Creatine Kinase', 'CRP', 'Vitamin D', 'B12', 'Iron', 'Protein Markers' ),
-											),
-											'Prolonged Soreness' => array(
-												'severity' => 'mild',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Creatine Kinase', 'CRP', 'Lactate Dehydrogenase', 'Vitamin D', 'B12', 'Iron', 'Magnesium', 'Omega-3' ),
-											),
-										),
-										'Longevity'        => array(
-											'Chronic Fatigue' => array(
-												'severity' => 'moderate',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'DHEA-S', 'Testosterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Iron', 'Ferritin', 'CRP', 'Telomere Length' ),
-											),
-											'Cognitive Decline' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP', 'Homocysteine', 'ApoE', 'BDNF', 'Telomere Length' ),
-											),
-											'Frequent Illness' => array(
-												'severity' => 'moderate',
-												'frequency' => 'monthly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'Zinc', 'Selenium', 'CRP', 'White Blood Cell Count', 'Immunoglobulin Levels', 'Telomere Length' ),
-											),
-											'Itchy Skin' => array(
-												'severity' => 'mild',
-												'frequency' => 'weekly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Liver Function Tests', 'Allergy Markers', 'CRP' ),
-											),
-											'Slow Healing Wounds' => array(
-												'severity' => 'moderate',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'Zinc', 'B12', 'Iron', 'Protein Markers', 'Blood Sugar', 'CRP', 'Collagen Markers' ),
-											),
-										),
-										'Cognitive Health' => array(
-											'Brain Fog'    => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine' ),
-											),
-											'Confusion'    => array(
-												'severity' => 'critical',
-												'frequency' => '3-4 times/week',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
-											),
-											'Memory Loss'  => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'ApoE' ),
-											),
-											'Poor Concentration' => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Testosterone', 'Estradiol', 'CRP', 'Homocysteine', 'Dopamine' ),
-											),
-											'Language Problems' => array(
-												'severity' => 'critical',
-												'frequency' => 'weekly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'CRP', 'Homocysteine', 'ApoE' ),
-											),
-											'Poor Coordination' => array(
-												'severity' => 'critical',
-												'frequency' => 'weekly',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'Thyroid Panel', 'Cortisol', 'Blood Sugar', 'Electrolytes', 'CRP' ),
-											),
-											'Change in Personality' => array(
-												'severity' => 'critical',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Thyroid Panel', 'CRP', 'Homocysteine', 'ApoE', 'Neurotransmitter Panel' ),
-											),
-											'Mood Changes' => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Folate', 'Omega-3', 'CRP' ),
-											),
-											'Sleep Disturbance' => array(
-												'severity' => 'critical',
-												'frequency' => 'daily',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Cortisol', 'Melatonin', 'Testosterone', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'Magnesium', 'CRP' ),
-											),
-										),
-										'Libido'           => array(
-											'Low Libido' => array(
-												'severity' => 'mild',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Free Testosterone', 'DHEA-S', 'Estradiol', 'Progesterone', 'Prolactin', 'Thyroid Panel', 'Vitamin D', 'B12' ),
-											),
-											'Low Self-Esteem' => array(
-												'severity' => 'mild',
-												'frequency' => 'ongoing',
-												'assessment' => 'Health Optimization',
-												'biomarkers' => array( 'Testosterone', 'Cortisol', 'DHEA-S', 'Estradiol', 'Progesterone', 'Thyroid Panel', 'Vitamin D', 'B12', 'Serotonin' ),
-											),
-										),
-									);
-
-									$total_symptoms = 0;
-									foreach ( $official_symptoms as $category => $symptoms ) {
-										$total_symptoms += count( $symptoms );
-									}
-									?>
-								
-								<?php } // End of fallback condition ?>
-								
-								<div class="symptoms-stats">
-									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( $total_symptoms ); ?></div>
-										<div class="stat-label">Total Symptoms Reported</div>
-									</div>
-									<div class="symptom-stat-card">
-										<div class="stat-number"><?php echo esc_html( count( $official_symptoms ) ); ?></div>
-										<div class="stat-label">Symptom Categories</div>
-									</div>
-									<div class="symptom-stat-card">
-										<div class="stat-number">4</div>
-										<div class="stat-label">Assessments Completed</div>
-									</div>
-								</div>
-								
-								<div class="symptoms-categories">
-									<?php foreach ( $official_symptoms as $category => $symptoms ) : ?>
-										<div class="collapsible-section">
-											<div class="collapsible-header" onclick="toggleCollapsible(this)">
-												<h4 class="collapsible-title">
-													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
-														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-													</svg>
-													<?php echo esc_html( $category ); ?>
-												</h4>
-												<span class="symptom-count"><?php echo count( $symptoms ); ?> symptoms</span>
-											</div>
-											<div class="collapsible-content">
-												<div class="symptoms-list">
-													<?php foreach ( $symptoms as $symptom => $details ) : ?>
-														<div class="symptom-item enhanced">
-															<div class="symptom-main">
-																<div class="symptom-icon">
-																	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-																		<circle cx="12" cy="12" r="3"/>
-																		<path d="M12 1v6m0 6v6"/>
-																		<path d="M17.5 7.5l-5.5 5.5-5.5-5.5"/>
-																	</svg>
-																</div>
-																<div class="symptom-details">
-																	<span class="symptom-text"><?php echo esc_html( $symptom ); ?></span>
-																	<div class="symptom-meta">
-																		<span class="symptom-frequency"><?php echo esc_html( $details['frequency'] ); ?></span>
-																		<span class="symptom-assessment"><?php echo esc_html( $details['assessment'] ); ?></span>
-																	</div>
-																	<!-- Enhanced biomarker display -->
-																	<div class="symptom-biomarkers">
-																		<span class="biomarkers-label">Review Biomarkers:</span>
-																		<div class="biomarkers-list">
-																			<?php foreach ( $details['biomarkers'] as $biomarker ) : ?>
-																				<span class="biomarker-tag"><?php echo esc_html( $biomarker ); ?></span>
-																			<?php endforeach; ?>
-																		</div>
-																	</div>
-																</div>
-															</div>
-															<div class="symptom-severity">
-																<div class="severity-indicator <?php echo esc_attr( $details['severity'] ); ?>">
-																	<span class="severity-dot"></span>
-																	<span class="severity-label"><?php echo esc_html( ucfirst( $details['severity'] ) ); ?></span>
-																</div>
+									<?php if (!empty($current_symptoms)) : ?>
+										<div class="symptoms-grid">
+											<?php foreach ($current_symptoms as $symptom_key => $symptom_data) : ?>
+												<div class="symptom-card" data-symptom="<?php echo esc_attr($symptom_key); ?>">
+													<div class="symptom-header">
+														<div class="symptom-icon">🩺</div>
+														<div class="symptom-info">
+															<h5 class="symptom-name"><?php echo esc_html($symptom_data['name'] ?? ucwords(str_replace('_', ' ', $symptom_key))); ?></h5>
+															<div class="symptom-meta">
+																<?php 
+																$severity = isset($symptom_data['severity']) ? $symptom_data['severity'] : 'moderate';
+																$frequency = isset($symptom_data['frequency']) ? $symptom_data['frequency'] : 'daily';
+																
+																// Ensure we have strings, not arrays
+																$severity = is_string($severity) ? $severity : 'moderate';
+																$frequency = is_string($frequency) ? $frequency : 'daily';
+																
+																// Additional safety check for arrays
+																if (is_array($severity)) {
+																	$severity = 'moderate';
+																}
+																if (is_array($frequency)) {
+																	$frequency = 'daily';
+																}
+																?>
+																<span class="symptom-severity"><?php echo esc_html(ucfirst($severity)); ?></span>
+																<span class="symptom-frequency"><?php echo esc_html(ucfirst($frequency)); ?></span>
 															</div>
 														</div>
-													<?php endforeach; ?>
+														<div class="symptom-status">
+															<span class="status-badge active">Active</span>
+														</div>
+													</div>
+													
+													<?php if (isset($symptom_data['assessments']) && !empty($symptom_data['assessments'])) : ?>
+														<div class="symptom-sources">
+															<small>Sources: <?php echo esc_html(implode(', ', $symptom_data['assessments'])); ?></small>
+														</div>
+													<?php endif; ?>
+													
+													<?php if (isset($symptom_data['last_reported'])) : ?>
+														<div class="symptom-timeline">
+															<small>Last reported: <?php echo esc_html(date('M j, Y', strtotime($symptom_data['last_reported']))); ?></small>
+														</div>
+													<?php endif; ?>
+													
+													<?php 
+													// Get duration information
+													$duration_info = ENNU_Centralized_Symptoms_Manager::get_symptom_duration_info($symptom_data);
+													if ($duration_info['status'] === 'active' && $duration_info['days_remaining'] > 0) : ?>
+														<div class="symptom-duration">
+															<small class="duration-info">
+																<span class="duration-label">Expires in:</span>
+																<span class="duration-value <?php echo $duration_info['days_remaining'] <= 7 ? 'urgent' : ($duration_info['days_remaining'] <= 14 ? 'warning' : 'normal'); ?>">
+																	<?php echo esc_html($duration_info['days_remaining']); ?> days
+																</span>
+															</small>
+														</div>
+													<?php elseif ($duration_info['status'] === 'expired') : ?>
+														<div class="symptom-duration">
+															<small class="duration-info expired">
+																<span class="duration-label">Status:</span>
+																<span class="duration-value expired">Expired</span>
+															</small>
+														</div>
+													<?php endif; ?>
 												</div>
+											<?php endforeach; ?>
+										</div>
+									<?php else : ?>
+										<div class="no-symptoms-message">
+											<div class="empty-state">
+												<div class="empty-icon">📋</div>
+												<h5>No Current Symptoms</h5>
+												<p>Complete assessments to start tracking your symptoms and biomarker correlations.</p>
+												<button class="btn-primary" onclick="window.location.href='#tab-my-assessments'">Take Assessments</button>
 											</div>
 										</div>
-									<?php endforeach; ?>
+									<?php endif; ?>
 								</div>
 								
-								<!-- Symptom Analysis & Recommendations -->
-								<div class="symptom-analysis">
-									<div class="analysis-header">
-										<h4 class="analysis-title">Symptom Analysis & Recommendations</h4>
-										<p class="analysis-subtitle">Based on your reported symptoms, here's what we recommend:</p>
+								<!-- Symptom History Section -->
+								<div class="symptom-history-section">
+									<div class="section-header">
+										<h4>Symptom History</h4>
+										<p>Timeline of your reported symptoms and health changes</p>
 									</div>
 									
-									<div class="recommendations-grid">
-										<div class="recommendation-card priority">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Priority: Hormone Optimization</h5>
-												<p>Your symptoms suggest hormonal imbalances. Lab testing recommended to identify root causes.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-sm">Schedule Consultation</a>
-											</div>
+									<?php if (!empty($symptom_history)) : ?>
+										<div class="symptom-timeline">
+											<?php foreach (array_reverse($symptom_history) as $entry) : ?>
+												<?php if (isset($entry['date'], $entry['symptoms'])) : ?>
+													<div class="timeline-entry">
+														<div class="timeline-date">
+															<?php echo esc_html(date('M j, Y @ g:i a', strtotime($entry['date']))); ?>
+															<div class="relative-time">
+																<?php echo esc_html(get_relative_time($entry['date'])); ?>
+															</div>
+															<?php if (isset($entry['assessment_type'])) : ?>
+																<div class="assessment-source">
+																	📋 <?php echo esc_html(get_assessment_name($entry['assessment_type'])); ?>
+																</div>
+															<?php endif; ?>
+														</div>
+														<div class="timeline-content">
+															<?php
+															// Handle symptoms array properly
+															$symptoms_display = array();
+															if (is_array($entry['symptoms'])) {
+																foreach ($entry['symptoms'] as $symptom) {
+																	if (is_array($symptom) && isset($symptom['name'])) {
+																		$symptoms_display[] = $symptom['name'];
+																	} elseif (is_string($symptom)) {
+																		$symptoms_display[] = $symptom;
+																	}
+																}
+															} elseif (is_string($entry['symptoms'])) {
+																$symptoms_display = explode(',', $entry['symptoms']);
+															}
+															?>
+															<div class="symptoms-list">
+																<?php foreach ($symptoms_display as $symptom) : ?>
+																	<span class="symptom-tag"><?php echo esc_html(trim($symptom)); ?></span>
+																<?php endforeach; ?>
+															</div>
+														</div>
+													</div>
+												<?php endif; ?>
+											<?php endforeach; ?>
 										</div>
-										
-										<div class="recommendation-card">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2v20M2 12h20"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Complete Lab Panel</h5>
-												<p>Comprehensive biomarker testing to identify underlying health issues.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Order Labs</a>
-											</div>
+									<?php else : ?>
+										<div class="no-history-message">
+											<p>No symptom history available. Complete assessments to start tracking.</p>
 										</div>
-										
-										<div class="recommendation-card">
-											<div class="rec-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-													<circle cx="12" cy="7" r="4"/>
-												</svg>
-											</div>
-											<div class="rec-content">
-												<h5>Personalized Coaching</h5>
-												<p>Work with a health coach to address symptoms systematically.</p>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-sm">Get Coach</a>
-											</div>
-										</div>
-									</div>
+									<?php endif; ?>
 								</div>
 								
-								<!-- Symptom Tracking CTA -->
-								<div class="symptom-tracking-cta">
-									<div class="cta-content">
-										<h4>Ready to Transform Your Health?</h4>
-										<p>Get personalized recommendations and track your progress with our comprehensive health assessment.</p>
-										<div class="cta-buttons">
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-												</svg>
-												ENNU Full Body Diagnostic ($599)
-											</a>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">
-												Join ENNU LIFE Membership
-											</a>
-										</div>
+								<!-- Biomarker Correlations Section -->
+								<div class="biomarker-correlations-section">
+									<div class="section-header">
+										<h4>Biomarker Correlations</h4>
+										<p>Biomarkers flagged based on your reported symptoms</p>
 									</div>
+									
+									<?php if (!empty($flagged_biomarkers)) : ?>
+										<div class="biomarker-flags-grid">
+											<?php foreach ($flagged_biomarkers as $flag_id => $flag_data) : ?>
+												<div class="biomarker-flag-card">
+													<div class="flag-header">
+														<div class="flag-icon">⚠️</div>
+														<div class="flag-info">
+															<h5 class="biomarker-name"><?php echo esc_html(ucwords(str_replace('_', ' ', $flag_data['biomarker_name']))); ?></h5>
+															<div class="flag-reason"><?php echo esc_html($flag_data['reason']); ?></div>
+														</div>
+														<div class="flag-status">
+															<span class="status-badge flagged">Flagged</span>
+														</div>
+													</div>
+													
+													<?php if (isset($flag_data['symptom'])) : ?>
+														<div class="flag-details">
+															<small>Triggered by: <strong><?php echo esc_html($flag_data['symptom']); ?></strong></small>
+														</div>
+													<?php endif; ?>
+													
+													<?php if (isset($flag_data['health_vector'])) : ?>
+														<div class="flag-category">
+															<small>Health Vector: <strong><?php echo esc_html(ucfirst($flag_data['health_vector'])); ?></strong></small>
+														</div>
+													<?php endif; ?>
+												</div>
+											<?php endforeach; ?>
+										</div>
+									<?php else : ?>
+										<div class="no-correlations-message">
+											<div class="empty-state">
+												<div class="empty-icon">🔬</div>
+												<h5>No Biomarker Correlations</h5>
+												<p>Complete assessments to generate biomarker correlations based on your symptoms.</p>
+											</div>
+										</div>
+									<?php endif; ?>
+								</div>
+								
+								<!-- Action Buttons -->
+								<div class="symptoms-actions">
+									<button type="button" class="btn-secondary" id="update-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
+										Update Symptoms
+									</button>
+									<button type="button" class="btn-secondary" id="populate-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
+										Extract from Assessments
+									</button>
+									<button type="button" class="btn-secondary" id="clear-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
+										Clear Symptom History
+									</button>
 								</div>
 							</div>
 						</div>
 					</div>
 					
 					<!-- Tab 3: My Biomarkers -->
-					<div id="tab-my-biomarkers" class="my-story-tab-content">
+					<div id="tab-my-biomarkers" class="my-story-tab-content my-story-tab-active">
 						<div class="biomarkers-container">
-							<div class="biomarkers-overview">
-								<div class="biomarkers-header">
-									<h3 class="tab-section-title">My Biomarkers</h3>
-									<p class="tab-subtitle">ENNU LIFE Comprehensive Lab Panel - Track your biological markers for optimal health</p>
+							
+							<!-- Header Section - Matching My Story Styling -->
+							<div class="scores-title-container">
+								<h2 class="scores-title">MY BIOMARKERS</h2>
 								</div>
 								
-								<div class="biomarkers-intro">
-									<div class="lab-panel-info">
-										<div class="panel-highlight">
-											<h4>ENNU LIFE Comprehensive Labs</h4>
-											<p>Our comprehensive biomarker panel tracks 75+ core biological markers across 12 health categories to provide the most complete picture of your health.</p>
-											<div class="panel-stats">
-												<div class="panel-stat">
-													<span class="stat-number">75+</span>
-													<span class="stat-label">Core Biomarkers</span>
-												</div>
-												<div class="panel-stat">
-													<span class="stat-number">12</span>
-													<span class="stat-label">Categories</span>
-												</div>
-												<div class="panel-stat">
-													<span class="stat-number">$799</span>
-													<span class="stat-label">Value</span>
-												</div>
-											</div>
-										</div>
+							<!-- Clean Stats Row -->
+							<div class="biomarkers-stats-row">
+								<div class="stat-item">
+									<span class="stat-number">50</span>
+									<span class="stat-label">Core Biomarkers</span>
 									</div>
+								<div class="stat-item">
+									<span class="stat-number">0</span>
+									<span class="stat-label">Tested</span>
+									</div>
+								<div class="stat-item">
+									<span class="stat-number"><?php 
+										$flag_manager = new ENNU_Biomarker_Flag_Manager();
+										$flagged_count = count($flag_manager->get_flagged_biomarkers($user_id, 'active'));
+										echo $flagged_count;
+									?></span>
+									<span class="stat-label">Flagged</span>
+									</div>
+								</div>
+								
+							<!-- Action Buttons - Widened and Clean -->
+								<div class="biomarkers-actions">
+									<button class="btn btn-primary upload-lab-btn" onclick="uploadLabResults()">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+											<polyline points="7,10 12,15 17,10"/>
+											<line x1="12" y1="15" x2="12" y2="3"/>
+										</svg>
+										Upload Lab Results
+									</button>
+									<button class="btn btn-secondary schedule-lab-btn" onclick="scheduleLabTest()">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<circle cx="12" cy="12" r="10"/>
+											<polyline points="12,6 12,12 16,14"/>
+										</svg>
+										Schedule Lab Test
+									</button>
+							</div>
+						</details>
+						
+						<!-- MY FLAGGED BIOMARKERS SECTION -->
+							<div class="flagged-biomarkers-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">MY FLAGGED BIOMARKERS</h2>
 								</div>
 								
 								<?php
-								// Enhanced ENNU Life biomarkers - 75+ core biomarkers across 12 categories
-								$official_biomarkers = array(
-									'Physical Measurements' => array(
-										'description' => 'Direct physical measurements for body composition and vital signs',
-										'biomarkers'  => array(
-											'Weight'      => array(
-												'value'    => '185',
-												'unit'     => 'lbs',
-												'status'   => 'high',
-												'range'    => '150-180',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'BMI (Body Mass Index)' => array(
-												'value'    => '28.5',
-												'unit'     => 'kg/m²',
-												'status'   => 'high',
-												'range'    => '18.5-24.9',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Body Fat %'  => array(
-												'value'    => '25',
-												'unit'     => '%',
-												'status'   => 'high',
-												'range'    => '10-20',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Waist Measurement' => array(
-												'value'    => '38',
-												'unit'     => 'inches',
-												'status'   => 'high',
-												'range'    => '<40',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Neck Measurement' => array(
-												'value'    => '16.5',
-												'unit'     => 'inches',
-												'status'   => 'high',
-												'range'    => '<17',
-												'trend'    => 'stable',
-												'priority' => 'medium',
-											),
-											'Blood Pressure' => array(
-												'value'    => '135/85',
-												'unit'     => 'mmHg',
-												'status'   => 'high',
-												'range'    => '<120/80',
-												'trend'    => 'increasing',
-												'priority' => 'critical',
-											),
-											'Heart Rate'  => array(
-												'value'    => '75',
-												'unit'     => 'bpm',
-												'status'   => 'normal',
-												'range'    => '60-80',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Temperature' => array(
-												'value'    => '98.2',
-												'unit'     => '°F',
-												'status'   => 'normal',
-												'range'    => '98.0-98.6',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Basic Metabolic Panel' => array(
-										'description' => 'Essential metabolic markers for energy, kidney function, and electrolyte balance',
-										'biomarkers'  => array(
-											'Glucose'    => array(
-												'value'    => '105',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '70-85',
-												'trend'    => 'increasing',
-												'priority' => 'critical',
-											),
-											'HbA1c (Hemoglobin A1c)' => array(
-												'value'    => '5.8',
-												'unit'     => '%',
-												'status'   => 'high',
-												'range'    => '<5.5',
-												'trend'    => 'increasing',
-												'priority' => 'critical',
-											),
-											'BUN (Blood Urea Nitrogen)' => array(
-												'value'    => '18',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '7-15',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Creatinine' => array(
-												'value'    => '1.2',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '0.7-1.1',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'GFR (Glomerular Filtration Rate)' => array(
-												'value'    => '75',
-												'unit'     => 'mL/min/1.73m²',
-												'status'   => 'low',
-												'range'    => '>90',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'BUN/Creatinine Ratio' => array(
-												'value'    => '15',
-												'unit'     => 'ratio',
-												'status'   => 'normal',
-												'range'    => '10-15',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Sodium'     => array(
-												'value'    => '140',
-												'unit'     => 'mEq/L',
-												'status'   => 'normal',
-												'range'    => '136-142',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Potassium'  => array(
-												'value'    => '4.2',
-												'unit'     => 'mEq/L',
-												'status'   => 'normal',
-												'range'    => '3.8-4.5',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Electrolytes & Minerals' => array(
-										'description' => 'Essential minerals and electrolytes for cellular function',
-										'biomarkers'  => array(
-											'Chloride'   => array(
-												'value'    => '102',
-												'unit'     => 'mEq/L',
-												'status'   => 'normal',
-												'range'    => '98-104',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Carbon Dioxide' => array(
-												'value'    => '25',
-												'unit'     => 'mEq/L',
-												'status'   => 'normal',
-												'range'    => '23-27',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Calcium'    => array(
-												'value'    => '9.8',
-												'unit'     => 'mg/dL',
-												'status'   => 'normal',
-												'range'    => '8.5-10.5',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Phosphorus' => array(
-												'value'    => '3.2',
-												'unit'     => 'mg/dL',
-												'status'   => 'normal',
-												'range'    => '2.5-4.5',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Magnesium'  => array(
-												'value'    => '1.8',
-												'unit'     => 'mg/dL',
-												'status'   => 'low',
-												'range'    => '1.9-2.5',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Iron'       => array(
-												'value'    => '65',
-												'unit'     => 'µg/dL',
-												'status'   => 'low',
-												'range'    => '70-180',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Ferritin'   => array(
-												'value'    => '45',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '50-300',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Zinc'       => array(
-												'value'    => '70',
-												'unit'     => 'µg/dL',
-												'status'   => 'low',
-												'range'    => '80-120',
-												'trend'    => 'decreasing',
-												'priority' => 'medium',
-											),
-										),
-									),
-									'Protein Panel'        => array(
-										'description' => 'Protein markers for nutritional status and organ function',
-										'biomarkers'  => array(
-											'Total Protein' => array(
-												'value'    => '7.2',
-												'unit'     => 'g/dL',
-												'status'   => 'normal',
-												'range'    => '6.0-8.3',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Albumin'   => array(
-												'value'    => '4.1',
-												'unit'     => 'g/dL',
-												'status'   => 'normal',
-												'range'    => '3.4-5.0',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Globulin'  => array(
-												'value'    => '3.1',
-												'unit'     => 'g/dL',
-												'status'   => 'normal',
-												'range'    => '2.0-3.5',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'A/G Ratio' => array(
-												'value'    => '1.3',
-												'unit'     => 'ratio',
-												'status'   => 'normal',
-												'range'    => '1.1-2.2',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Liver Function'       => array(
-										'description' => 'Liver health and function markers',
-										'biomarkers'  => array(
-											'ALT (Alanine Aminotransferase)' => array(
-												'value'    => '35',
-												'unit'     => 'U/L',
-												'status'   => 'high',
-												'range'    => '7-35',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'AST (Aspartate Aminotransferase)' => array(
-												'value'    => '32',
-												'unit'     => 'U/L',
-												'status'   => 'normal',
-												'range'    => '10-40',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Alkaline Phosphatase' => array(
-												'value'    => '85',
-												'unit'     => 'U/L',
-												'status'   => 'normal',
-												'range'    => '44-147',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'GGT (Gamma-Glutamyl Transferase)' => array(
-												'value'    => '45',
-												'unit'     => 'U/L',
-												'status'   => 'high',
-												'range'    => '9-48',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'Bilirubin Total' => array(
-												'value'    => '1.2',
-												'unit'     => 'mg/dL',
-												'status'   => 'normal',
-												'range'    => '0.3-1.2',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Complete Blood Count' => array(
-										'description' => 'Comprehensive blood cell analysis for overall health',
-										'biomarkers'  => array(
-											'White Blood Cells' => array(
-												'value'    => '7.2',
-												'unit'     => 'K/µL',
-												'status'   => 'normal',
-												'range'    => '4.5-11.0',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Red Blood Cells' => array(
-												'value'    => '4.8',
-												'unit'     => 'M/µL',
-												'status'   => 'normal',
-												'range'    => '4.5-5.9',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Hemoglobin' => array(
-												'value'    => '14.2',
-												'unit'     => 'g/dL',
-												'status'   => 'normal',
-												'range'    => '13.5-17.5',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Hematocrit' => array(
-												'value'    => '42',
-												'unit'     => '%',
-												'status'   => 'normal',
-												'range'    => '41-50',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Platelets'  => array(
-												'value'    => '250',
-												'unit'     => 'K/µL',
-												'status'   => 'normal',
-												'range'    => '150-450',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'MCV'        => array(
-												'value'    => '88',
-												'unit'     => 'fL',
-												'status'   => 'normal',
-												'range'    => '80-100',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'MCH'        => array(
-												'value'    => '29',
-												'unit'     => 'pg',
-												'status'   => 'normal',
-												'range'    => '27-32',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'MCHC'       => array(
-												'value'    => '34',
-												'unit'     => 'g/dL',
-												'status'   => 'normal',
-												'range'    => '32-36',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Lipid Panel'          => array(
-										'description' => 'Cholesterol and cardiovascular risk markers',
-										'biomarkers'  => array(
-											'Total Cholesterol' => array(
-												'value'    => '220',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<200',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'LDL Cholesterol' => array(
-												'value'    => '145',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<100',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'HDL Cholesterol' => array(
-												'value'    => '45',
-												'unit'     => 'mg/dL',
-												'status'   => 'low',
-												'range'    => '>60',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Triglycerides' => array(
-												'value'    => '180',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<150',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Non-HDL Cholesterol' => array(
-												'value'    => '175',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<130',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'VLDL Cholesterol' => array(
-												'value'    => '36',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '5-30',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'Lipoprotein(a)' => array(
-												'value'    => '45',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<30',
-												'trend'    => 'stable',
-												'priority' => 'high',
-											),
-											'ApoB' => array(
-												'value'    => '95',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '<90',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-										),
-									),
-									'Hormones'             => array(
-										'description' => 'Key hormones that regulate metabolism, energy, and overall wellbeing',
-										'biomarkers'  => array(
-											'Total Testosterone' => array(
-												'value'    => '320',
-												'unit'     => 'ng/dL',
-												'status'   => 'low',
-												'range'    => '400-1000',
-												'trend'    => 'decreasing',
-												'priority' => 'critical',
-											),
-											'Free Testosterone' => array(
-												'value'    => '45',
-												'unit'     => 'pg/mL',
-												'status'   => 'low',
-												'range'    => '50-250',
-												'trend'    => 'decreasing',
-												'priority' => 'critical',
-											),
-											'Estradiol (E2)' => array(
-												'value'    => '28',
-												'unit'     => 'pg/mL',
-												'status'   => 'normal',
-												'range'    => '20-40',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Progesterone' => array(
-												'value'    => '0.8',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '1.0-2.0',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'FSH'          => array(
-												'value'    => '12',
-												'unit'     => 'mIU/mL',
-												'status'   => 'high',
-												'range'    => '4-12',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'LH'           => array(
-												'value'    => '8',
-												'unit'     => 'mIU/mL',
-												'status'   => 'normal',
-												'range'    => '2-9',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'DHEA-S'       => array(
-												'value'    => '180',
-												'unit'     => 'µg/dL',
-												'status'   => 'low',
-												'range'    => '200-350',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Cortisol'     => array(
-												'value'    => '18',
-												'unit'     => 'µg/dL',
-												'status'   => 'high',
-												'range'    => '6-18',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Prolactin'    => array(
-												'value'    => '15',
-												'unit'     => 'ng/mL',
-												'status'   => 'normal',
-												'range'    => '4-15',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'IGF-1'        => array(
-												'value'    => '180',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '200-400',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-										),
-									),
-									'Thyroid Function'     => array(
-										'description' => 'Thyroid hormones that regulate metabolism and energy',
-										'biomarkers'  => array(
-											'TSH'        => array(
-												'value'    => '3.2',
-												'unit'     => 'µIU/mL',
-												'status'   => 'high',
-												'range'    => '0.4-2.5',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Free T3'    => array(
-												'value'    => '2.8',
-												'unit'     => 'pg/mL',
-												'status'   => 'low',
-												'range'    => '3.0-4.5',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Free T4'    => array(
-												'value'    => '1.1',
-												'unit'     => 'ng/dL',
-												'status'   => 'low',
-												'range'    => '1.2-1.8',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Reverse T3' => array(
-												'value'    => '25',
-												'unit'     => 'ng/dL',
-												'status'   => 'high',
-												'range'    => '10-24',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'TPO Antibodies' => array(
-												'value'    => '35',
-												'unit'     => 'IU/mL',
-												'status'   => 'high',
-												'range'    => '<35',
-												'trend'    => 'stable',
-												'priority' => 'medium',
-											),
-										),
-									),
-									'Vitamins & Nutrients' => array(
-										'description' => 'Essential vitamins and nutrients for optimal health',
-										'biomarkers'  => array(
-											'Vitamin D (25-OH)' => array(
-												'value'    => '28',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '30-80',
-												'trend'    => 'decreasing',
-												'priority' => 'critical',
-											),
-											'Vitamin B12'  => array(
-												'value'    => '350',
-												'unit'     => 'pg/mL',
-												'status'   => 'low',
-												'range'    => '400-900',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Folate (B9)'  => array(
-												'value'    => '6.5',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '7-20',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Vitamin B6'   => array(
-												'value'    => '8.5',
-												'unit'     => 'ng/mL',
-												'status'   => 'normal',
-												'range'    => '5-50',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Omega-3 Index' => array(
-												'value'    => '4.2',
-												'unit'     => '%',
-												'status'   => 'low',
-												'range'    => '6-8',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'Homocysteine' => array(
-												'value'    => '12',
-												'unit'     => 'µmol/L',
-												'status'   => 'high',
-												'range'    => '<10',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'CRP (C-Reactive Protein)' => array(
-												'value'    => '3.2',
-												'unit'     => 'mg/L',
-												'status'   => 'high',
-												'range'    => '<3.0',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'ESR (Erythrocyte Sedimentation Rate)' => array(
-												'value'    => '18',
-												'unit'     => 'mm/hr',
-												'status'   => 'high',
-												'range'    => '<15',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-										),
-									),
-									'Cardiovascular Risk'  => array(
-										'description' => 'Advanced cardiovascular risk assessment markers',
-										'biomarkers'  => array(
-											'Troponin I' => array(
-												'value'    => '0.02',
-												'unit'     => 'ng/mL',
-												'status'   => 'normal',
-												'range'    => '<0.04',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'BNP'        => array(
-												'value'    => '35',
-												'unit'     => 'pg/mL',
-												'status'   => 'normal',
-												'range'    => '<100',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-											'Uric Acid'  => array(
-												'value'    => '7.2',
-												'unit'     => 'mg/dL',
-												'status'   => 'high',
-												'range'    => '3.4-7.0',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'Creatine Kinase' => array(
-												'value'    => '180',
-												'unit'     => 'U/L',
-												'status'   => 'high',
-												'range'    => '38-174',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'Lactate Dehydrogenase' => array(
-												'value'    => '220',
-												'unit'     => 'U/L',
-												'status'   => 'normal',
-												'range'    => '140-280',
-												'trend'    => 'stable',
-												'priority' => 'normal',
-											),
-										),
-									),
-									'Advanced Markers'     => array(
-										'description' => 'Specialized markers for comprehensive health assessment',
-										'biomarkers'  => array(
-											'Insulin'     => array(
-												'value'    => '18',
-												'unit'     => 'µIU/mL',
-												'status'   => 'high',
-												'range'    => '3-15',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Leptin'      => array(
-												'value'    => '25',
-												'unit'     => 'ng/mL',
-												'status'   => 'high',
-												'range'    => '2-20',
-												'trend'    => 'increasing',
-												'priority' => 'high',
-											),
-											'Adiponectin' => array(
-												'value'    => '8',
-												'unit'     => 'µg/mL',
-												'status'   => 'low',
-												'range'    => '10-30',
-												'trend'    => 'decreasing',
-												'priority' => 'medium',
-											),
-											'Myostatin'   => array(
-												'value'    => '8.5',
-												'unit'     => 'ng/mL',
-												'status'   => 'high',
-												'range'    => '3-8',
-												'trend'    => 'increasing',
-												'priority' => 'medium',
-											),
-											'Telomere Length' => array(
-												'value'    => '6.2',
-												'unit'     => 'kb',
-												'status'   => 'low',
-												'range'    => '7-10',
-												'trend'    => 'decreasing',
-												'priority' => 'high',
-											),
-											'BDNF'        => array(
-												'value'    => '18',
-												'unit'     => 'ng/mL',
-												'status'   => 'low',
-												'range'    => '20-40',
-												'trend'    => 'decreasing',
-												'priority' => 'medium',
-											),
-										),
-									),
-								);
-
-								// Calculate summary statistics
-								$total_biomarkers = 0;
-								$abnormal_count   = 0;
-								$critical_count   = 0;
-
-								foreach ( $official_biomarkers as $category => $data ) {
-									foreach ( $data['biomarkers'] as $biomarker => $details ) {
-										$total_biomarkers++;
-										if ( $details['status'] === 'high' || $details['status'] === 'low' ) {
-											$abnormal_count++;
+								// Get flagged biomarkers from the manager
+								$flag_manager = new ENNU_Biomarker_Flag_Manager();
+								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+								
+								// Convert flag data to display format
+								$display_flagged_biomarkers = array();
+								foreach ($flagged_biomarkers as $flag_id => $flag_data) {
+									$biomarker_name = $flag_data['biomarker_name'];
+									$category = get_biomarker_category($biomarker_name);
+									
+									// Debug output
+									error_log("Biomarker: $biomarker_name, Category: $category");
+									
+									$display_flagged_biomarkers[$flag_id] = array(
+										'biomarker_name' => $biomarker_name,
+										'name' => ucwords(str_replace('_', ' ', $biomarker_name)),
+										'category' => $category,
+										'reason' => $flag_data['reason'] ?: 'Flagged for medical attention',
+										'severity' => $flag_data['flag_type'] === 'critical' ? 'high' : 'moderate',
+										'current_value' => 'N/A',
+										'unit' => '',
+										'normal_range' => '',
+										'status' => 'flagged',
+										'flagged_at' => $flag_data['flagged_at'],
+										'flag_type' => $flag_data['flag_type']
+									);
+								}
+								
+								if (!empty($display_flagged_biomarkers)) :
+									// Health vector category mapping - must match categories from get_biomarker_category()
+									$health_vector_categories = array(
+										// Basic categories
+										'Physical Measurements' => array('name' => 'Physical Measurements', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>', 'color' => '#6366f1'),
+										'Basic Metabolic Panel' => array('name' => 'Basic Metabolic Panel', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>', 'color' => '#14b8a6'),
+										'Electrolytes & Minerals' => array('name' => 'Electrolytes & Minerals', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', 'color' => '#06b6d4'),
+										'Lipid Panel' => array('name' => 'Lipid Panel', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>', 'color' => '#dc2626'),
+										'Advanced Cardiovascular' => array('name' => 'Advanced Cardiovascular', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#ef4444'),
+										'Hormones' => array('name' => 'Hormones', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', 'color' => '#10b981'),
+										'Thyroid' => array('name' => 'Thyroid', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/><path d="M8 14h8"/></svg>', 'color' => '#7c3aed'),
+										'Complete Blood Count' => array('name' => 'Complete Blood Count', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/><path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"/><path d="M12 3c0 1-1 2-2 2s-2-1-2-2 1-2 2-2 2 1 2 2z"/><path d="M12 21c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z"/></svg>', 'color' => '#3b82f6'),
+										'Advanced Metabolic' => array('name' => 'Advanced Metabolic', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#f59e0b'),
+										'Advanced Cognitive' => array('name' => 'Advanced Cognitive', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>', 'color' => '#8b5cf6'),
+										'Advanced Longevity' => array('name' => 'Advanced Longevity', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>', 'color' => '#ec4899'),
+										'Advanced Performance' => array('name' => 'Advanced Performance', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', 'color' => '#6366f1'),
+										'Performance' => array('name' => 'Performance', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>', 'color' => '#059669'),
+										'Advanced Energy' => array('name' => 'Advanced Energy', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><path d="M12 8v8M8 12h8"/></svg>', 'color' => '#b45309'),
+										'Heavy Metals & Toxicity' => array('name' => 'Heavy Metals & Toxicity', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 'color' => '#dc2626'),
+										'Protein Panel' => array('name' => 'Protein Panel', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', 'color' => '#059669'),
+										'Other' => array('name' => 'Other', 'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>', 'color' => '#6b7280')
+									);
+									
+									// Get flagged biomarkers with their actual assessment sources
+									$flag_manager = new ENNU_Biomarker_Flag_Manager();
+									$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+									$grouped_flagged = array();
+									
+									foreach ($flagged_biomarkers as $flag_id => $flag_data) {
+										// Use the actual assessment source from the flag data
+										$assessment_source = $flag_data['assessment_source'] ?? '';
+										
+										// Enhanced assessment source detection
+										if (empty($assessment_source)) {
+											// Try to determine from flag type
+											switch ($flag_data['flag_type']) {
+												case 'auto_flagged':
+													$assessment_source = 'auto_flagged';
+													break;
+												case 'manual':
+													$assessment_source = 'manual';
+													break;
+												case 'critical':
+													$assessment_source = 'critical';
+													break;
+												case 'symptom_triggered':
+													// For symptom triggered flags, try to determine from symptom trigger
+													if (!empty($flag_data['symptom_trigger'])) {
+														// Map symptom triggers to assessment types
+														$symptom_assessment_map = array(
+															'fatigue' => 'health_optimization_assessment',
+															'low_energy' => 'health_optimization_assessment',
+															'weight_gain' => 'weight_loss_assessment',
+															'difficulty_losing_weight' => 'weight_loss_assessment',
+															'poor_sleep' => 'sleep_assessment',
+															'insomnia' => 'sleep_assessment',
+															'low_libido' => 'testosterone_assessment',
+															'ed' => 'ed_treatment_assessment',
+															'hot_flashes' => 'menopause_assessment',
+															'mood_swings' => 'hormone_assessment',
+															'hair_loss' => 'hair_assessment',
+															'skin_issues' => 'skin_assessment',
+															'anxiety' => 'health_optimization_assessment',
+															'depression' => 'health_optimization_assessment',
+															'brain_fog' => 'health_optimization_assessment',
+															'memory_loss' => 'health_optimization_assessment',
+															'joint_pain' => 'health_optimization_assessment',
+															'muscle_weakness' => 'health_optimization_assessment'
+														);
+														
+														$symptom_key = strtolower(str_replace(' ', '_', $flag_data['symptom_trigger']));
+														$assessment_source = $symptom_assessment_map[$symptom_key] ?? 'symptom_assessment';
+													} else {
+														// If no symptom trigger, try to determine from biomarker category
+														$biomarker_name = $flag_data['biomarker_name'] ?? '';
+														if (!empty($biomarker_name)) {
+															$category = get_biomarker_category($biomarker_name);
+															// Map biomarker categories to assessment types
+															$category_assessment_map = array(
+																'Hormones' => 'hormone_assessment',
+																'Thyroid' => 'hormone_assessment',
+																'Advanced Cardiovascular' => 'health_optimization_assessment',
+																'Complete Blood Count' => 'health_optimization_assessment',
+																'Basic Metabolic Panel' => 'health_optimization_assessment',
+																'Advanced Metabolic' => 'health_optimization_assessment',
+																'Advanced Cognitive' => 'health_optimization_assessment',
+																'Advanced Longevity' => 'health_optimization_assessment',
+																'Advanced Performance' => 'health_optimization_assessment',
+																'Performance' => 'health_optimization_assessment',
+																'Advanced Energy' => 'health_optimization_assessment',
+																'Physical Measurements' => 'health_optimization_assessment',
+																'Lipid Panel' => 'health_optimization_assessment',
+																'Electrolytes & Minerals' => 'health_optimization_assessment',
+																'Heavy Metals & Toxicity' => 'health_optimization_assessment',
+																'Protein Panel' => 'health_optimization_assessment'
+															);
+															$assessment_source = $category_assessment_map[$category] ?? 'health_optimization_assessment';
+														} else {
+															$assessment_source = 'health_optimization_assessment';
+														}
+													}
+													break;
+												default:
+													$assessment_source = 'unknown_assessment';
+													break;
+											}
 										}
-										if ( $details['status'] === 'high' && in_array( $biomarker, array( 'Total Testosterone', 'Free Testosterone', 'Glucose', 'HbA1c' ) ) ) {
-											$critical_count++;
+										
+										// Get the display name for the assessment source
+										$assessment_display_name = get_assessment_display_name_from_source($assessment_source);
+										
+										// Ensure we have a valid display name and avoid generic names
+										if (empty($assessment_display_name) || 
+											$assessment_display_name === 'Unknown Assessment' || 
+											$assessment_display_name === 'Symptom Assessment') {
+											
+											// Try to get assessment name from biomarker category
+											$biomarker_name = $flag_data['biomarker_name'] ?? '';
+											if (!empty($biomarker_name)) {
+												$category = get_biomarker_category($biomarker_name);
+												if (!empty($category) && $category !== 'Other') {
+													$assessment_display_name = $category;
+												} else {
+													$assessment_display_name = 'Lab Results Analysis';
+												}
+											} else {
+												$assessment_display_name = 'Lab Results Analysis';
+											}
+										}
+										
+										// Only add to grouped array if we have a meaningful assessment name
+										if (!empty($assessment_display_name) && 
+											$assessment_display_name !== 'Unknown Assessment' && 
+											$assessment_display_name !== 'Symptom Assessment') {
+											
+											if (!isset($grouped_flagged[$assessment_display_name])) {
+												$grouped_flagged[$assessment_display_name] = array();
+											}
+											$grouped_flagged[$assessment_display_name][$flag_id] = $flag_data;
 										}
 									}
-								}
-								?>
-								
-								<!-- Biomarker Summary Dashboard -->
-								<div class="biomarker-summary">
-									<div class="summary-stats">
-										<div class="summary-stat">
-											<div class="stat-number"><?php echo esc_html( $total_biomarkers ); ?></div>
-											<div class="stat-label">Core Biomarkers</div>
-										</div>
-										<div class="summary-stat warning">
-											<div class="stat-number"><?php echo esc_html( $abnormal_count ); ?></div>
-											<div class="stat-label">Abnormal Values</div>
-										</div>
-										<div class="summary-stat critical">
-											<div class="stat-number"><?php echo esc_html( $critical_count ); ?></div>
-											<div class="stat-label">Critical Issues</div>
-										</div>
-										<div class="summary-stat">
-											<div class="stat-number">8</div>
-											<div class="stat-label">Categories</div>
-										</div>
-									</div>
-								</div>
-								
-								<div class="biomarkers-grid">
-									<?php foreach ( $official_biomarkers as $category => $data ) : ?>
-										<div class="collapsible-section">
-											<div class="collapsible-header" onclick="toggleCollapsible(this)">
-												<h4 class="collapsible-title">
-													<svg class="collapsible-icon" fill="currentColor" viewBox="0 0 20 20">
-														<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-													</svg>
-													<?php echo esc_html( $category ); ?>
-												</h4>
-												<div class="category-info">
-													<p class="category-description"><?php echo esc_html( $data['description'] ); ?></p>
-													<span class="category-count"><?php echo count( $data['biomarkers'] ); ?> markers</span>
+									?>
+									
+									<div class="flagged-biomarkers-panel">
+										<div class="biomarker-panel-header flagged-panel-header" onclick="togglePanel('flagged-biomarkers')">
+											<div class="biomarker-panel-icon">
+												<span>⚠️</span>
+											</div>
+											<div class="biomarker-panel-info">
+												<div class="biomarker-panel-title">Symptom-Flagged Biomarkers</div>
+												<div class="biomarker-panel-description">Biomarkers flagged based on your reported symptoms</div>
+											</div>
+											<div class="biomarker-panel-meta">
+												<div class="biomarker-panel-count"><?php echo count($display_flagged_biomarkers); ?> flagged</div>
+												<div class="biomarker-panel-toggle">
+													<span class="panel-expand-icon">▼</span>
 												</div>
 											</div>
-											<div class="collapsible-content">
-												<div class="biomarkers-list">
-													<?php foreach ( $data['biomarkers'] as $biomarker => $details ) : ?>
-														<div class="biomarker-item enhanced <?php echo esc_attr( $details['priority'] ); ?>-priority">
-															<div class="biomarker-info">
-																<div class="biomarker-header">
-																	<div class="biomarker-name"><?php echo esc_html( $biomarker ); ?></div>
-																	<?php if ( $details['priority'] === 'critical' ) : ?>
-																		<div class="priority-badge critical">
-																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-																				<circle cx="12" cy="12" r="10"/>
-																				<line x1="12" y1="8" x2="12" y2="12"/>
-																				<line x1="12" y1="16" x2="12.01" y2="16"/>
-																			</svg>
-																			Critical
-																		</div>
-																	<?php elseif ( $details['priority'] === 'high' ) : ?>
-																		<div class="priority-badge high">
-																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-																				<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-																				<line x1="12" y1="9" x2="12" y2="13"/>
-																				<line x1="12" y1="17" x2="12.01" y2="17"/>
-																			</svg>
-																			High
-																		</div>
+										</div>
+										
+										<div id="panel-content-flagged-biomarkers" class="biomarker-panel-content" style="display: none;">
+											<?php foreach ($grouped_flagged as $assessment_name => $biomarkers) : 
+												// Skip sections with empty assessment names only
+												if (empty($assessment_name)) {
+													error_log("Warning: Skipping flagged biomarkers with empty assessment name");
+													continue;
+												}
+												
+												// Get assessment icon and color - handle both assessment names and health vector categories
+												$assessment_info = get_assessment_display_info($assessment_name);
+												
+												// If not a valid assessment name, treat as health vector category
+												if (!isset($assessment_info['icon']) || ($assessment_info['icon'] === '🔬' && $assessment_name !== 'Unknown Assessment')) {
+													// Use category icon instead
+													$category_icon = get_category_icon($assessment_name);
+													$assessment_info = array(
+														'icon' => $category_icon['icon'] ?? '🔬',
+														'color' => $category_icon['color'] ?? '#6366f1'
+													);
+												}
+											?>
+												<div class="biomarker-vector-category" data-panel="flagged-biomarkers" data-vector="<?php echo esc_attr($assessment_name); ?>">
+													<div class="biomarker-vector-header" onclick="toggleVectorCategory('flagged-biomarkers', '<?php echo esc_attr($assessment_name); ?>')">
+																											<div class="biomarker-vector-icon">
+														<?php echo wp_kses_post($assessment_info['icon']); ?>
+													</div>
+														<div class="biomarker-vector-info">
+															<div class="biomarker-vector-title"><?php echo esc_html($assessment_name); ?></div>
+															<div class="biomarker-vector-count"><?php echo count($biomarkers); ?> flagged</div>
+														</div>
+														<div class="biomarker-vector-toggle">
+															<span class="vector-expand-icon">▼</span>
+														</div>
+													</div>
+													
+													<div class="biomarker-vector-list">
+														<?php foreach ($biomarkers as $flag_id => $biomarker_data) : 
+															$biomarker_name = $biomarker_data['biomarker_name'];
+														?>
+															<div class="biomarker-list-item" data-biomarker="<?php echo esc_attr($biomarker_name); ?>" onclick="toggleBiomarkerMeasurements('flagged-biomarkers', '<?php echo esc_attr($assessment_name); ?>', '<?php echo esc_attr($biomarker_name); ?>')">
+																<div class="biomarker-list-name">
+																	<?php echo esc_html($biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? 'Unknown Biomarker'); ?>
+																	<span class="flagged-badge">⚠️ Flagged</span>
+																	<?php if (!empty($biomarker_data['symptom_trigger'])) : ?>
+																		<span class="symptom-trigger-badge"><?php echo esc_html($biomarker_data['symptom_trigger']); ?></span>
+																	<?php endif; ?>
+																	<?php if (!empty($biomarker_data['reason'])) : ?>
+																		<span class="flag-reason-badge"><?php echo esc_html($biomarker_data['reason']); ?></span>
 																	<?php endif; ?>
 																</div>
-																<div class="biomarker-value">
-																	<span class="value-number"><?php echo esc_html( $details['value'] ); ?></span>
-																	<span class="value-unit"><?php echo esc_html( $details['unit'] ); ?></span>
+																<div class="biomarker-list-meta">
+																	<div class="biomarker-list-unit"><?php echo esc_html($biomarker_data['unit'] ?? ''); ?></div>
+																	<div class="biomarker-list-flag-type" data-type="<?php 
+																		$flag_type = $biomarker_data['flag_type'] ?? '';
+																		$flag_type_display = '';
+																		switch ($flag_type) {
+																			case 'symptom_triggered':
+																				$flag_type_display = 'symptom';
+																				break;
+																			case 'auto_flagged':
+																				$flag_type_display = 'lab';
+																				break;
+																			case 'manual':
+																				$flag_type_display = 'manual';
+																				break;
+																			case 'critical':
+																				$flag_type_display = 'critical';
+																				break;
+																			default:
+																				$flag_type_display = strtolower($flag_type);
+																		}
+																		echo esc_attr($flag_type_display);
+																	?>">
+																		<?php 
+																		$flag_type = $biomarker_data['flag_type'] ?? '';
+																		$flag_type_display = '';
+																		switch ($flag_type) {
+																			case 'symptom_triggered':
+																				$flag_type_display = 'Symptom';
+																				break;
+																			case 'auto_flagged':
+																				$flag_type_display = 'Lab';
+																				break;
+																			case 'manual':
+																				$flag_type_display = 'Manual';
+																				break;
+																			case 'critical':
+																				$flag_type_display = 'Critical';
+																				break;
+																			default:
+																				$flag_type_display = ucfirst($flag_type);
+																		}
+																		echo esc_html($flag_type_display);
+																		?>
+																	</div>
+																</div>
+																<div class="biomarker-list-expand">▼</div>
+															</div>
+															
+															<div id="biomarker-measurement-flagged-biomarkers-<?php echo esc_attr($assessment_name); ?>-<?php echo esc_attr($biomarker_name); ?>" class="biomarker-measurement-container" style="display: none;">
+																<div class="biomarker-measurement-content">
+																	<?php
+																	// Get measurement data using the same method as regular biomarkers
+																	$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_name, $user_id);
+																	
+																	// Render the measurement component
+																	echo render_biomarker_measurement($measurement_data);
+																	?>
 																</div>
 															</div>
-															<div class="biomarker-status">
-																<div class="status-indicator <?php echo esc_attr( $details['status'] ); ?>">
-																	<span class="status-dot"></span>
-																	<span class="status-label"><?php echo esc_html( ucfirst( $details['status'] ) ); ?></span>
-																</div>
-																<div class="biomarker-range">
-																	<span class="range-label">Range:</span>
-																	<span class="range-value"><?php echo esc_html( $details['range'] ); ?></span>
-																</div>
-																<div class="biomarker-trend">
-																	<span class="trend-icon <?php echo esc_attr( $details['trend'] ); ?>">
-																		<?php if ( $details['trend'] === 'increasing' ) : ?>
-																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-																				<polyline points="18,15 12,9 6,15"/>
-																			</svg>
-																		<?php elseif ( $details['trend'] === 'decreasing' ) : ?>
-																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-																				<polyline points="6,9 12,15 18,9"/>
-																			</svg>
-																		<?php else : ?>
-																			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-																				<line x1="5" y1="12" x2="19" y2="12"/>
-																			</svg>
-																		<?php endif; ?>
-																	</span>
-																	<span class="trend-label"><?php echo esc_html( ucfirst( $details['trend'] ) ); ?></span>
-																</div>
-															</div>
-														</div>
-													<?php endforeach; ?>
+														<?php endforeach; ?>
+													</div>
 												</div>
-											</div>
+											<?php endforeach; ?>
 										</div>
-									<?php endforeach; ?>
-								</div>
-								
-								<!-- Critical Issues Alert -->
-								<?php if ( $critical_count > 0 ) : ?>
-								<div class="critical-alert">
-									<div class="alert-header">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-											<circle cx="12" cy="12" r="10"/>
-											<line x1="12" y1="8" x2="12" y2="12"/>
-											<line x1="12" y1="16" x2="12.01" y2="16"/>
-										</svg>
-										<h4>Critical Health Issues Detected</h4>
 									</div>
-									<p>You have <?php echo esc_html( $critical_count ); ?> critical biomarker values that require immediate attention. These issues are likely contributing to your symptoms and overall health concerns.</p>
-									<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-											<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-										</svg>
-										Schedule Urgent Consultation
-									</a>
-								</div>
+									
+								<?php else : ?>
+									<div class="no-flagged-biomarkers">
+										<div class="no-flagged-icon">✅</div>
+										<h3>No Flagged Biomarkers</h3>
+										<p>Great news! No biomarkers have been flagged based on your reported symptoms.</p>
+									</div>
 								<?php endif; ?>
-								
-								<div class="lab-cta enhanced">
-									<div class="cta-content">
-										<h4>Ready to Get Your Complete Health Picture?</h4>
-										<p>Order your ENNU LIFE Comprehensive Lab Panel to track these biomarkers and optimize your health journey.</p>
-										<div class="cta-features">
-											<div class="feature">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-													<polyline points="20,6 9,17 4,12"/>
-												</svg>
-												<span>50 core biomarkers tested</span>
-											</div>
-											<div class="feature">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-													<polyline points="20,6 9,17 4,12"/>
-												</svg>
-												<span>Comprehensive health analysis</span>
-											</div>
-											<div class="feature">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-													<polyline points="20,6 9,17 4,12"/>
-												</svg>
-												<span>Personalized recommendations</span>
-											</div>
-										</div>
-										<div class="cta-buttons">
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-													<path d="M9 11H1l8-8 8 8h-8v8z"/>
-												</svg>
-												Order Lab Tests - $497
-											</a>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-secondary btn-pill">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-												</svg>
-												Schedule Consultation
-											</a>
-										</div>
-									</div>
-								</div>
 							</div>
-						</div>
-					</div>
-					
-					<!-- Tab 4: My Trends -->
-					<div id="tab-my-trends" class="my-story-tab-content">
-						<?php
-						// Initialize Trends Visualization System
-						if ( class_exists( 'ENNU_Trends_Visualization_System' ) ) {
-							$trends_system = new ENNU_Trends_Visualization_System();
-							echo $trends_system->get_my_trends_content( $user_id );
-						} else {
-							echo '<div class="trends-placeholder">
-								<h3 class="tab-section-title">My Trends</h3>
-								<p>Trends visualization system is loading...</p>
-							</div>';
-						}
-						?>
-					</div>
-					
-					<!-- Tab 5: My Profile -->
-					<div id="tab-my-profile" class="my-story-tab-content">
-						<div class="profile-container">
-							<h3 class="tab-section-title">Profile Completeness</h3>
-							<?php
-							if ( class_exists( 'ENNU_Enhanced_Dashboard_Manager' ) ) {
-								$dashboard_manager = new ENNU_Enhanced_Dashboard_Manager();
-								echo $dashboard_manager->get_profile_completeness_display( get_current_user_id() );
-								echo '<div class="ennu-profile-accuracy">';
-								echo $dashboard_manager->get_data_accuracy_indicators( get_current_user_id() );
-								echo '</div>';
-								echo '<div class="ennu-profile-guidance">';
-								echo $dashboard_manager->get_improvement_guidance( get_current_user_id() );
-								echo '</div>';
-							} else {
-								echo '<div class="profile-placeholder">
-									<h3 class="tab-section-title">Profile Completeness</h3>
-									<p>Enhanced dashboard features are loading...</p>
-								</div>';
+							
+							<!-- MY BIOMARKER PANELS SECTION -->
+							<div class="biomarker-panels-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">MY BIOMARKER PANELS</h2>
+								</div>
+								
+								<!-- BIOMARKER PANELS - ENHANCED ORGANIZATION -->
+									<?php
+							// Load biomarker panels configuration
+							$panels_config = include ENNU_LIFE_PLUGIN_PATH . 'includes/config/biomarker-panels.php';
+							$panels = $panels_config['panels'];
+							
+							// Load core biomarkers from the Recommended Range Manager (AI Medical Team source)
+							if (!isset($core_biomarkers) || empty($core_biomarkers)) {
+								error_log("ENNU DEBUG: Loading biomarker data from Recommended Range Manager");
+								$range_manager = new ENNU_Recommended_Range_Manager();
+								$user_data = array(
+									'age' => $user_age ?? 35,
+									'gender' => $user_gender ?? 'male'
+								);
+								
+								// Get all biomarker configurations from AI Medical Team
+								$biomarker_config = $range_manager->get_biomarker_configuration();
+								error_log("ENNU DEBUG: Loaded " . count($biomarker_config) . " biomarker configurations");
+								
+								// Convert to dashboard format
+								$core_biomarkers = array();
+								foreach ($biomarker_config as $biomarker_key => $biomarker_data) {
+									// Get personalized range for this user
+									$personalized_range = $range_manager->get_recommended_range($biomarker_key, $user_data);
+									
+									if (isset($personalized_range['error'])) {
+										continue; // Skip biomarkers with errors
+									}
+									
+									// Determine category based on biomarker type
+									$category = get_biomarker_category($biomarker_key);
+									
+									if (!isset($core_biomarkers[$category])) {
+										$core_biomarkers[$category] = array();
+									}
+									
+									// Convert to dashboard format using personalized ranges
+									$core_biomarkers[$category][$biomarker_key] = array(
+										'unit' => $personalized_range['unit'] ?? '',
+										'range' => $personalized_range['normal_min'] . '-' . $personalized_range['normal_max'],
+										'optimal_range' => $personalized_range['optimal_min'] . '-' . $personalized_range['optimal_max'],
+										'suboptimal_range' => ($personalized_range['normal_min'] ?? 0) . '-' . ($personalized_range['optimal_min'] ?? 0),
+										'poor_range' => '0-' . ($personalized_range['normal_min'] ?? 0),
+										'source' => 'ENNU AI Medical Team',
+										'collection_method' => 'lab_test',
+										'health_vectors' => array('General Health' => 0.8),
+										'pillar_impact' => array('Body'),
+										'frequency' => 'quarterly',
+										'required_for' => array('Basic Membership', 'Comprehensive Diagnostic', 'Premium Membership')
+									);
+								}
 							}
+									
+							// Enhanced Panel Organization
+							echo '<div class="biomarker-panels-container">';
+							
+							// Panel color mapping
+							$panel_colors = array(
+								'foundation_panel' => array('bg' => 'rgba(16, 185, 129, 0.1)', 'border' => 'rgba(16, 185, 129, 0.3)', 'accent' => '#10b981', 'icon' => '🏥'),
+								'guardian_panel' => array('bg' => 'rgba(59, 130, 246, 0.1)', 'border' => 'rgba(59, 130, 246, 0.3)', 'accent' => '#3b82f6', 'icon' => '🧠'),
+								'protector_panel' => array('bg' => 'rgba(239, 68, 68, 0.1)', 'border' => 'rgba(239, 68, 68, 0.3)', 'accent' => '#ef4444', 'icon' => '❤️'),
+								'catalyst_panel' => array('bg' => 'rgba(245, 158, 11, 0.1)', 'border' => 'rgba(245, 158, 11, 0.3)', 'accent' => '#f59e0b', 'icon' => '⚡'),
+								'detoxifier_panel' => array('bg' => 'rgba(34, 197, 94, 0.1)', 'border' => 'rgba(34, 197, 94, 0.3)', 'accent' => '#22c55e', 'icon' => '🌿'),
+								'timekeeper_panel' => array('bg' => 'rgba(168, 85, 247, 0.1)', 'border' => 'rgba(168, 85, 247, 0.3)', 'accent' => '#a855f7', 'icon' => '⏰'),
+								'hormone_optimization_panel' => array('bg' => 'rgba(236, 72, 153, 0.1)', 'border' => 'rgba(236, 72, 153, 0.3)', 'accent' => '#ec4899', 'icon' => '⚖️'),
+								'cardiovascular_health_panel' => array('bg' => 'rgba(239, 68, 68, 0.1)', 'border' => 'rgba(239, 68, 68, 0.3)', 'accent' => '#ef4444', 'icon' => '💓'),
+								'longevity_performance_panel' => array('bg' => 'rgba(14, 165, 233, 0.1)', 'border' => 'rgba(14, 165, 233, 0.3)', 'accent' => '#0ea5e9', 'icon' => '🏃'),
+								'cognitive_energy_panel' => array('bg' => 'rgba(251, 146, 60, 0.1)', 'border' => 'rgba(251, 146, 60, 0.3)', 'accent' => '#fb923c', 'icon' => '💡'),
+								'metabolic_optimization_panel' => array('bg' => 'rgba(99, 102, 241, 0.1)', 'border' => 'rgba(99, 102, 241, 0.3)', 'accent' => '#6366f1', 'icon' => '📊')
+								);
+								
+							// Health vector category mapping
+							$health_vector_categories = array(
+								'cardiovascular' => array('name' => 'Cardiovascular Health', 'icon' => '❤️', 'color' => '#ef4444'),
+								'endocrine' => array('name' => 'Endocrine System', 'icon' => '⚡', 'color' => '#10b981'),
+								'immune' => array('name' => 'Immune Function', 'icon' => '🛡️', 'color' => '#3b82f6'),
+								'nutritional' => array('name' => 'Nutritional Status', 'icon' => '🥗', 'color' => '#f59e0b'),
+								'physical' => array('name' => 'Physical Performance', 'icon' => '💪', 'color' => '#a855f7'),
+								'cognitive' => array('name' => 'Cognitive Health', 'icon' => '🧠', 'color' => '#ec4899'),
+								'longevity' => array('name' => 'Longevity Markers', 'icon' => '⏰', 'color' => '#22c55e'),
+								'performance' => array('name' => 'Performance Optimization', 'icon' => '🏃', 'color' => '#0ea5e9'),
+								'inflammatory' => array('name' => 'Inflammatory Markers', 'icon' => '🔥', 'color' => '#fb923c'),
+								'metabolic' => array('name' => 'Metabolic Health', 'icon' => '📊', 'color' => '#6366f1'),
+								'comprehensive' => array('name' => 'Comprehensive Health', 'icon' => '🔬', 'color' => '#8b5cf6')
+							);
+							
+							foreach ($panels as $panel_key => $panel_data) {
+								$panel_colors_data = $panel_colors[$panel_key] ?? $panel_colors['foundation_panel'];
+								
+								echo '<div class="biomarker-panel biomarker-panel-' . esc_attr($panel_key) . '">';
+								
+								// Panel Header with Toggle
+								echo '<div class="biomarker-panel-header" style="background: ' . esc_attr($panel_colors_data['bg']) . '; border: 1px solid ' . esc_attr($panel_colors_data['border']) . ';" onclick="togglePanel(\'' . esc_attr($panel_key) . '\')">';
+								echo '<div class="biomarker-panel-icon">';
+								echo wp_kses_post($panel_colors_data['icon']);
+								echo '</div>';
+								echo '<div class="biomarker-panel-info">';
+								echo '<h3 class="biomarker-panel-title">' . esc_html($panel_data['name']) . '</h3>';
+								echo '<p class="biomarker-panel-description">' . esc_html($panel_data['description']) . '</p>';
+								echo '<div class="biomarker-panel-meta">';
+								echo '<span class="biomarker-panel-count">' . esc_html($panel_data['biomarker_count']) . ' biomarkers</span>';
+								echo '</div>';
+								echo '</div>';
+								echo '<div class="biomarker-panel-toggle">';
+								echo '<span class="panel-expand-icon">▶</span>';
+								echo '</div>';
+									echo '</div>';
+									
+								// Panel Content - Group by Health Vectors
+								echo '<div id="panel-content-' . esc_attr($panel_key) . '" class="biomarker-panel-content" style="display: none;">';
+								
+								// Get biomarkers for this panel
+								$panel_biomarkers = isset($panel_data['biomarkers']) ? $panel_data['biomarkers'] : array();
+									
+								// Group biomarkers by health vector categories
+								$vector_groups = array();
+								foreach ($panel_biomarkers as $biomarker_key) {
+									$category = get_biomarker_category($biomarker_key);
+									if (!isset($vector_groups[$category])) {
+										$vector_groups[$category] = array();
+									}
+									$vector_groups[$category][] = $biomarker_key;
+								}
+								
+								// Display health vector categories
+								foreach ($vector_groups as $vector_category => $biomarker_keys) {
+									// Use biomarker categories instead of health vectors for display
+									$category_display_name = $vector_category;
+									$category_icon = get_category_icon($vector_category);
+									$category_color = '#8b5cf6'; // Default purple
+									
+									// Map category names to display names and icons
+									$category_display_map = array(
+										'Physical Measurements' => array('name' => 'Physical Measurements', 'icon' => '📏', 'color' => '#3b82f6'),
+										'Basic Metabolic Panel' => array('name' => 'Basic Metabolic Panel', 'icon' => '🩸', 'color' => '#ef4444'),
+										'Electrolytes & Minerals' => array('name' => 'Electrolytes & Minerals', 'icon' => '⚡', 'color' => '#f59e0b'),
+										'Lipid Panel' => array('name' => 'Lipid Panel', 'icon' => '❤️', 'color' => '#dc2626'),
+										'Advanced Cardiovascular' => array('name' => 'Advanced Cardiovascular', 'icon' => '🫀', 'color' => '#b91c1c'),
+										'Hormones' => array('name' => 'Hormones', 'icon' => '⚖️', 'color' => '#ec4899'),
+										'Thyroid' => array('name' => 'Thyroid', 'icon' => '🦋', 'color' => '#8b5cf6'),
+										'Complete Blood Count' => array('name' => 'Complete Blood Count', 'icon' => '🔬', 'color' => '#06b6d4'),
+										'Advanced Metabolic' => array('name' => 'Advanced Metabolic', 'icon' => '🧬', 'color' => '#10b981'),
+										'Advanced Cognitive' => array('name' => 'Advanced Cognitive', 'icon' => '🧠', 'color' => '#6366f1'),
+										'Advanced Longevity' => array('name' => 'Advanced Longevity', 'icon' => '⏰', 'color' => '#22c55e'),
+										'Advanced Performance' => array('name' => 'Advanced Performance', 'icon' => '🏃', 'color' => '#0ea5e9'),
+										'Performance' => array('name' => 'Performance', 'icon' => '💪', 'color' => '#a855f7'),
+										'Advanced Energy' => array('name' => 'Advanced Energy', 'icon' => '⚡', 'color' => '#fbbf24'),
+										'Heavy Metals & Toxicity' => array('name' => 'Heavy Metals & Toxicity', 'icon' => '☠️', 'color' => '#dc2626'),
+										'Protein Panel' => array('name' => 'Protein Panel', 'icon' => '🥚', 'color' => '#059669')
+									);
+									
+									// Get display data for this category
+									$display_data = isset($category_display_map[$vector_category]) ? $category_display_map[$vector_category] : array('name' => $vector_category, 'icon' => '🔬', 'color' => '#8b5cf6');
+									
+									echo '<div class="biomarker-vector-category">';
+									echo '<div class="biomarker-vector-header">';
+									echo '<div class="biomarker-vector-icon">';
+									echo wp_kses_post($display_data['icon']);
+									echo '</div>';
+									echo '<div class="biomarker-vector-info">';
+									echo '<h4 class="biomarker-vector-title">' . esc_html($display_data['name']) . '</h4>';
+									echo '<p class="biomarker-vector-count">' . count($biomarker_keys) . ' biomarkers</p>';
+									echo '</div>';
+									echo '</div>';
+									
+									// Biomarkers list
+									echo '<div class="biomarker-vector-list">';
+									
+									foreach ($biomarker_keys as $biomarker_key) {
+										$biomarker_name = str_replace('_', ' ', $biomarker_key);
+										$biomarker_name = ucwords($biomarker_name);
+									
+										echo '<div class="biomarker-list-item" onclick="toggleBiomarkerMeasurements(\'' . esc_attr($panel_key) . '\', \'' . esc_attr($vector_category) . '\', \'' . esc_attr($biomarker_key) . '\')">';
+										echo '<span class="biomarker-list-name">' . esc_html($biomarker_name) . '</span>';
+										
+										// Get biomarker data
+										if (isset($core_biomarkers[$vector_category][$biomarker_key])) {
+											$biomarker_data = $core_biomarkers[$vector_category][$biomarker_key];
+											echo '<span class="biomarker-list-unit">' . esc_html($biomarker_data['unit'] ?? '') . '</span>';
+										}
+										
+									echo '<span class="biomarker-list-expand">▶</span>';
+									echo '</div>';
+									
+										// Individual biomarker measurement container
+										echo '<div id="biomarker-measurement-' . esc_attr($panel_key) . '-' . esc_attr($vector_category) . '-' . esc_attr($biomarker_key) . '" class="biomarker-measurement-container" style="display: none;">';
+									echo '<div class="biomarker-measurement-content">';
+									
+									// Get measurement data for this specific biomarker
+									$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_key, $user_id);
+										
+											// Render the measurement component
+											echo render_biomarker_measurement($measurement_data);
+									
+									echo '</div>';
+									echo '</div>';
+								}
+								
+									echo '</div>'; // Close biomarker-vector-list
+									echo '</div>'; // Close biomarker-vector-category
+								}
+								
+								echo '</div>'; // Close biomarker-panel-content
+								echo '</div>'; // Close biomarker-panel
+							}
+							
+							echo '</div>'; // Close biomarker-panels-container
 							?>
-						</div>
-					</div>
-					
-					<!-- Tab 6: My New Life -->
-					<div id="tab-my-new-life" class="my-story-tab-content">
-						<div class="new-life-container">
-							<div class="new-life-overview">
-								<div class="new-life-header">
-									<h3 class="tab-section-title">My New Life Journey</h3>
-									<p class="tab-subtitle">Your personalized path to optimal health and vitality</p>
-								</div>
-								
-								<!-- Enhanced Transformation Overview -->
-								<div class="transformation-overview enhanced">
-									<div class="overview-stats">
-										<div class="overview-stat current-score">
-											<div class="stat-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<circle cx="12" cy="12" r="10"/>
-													<path d="M12 6v6l4 2"/>
-												</svg>
-											</div>
-											<div class="stat-content">
-												<div class="stat-number">6.8</div>
-												<div class="stat-label">Current ENNU Score</div>
-												<div class="stat-status">Good Foundation</div>
-											</div>
-										</div>
-										<div class="overview-stat target-score">
-											<div class="stat-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-												</svg>
-											</div>
-											<div class="stat-content">
-												<div class="stat-number">9.2</div>
-												<div class="stat-label">Target ENNU Score</div>
-												<div class="stat-status">Peak Performance</div>
-											</div>
-										</div>
-										<div class="overview-stat improvement">
-											<div class="stat-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M7 14l3-3 2 2 7-7 2 2-9 9-4-4-2 2z"/>
-												</svg>
-											</div>
-											<div class="stat-content">
-												<div class="stat-number">+2.4</div>
-												<div class="stat-label">Points to Gain</div>
-												<div class="stat-status">Significant Potential</div>
-											</div>
-										</div>
-										<div class="overview-stat timeline">
-											<div class="stat-icon">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-													<path d="M12 2v20M2 12h20"/>
-												</svg>
-											</div>
-											<div class="stat-content">
-												<div class="stat-number">8-12</div>
-												<div class="stat-label">Months to Goal</div>
-												<div class="stat-status">Realistic Timeline</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Enhanced Life Coach Section -->
-								<div class="life-coach-section enhanced">
-									<div class="coach-card">
-										<div class="coach-avatar">
-											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
-												<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-												<circle cx="12" cy="7" r="4"/>
-											</svg>
-										</div>
-										<div class="coach-info">
-											<h4 class="coach-name">Dr. Sarah Chen</h4>
-											<p class="coach-title">Certified Health Optimization Specialist</p>
-											<p class="coach-description">Your dedicated coach will guide you through your transformation journey, providing personalized strategies to optimize each health pillar. With over 15 years of experience in functional medicine and health optimization, Dr. Chen specializes in helping clients achieve sustainable health improvements.</p>
-											<div class="coach-features">
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Weekly check-ins</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Personalized protocols</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Progress tracking</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>24/7 support access</span>
-												</div>
-											</div>
-											<div class="coach-pricing">
-												<div class="pricing-amount">$197</div>
-												<div class="pricing-period">per month</div>
-											</div>
-											<div class="coach-cta-buttons">
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill coach-cta">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-														<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-													</svg>
-													Schedule Free Consultation - $0
-												</a>
-												<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-sm">
-													Learn More About Coaching
-												</a>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Enhanced Transformation Journey -->
-								<div class="transformation-journey enhanced">
-									<h4 class="journey-title">Your Transformation Path</h4>
-									<p class="journey-subtitle">Elevate each pillar to achieve your optimal ENNU LIFE SCORE</p>
-									
-									<div class="journey-visualization">
-										<!-- Enhanced Score Comparison -->
-										<div class="score-comparison enhanced">
-											<div class="current-score-section">
-												<h5>Current ENNU LIFE SCORE</h5>
-												<div class="score-circle current">
-													<div class="score-value">6.8</div>
-													<div class="score-label">Current</div>
-													<div class="score-status">Good Foundation</div>
-												</div>
-											</div>
-											
-											<div class="transformation-arrow enhanced">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
-													<line x1="5" y1="12" x2="19" y2="12"/>
-													<polyline points="12,5 19,12 12,19"/>
-												</svg>
-												<span class="arrow-label">Transform</span>
-												<span class="arrow-subtitle">8-12 months</span>
-											</div>
-											
-											<div class="target-score-section">
-												<h5>Target ENNU LIFE SCORE</h5>
-												<div class="score-circle target">
-													<div class="score-value">9.2</div>
-													<div class="score-label">Optimal</div>
-													<div class="score-status">Peak Performance</div>
-												</div>
-											</div>
-										</div>
-										
-										<!-- Enhanced Pillar Optimization Path -->
-										<div class="pillar-optimization enhanced">
-											<h5>Pillar Optimization Pathway</h5>
-											<div class="pillars-progress">
-												<div class="pillar-progress-item high-priority">
-													<div class="pillar-header">
-														<div class="pillar-info">
-															<span class="pillar-name">Mind</span>
-															<span class="pillar-priority">High Priority</span>
-														</div>
-														<div class="pillar-scores">
-															<span class="pillar-current">5.2</span>
-															<span class="pillar-arrow">→</span>
-															<span class="pillar-target">8.5</span>
-														</div>
-													</div>
-													<div class="pillar-progress-bar">
-														<div class="progress-fill" style="width: 61.2%"></div>
-													</div>
-													<div class="pillar-details">
-														<div class="improvement-needed">
-															+3.3 points needed
-														</div>
-														<div class="pillar-recommendations">
-															<span class="rec-tag">Stress Management</span>
-															<span class="rec-tag">Sleep Optimization</span>
-															<span class="rec-tag">Cognitive Enhancement</span>
-														</div>
-														<div class="pillar-actions">
-															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
-																Optimize Mind
-															</a>
-														</div>
-													</div>
-												</div>
-												
-												<div class="pillar-progress-item medium-priority">
-													<div class="pillar-header">
-														<div class="pillar-info">
-															<span class="pillar-name">Body</span>
-															<span class="pillar-priority">Medium Priority</span>
-														</div>
-														<div class="pillar-scores">
-															<span class="pillar-current">7.1</span>
-															<span class="pillar-arrow">→</span>
-															<span class="pillar-target">9.0</span>
-														</div>
-													</div>
-													<div class="pillar-progress-bar">
-														<div class="progress-fill" style="width: 78.9%"></div>
-													</div>
-													<div class="pillar-details">
-														<div class="improvement-needed">
-															+1.9 points needed
-														</div>
-														<div class="pillar-recommendations">
-															<span class="rec-tag">Strength Training</span>
-															<span class="rec-tag">Recovery Optimization</span>
-														</div>
-														<div class="pillar-actions">
-															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
-																Optimize Body
-															</a>
-														</div>
-													</div>
-												</div>
-												
-												<div class="pillar-progress-item high-priority">
-													<div class="pillar-header">
-														<div class="pillar-info">
-															<span class="pillar-name">Lifestyle</span>
-															<span class="pillar-priority">High Priority</span>
-														</div>
-														<div class="pillar-scores">
-															<span class="pillar-current">6.3</span>
-															<span class="pillar-arrow">→</span>
-															<span class="pillar-target">9.5</span>
-														</div>
-													</div>
-													<div class="pillar-progress-bar">
-														<div class="progress-fill" style="width: 66.3%"></div>
-													</div>
-													<div class="pillar-details">
-														<div class="improvement-needed">
-															+3.2 points needed
-														</div>
-														<div class="pillar-recommendations">
-															<span class="rec-tag">Nutrition Plan</span>
-															<span class="rec-tag">Habit Formation</span>
-															<span class="rec-tag">Environment Design</span>
-														</div>
-														<div class="pillar-actions">
-															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
-																Optimize Lifestyle
-															</a>
-														</div>
-													</div>
-												</div>
-												
-												<div class="pillar-progress-item medium-priority">
-													<div class="pillar-header">
-														<div class="pillar-info">
-															<span class="pillar-name">Aesthetics</span>
-															<span class="pillar-priority">Medium Priority</span>
-														</div>
-														<div class="pillar-scores">
-															<span class="pillar-current">8.4</span>
-															<span class="pillar-arrow">→</span>
-															<span class="pillar-target">9.8</span>
-														</div>
-													</div>
-													<div class="pillar-progress-bar">
-														<div class="progress-fill" style="width: 85.7%"></div>
-													</div>
-													<div class="pillar-details">
-														<div class="improvement-needed">
-															+1.4 points needed
-														</div>
-														<div class="pillar-recommendations">
-															<span class="rec-tag">Skin Care</span>
-															<span class="rec-tag">Hair Health</span>
-														</div>
-														<div class="pillar-actions">
-															<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-sm btn-primary">
-																Optimize Aesthetics
-															</a>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										
-										<!-- Enhanced Journey Milestones -->
-										<div class="journey-milestones enhanced">
-											<h5>Transformation Milestones</h5>
-											<div class="milestones-timeline">
-												<div class="milestone completed">
-													<div class="milestone-icon">
-														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-															<path d="M12 2v20M2 12h20"/>
-														</svg>
-													</div>
-													<div class="milestone-content">
-														<h6>Assessment Complete</h6>
-														<p>Foundation established with comprehensive health evaluation</p>
-														<span class="milestone-status">Completed</span>
-													</div>
-												</div>
-												<div class="milestone current">
-													<div class="milestone-icon">
-														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-															<circle cx="12" cy="12" r="3"/>
-														</svg>
-													</div>
-													<div class="milestone-content">
-														<h6>Optimization Plan</h6>
-														<p>Personalized strategies developed for each health pillar</p>
-														<span class="milestone-status">In Progress</span>
-													</div>
-												</div>
-												<div class="milestone">
-													<div class="milestone-icon">
-														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-															<polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
-														</svg>
-													</div>
-													<div class="milestone-content">
-														<h6>Active Transformation</h6>
-														<p>Implementing lifestyle changes with coaching support</p>
-														<span class="milestone-status">Next Phase</span>
-													</div>
-												</div>
-												<div class="milestone">
-													<div class="milestone-icon">
-														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-															<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-														</svg>
-													</div>
-													<div class="milestone-content">
-														<h6>Peak Performance</h6>
-														<p>Optimal health across all pillars - living your new life!</p>
-														<span class="milestone-status">Target Goal</span>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Enhanced Success Stories -->
-								<div class="success-stories-section enhanced">
-									<h4 class="stories-title">Transformation Success Stories</h4>
-									<p class="stories-subtitle">Real people achieving their optimal health with ENNU LIFE</p>
-									
-									<div class="stories-grid">
-										<div class="story-card">
-											<div class="story-header">
-												<div class="story-avatar">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
-														<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-														<circle cx="12" cy="7" r="4"/>
-													</svg>
-												</div>
-												<div class="story-info">
-													<h5>Michael R.</h5>
-													<p class="story-age">Age 42, Executive</p>
-												</div>
-												<div class="story-score-improvement">
-													<span class="score-before">5.2</span>
-													<span class="score-arrow">→</span>
-													<span class="score-after">8.7</span>
-												</div>
-											</div>
-											<div class="story-content">
-												<p>"ENNU LIFE transformed my approach to health. I went from constant fatigue to peak performance in just 8 months. The personalized coaching made all the difference."</p>
-												<div class="story-highlights">
-													<span class="highlight">+3.5 points</span>
-													<span class="highlight">8 months</span>
-													<span class="highlight">Peak Performance</span>
-												</div>
-											</div>
-										</div>
-										
-										<div class="story-card">
-											<div class="story-header">
-												<div class="story-avatar">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
-														<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-														<circle cx="12" cy="7" r="4"/>
-													</svg>
-												</div>
-												<div class="story-info">
-													<h5>Jennifer L.</h5>
-													<p class="story-age">Age 38, Entrepreneur</p>
-												</div>
-												<div class="story-score-improvement">
-													<span class="score-before">6.1</span>
-													<span class="score-arrow">→</span>
-													<span class="score-after">9.1</span>
-												</div>
-											</div>
-											<div class="story-content">
-												<p>"The pillar-based approach helped me understand exactly what I needed to optimize. My energy levels and mental clarity have never been better."</p>
-												<div class="story-highlights">
-													<span class="highlight">+3.0 points</span>
-													<span class="highlight">10 months</span>
-													<span class="highlight">Optimal Health</span>
-												</div>
-											</div>
-										</div>
-										
-										<div class="story-card">
-											<div class="story-header">
-												<div class="story-avatar">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
-														<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-														<circle cx="12" cy="7" r="4"/>
-													</svg>
-												</div>
-												<div class="story-info">
-													<h5>David K.</h5>
-													<p class="story-age">Age 45, Consultant</p>
-												</div>
-												<div class="story-score-improvement">
-													<span class="score-before">4.8</span>
-													<span class="score-arrow">→</span>
-													<span class="score-after">8.9</span>
-												</div>
-											</div>
-											<div class="story-content">
-												<p>"The comprehensive approach addressed everything from stress management to nutrition. I feel 10 years younger and more productive than ever."</p>
-												<div class="story-highlights">
-													<span class="highlight">+4.1 points</span>
-													<span class="highlight">12 months</span>
-													<span class="highlight">Life Transformation</span>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Enhanced Transformation Programs -->
-								<div class="transformation-programs enhanced">
-									<h4 class="programs-title">Choose Your Transformation Path</h4>
-									<p class="programs-subtitle">Select the program that best fits your goals and timeline</p>
-									
-									<div class="programs-grid">
-										<div class="program-card starter">
-											<div class="program-header">
-												<h5>ENNU Full Body Diagnostic</h5>
-												<div class="program-price">$599</div>
-											</div>
-											<div class="program-features">
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>In-Depth Biomarker Report (50+ Biomarkers)</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Advanced Review of Lab Results</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Personalized Clinical Recommendations</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Comprehensive Health + Family History Analysis</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Physical Exam</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Your Story: Comprehensive health report</span>
-												</div>
-											</div>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">Get Started</a>
-										</div>
-										
-										<div class="program-card premium featured">
-											<div class="program-badge">Most Popular</div>
-											<div class="program-header">
-												<h5>ENNU LIFE Membership</h5>
-												<div class="program-price">$1788</div>
-												<div class="program-savings">Pay in full and save $447</div>
-											</div>
-											<div class="program-features">
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Scheduled Telehealth Visits Every 3-4 Months</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Direct Access to a Dedicated Care Advocate</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>In-Depth Biomarker Report (50+ Biomarkers)</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Personalized Clinical Recommendations</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Peptide Therapy</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Access to Premium Pharmaceuticals</span>
-												</div>
-											</div>
-											<div class="program-pricing-options">
-												<div class="pricing-option">
-													<span class="price">$1341</span>
-													<span class="period">Yearly (Pay in full)</span>
-												</div>
-												<div class="pricing-option">
-													<span class="price">$149</span>
-													<span class="period">Monthly</span>
-												</div>
-											</div>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill">Choose Membership</a>
-										</div>
-										
-										<div class="program-card elite">
-											<div class="program-header">
-												<h5>ENNU Elite Transformation</h5>
-												<div class="program-price">$4,997</div>
-											</div>
-											<div class="program-features">
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>12-Month Comprehensive Transformation</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Weekly 1-on-1 Coaching Sessions</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Quarterly Lab Testing & Analysis</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Advanced Peptide & Hormone Therapy</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>24/7 Priority Support Access</span>
-												</div>
-												<div class="feature">
-													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-														<polyline points="20,6 9,17 4,12"/>
-													</svg>
-													<span>Guaranteed Score Improvement or Money Back</span>
-												</div>
-											</div>
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-outline btn-pill">Learn More</a>
-										</div>
-									</div>
-								</div>
-								
-								<!-- Enhanced Call to Action -->
-								<div class="new-life-cta enhanced">
-									<div class="cta-highlight">
-										<h4>Ready to Begin Your Transformation?</h4>
-										<p class="cta-wordplay">ENNU LIFE = A New Life</p>
-										<p>Your journey to optimal health starts with a single step. Let's unlock your potential together.</p>
-										<div class="cta-stats">
-											<div class="cta-stat">
-												<span class="stat-number">95%</span>
-												<span class="stat-label">Success Rate</span>
-											</div>
-											<div class="cta-stat">
-												<span class="stat-number">8-12</span>
-												<span class="stat-label">Months to Goal</span>
-											</div>
-											<div class="cta-stat">
-												<span class="stat-number">24/7</span>
-												<span class="stat-label">Support</span>
-											</div>
-											<div class="cta-stat">
-												<span class="stat-number">+2.4</span>
-												<span class="stat-label">Avg. Score Gain</span>
-											</div>
-										</div>
-										<div class="cta-buttons">
-											<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-primary btn-pill btn-large">
-												<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-													<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-												</svg>
-												Start My Journey
-											</a>
-											<a href="#tab-my-assessments" class="btn btn-secondary switch-tab" data-tab="tab-my-assessments">
-												Complete More Assessments
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+							
 
-			<!-- Charts Section -->
-			<div class="charts-section">
-				<h2 class="section-title">Your Health Trends</h2>
-				<div class="charts-grid">
-					<div class="chart-card">
-						<h3 class="chart-title">ENNU Life Score History</h3>
-						<div class="chart-wrapper">
-							<canvas id="scoreHistoryChart" width="400" height="200"></canvas>
-						</div>
-						<p class="chart-description">Track your overall health score over time</p>
-					</div>
-					
-					<div class="chart-card">
-						<h3 class="chart-title">BMI Trends</h3>
-						<div class="chart-wrapper">
-							<canvas id="bmiHistoryChart" width="400" height="200"></canvas>
-						</div>
-						<p class="chart-description">Monitor your body mass index changes</p>
-					</div>
-				</div>
-			</div>
+											
 
-			<!-- Quick Actions -->
-			<div class="quick-actions-section">
-				<h2 class="section-title">Quick Actions</h2>
-				<div class="quick-actions-grid">
-					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'assessments' ) ); ?>" class="quick-action-card">
-						<div class="action-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-								<polyline points="14,2 14,8 20,8"/>
-								<line x1="16" y1="13" x2="8" y2="13"/>
-								<line x1="16" y1="17" x2="8" y2="17"/>
-								<polyline points="10,9 9,9 8,9"/>
-							</svg>
+								
+								<?php
+								// Symptom name mapping for correlation system
+								$symptom_name_mapping = array(
+									'erectile_dysfunction' => 'Erectile Dysfunction',
+									'weight_gain' => 'Weight Gain',
+									'weight_loss' => 'Weight Loss',
+									'hot_flashes' => 'Hot Flashes',
+									'night_sweats' => 'Night Sweats',
+									'irritability' => 'Irritability',
+									'concentration_issues' => 'Concentration Issues',
+									'headaches' => 'Headaches',
+									'migraines' => 'Migraines',
+									'joint_pain' => 'Joint Pain',
+									'muscle_pain' => 'Muscle Pain',
+									'back_pain' => 'Back Pain',
+									'chest_pain' => 'Chest Pain',
+									'palpitations' => 'Palpitations',
+									'shortness_of_breath' => 'Shortness of Breath',
+									'dizziness' => 'Dizziness',
+									'lightheadedness' => 'Lightheadedness',
+									'nausea' => 'Nausea',
+									'vomiting' => 'Vomiting',
+									'diarrhea' => 'Diarrhea',
+									'constipation' => 'Constipation',
+									'bloating' => 'Bloating',
+									'gas' => 'Gas',
+									'heartburn' => 'Heartburn',
+									'acid_reflux' => 'Acid Reflux',
+									'frequent_urination' => 'Frequent Urination',
+									'urinary_incontinence' => 'Urinary Incontinence',
+									'edema' => 'Edema',
+									'swelling' => 'Swelling',
+									'bruising' => 'Bruising',
+									'slow_healing' => 'Slow Healing',
+									'frequent_infections' => 'Frequent Infections',
+									'fever' => 'Fever',
+									'chills' => 'Chills',
+									'nightmares' => 'Nightmares',
+									'sleep_apnea' => 'Sleep Apnea',
+									'restless_legs' => 'Restless Legs',
+									'teeth_grinding' => 'Teeth Grinding',
+									'jaw_pain' => 'Jaw Pain',
+									'tinnitus' => 'Tinnitus',
+									'hearing_loss' => 'Hearing Loss',
+									'vision_changes' => 'Vision Changes',
+									'blurred_vision' => 'Blurred Vision',
+									'dry_eyes' => 'Dry Eyes',
+									'eye_pain' => 'Eye Pain',
+									'light_sensitivity' => 'Light Sensitivity',
+									'noise_sensitivity' => 'Noise Sensitivity',
+									'taste_changes' => 'Taste Changes',
+									'smell_changes' => 'Smell Changes',
+									'numbness' => 'Numbness',
+									'tingling' => 'Tingling',
+									'weakness' => 'Weakness',
+									'tremors' => 'Tremors',
+									'seizures' => 'Seizures',
+									'confusion' => 'Confusion',
+									'disorientation' => 'Disorientation',
+									'hallucinations' => 'Hallucinations',
+									'paranoia' => 'Paranoia',
+									'mania' => 'Mania',
+									'panic_attacks' => 'Panic Attacks',
+									'phobias' => 'Phobias',
+									'obsessive_thoughts' => 'Obsessive Thoughts',
+									'compulsive_behaviors' => 'Compulsive Behaviors',
+									'suicidal_thoughts' => 'Suicidal Thoughts',
+									'self_harm' => 'Self Harm',
+									'violence' => 'Violence',
+									'aggression' => 'Aggression',
+									'rage' => 'Rage',
+									'impulsivity' => 'Impulsivity',
+									'risk_taking' => 'Risk Taking'
+								);
+										
+										// Initialize variables to prevent undefined variable warnings
+										$user_symptoms = isset($user_symptoms) ? $user_symptoms : array();
+										$symptom_correlations = isset($symptom_correlations) ? $symptom_correlations : array();
+										
+										// Load core biomarkers from configuration file
+										if (!isset($core_biomarkers) || empty($core_biomarkers)) {
+											$core_biomarkers = include( plugin_dir_path( __FILE__ ) . '../includes/config/ennu-life-core-biomarkers.php' );
+										}
+										
+										$biomarker_variations = isset($biomarker_variations) ? $biomarker_variations : array();
+										
+										// Convert user symptom names to correlation file format
+										$normalized_user_symptoms = array();
+										foreach ( $user_symptoms as $symptom ) {
+											if ( isset( $symptom_name_mapping[ $symptom ] ) ) {
+												$normalized_user_symptoms[] = $symptom_name_mapping[ $symptom ];
+											} else {
+												// Try to convert underscore format to proper format
+												$converted = str_replace( '_', ' ', $symptom );
+												$converted = ucwords( $converted );
+												$normalized_user_symptoms[] = $converted;
+											}
+										}
+										
+										// Use normalized symptoms for correlation matching
+										$user_symptoms = $normalized_user_symptoms;
+										
+										// Create reverse mapping: biomarker -> symptoms that recommend it
+										$biomarker_to_symptoms = array();
+										foreach ( $symptom_correlations as $symptom => $recommended_biomarkers ) {
+											foreach ( $recommended_biomarkers as $biomarker ) {
+												if ( ! isset( $biomarker_to_symptoms[ $biomarker ] ) ) {
+													$biomarker_to_symptoms[ $biomarker ] = array();
+												}
+												$biomarker_to_symptoms[ $biomarker ][] = $symptom;
+											}
+										}
+										
+										// REMOVED: Original biomarker-categories section (moved to top)
+										
+										// REMOVED: Duplicate biomarker display section (consolidated to top)
+									echo '</div>';
+								?>
+											</div>
 						</div>
-						<h3>Take New Assessment</h3>
-						<p>Complete additional assessments to get more insights</p>
-					</a>
+					</div>
 					
-					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="quick-action-card">
-						<div class="action-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-								<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-							</svg>
-						</div>
-						<h3>Schedule Consultation</h3>
-						<p>Book a call with our health specialists</p>
-					</a>
-					
-					<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'ennu-life-score' ) ); ?>" class="quick-action-card">
-						<div class="action-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-								<circle cx="12" cy="12" r="10"/>
-								<circle cx="12" cy="10" r="3"/>
-								<path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
-							</svg>
-						</div>
-						<h3>Get ENNU Life Score</h3>
-						<p>Discover your comprehensive health score</p>
-					</a>
-				</div>
-			</div>
+					</div>
+
+
+
 
 
 </main>
@@ -3603,11 +2557,19 @@ if ( empty( $display_name ) ) {
 	document.addEventListener('DOMContentLoaded', function() {
 		console.log('ENNU Dashboard: DOM loaded, initializing tabs...');
 		
+		// Theme system is now handled by the centralized ENNUThemeManager
+		console.log('ENNU Dashboard: Theme management delegated to ENNUThemeManager');
+		
 		// Tab switching functionality
 		const tabLinks = document.querySelectorAll('.my-story-tab-nav a');
 		const tabContents = document.querySelectorAll('.my-story-tab-content');
 		
 		console.log('ENNU Dashboard: Found', tabLinks.length, 'tab links and', tabContents.length, 'tab contents');
+		
+		// Debug: Log all tab IDs
+		tabContents.forEach((content, index) => {
+			console.log('ENNU Dashboard: Tab content', index + 1, 'ID:', content.id);
+		});
 		
 		tabLinks.forEach((link, index) => {
 			console.log('ENNU Dashboard: Tab link', index + 1, 'href:', link.getAttribute('href'));
@@ -3626,17 +2588,29 @@ if ( empty( $display_name ) ) {
 				// Show corresponding content
 				const targetId = this.getAttribute('href').substring(1);
 				const targetContent = document.getElementById(targetId);
+				console.log('ENNU Dashboard: Looking for target content with ID:', targetId);
+				console.log('ENNU Dashboard: Target content found:', targetContent);
+				
 				if (targetContent) {
 					targetContent.classList.add('my-story-tab-active');
 					console.log('ENNU Dashboard: Activated tab content:', targetId);
+					
+					// Debug: Check if content is visible
+					const computedStyle = window.getComputedStyle(targetContent);
+					console.log('ENNU Dashboard: Tab content display style:', computedStyle.display);
+					console.log('ENNU Dashboard: Tab content visibility:', computedStyle.visibility);
 				} else {
 					console.error('ENNU Dashboard: Target content not found:', targetId);
 				}
 			});
 		});
 		
-		// Show first tab by default
-		if (tabLinks.length > 0) {
+		// Show My Biomarkers tab by default
+		const biomarkersTabLink = document.querySelector('a[href="#tab-my-biomarkers"]');
+		if (biomarkersTabLink) {
+			biomarkersTabLink.click();
+		} else if (tabLinks.length > 0) {
+			// Fallback to first tab if biomarkers tab not found
 			tabLinks[0].click();
 		}
 		
@@ -3652,7 +2626,513 @@ if ( empty( $display_name ) ) {
 		document.querySelectorAll('.btn, .collapsible-header').forEach(element => {
 			element.classList.add('focus-ring');
 		});
+		
+		// Modern symptom item hover effects
+		document.querySelectorAll('.symptom-item').forEach(item => {
+			item.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-2px)';
+				this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '1';
+			});
+			
+			item.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0)';
+				this.style.boxShadow = 'none';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '0';
+			});
+		});
+		
+		// Modern symptom stat cards hover effects
+		document.querySelectorAll('.symptom-stat-card').forEach(card => {
+			card.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-2px)';
+				this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '1';
+			});
+			
+			card.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0)';
+				this.style.boxShadow = 'none';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '0';
+			});
+		});
+		
+		// Modern biomarker stat cards hover effects
+		document.querySelectorAll('.biomarker-stat-card').forEach(card => {
+			card.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-2px)';
+				this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '1';
+			});
+			
+			card.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0)';
+				this.style.boxShadow = 'none';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '0';
+			});
+		});
+		
+		// Modern biomarker item hover effects
+		document.querySelectorAll('.biomarker-item').forEach(item => {
+			item.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-2px)';
+				this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '1';
+			});
+			
+			item.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0)';
+				this.style.boxShadow = 'none';
+				this.querySelector('div[style*="opacity: 0"]').style.opacity = '0';
+			});
+		});
+		
+		// Biomarker Measurement Component Functionality
+		initializeBiomarkerMeasurements();
+		
+		// Initialize Chart.js charts (with error handling)
+		try {
+			// Charts are now initialized by the user-dashboard.js file
+			// This prevents conflicts with the main dashboard initialization
+			console.log('ENNU Dashboard: Chart initialization delegated to user-dashboard.js');
+			
+			// Initialize assessment charts with a slight delay to ensure DOM is ready
+			setTimeout(function() {
+				initializeAssessmentCharts();
+			}, 500);
+		} catch (chartError) {
+			console.error('ENNU Dashboard: Error initializing charts:', chartError);
+			// Continue execution - don't let chart errors break other functionality
+		}
 	});
+	
+	// Initialize biomarker measurement components
+	function initializeBiomarkerMeasurements() {
+		console.log('ENNU Dashboard: Initializing biomarker measurements...');
+		
+		// Add click handlers for info icons
+		document.querySelectorAll('.biomarker-info-icon').forEach(icon => {
+			icon.addEventListener('click', function(e) {
+				e.preventDefault();
+				const measurement = this.closest('.biomarker-measurement');
+				const biomarkerId = measurement.dataset.biomarkerId;
+				showBiomarkerDetails(biomarkerId);
+			});
+		});
+		
+		// Add click handlers for flag icons
+		document.querySelectorAll('.biomarker-flag-icon').forEach(icon => {
+			icon.addEventListener('click', function(e) {
+				e.preventDefault();
+				const measurement = this.closest('.biomarker-measurement');
+				const biomarkerId = measurement.dataset.biomarkerId;
+				showBiomarkerFlags(biomarkerId);
+			});
+		});
+		
+		// Add hover effects for markers
+		document.querySelectorAll('.biomarker-current-marker, .biomarker-target-marker').forEach(marker => {
+			marker.addEventListener('mouseenter', function() {
+				this.style.transform = this.style.transform.replace('scale(1)', 'scale(1.2)');
+			});
+			
+			marker.addEventListener('mouseleave', function() {
+				this.style.transform = this.style.transform.replace('scale(1.2)', 'scale(1)');
+			});
+		});
+		
+		            // Initialize dynamic tooltips for biomarker rulers
+            initializeBiomarkerRulerTooltips();
+            
+            // Add hover handlers for dots to hide dynamic tooltip
+            initializeDotTooltipHandlers();
+		
+		// Add click handlers for measurement containers
+		document.querySelectorAll('.biomarker-measurement').forEach(measurement => {
+			measurement.addEventListener('click', function(e) {
+				// Don't trigger if clicking on interactive elements
+				if (e.target.closest('.biomarker-info-icon, .biomarker-flag-icon, .biomarker-current-marker, .biomarker-target-marker')) {
+					return;
+				}
+				
+				const biomarkerId = this.dataset.biomarkerId;
+				showBiomarkerDetails(biomarkerId);
+			});
+		});
+	}
+	
+	// Initialize assessment charts
+	function initializeAssessmentCharts() {
+		console.log('ENNU Dashboard: Initializing assessment charts...');
+		
+		// Check if Chart.js is available
+		if (typeof Chart === 'undefined') {
+			console.error('ENNU Dashboard: Chart.js is not loaded!');
+			return;
+		}
+		
+		console.log('ENNU Dashboard: Chart.js is available');
+		
+		// Find all assessment chart canvases
+		const assessmentCharts = document.querySelectorAll('canvas[id^="assessmentChart_"]');
+		console.log('ENNU Dashboard: Found', assessmentCharts.length, 'assessment chart canvases');
+		
+		assessmentCharts.forEach((canvas, index) => {
+			console.log('ENNU Dashboard: Processing chart', index + 1, 'with ID:', canvas.id);
+			const assessmentKey = canvas.id.replace('assessmentChart_', '');
+			const chartCard = canvas.closest('.assessment-chart-card');
+			
+			if (!chartCard) return;
+			
+			// Show fallback while loading
+			const fallback = document.getElementById('chartFallback_' + assessmentKey);
+			if (fallback) {
+				fallback.style.display = 'block';
+			}
+			
+			// Get assessment data from the card
+			const scoreElement = chartCard.querySelector('.overall-score-display span');
+			const score = scoreElement ? parseFloat(scoreElement.textContent) : 0;
+			
+			// Get category data
+			const categoryBars = chartCard.querySelectorAll('.category-bar-item');
+			const categories = [];
+			const scores = [];
+			
+			categoryBars.forEach(bar => {
+				const categoryName = bar.querySelector('span').textContent;
+				const categoryScore = parseFloat(bar.querySelector('span:last-child').textContent);
+				categories.push(categoryName);
+				scores.push(categoryScore);
+			});
+			
+			// Create chart data
+			const chartData = {
+				labels: categories.length > 0 ? categories : ['Overall Score'],
+				datasets: [{
+					label: 'Assessment Scores',
+					data: categories.length > 0 ? scores : [score],
+					backgroundColor: categories.length > 0 ? 
+						scores.map(s => s >= 8 ? 'rgba(16, 185, 129, 0.8)' : s >= 6 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(239, 68, 68, 0.8)') :
+						[score >= 8 ? 'rgba(16, 185, 129, 0.8)' : score >= 6 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(239, 68, 68, 0.8)'],
+					borderColor: categories.length > 0 ? 
+						scores.map(s => s >= 8 ? 'rgba(16, 185, 129, 1)' : s >= 6 ? 'rgba(245, 158, 11, 1)' : 'rgba(239, 68, 68, 1)') :
+						[score >= 8 ? 'rgba(16, 185, 129, 1)' : score >= 6 ? 'rgba(245, 158, 11, 1)' : 'rgba(239, 68, 68, 1)'],
+					borderWidth: 2,
+					borderRadius: 8,
+					hoverBackgroundColor: categories.length > 0 ? 
+						scores.map(s => s >= 8 ? 'rgba(16, 185, 129, 1)' : s >= 6 ? 'rgba(245, 158, 11, 1)' : 'rgba(239, 68, 68, 1)') :
+						[score >= 8 ? 'rgba(16, 185, 129, 1)' : score >= 6 ? 'rgba(245, 158, 11, 1)' : 'rgba(239, 68, 68, 1)']
+				}]
+			};
+			
+			// Chart configuration
+			const chartConfig = {
+				type: categories.length > 0 ? 'bar' : 'doughnut',
+				data: chartData,
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							display: false
+						},
+						tooltip: {
+							backgroundColor: 'rgba(0, 0, 0, 0.8)',
+							titleColor: '#ffffff',
+							bodyColor: '#ffffff',
+							borderColor: '#e5e7eb',
+							borderWidth: 1,
+							cornerRadius: 8,
+							displayColors: false,
+							callbacks: {
+								label: function(context) {
+									return context.parsed.y || context.parsed + '/10';
+								}
+							}
+						}
+					},
+					scales: categories.length > 0 ? {
+						y: {
+							beginAtZero: true,
+							max: 10,
+							ticks: {
+								stepSize: 2,
+								color: '#6b7280'
+							},
+							grid: {
+								color: '#e5e7eb'
+							}
+						},
+						x: {
+							ticks: {
+								color: '#6b7280',
+								font: {
+									size: 10
+								}
+							},
+							grid: {
+								display: false
+							}
+						}
+					} : undefined,
+					elements: {
+						arc: {
+							borderWidth: 0
+						}
+					}
+				}
+			};
+			
+			// Create the chart
+			try {
+				console.log('ENNU Dashboard: Creating chart for', assessmentKey, 'with config:', chartConfig);
+				new Chart(canvas, chartConfig);
+				console.log('ENNU Dashboard: Assessment chart initialized for', assessmentKey);
+				
+				// Hide fallback on success
+				if (fallback) {
+					fallback.style.display = 'none';
+				}
+			} catch (error) {
+				console.error('ENNU Dashboard: Error creating assessment chart for', assessmentKey, error);
+				console.error('ENNU Dashboard: Error details:', error.message);
+				
+				// Show error in fallback
+				if (fallback) {
+					fallback.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>Chart error</div>';
+				}
+			}
+		});
+	}
+	
+	// Dynamic tooltip functionality for biomarker rulers
+	function initializeBiomarkerRulerTooltips() {
+		document.querySelectorAll('.biomarker-range-ruler-container').forEach(container => {
+			const tooltip = container.querySelector('.biomarker-dynamic-tooltip');
+			const rangeLine = tooltip.querySelector('.tooltip-range-line');
+			const valueLine = tooltip.querySelector('.tooltip-value-line');
+			const ruler = container.querySelector('.biomarker-range-ruler');
+			
+			// Get range data from data attributes
+			const criticalMin = parseFloat(container.dataset.criticalMin);
+			const criticalMax = parseFloat(container.dataset.criticalMax);
+			const normalMin = parseFloat(container.dataset.normalMin);
+			const normalMax = parseFloat(container.dataset.normalMax);
+			const optimalMin = parseFloat(container.dataset.optimalMin);
+			const optimalMax = parseFloat(container.dataset.optimalMax);
+			const unit = container.dataset.unit || '';
+			
+			                container.addEventListener('mousemove', function(e) {
+                    // Don't show dynamic tooltip if hovering over a dot
+                    if (container.getAttribute('data-dot-hover') === 'true') {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Prevent any default tooltip behavior
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const rect = ruler.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const rulerWidth = rect.width;
+                    const percentage = Math.max(0, Math.min(100, (mouseX / rulerWidth) * 100));
+				
+				// Calculate the biomarker value at this position
+				const totalRange = criticalMax - criticalMin;
+				const valueAtPosition = criticalMin + (percentage / 100) * totalRange;
+				
+				// Determine which range zone we're in
+				let rangeType = 'Critical';
+				let rangeClass = 'critical-range';
+				
+				if (valueAtPosition >= normalMin && valueAtPosition <= normalMax) {
+					if (valueAtPosition >= optimalMin && valueAtPosition <= optimalMax) {
+						rangeType = 'Optimal';
+						rangeClass = 'optimal-range';
+					} else {
+						rangeType = 'Normal';
+						rangeClass = 'normal-range';
+					}
+				}
+				
+				// Update tooltip content
+				rangeLine.textContent = `Within ${rangeType} Range`;
+				valueLine.textContent = `${valueAtPosition.toFixed(1)} ${unit}`;
+				
+				// Update tooltip styling
+				tooltip.className = `biomarker-dynamic-tooltip ${rangeClass}`;
+				
+				                    // Position tooltip at mouse cursor relative to ruler
+                    const tooltipX = mouseX;
+                    const tooltipY = -25; // 25px above the ruler (lowered by 15px)
+				
+				tooltip.style.left = `${tooltipX}px`;
+				tooltip.style.top = `${tooltipY}px`;
+				tooltip.style.display = 'block';
+			});
+			
+			                container.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
+                });
+                
+                // Store reference to dynamic tooltip for dot hover handling
+                container.dynamicTooltip = tooltip;
+            });
+        }
+        
+        // Handle dot tooltip interactions to prevent overlap
+        function initializeDotTooltipHandlers() {
+            // For current value dots
+            document.querySelectorAll('.biomarker-current-dot').forEach(dot => {
+                const container = dot.closest('.biomarker-range-ruler-container');
+                
+                dot.addEventListener('mouseenter', function() {
+                    // Hide dynamic tooltip when hovering dot
+                    if (container && container.dynamicTooltip) {
+                        container.dynamicTooltip.style.display = 'none';
+                        container.setAttribute('data-dot-hover', 'true');
+                    }
+                });
+                
+                dot.addEventListener('mouseleave', function() {
+                    // Remove flag when leaving dot
+                    if (container) {
+                        container.removeAttribute('data-dot-hover');
+                    }
+                });
+            });
+            
+            // For target value dots
+            document.querySelectorAll('.biomarker-target-dot').forEach(dot => {
+                const container = dot.closest('.biomarker-range-ruler-container');
+                
+                dot.addEventListener('mouseenter', function() {
+                    // Hide dynamic tooltip when hovering dot
+                    if (container && container.dynamicTooltip) {
+                        container.dynamicTooltip.style.display = 'none';
+                        container.setAttribute('data-dot-hover', 'true');
+                    }
+                });
+                
+                dot.addEventListener('mouseleave', function() {
+                    // Remove flag when leaving dot
+                    if (container) {
+                        container.removeAttribute('data-dot-hover');
+                    }
+                });
+            });
+        }
+	
+	// Show biomarker details modal
+	function showBiomarkerDetails(biomarkerId) {
+		console.log('ENNU Dashboard: Showing details for biomarker:', biomarkerId);
+		
+		// Create modal content
+		const modalContent = `
+			<div class="biomarker-details-modal">
+				<div class="modal-header">
+					<h3>${biomarkerId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+					<button class="modal-close" onclick="closeBiomarkerModal()">&times;</button>
+				</div>
+				<div class="modal-content">
+					<p>Detailed information for ${biomarkerId} will be displayed here.</p>
+					<p>This could include:</p>
+					<ul>
+						<li>Historical trends</li>
+						<li>Health implications</li>
+						<li>Optimization recommendations</li>
+						<li>Related symptoms</li>
+					</ul>
+				</div>
+			</div>
+		`;
+		
+		// Show modal
+		showModal(modalContent);
+	}
+	
+			// Show biomarker flags modal
+		function showBiomarkerFlags(biomarkerId) {
+			console.log('ENNU Dashboard: Showing flags for biomarker:', biomarkerId);
+			
+			// Create modal content
+			const modalContent = `
+				<div class="biomarker-flags-modal">
+					<div class="modal-header">
+						<h3>Flags for ${biomarkerId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+						<button class="modal-close" onclick="closeBiomarkerModal()">&times;</button>
+					</div>
+					<div class="modal-content">
+						<p>Flagged biomarkers require attention:</p>
+						<ul>
+							<li>Review with healthcare provider</li>
+							<li>Consider lifestyle changes</li>
+							<li>Monitor for improvements</li>
+							<li>Set appropriate targets</li>
+						</ul>
+					</div>
+				</div>
+			`;
+			
+			// Show modal
+			showModal(modalContent);
+		}
+
+		// Toggle biomarker measurements visibility - REMOVED: Function now defined in user-dashboard.js
+
+		// Master toggle for all biomarker categories - REMOVED: Function now defined in user-dashboard.js
+
+	// Generic modal functionality
+	function showModal(content) {
+		// Remove existing modal
+		const existingModal = document.querySelector('.biomarker-modal-overlay');
+		if (existingModal) {
+			existingModal.remove();
+		}
+		
+		// Create modal overlay
+		const modalOverlay = document.createElement('div');
+		modalOverlay.className = 'biomarker-modal-overlay';
+		modalOverlay.innerHTML = content;
+		
+		// Add to page
+		document.body.appendChild(modalOverlay);
+		
+		// Add event listeners
+		modalOverlay.addEventListener('click', function(e) {
+			if (e.target === this) {
+				closeBiomarkerModal();
+			}
+		});
+		
+		// Add escape key handler
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape') {
+				closeBiomarkerModal();
+			}
+		});
+		
+		// Animate in
+		setTimeout(() => {
+			modalOverlay.style.opacity = '1';
+			modalOverlay.querySelector('.biomarker-details-modal, .biomarker-flags-modal').style.transform = 'scale(1)';
+		}, 10);
+	}
+	
+	// Close biomarker modal
+	function closeBiomarkerModal() {
+		const modalOverlay = document.querySelector('.biomarker-modal-overlay');
+		if (modalOverlay) {
+			modalOverlay.style.opacity = '0';
+			modalOverlay.querySelector('.biomarker-details-modal, .biomarker-flags-modal').style.transform = 'scale(0.9)';
+			
+			setTimeout(() => {
+				modalOverlay.remove();
+			}, 300);
+		}
+	}
 	
 	// Collapsible section functionality
 	function toggleCollapsible(header) {
@@ -3697,482 +3177,149 @@ if ( empty( $display_name ) ) {
 	}
 </script>
 
-<!-- Additional CSS for new dashboard tabs -->
-<style>
-.biomarker-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 20px;
-	margin-top: 20px;
-}
-
-.biomarker-card {
-	background: var(--card-bg);
-	border-radius: 8px;
-	padding: 20px;
-	border-left: 4px solid #ddd;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.biomarker-card.biomarker-optimal {
-	border-left-color: #28a745;
-}
-
-.biomarker-card.biomarker-suboptimal {
-	border-left-color: #ffc107;
-}
-
-.biomarker-card.biomarker-poor {
-	border-left-color: #dc3545;
-}
-
-.biomarker-card h4 {
-	margin: 0 0 15px 0;
-	color: var(--text-dark);
-	font-size: 1.1rem;
-}
-
-.biomarker-values {
-	margin-bottom: 10px;
-}
-
-.biomarker-values .current-value,
-.biomarker-values .target-value {
-	display: block;
-	margin-bottom: 5px;
-}
-
-.biomarker-values .label {
-	font-weight: 600;
-	color: var(--text-light);
-	margin-right: 8px;
-}
-
-.biomarker-values .value {
-	font-weight: 700;
-	color: var(--text-dark);
-}
-
-.test-date {
-	font-size: 0.9rem;
-	color: var(--text-light);
-	margin-bottom: 10px;
-}
-
-.status-indicator {
-	display: inline-block;
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-size: 0.8rem;
-	font-weight: 600;
-	text-transform: uppercase;
-}
-
-.status-indicator.status-optimal {
-	background: #d4edda;
-	color: #155724;
-}
-
-.status-indicator.status-suboptimal {
-	background: #fff3cd;
-	color: #856404;
-}
-
-.status-indicator.status-poor {
-	background: #f8d7da;
-	color: #721c24;
-}
-
-.no-data-message {
-	text-align: center;
-	padding: 40px 20px;
-	color: var(--text-light);
-}
-
-.score-comparison {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 30px;
-	margin: 30px 0;
-	flex-wrap: wrap;
-}
-
-.current-score-card,
-.new-life-score-card {
-	text-align: center;
-	padding: 20px;
-	border-radius: 12px;
-	background: var(--card-bg);
-	border: 2px solid var(--border-color);
-	min-width: 180px;
-}
-
-.new-life-score-card {
-	border-color: #28a745;
-	background: linear-gradient(135deg, #f8f9fa 0%, #e9f7ef 100%);
-}
-
-.score-display {
-	font-size: 3rem;
-	font-weight: 700;
-	color: var(--primary-color);
-	margin: 10px 0;
-}
-
-.score-display.new-life {
-	color: #28a745;
-}
-
-.score-label {
-	font-size: 0.9rem;
-	color: var(--text-light);
-	font-weight: 600;
-}
-
-.arrow-improvement {
-	text-align: center;
-}
-
-.improvement-arrow {
-	font-size: 2rem;
-	color: #28a745;
-	font-weight: 700;
-}
-
-.improvement-text {
-	display: block;
-	margin-top: 10px;
-}
-
-.improvement-value {
-	font-size: 1.2rem;
-	font-weight: 700;
-	color: #28a745;
-}
-
-.improvement-percent {
-	display: block;
-	font-size: 0.9rem;
-	color: var(--text-light);
-}
-
-.transformation-plan {
-	margin-top: 40px;
-}
-
-.targets-overview {
-	margin: 20px 0;
-}
-
-.targets-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 15px;
-	margin-top: 15px;
-}
-
-.target-item {
-	background: var(--card-bg);
-	padding: 15px;
-	border-radius: 8px;
-	border: 1px solid var(--border-color);
-}
-
-.biomarker-name {
-	font-weight: 600;
-	color: var(--text-dark);
-	margin-bottom: 8px;
-}
-
-.target-progress {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.target-progress .current {
-	color: var(--text-light);
-}
-
-.target-progress .arrow {
-	color: #28a745;
-	font-weight: 700;
-}
-
-.target-progress .target {
-	color: #28a745;
-	font-weight: 600;
-}
-
-.next-steps {
-	margin-top: 30px;
-	padding: 20px;
-	background: var(--card-bg);
-	border-radius: 8px;
-	border: 1px solid var(--border-color);
-}
-
-.next-steps ul {
-	margin: 15px 0;
-	padding-left: 20px;
-}
-
-.next-steps li {
-	margin-bottom: 8px;
-	color: var(--text-dark);
-}
-
-.no-new-life-data {
-	text-align: center;
-	padding: 40px 20px;
-}
-
-.no-new-life-data ul {
-	text-align: left;
-	display: inline-block;
-	margin: 20px 0;
-}
-</style>
-
-<!-- Tab 3: My Biomarkers -->
-<div id="tab-my-biomarkers" class="my-story-tab-content">
-	<div class="biomarkers-overview">
-		<div class="biomarkers-header">
-			<h3 class="tab-section-title">My Biomarkers</h3>
-			<p class="tab-subtitle">Track your lab results and doctor recommendations</p>
-		</div>
-		
-		<?php
-		$biomarker_data = get_user_meta( $user_id, 'ennu_biomarker_data', true ) ?: array();
-		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
-
-		if ( ! empty( $biomarker_data ) ) {
-			echo '<div class="biomarker-grid">';
-			foreach ( $biomarker_data as $biomarker => $data ) {
-				$current_value = $data['value'];
-				$target_value  = $doctor_targets[ $biomarker ] ?? null;
-				$status        = $data['status'] ?? 'unknown';
-				$unit          = $data['unit'] ?? '';
-				$test_date     = $data['test_date'] ?? $data['import_date'] ?? '';
-
-				echo '<div class="biomarker-card biomarker-' . esc_attr( $status ) . '">';
-				echo '<h4>' . esc_html( $data['name'] ?? ucwords( str_replace( '_', ' ', $biomarker ) ) ) . '</h4>';
-				echo '<div class="biomarker-values">';
-				echo '<div class="current-value">';
-				echo '<span class="label">Current:</span>';
-				echo '<span class="value">' . esc_html( $current_value ) . ' ' . esc_html( $unit ) . '</span>';
-				echo '</div>';
-				if ( $target_value ) {
-					echo '<div class="target-value">';
-					echo '<span class="label">Target:</span>';
-					echo '<span class="value">' . esc_html( $target_value ) . ' ' . esc_html( $unit ) . '</span>';
-					echo '</div>';
-				}
-				echo '</div>';
-				if ( $test_date ) {
-					echo '<div class="test-date">Tested: ' . esc_html( date( 'M j, Y', strtotime( $test_date ) ) ) . '</div>';
-				}
-				echo '<div class="status-indicator status-' . esc_attr( $status ) . '">' . esc_html( ucfirst( $status ) ) . '</div>';
-				echo '</div>';
-			}
-			echo '</div>';
-		} else {
-			echo '<div class="no-data-message">';
-			echo '<h4>No Lab Data Available</h4>';
-			echo '<p>Complete your lab tests to see biomarker results here. Contact your healthcare provider to get started with comprehensive testing.</p>';
-			echo '<a href="#" class="ennu-btn ennu-btn-primary">Book Lab Consultation</a>';
-			echo '</div>';
-		}
-		?>
-	</div>
-</div>
-
-<!-- Tab 4: My New Life -->
-<div id="tab-my-new-life" class="my-story-tab-content">
-	<div class="new-life-overview">
-		<div class="new-life-header">
-			<h3 class="tab-section-title">My New Life</h3>
-			<p class="tab-subtitle">Your potential health transformation with doctor recommendations</p>
-		</div>
-		
-		<?php
-		$current_score  = get_user_meta( $user_id, 'ennu_life_score', true ) ?: 0;
-		$new_life_score = get_user_meta( $user_id, 'ennu_new_life_score', true );
-		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true ) ?: array();
-
-		if ( ! $new_life_score && ! empty( $doctor_targets ) ) {
-			if ( class_exists( 'ENNU_New_Life_Score_Calculator' ) ) {
-				$health_goals        = get_user_meta( $user_id, 'ennu_global_health_goals', true ) ?: array();
-				$new_life_calculator = new ENNU_New_Life_Score_Calculator( $user_id, $pillar_scores, $health_goals );
-				$new_life_score      = $new_life_calculator->calculate();
-			}
-		}
-
-		if ( $new_life_score ) {
-			$improvement            = $new_life_score - $current_score;
-			$improvement_percentage = $current_score > 0 ? ( $improvement / $current_score ) * 100 : 0;
-			?>
-			
-			<div class="score-comparison">
-				<div class="current-score-card">
-					<h4>Current ENNU LIFE Score</h4>
-					<div class="score-display"><?php echo esc_html( number_format( $current_score, 1 ) ); ?></div>
-					<div class="score-label">Your Health Today</div>
-				</div>
-				
-				<div class="arrow-improvement">
-					<div class="improvement-arrow">→</div>
-					<div class="improvement-text">
-						<span class="improvement-value">+<?php echo esc_html( number_format( $improvement, 1 ) ); ?></span>
-						<span class="improvement-percent">(+<?php echo esc_html( number_format( $improvement_percentage, 1 ) ); ?>%)</span>
-					</div>
-				</div>
-				
-				<div class="new-life-score-card">
-					<h4>Your New Life Score</h4>
-					<div class="score-display new-life"><?php echo esc_html( number_format( $new_life_score, 1 ) ); ?></div>
-					<div class="score-label">Your Health Potential</div>
-				</div>
-			</div>
-			
-			<div class="transformation-plan">
-				<h4>Your Transformation Roadmap</h4>
-				<?php if ( ! empty( $doctor_targets ) ) : ?>
-					<div class="targets-overview">
-						<p>Based on your lab results, your doctor has set <?php echo count( $doctor_targets ); ?> target values to help you achieve your New Life Score:</p>
-						<div class="targets-grid">
-							<?php
-							foreach ( $doctor_targets as $biomarker => $target_value ) :
-								$current_data  = $biomarker_data[ $biomarker ] ?? null;
-								$current_value = $current_data['value'] ?? 'Not tested';
-								$unit          = $current_data['unit'] ?? '';
-								?>
-								<div class="target-item">
-									<div class="biomarker-name"><?php echo esc_html( ucwords( str_replace( '_', ' ', $biomarker ) ) ); ?></div>
-									<div class="target-progress">
-										<span class="current"><?php echo esc_html( $current_value ); ?></span>
-										<span class="arrow">→</span>
-										<span class="target"><?php echo esc_html( $target_value . ' ' . $unit ); ?></span>
-									</div>
-								</div>
-							<?php endforeach; ?>
-						</div>
-					</div>
-				<?php endif; ?>
-				
-				<div class="next-steps">
-					<h5>Recommended Next Steps:</h5>
-					<ul>
-						<li>Follow your personalized treatment plan</li>
-						<li>Schedule regular follow-up consultations</li>
-						<li>Retake assessments to track progress</li>
-						<li>Monitor biomarker improvements</li>
-					</ul>
-					<a href="#" class="ennu-btn ennu-btn-primary">Book Follow-up Consultation</a>
-				</div>
-			</div>
-			
-		<?php } else { ?>
-			<div class="no-new-life-data">
-				<h4>Unlock Your New Life Score</h4>
-				<p>To see your health transformation potential, you need:</p>
-				<ul>
-					<li>Complete lab testing with biomarker results</li>
-					<li>Doctor-recommended target values</li>
-					<li>Personalized treatment plan</li>
-				</ul>
-				<p>Book a consultation with our health optimization specialists to get started on your transformation journey.</p>
-				<a href="#" class="ennu-btn ennu-btn-primary">Start Your Transformation</a>
-			</div>
-		<?php } ?>
-	</div>
-</div>
 
 <script>
-	document.addEventListener('DOMContentLoaded', function() {
-		// Tab switching functionality
-		const tabLinks = document.querySelectorAll('.my-story-tab-nav a');
-		const tabContents = document.querySelectorAll('.my-story-tab-content');
+// Symptoms Tab JavaScript
+jQuery(document).ready(function($) {
+	
+	// Update symptoms button
+	$('#update-symptoms').on('click', function() {
+		const userId = $(this).data('user-id');
+		const button = $(this);
+		const originalText = button.text();
 		
-		tabLinks.forEach(link => {
-			link.addEventListener('click', function(e) {
-				e.preventDefault();
-				
-				// Remove active class from all tabs and contents
-				tabLinks.forEach(l => l.classList.remove('my-story-tab-active'));
-				tabContents.forEach(c => c.classList.remove('my-story-tab-active'));
-				
-				// Add active class to clicked tab
-				this.classList.add('my-story-tab-active');
-				
-				// Show corresponding content
-				const targetId = this.getAttribute('href').substring(1);
-				const targetContent = document.getElementById(targetId);
-				if (targetContent) {
-					targetContent.classList.add('my-story-tab-active');
+		button.text('Updating...').prop('disabled', true);
+		
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'ennu_update_symptoms',
+				user_id: userId,
+				nonce: ennu_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					location.reload();
+				} else {
+					alert('Error updating symptoms: ' + (response.data || 'Unknown error'));
 				}
-			});
-		});
-		
-		// Show first tab by default
-		if (tabLinks.length > 0) {
-			tabLinks[0].click();
-		}
-		
-		// Initialize scroll reveal animations
-		initializeScrollReveal();
-		
-		// Enhanced hover effects
-		document.querySelectorAll('.animated-card, .program-card, .recommendation-card').forEach(card => {
-			card.classList.add('hover-lift');
-		});
-		
-		// Add focus-ring class to interactive elements
-		document.querySelectorAll('.btn, .collapsible-header').forEach(element => {
-			element.classList.add('focus-ring');
+			},
+			error: function() {
+				alert('Error updating symptoms. Please try again.');
+			},
+			complete: function() {
+				button.text(originalText).prop('disabled', false);
+			}
 		});
 	});
 	
-	// Collapsible section functionality
-	function toggleCollapsible(header) {
-		const section = header.parentElement;
-		const content = section.querySelector('.collapsible-content');
-		const icon = header.querySelector('.collapsible-icon');
+	// Populate symptoms from assessments
+	$('#populate-symptoms').on('click', function() {
+		const userId = $(this).data('user-id');
+		const button = $(this);
+		const originalText = button.text();
 		
-		if (section.classList.contains('expanded')) {
-			// Collapse
-			section.classList.remove('expanded');
-			content.style.maxHeight = '0';
-			content.style.opacity = '0';
-			content.style.padding = '0 1.5rem';
-		} else {
-			// Expand
-			section.classList.add('expanded');
-			content.style.maxHeight = content.scrollHeight + 'px';
-			content.style.opacity = '1';
-			content.style.padding = '1.5rem';
-		}
-	}
-	
-	// Scroll reveal functionality
-	function initializeScrollReveal() {
-		const observerOptions = {
-			threshold: 0.1,
-			rootMargin: '0px 0px -50px 0px'
-		};
+		button.text('Extracting...').prop('disabled', true);
 		
-		const observer = new IntersectionObserver((entries) => {
-			entries.forEach(entry => {
-				if (entry.isIntersecting) {
-					entry.target.classList.add('revealed');
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'ennu_populate_symptoms',
+				user_id: userId,
+				nonce: ennu_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					location.reload();
+				} else {
+					alert('Error extracting symptoms: ' + (response.data || 'Unknown error'));
 				}
-			});
-		}, observerOptions);
+			},
+			error: function() {
+				alert('Error extracting symptoms. Please try again.');
+			},
+			complete: function() {
+				button.text(originalText).prop('disabled', false);
+			}
+		});
+	});
+	
+	// Clear symptom history
+	$('#clear-symptoms').on('click', function() {
+		if (!confirm('Are you sure you want to clear all symptom history? This action cannot be undone.')) {
+			return;
+		}
 		
-		// Observe all scroll-reveal elements
-		document.querySelectorAll('.scroll-reveal').forEach(el => {
-			observer.observe(el);
+		const userId = $(this).data('user-id');
+		const button = $(this);
+		const originalText = button.text();
+		
+		button.text('Clearing...').prop('disabled', true);
+		
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'ennu_clear_symptom_history',
+				user_id: userId,
+				nonce: ennu_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					location.reload();
+				} else {
+					alert('Error clearing symptoms: ' + (response.data || 'Unknown error'));
+				}
+			},
+			error: function() {
+				alert('Error clearing symptoms. Please try again.');
+			},
+			complete: function() {
+				button.text(originalText).prop('disabled', false);
+			}
+		});
+	});
+	
+			// Auto-refresh symptoms when tab is shown
+		$('a[href="#tab-my-symptoms"]').on('click', function() {
+			// Refresh symptoms data every 30 seconds when tab is active
+			setInterval(function() {
+				if ($('#tab-my-symptoms').is(':visible')) {
+					refreshSymptomsData();
+				}
+			}, 30000);
+		});
+		
+
+	
+	function refreshSymptomsData() {
+		const userId = $('.symptoms-actions button').first().data('user-id');
+		
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'ennu_get_symptoms_data',
+				user_id: userId,
+				nonce: ennu_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					updateSymptomsDisplay(response.data);
+				}
+			}
 		});
 	}
-</script>                             
+	
+	function updateSymptomsDisplay(data) {
+		// Update statistics
+		$('#total-symptoms-count').text(data.total_symptoms || 0);
+		$('#active-symptoms-count').text(data.active_symptoms || 0);
+		$('#biomarker-correlations').text(data.biomarker_correlations || 0);
+		$('#trending-symptoms').text(data.trending_symptoms || 0);
+	}
+	
+});
+</script>

@@ -469,7 +469,7 @@ class ENNU_Cache_Integration {
 		$config_files = array(
 			'pillar_map'         => ENNU_PLUGIN_DIR . 'includes/config/scoring/pillar-map.php',
 			'health_goals'       => ENNU_PLUGIN_DIR . 'includes/config/scoring/health-goals.php',
-			'biomarker_profiles' => ENNU_PLUGIN_DIR . 'includes/config/ennu-life-core-biomarkers.php',
+			'biomarker_profiles' => ENNU_PLUGIN_DIR . 'includes/config/biomarker/recommended-ranges.php',
 			'symptom_map'        => ENNU_PLUGIN_DIR . 'includes/config/health-optimization/symptom-map.php',
 			'penalty_matrix'     => ENNU_PLUGIN_DIR . 'includes/config/health-optimization/penalty-matrix.php',
 		);

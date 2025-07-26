@@ -37,18 +37,10 @@ if ( empty( $assessment_type ) ) {
 
 ?>
 
-<div class="ennu-unified-container" data-theme="dark">
-	<div class="starfield"></div>
+<div class="ennu-unified-container" data-theme="light">
 
-	<!-- Theme Toggle -->
-	<div class="ennu-theme-toggle">
-		<button class="ennu-theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-			<svg class="ennu-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path class="ennu-sun-icon" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-				<path class="ennu-moon-icon" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-			</svg>
-		</button>
-	</div>
+
+	<!-- Theme Toggle Removed - Light Mode Only -->
 
 	<div class="ennu-grid">
 		<!-- Sidebar -->
@@ -70,23 +62,35 @@ if ( empty( $assessment_type ) ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Main Score Orb -->
-			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ); ?>">
-				<svg viewBox="0 0 36 36">
-					<defs>
-						<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stop-color="var(--accent-primary)"/>
-							<stop offset="100%" stop-color="var(--accent-secondary)"/>
-						</linearGradient>
-					</defs>
-					<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
-					<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
-				</svg>
-				<div class="ennu-score-text">
-					<div class="ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-					<div class="ennu-score-label"><?php echo esc_html( $assessment_title ); ?> Score</div>
-				</div>
-			</div>
+			<!-- Assessment Score Presentation -->
+			<?php
+			// Get assessment-specific score data
+			$assessment_score_data = array(
+				'type'             => 'assessment',
+				'assessment_type'  => $assessment_type,
+				'title'            => $assessment_title . ' Score',
+				'score'            => $score,
+				'interpretation'   => array(
+					'level'       => $score >= 8.5 ? 'Excellent' : ( $score >= 7.0 ? 'Good' : ( $score >= 5.5 ? 'Fair' : 'Needs Improvement' ) ),
+					'color'       => $score >= 8.5 ? '#10b981' : ( $score >= 7.0 ? '#3b82f6' : ( $score >= 5.5 ? '#f59e0b' : '#ef4444' ) ),
+					'description' => $score >= 8.5 ? 'Outstanding performance! You\'re in the top tier.' : ( $score >= 7.0 ? 'Good performance with room for improvement.' : ( $score >= 5.5 ? 'Fair performance. Consider optimization strategies.' : 'Focus on improvement strategies for better results.' ) ),
+					'class'       => $score >= 8.5 ? 'excellent' : ( $score >= 7.0 ? 'good' : ( $score >= 5.5 ? 'fair' : 'needs-improvement' ) ),
+				),
+				'pillar_scores'    => $category_scores,
+				'history'          => get_user_meta( $user_id, 'ennu_' . $assessment_type . '_historical_scores', true ) ?: array(),
+				'last_updated'     => get_user_meta( $user_id, 'ennu_' . $assessment_type . '_last_updated', true ),
+			);
+			?>
+			
+			<?php echo do_shortcode( '[ennu_score_presentation type="' . $assessment_type . '" show_pillars="true" show_history="true" show_interpretation="true" animation="true" size="large"]' ); ?>
+
+			<!-- ENNU Life Score Presentation -->
+			<?php
+			$ennu_life_score = get_user_meta( $user_id, 'ennu_life_score', true );
+			$ennu_life_score = is_numeric( $ennu_life_score ) ? $ennu_life_score : 0;
+			?>
+			
+			<?php echo do_shortcode( '[ennu_score_presentation type="lifescore" show_pillars="true" show_history="false" show_interpretation="true" animation="true" size="medium"]' ); ?>
 
 			<!-- Score Insight -->
 			<div class="ennu-glass-card">
@@ -190,19 +194,4 @@ if ( empty( $assessment_type ) ) {
 	</div>
 </div>
 
-<script>
-// Theme toggle functionality
-function toggleTheme() {
-	const container = document.querySelector('.ennu-unified-container');
-	const currentTheme = container.getAttribute('data-theme');
-	const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-	container.setAttribute('data-theme', newTheme);
-	localStorage.setItem('ennu-theme', newTheme);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-	const savedTheme = localStorage.getItem('ennu-theme') || 'dark';
-	const container = document.querySelector('.ennu-unified-container');
-	container.setAttribute('data-theme', savedTheme);
-});
-</script> 
+<!-- Theme system is now handled by the centralized ENNUThemeManager --> 

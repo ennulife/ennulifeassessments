@@ -150,6 +150,11 @@ class ENNU_Security_Validator {
 	}
 
 	public function rate_limit_check( $action, $limit = 10, $window = 300 ) {
+		// Bypass rate limiting for admin users during development
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_users' ) ) {
+			return true;
+		}
+
 		$user_id    = get_current_user_id();
 		$ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 		$cache_key  = 'ennu_rate_limit_' . md5( $action . '_' . $user_id . '_' . $ip_address );

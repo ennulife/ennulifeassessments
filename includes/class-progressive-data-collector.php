@@ -30,6 +30,8 @@ class ENNU_Progressive_Data_Collector extends ENNU_Smart_Recommendation_Engine {
 	 * Enqueue progressive data collection scripts
 	 */
 	public static function enqueue_scripts() {
+		// Commented out - file doesn't exist
+		/*
 		wp_enqueue_script(
 			'ennu-progressive-data-collector',
 			plugin_dir_url( __FILE__ ) . '../assets/js/progressive-data-collector.js',
@@ -52,6 +54,7 @@ class ENNU_Progressive_Data_Collector extends ENNU_Smart_Recommendation_Engine {
 				),
 			)
 		);
+		*/
 	}
 
 	/**

@@ -192,7 +192,7 @@ class ENNU_WP_Fusion_Integration {
 
 		$global_data = array(
 			'ennu_gender'       => get_user_meta( $user_id, 'ennu_global_gender', true ),
-			'ennu_dob'          => get_user_meta( $user_id, 'ennu_global_user_dob_combined', true ),
+			'ennu_dob'          => get_user_meta( $user_id, 'ennu_global_date_of_birth', true ),
 			'ennu_health_goals' => implode( ';', get_user_meta( $user_id, 'ennu_global_health_goals', true ) ?: array() ),
 		);
 
@@ -200,7 +200,8 @@ class ENNU_WP_Fusion_Integration {
 		if ( is_array( $height_weight ) ) {
 			$global_data['ennu_height_ft']  = $height_weight['ft'] ?? '';
 			$global_data['ennu_height_in']  = $height_weight['in'] ?? '';
-			$global_data['ennu_weight_lbs'] = $height_weight['lbs'] ?? '';
+			// Handle both 'weight' and 'lbs' keys for backward compatibility
+			$global_data['ennu_weight_lbs'] = isset( $height_weight['weight'] ) ? $height_weight['weight'] : ( isset( $height_weight['lbs'] ) ? $height_weight['lbs'] : '' );
 		}
 
 		if ( isset( $assessment_data['assessment_type'] ) ) {

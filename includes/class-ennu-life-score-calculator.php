@@ -56,10 +56,10 @@ class ENNU_Life_Score_Calculator {
 
 		// 3. Apply strategic weights to the FINAL scores
 		$weights = array(
-			'mind'       => 0.3,
-			'body'       => 0.3,
-			'lifestyle'  => 0.3,
-			'aesthetics' => 0.1,
+			'Mind'       => 0.3,
+			'Body'       => 0.3,
+			'Lifestyle'  => 0.3,
+			'Aesthetics' => 0.1,
 		);
 
 		$ennu_life_score = 0;

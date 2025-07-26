@@ -5,7 +5,7 @@
  * Evidence-based dermatology implementation
  *
  * @package ENNU_Life
- * @version 62.3.1
+ * @version 62.11.0
  */
 
 return array(
@@ -23,28 +23,25 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'skin_q_age'    => array(
-			'title'    => 'What is your age?',
-			'type'     => 'radio',
-			'options'  => array(
-				'under_25' => 'Under 25',
-				'25_35'    => '25-35',
-				'36_45'    => '36-45',
-				'46_55'    => '46-55',
-				'over_55'  => 'Over 55',
-			),
-			'scoring'  => array(
+		'skin_q_dob'    => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
+			'scoring'    => array(
 				'category' => 'Age Factors',
 				'weight'   => 1.5,
-				'answers'  => array(
-					'under_25' => 8,
-					'25_35'    => 7,
-					'36_45'    => 6,
-					'46_55'    => 5,
-					'over_55'  => 4,
+				'calculation' => 'age_from_dob',
+				'age_scores' => array(
+					'18-25' => 8,
+					'26-35' => 7,
+					'36-45' => 6,
+					'46-55' => 5,
+					'56-65' => 4,
+					'66-75' => 3,
+					'76+'   => 2,
 				),
 			),
-			'required' => true,
 		),
 		'skin_q1'       => array(
 			'title'    => 'What is your skin type?',
