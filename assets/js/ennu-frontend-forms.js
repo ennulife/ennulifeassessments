@@ -39,11 +39,91 @@ class ENNUAssessmentForm {
             this.totalStepsText.textContent = this.totalSteps;
         }
         
-        this.showQuestion(0);
-        this.bindEvents();
+        // Pre-fill global fields with existing data
+        this.prefillGlobalFields();
         
-        // Check for auto-submission flag
-        this.checkAutoSubmissionReady();
+        // Add a small delay to ensure DOM is fully ready before showing first question
+        setTimeout(() => {
+            this.showQuestion(0);
+            this.bindEvents();
+            
+            // Check for auto-submission flag
+            this.checkAutoSubmissionReady();
+        }, 100);
+    }
+
+    // Pre-fill global fields with existing data
+    prefillGlobalFields() {
+        console.log('Prefilling global fields...');
+        this.questions.forEach((question, index) => {
+            console.log('Question', index, 'is global?', question.hasAttribute('data-is-global'));
+            if (question.hasAttribute('data-is-global')) {
+                console.log('Prefilling global field:', question.querySelector('.question-title')?.textContent);
+                this.prefillGlobalField(question);
+                
+                // Debug: Check what data is actually in the field after pre-filling
+                const inputs = question.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type === 'select-one') {
+                        console.log('Select input:', input.name, 'value:', input.value, 'selectedIndex:', input.selectedIndex);
+                        if (input.selectedIndex >= 0) {
+                            console.log('Selected option:', input.options[input.selectedIndex].text, 'disabled:', input.options[input.selectedIndex].disabled);
+                        }
+                    } else if (input.type === 'radio') {
+                        console.log('Radio input:', input.name, 'value:', input.value, 'checked:', input.checked);
+                    }
+                });
+            }
+        });
+    }
+
+    // Pre-fill a specific global field with existing data
+    prefillGlobalField(questionElement) {
+        const inputs = questionElement.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            // Check if the input already has a value (from server-side pre-filling)
+            if (input.value && input.value.trim() !== '') {
+                // For radio buttons and checkboxes, check them if they have a value
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    input.checked = true;
+                }
+                return; // Already has data, no need to pre-fill
+            }
+            
+            // For DOB fields, try to get from user meta
+            if (input.name && input.name.includes('date_of_birth')) {
+                const dobValue = this.getUserDOB();
+                if (dobValue) {
+                    input.value = dobValue;
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        input.checked = true;
+                    }
+                }
+            }
+            
+            // For gender fields, try to get from user meta
+            if (input.name && input.name.includes('gender')) {
+                const genderValue = this.getUserGender();
+                if (genderValue && input.value === genderValue) {
+                    input.checked = true;
+                }
+            }
+        });
+    }
+
+    // Get user's date of birth from meta (if available)
+    getUserDOB() {
+        // This would need to be passed from PHP or fetched via AJAX
+        // For now, we'll rely on server-side pre-filling
+        return null;
+    }
+
+    // Get user's gender from meta (if available)
+    getUserGender() {
+        // This would need to be passed from PHP or fetched via AJAX
+        // For now, we'll rely on server-side pre-filling
+        return null;
     }
     
     checkAutoSubmissionReady() {
@@ -88,7 +168,7 @@ class ENNUAssessmentForm {
 
         // DOB calculation
         this.form.addEventListener('change', (e) => {
-            if (['dob_day', 'dob_month', 'dob_year'].includes(e.target.name)) {
+            if (['ennu_global_date_of_birth_day', 'ennu_global_date_of_birth_month', 'ennu_global_date_of_birth_year'].includes(e.target.name)) {
                 this.calculateAge();
             }
         });
@@ -120,7 +200,35 @@ class ENNUAssessmentForm {
             return;
         }
 
-        const nextStep = this.currentStep + 1;
+        // Smart skip logic: Skip global fields that already have data
+        let nextStep = this.currentStep + 1;
+        
+        console.log('Smart skip: Starting from step', nextStep, 'of', this.totalSteps);
+        
+        // Skip global fields that already have data
+        while (nextStep < this.totalSteps) {
+            const nextQuestion = this.questions[nextStep];
+            console.log('Smart skip: Checking step', nextStep, 'is global?', nextQuestion?.hasAttribute('data-is-global'));
+            
+            if (nextQuestion && nextQuestion.hasAttribute('data-is-global')) {
+                // Check if this global field already has data
+                const hasData = this.globalFieldHasData(nextQuestion);
+                console.log('Smart skip: Step', nextStep, 'has data?', hasData);
+                
+                if (hasData) {
+                    console.log('Smart skip: Skipping step', nextStep, 'because it has data');
+                    nextStep++;
+                    continue; // Skip this question
+                } else {
+                    console.log('Smart skip: Step', nextStep, 'is global but has no data, showing it');
+                }
+            } else {
+                console.log('Smart skip: Step', nextStep, 'is not global, showing it');
+            }
+            break; // Found a question that needs to be shown
+        }
+        
+        console.log('Smart skip: Final step to show:', nextStep);
         
         // Check if we're at the last real question and auto-submit is ready
         if (nextStep >= this.totalSteps && this.autoSubmitReady) {
@@ -137,9 +245,156 @@ class ENNUAssessmentForm {
         }
     }
 
+    // Check if a global field already has data
+    globalFieldHasData(questionElement) {
+        const inputs = questionElement.querySelectorAll('input, select, textarea');
+        let hasData = false;
+        
+        console.log('=== Checking global field data ===');
+        console.log('Question title:', questionElement.querySelector('.question-title')?.textContent);
+        
+        // Special debugging for gender fields
+        if (questionElement.querySelector('.question-title')?.textContent?.includes('gender')) {
+            console.log('🔍 This is a gender field - extra debugging enabled');
+        }
+        
+        // Special debugging for DOB fields
+        if (questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('date') || 
+            questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('birth') ||
+            questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('dob')) {
+            console.log('🔍 This is a DOB field - extra debugging enabled');
+            console.log('DOB container found:', !!questionElement.querySelector('.dob-dropdowns'));
+            console.log('DOB inputs found:', questionElement.querySelectorAll('.dob-dropdowns select').length);
+        }
+        
+        for (let input of inputs) {
+            // Skip hidden inputs
+            if (input.type === 'hidden') {
+                console.log('Skipping hidden input:', input.name, input.value);
+                continue;
+            }
+            
+            console.log('Checking input:', input.name, 'type:', input.type, 'value:', input.value);
+            
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                console.log('Checking radio/checkbox:', input.name, 'value:', input.value, 'checked:', input.checked);
+                
+                // Special debugging for gender fields
+                if (input.name && input.name.includes('gender')) {
+                    console.log('🔍 Gender field input details:');
+                    console.log('  - Name:', input.name);
+                    console.log('  - Value:', input.value);
+                    console.log('  - Checked:', input.checked);
+                    console.log('  - ID:', input.id);
+                    console.log('  - Required:', input.required);
+                }
+                
+                if (input.checked) {
+                    console.log('✅ Global field has data - checked input:', input.name, input.value);
+                    hasData = true;
+                } else {
+                    console.log('❌ Radio/checkbox not checked:', input.name);
+                }
+            } else if (input.type === 'select-one' || input.type === 'select-multiple') {
+                console.log('Select input details:');
+                console.log('  - Value:', input.value);
+                console.log('  - Selected index:', input.selectedIndex);
+                console.log('  - Options count:', input.options.length);
+                
+                if (input.selectedIndex >= 0) {
+                    const selectedOption = input.options[input.selectedIndex];
+                    console.log('  - Selected option text:', selectedOption?.text);
+                    console.log('  - Selected option disabled:', selectedOption?.disabled);
+                    console.log('  - Selected option value:', selectedOption?.value);
+                }
+                
+                // Special handling for DOB dropdowns
+                if (input.name && input.name.includes('date_of_birth')) {
+                    console.log('🔍 This is a DOB dropdown');
+                    // For DOB dropdowns, check if any of the three dropdowns have values
+                    const dobContainer = questionElement.querySelector('.dob-dropdowns');
+                    if (dobContainer) {
+                        const dobInputs = dobContainer.querySelectorAll('select');
+                        let dobHasData = false;
+                        let allDobFieldsHaveData = true;
+                        
+                        dobInputs.forEach(dobInput => {
+                            console.log('Checking DOB input:', dobInput.name, 'value:', dobInput.value, 'selectedIndex:', dobInput.selectedIndex);
+                            
+                            // Check if this dropdown has a valid selection (not the disabled placeholder)
+                            if (dobInput.selectedIndex > 0 && dobInput.value && dobInput.value !== '') {
+                                const selectedOption = dobInput.options[dobInput.selectedIndex];
+                                if (selectedOption && !selectedOption.disabled) {
+                                    console.log('✅ DOB dropdown has data:', dobInput.name, dobInput.value);
+                                    dobHasData = true;
+                                } else {
+                                    console.log('❌ DOB dropdown has disabled option selected:', dobInput.name);
+                                    allDobFieldsHaveData = false;
+                                }
+                            } else {
+                                console.log('❌ DOB dropdown has no data:', dobInput.name);
+                                allDobFieldsHaveData = false;
+                            }
+                        });
+                        
+                        // For DOB, we need ALL three fields to have data to consider it complete
+                        if (allDobFieldsHaveData) {
+                            console.log('✅ DOB field has complete data (all 3 fields filled)');
+                            hasData = true;
+                        } else {
+                            console.log('❌ DOB field is incomplete (missing some fields)');
+                        }
+                    }
+                } else {
+                    // For regular select dropdowns, check if a non-disabled option is selected
+                    if (input.value && input.value !== '' && input.value !== '0' && input.selectedIndex > 0) {
+                        // Additional check: make sure it's not the default disabled option
+                        const selectedOption = input.options[input.selectedIndex];
+                        if (selectedOption && !selectedOption.disabled) {
+                            console.log('✅ Global field has data - select input:', input.name, input.value);
+                            hasData = true;
+                        } else {
+                            console.log('❌ Select has value but option is disabled or invalid');
+                        }
+                    } else {
+                        console.log('❌ Select has no valid value');
+                    }
+                }
+            } else {
+                if (input.value && input.value.trim() !== '') {
+                    console.log('✅ Global field has data - text input:', input.name, input.value);
+                    hasData = true;
+                } else {
+                    console.log('❌ Text input has no value:', input.name);
+                }
+            }
+        }
+        
+        console.log('=== Final result: Global field has data =', hasData, '===');
+        return hasData;
+    }
+
     prevQuestion() {
         if (this.currentStep > 0) {
-            this.showQuestion(this.currentStep - 1);
+            // Smart skip logic: Skip global fields that already have data when going backwards
+            let prevStep = this.currentStep - 1;
+            
+            // Skip global fields that already have data
+            while (prevStep >= 0) {
+                const prevQuestion = this.questions[prevStep];
+                if (prevQuestion && prevQuestion.hasAttribute('data-is-global')) {
+                    // Check if this global field already has data
+                    if (this.globalFieldHasData(prevQuestion)) {
+                        prevStep--;
+                        continue; // Skip this question
+                    }
+                }
+                break; // Found a question that needs to be shown
+            }
+            
+            if (prevStep >= 0) {
+                this.showQuestion(prevStep);
+            }
         }
     }
 
@@ -242,10 +497,10 @@ class ENNUAssessmentForm {
     }
 
     calculateAge() {
-        const day = this.form.querySelector('select[name="dob_day"]')?.value;
-        const month = this.form.querySelector('select[name="dob_month"]')?.value;
-        const year = this.form.querySelector('select[name="dob_year"]')?.value;
-        const ageDisplay = this.form.querySelector('.age-display');
+        const day = this.form.querySelector('select[name="ennu_global_date_of_birth_day"]')?.value;
+        const month = this.form.querySelector('select[name="ennu_global_date_of_birth_month"]')?.value;
+        const year = this.form.querySelector('select[name="ennu_global_date_of_birth_year"]')?.value;
+        const ageDisplay = this.form.querySelector('.calculated-age-display');
 
         if (day && month && year) {
             const birthDate = new Date(year, month - 1, day);
@@ -268,10 +523,10 @@ class ENNUAssessmentForm {
     }
 
     combineDOB() {
-        const year = this.form.querySelector('select[name="dob_year"]')?.value;
-        const month = this.form.querySelector('select[name="dob_month"]')?.value;
-        const day = this.form.querySelector('select[name="dob_day"]')?.value;
-        const combinedField = this.form.querySelector('input[name="dob_combined"]');
+        const year = this.form.querySelector('select[name="ennu_global_date_of_birth_year"]')?.value;
+        const month = this.form.querySelector('select[name="ennu_global_date_of_birth_month"]')?.value;
+        const day = this.form.querySelector('select[name="ennu_global_date_of_birth_day"]')?.value;
+        const combinedField = this.form.querySelector('input[name="ennu_global_date_of_birth"]');
 
         if (month && day && year && combinedField) {
             const dobString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;

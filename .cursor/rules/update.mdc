@@ -1,4 +1,0 @@
----
-alwaysApply: true
----
-always update the plugin version in the main plugin file and always update the changelog

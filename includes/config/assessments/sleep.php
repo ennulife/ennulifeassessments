@@ -5,7 +5,7 @@
  * Evidence-based sleep medicine implementation
  *
  * @package ENNU_Life
- * @version 62.3.1
+ * @version 62.11.0
  */
 
 return array(
@@ -16,35 +16,31 @@ return array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
-				'male'   => 'Male',
-				'female' => 'Female',
-				'other'  => 'Other / Prefer not to say',
+				'female' => 'FEMALE',
+				'male'   => 'MALE',
 			),
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'sleep_q_age'    => array(
-			'title'    => 'What is your age?',
-			'type'     => 'radio',
-			'options'  => array(
-				'under_25' => 'Under 25',
-				'25_35'    => '25-35',
-				'36_45'    => '36-45',
-				'46_55'    => '46-55',
-				'over_55'  => 'Over 55',
-			),
-			'scoring'  => array(
+		'sleep_q_dob'    => array(
+			'title'      => 'What is your date of birth?',
+			'type'       => 'dob_dropdowns',
+			'required'   => true,
+			'global_key' => 'date_of_birth',
+			'scoring'    => array(
 				'category' => 'Age Factors',
 				'weight'   => 1.5,
-				'answers'  => array(
-					'under_25' => 5,
-					'25_35'    => 4,
-					'36_45'    => 3,
-					'46_55'    => 2,
-					'over_55'  => 1,
+				'calculation' => 'age_from_dob',
+				'age_scores' => array(
+					'18-25' => 5,
+					'26-35' => 4,
+					'36-45' => 3,
+					'46-55' => 2,
+					'56-65' => 1,
+					'66-75' => 1,
+					'76+'   => 1,
 				),
 			),
-			'required' => true,
 		),
 		'sleep_q1'       => array(
 			'title'    => 'On average, how many hours of sleep do you get per night?',

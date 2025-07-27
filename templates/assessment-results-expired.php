@@ -17,7 +17,7 @@ $retake_url    = isset( $assessment_type ) ? ennu_life()->get_shortcodes()->get_
 ?>
 
 <div class="ennu-user-dashboard"> <!-- Use the main dashboard class for consistent styling -->
-	<div class="starfield"></div>
+
 	<div class="dossier-grid" style="grid-template-columns: 1fr; max-width: 600px; margin: auto;">
 		<main class="dossier-main-content">
 			<?php

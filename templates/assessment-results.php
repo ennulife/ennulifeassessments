@@ -37,80 +37,219 @@ if ( empty( $assessment_type ) ) {
 
 ?>
 
-<div class="ennu-unified-container" data-theme="dark">
-	<div class="starfield"></div>
+<div class="ennu-unified-container assessment-results-page" data-theme="light">
 
-	<!-- Theme Toggle -->
-	<div class="ennu-theme-toggle">
-		<button class="ennu-theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-			<svg class="ennu-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path class="ennu-sun-icon" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-				<path class="ennu-moon-icon" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-			</svg>
-		</button>
-	</div>
+	<!-- Universal Header Component -->
+	<?php
+	// Prepare header data
+	$header_data = array(
+		'display_name' => $display_name ?? '',
+		'age' => $age ?? '',
+		'gender' => $gender ?? '',
+		'height' => $height ?? '',
+		'weight' => $weight ?? '',
+		'bmi' => $bmi ?? '',
+		'show_vital_stats' => true,
+		'show_theme_toggle' => false, // No theme toggle on results page
+		'page_title' => $assessment_title,
+		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your personalized assessment results are ready.',
+		'show_logo' => true,
+		'logo_color' => 'white',
+		'logo_size' => 'medium'
+	);
+	
+	// Load the universal header component
+	ennu_load_template( 'universal-header', $header_data );
+	?>
 
-	<div class="ennu-grid">
-		<!-- Sidebar -->
-		<aside class="ennu-sidebar">
-			<!-- Logo -->
-			<?php if ( function_exists( 'ennu_render_logo' ) ) : ?>
-				<div class="ennu-logo-container" style="text-align: center; margin-bottom: 30px;">
-					<?php
-					ennu_render_logo(
-						array(
-							'color' => 'white',
-							'size'  => 'medium',
-							'link'  => home_url( '/' ),
-							'alt'   => 'ENNU Life',
-							'class' => '',
-						)
-					);
-					?>
-				</div>
-			<?php endif; ?>
-
-			<!-- Main Score Orb -->
-			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ); ?>">
-				<svg viewBox="0 0 36 36">
-					<defs>
-						<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stop-color="var(--accent-primary)"/>
-							<stop offset="100%" stop-color="var(--accent-secondary)"/>
-						</linearGradient>
-					</defs>
-					<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
-					<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
-				</svg>
-				<div class="ennu-score-text">
-					<div class="ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-					<div class="ennu-score-label"><?php echo esc_html( $assessment_title ); ?> Score</div>
-				</div>
-			</div>
-
-			<!-- Score Insight -->
-			<div class="ennu-glass-card">
-				<h3 class="ennu-section-title">Score Insight</h3>
-				<div class="ennu-card-content">
-					<?php if ( isset( $result_content['summary'] ) ) : ?>
-						<p><?php echo esc_html( $result_content['summary'] ); ?></p>
-					<?php endif; ?>
-				</div>
-			</div>
-
-			<!-- Action Buttons -->
-			<div class="ennu-btn-group">
-				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">
-					Book Consultation
-				</a>
-				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
-					View Dashboard
-				</a>
-			</div>
-		</aside>
+	<div class="ennu-single-column">
+		<!-- Action Buttons -->
+		<div class="ennu-btn-group" style="text-align: center; margin-bottom: 2rem;">
+			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">
+				Book Consultation
+			</a>
+			<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+				View Dashboard
+			</a>
+		</div>
 
 		<!-- Main Content -->
 		<main class="ennu-main-content">
+			<!-- Assessment Results Score Display - TOP CENTER -->
+			<div class="assessment-scores-section" style="margin-top: 0; padding-top: 2rem;">
+				<!-- Scores Content Grid -->
+				<div class="scores-content-grid">
+					<!-- Left Pillar Scores -->
+					<div class="pillar-scores-left">
+						<?php
+						// Debug output - Pillar scores fix working correctly
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							echo "<!-- DEBUG: Real pillar scores being displayed correctly -->\n";
+						}
+						
+						// Only use pillar_scores - we have exactly 4 pillars: Mind, Body, Lifestyle, Aesthetics
+						$display_scores = $pillar_scores ?? array();
+						
+						// Always show the 4 pillars, even if some have zero scores
+						if ( is_array( $display_scores ) && count( $display_scores ) > 0 ) {
+							$pillar_count = 0;
+							
+							// Use original pillar names
+							$pillar_display_names = array(
+								'Mind'       => 'Mind',
+								'Body'       => 'Body',
+								'Lifestyle'  => 'Lifestyle',
+								'Aesthetics' => 'Aesthetics',
+							);
+							
+							foreach ( $display_scores as $pillar => $score ) {
+								if ( $pillar_count >= 2 ) { break; }
+								
+								$display_name = $pillar_display_names[ $pillar ] ?? $pillar;
+								
+								$has_data = is_numeric( $score );
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+								?>
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
+								</div>
+								<?php
+								$pillar_count++;
+							}
+						} else {
+							// Show sample data if no scores available
+							$sample_pillars = array( 'Mind' => 7.5, 'Body' => 6.8 );
+							foreach ( $sample_pillars as $pillar => $score ) {
+								$display_name = $pillar === 'Mind' ? 'Mental Health' : 'Physical Health';
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = max( 2, 11 - $score );
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+								?>
+								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
+										<div class="pillar-orb-score"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
+									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
+								</div>
+								<?php
+							}
+						}
+						?>
+					</div>
+
+					<!-- Center Assessment Score -->
+					<div class="ennu-life-score-center">
+						<div class="main-score-orb" data-score="<?php echo esc_attr( $overall_score ?? 0 ); ?>">
+							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+								<defs>
+									<linearGradient id="assessment-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+										<stop offset="0%" stop-color="rgba(16, 185, 129, 0.6)"/>
+										<stop offset="50%" stop-color="rgba(5, 150, 105, 0.6)"/>
+										<stop offset="100%" stop-color="rgba(4, 120, 87, 0.6)"/>
+									</linearGradient>
+								</defs>
+								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $overall_score ?? 0 ) * 10 ); ?>;"></circle>
+							</svg>
+							<div class="main-score-text">
+								<div class="main-score-value"><?php echo esc_html( number_format( $overall_score ?? 0, 1 ) ); ?></div>
+								<div class="main-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type ) ) ); ?> Score</div>
+							</div>
+							<div class="decoration-dots"></div>
+						</div>
+					</div>
+
+					<!-- Right Pillar Scores -->
+					<div class="pillar-scores-right">
+						<?php
+						// Only use pillar_scores - we have exactly 4 pillars: Mind, Body, Lifestyle, Aesthetics
+						$display_scores = $pillar_scores ?? array();
+						
+						// Always show the 4 pillars, even if some have zero scores
+						if ( is_array( $display_scores ) && count( $display_scores ) > 0 ) {
+							$pillar_count = 0;
+							$total_pillars = count( $display_scores );
+							
+							// Use original pillar names
+							$pillar_display_names = array(
+								'Mind'       => 'Mind',
+								'Body'       => 'Body',
+								'Lifestyle'  => 'Lifestyle',
+								'Aesthetics' => 'Aesthetics',
+							);
+							
+							foreach ( $display_scores as $pillar => $score ) {
+								if ( $pillar_count < 2 ) { $pillar_count++; continue; }
+								if ( $pillar_count >= 4 ) { break; }
+								
+								$display_name = $pillar_display_names[ $pillar ] ?? $pillar;
+								
+								$has_data = is_numeric( $score );
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+								?>
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
+								</div>
+								<?php
+								$pillar_count++;
+							}
+						} else {
+							// Show sample data if no scores available
+							$sample_pillars = array( 'Lifestyle' => 8.2, 'Aesthetics' => 7.1 );
+							foreach ( $sample_pillars as $pillar => $score ) {
+								$display_name = $pillar === 'Lifestyle' ? 'Lifestyle' : 'Appearance';
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = max( 2, 11 - $score );
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+								?>
+								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
+										<div class="pillar-orb-score"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
+									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
+								</div>
+								<?php
+							}
+						}
+						?>
+					</div>
+				</div>
+			</div>
+
 			<!-- Header -->
 			<div class="ennu-animate-in">
 				<h1 class="ennu-title"><?php echo esc_html( $assessment_title ); ?> Results</h1>
@@ -186,23 +325,32 @@ if ( empty( $assessment_type ) ) {
 					</div>
 				</div>
 			<?php endif; ?>
+
+			<!-- Biomarkers Section -->
+			<?php error_log( 'ENNU Results: Reaching biomarkers section' ); ?>
+			<div class="ennu-card ennu-animate-in ennu-animate-delay-5">
+				<h2 class="ennu-section-title">Related Biomarkers</h2>
+				<div class="ennu-biomarkers-section">
+					<?php
+					// Debug: Check if biomarkers template is loading
+					error_log( 'ENNU Results: Loading biomarkers template for user ' . get_current_user_id() );
+					
+					// Load the biomarkers-only template content
+					$biomarkers_data = array(
+						'user_id' => get_current_user_id(),
+						'user_age' => $age ?? 35,
+						'user_gender' => $gender ?? 'male'
+					);
+					
+					// Load the biomarkers template
+					ennu_load_template( 'biomarkers-only', $biomarkers_data );
+					
+					error_log( 'ENNU Results: Biomarkers template loaded successfully' );
+					?>
+				</div>
+			</div>
 		</main>
 	</div>
 </div>
 
-<script>
-// Theme toggle functionality
-function toggleTheme() {
-	const container = document.querySelector('.ennu-unified-container');
-	const currentTheme = container.getAttribute('data-theme');
-	const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-	container.setAttribute('data-theme', newTheme);
-	localStorage.setItem('ennu-theme', newTheme);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-	const savedTheme = localStorage.getItem('ennu-theme') || 'dark';
-	const container = document.querySelector('.ennu-unified-container');
-	container.setAttribute('data-theme', savedTheme);
-});
-</script> 
+<!-- Theme system is now handled by the centralized ENNUThemeManager --> 

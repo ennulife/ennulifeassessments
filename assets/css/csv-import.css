@@ -1,0 +1,240 @@
+/**
+ * ENNU Life CSV Import Styles
+ * Clean, modern interface for biomarker CSV import
+ */
+
+.ennu-csv-import {
+	max-width: 1200px;
+	margin: 20px 0;
+}
+
+.ennu-import-container {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 30px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ennu-import-instructions {
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 6px;
+	padding: 20px;
+	margin-bottom: 30px;
+}
+
+.ennu-import-instructions h2 {
+	margin-top: 0;
+	color: #2c3e50;
+	font-size: 1.4em;
+}
+
+.ennu-import-instructions code {
+	background: #e9ecef;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9em;
+}
+
+.ennu-import-instructions pre {
+	background: #f8f9fa;
+	border: 1px solid #dee2e6;
+	border-radius: 4px;
+	padding: 15px;
+	margin: 10px 0;
+	font-family: 'Courier New', monospace;
+	font-size: 0.85em;
+	line-height: 1.4;
+	overflow-x: auto;
+}
+
+#ennu-csv-import-form {
+	margin-top: 20px;
+}
+
+#ennu-csv-import-form .form-table th {
+	width: 200px;
+	padding: 15px 10px 15px 0;
+	vertical-align: top;
+	font-weight: 600;
+	color: #2c3e50;
+}
+
+#ennu-csv-import-form .form-table td {
+	padding: 15px 10px;
+	vertical-align: top;
+}
+
+#ennu-csv-import-form input[type="file"] {
+	border: 2px dashed #ddd;
+	border-radius: 6px;
+	padding: 20px;
+	width: 100%;
+	background: #fafafa;
+	transition: border-color 0.3s ease;
+}
+
+#ennu-csv-import-form input[type="file"]:hover {
+	border-color: #0073aa;
+}
+
+#ennu-csv-import-form input[type="file"]:focus {
+	border-color: #0073aa;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.2);
+}
+
+#ennu-csv-import-form select {
+	width: 100%;
+	max-width: 400px;
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+#ennu-csv-import-form input[type="checkbox"] {
+	margin-right: 8px;
+}
+
+#ennu-csv-import-form label {
+	display: inline-block;
+	margin-bottom: 8px;
+	font-weight: 500;
+}
+
+.submit {
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid #eee;
+}
+
+.submit .spinner {
+	display: none;
+	margin-left: 10px;
+}
+
+.submit .spinner.is-active {
+	display: inline-block;
+}
+
+/* Import Results */
+#ennu-import-results {
+	margin-top: 30px;
+	padding: 20px;
+	border-radius: 6px;
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+}
+
+#ennu-import-results h3 {
+	margin-top: 0;
+	color: #2c3e50;
+}
+
+#ennu-import-summary {
+	margin-bottom: 20px;
+	padding: 15px;
+	border-radius: 4px;
+	font-weight: 500;
+}
+
+#ennu-import-summary.success {
+	background: #d4edda;
+	border: 1px solid #c3e6cb;
+	color: #155724;
+}
+
+#ennu-import-summary.error {
+	background: #f8d7da;
+	border: 1px solid #f5c6cb;
+	color: #721c24;
+}
+
+#ennu-import-details {
+	font-size: 0.9em;
+}
+
+.import-detail-section {
+	margin-bottom: 15px;
+}
+
+.import-detail-section h4 {
+	margin: 0 0 8px 0;
+	color: #495057;
+	font-size: 1em;
+}
+
+.import-detail-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.import-detail-list li {
+	padding: 4px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.import-detail-list li:last-child {
+	border-bottom: none;
+}
+
+.import-detail-list .error {
+	color: #dc3545;
+}
+
+.import-detail-list .warning {
+	color: #856404;
+}
+
+.import-detail-list .success {
+	color: #155724;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.ennu-import-container {
+		padding: 20px;
+	}
+	
+	#ennu-csv-import-form .form-table th,
+	#ennu-csv-import-form .form-table td {
+		display: block;
+		width: 100%;
+		padding: 10px 0;
+	}
+	
+	#ennu-csv-import-form .form-table th {
+		border-bottom: 1px solid #eee;
+		padding-bottom: 5px;
+	}
+}
+
+/* Loading States */
+.ennu-import-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.ennu-import-loading .spinner {
+	display: inline-block !important;
+}
+
+/* Success Animation */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+#ennu-import-results {
+	animation: fadeInUp 0.3s ease-out;
+} 

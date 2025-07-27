@@ -56,14 +56,17 @@
                 // Bind event handlers
                 this.bindEvents();
                 
-                // Initialize components
-                this.initializeComponents();
-                
-                // Setup error monitoring
-                this.setupErrorMonitoring();
-                
-                // Setup performance monitoring
-                this.setupPerformanceMonitoring();
+                        // Initialize components
+        this.initializeComponents();
+        
+        // Initialize tab switching
+        this.initializeTabSwitching();
+        
+        // Setup error monitoring
+        this.setupErrorMonitoring();
+        
+        // Setup performance monitoring
+        this.setupPerformanceMonitoring();
                 
                 this.log('ENNU Enhanced Admin System initialized successfully');
                 
@@ -167,6 +170,71 @@
                 
             } catch (error) {
                 this.handleError('Failed to initialize components: ' + error.message, 'COMPONENT_ERROR', error);
+            }
+        },
+        
+        // Initialize tab switching functionality
+        initializeTabSwitching: function() {
+            try {
+                this.log('Initializing tab switching');
+                
+                // Handle ENNU admin tabs
+                const tabNav = document.querySelector('.ennu-admin-tab-nav');
+                if (tabNav) {
+                    const tabLinks = tabNav.querySelectorAll('a');
+                    const tabContents = document.querySelectorAll('.ennu-admin-tab-content');
+                    
+                    tabLinks.forEach(function(link) {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Remove active class from all tabs and contents
+                            tabLinks.forEach(l => l.classList.remove('ennu-admin-tab-active'));
+                            tabContents.forEach(c => c.classList.remove('ennu-admin-tab-active'));
+                            
+                            // Add active class to clicked tab
+                            this.classList.add('ennu-admin-tab-active');
+                            
+                            // Show corresponding content
+                            const targetId = this.getAttribute('href').substring(1);
+                            const targetContent = document.getElementById(targetId);
+                            if (targetContent) {
+                                targetContent.classList.add('ennu-admin-tab-active');
+                            }
+                        });
+                    });
+                }
+                
+                // Handle biomarker range management tabs
+                const rangeTabs = document.querySelectorAll('.nav-tab');
+                if (rangeTabs.length > 0) {
+                    rangeTabs.forEach(function(tab) {
+                        tab.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            // Remove active class from all tabs and content
+                            rangeTabs.forEach(t => t.classList.remove('nav-tab-active'));
+                            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                            
+                            // Add active class to clicked tab
+                            this.classList.add('nav-tab-active');
+                            
+                            // Show corresponding content
+                            const targetTab = this.getAttribute('data-tab');
+                            if (targetTab) {
+                                const targetContent = document.getElementById(targetTab);
+                                if (targetContent) {
+                                    targetContent.classList.add('active');
+                                }
+                            }
+                        });
+                    });
+                }
+                
+                this.log('Tab switching initialized successfully');
+                
+            } catch (error) {
+                this.handleError('Tab switching initialization failed: ' + error.message, 'TAB_ERROR', error);
             }
         },
         

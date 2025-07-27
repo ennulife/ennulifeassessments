@@ -1,0 +1,521 @@
+/* ENNU Evidence Tracking Interface Styles */
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Evidence Tracking Content */
+.ennu-evidence-tracking-content {
+    margin-top: 20px;
+}
+
+/* Import/Export Section */
+.ennu-import-export-tab {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ennu-export-section,
+.ennu-import-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.ennu-export-section h3,
+.ennu-import-section h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 10px;
+}
+
+.ennu-export-form,
+.ennu-import-form {
+    margin-top: 20px;
+}
+
+.ennu-form-row {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ennu-form-row label {
+    min-width: 150px;
+    font-weight: 600;
+    color: #555;
+}
+
+.ennu-form-row select,
+.ennu-form-row input[type="file"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.ennu-export-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.ennu-export-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.ennu-export-options input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Template Download Section */
+.ennu-template-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #e8f4fd;
+    border: 1px solid #b3d9ff;
+    border-radius: 6px;
+}
+
+.ennu-template-section h4 {
+    margin-top: 0;
+    color: #0066cc;
+}
+
+.ennu-template-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.ennu-template-buttons .button {
+    padding: 8px 16px;
+    background: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.ennu-template-buttons .button:hover {
+    background: #0052a3;
+}
+
+/* Conflict Resolution Section */
+.ennu-conflict-resolution-tab {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.conflict-summary {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.conflict-summary h4 {
+    margin-top: 0;
+    color: #856404;
+}
+
+.conflict-list {
+    margin-top: 20px;
+}
+
+.conflict-item {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.conflict-item h5 {
+    margin-top: 0;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.conflict-item .conflict-type {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.conflict-details {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    border-left: 4px solid #dc3545;
+}
+
+.conflict-resolution-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.conflict-resolution-actions .button {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Evidence Management Section */
+.ennu-evidence-management-tab {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.evidence-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.evidence-form h4 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 10px;
+}
+
+.evidence-form-row {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.evidence-form-row label {
+    min-width: 120px;
+    font-weight: 600;
+    color: #555;
+}
+
+.evidence-form-row input,
+.evidence-form-row select,
+.evidence-form-row textarea {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.evidence-form-row textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.evidence-sources-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.evidence-sources-table th,
+.evidence-sources-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.evidence-sources-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.evidence-sources-table tr:hover {
+    background: #f5f5f5;
+}
+
+.evidence-level {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.evidence-level.a {
+    background: #d4edda;
+    color: #155724;
+}
+
+.evidence-level.b {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.evidence-level.c {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Data Validation Section */
+.ennu-data-validation-tab {
+    background: #fff;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.validation-summary {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.validation-summary h4 {
+    margin-top: 0;
+    color: #0c5460;
+}
+
+.validation-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.validation-stat {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.validation-stat .stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0073aa;
+}
+
+.validation-stat .stat-label {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.validation-errors {
+    margin-top: 30px;
+}
+
+.validation-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.validation-error h5 {
+    margin-top: 0;
+    color: #721c24;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.validation-error .error-type {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.validation-error-details {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    border-left: 4px solid #dc3545;
+}
+
+/* Progress Indicators */
+.progress-indicator {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.progress-indicator.active {
+    display: block;
+}
+
+.progress-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Status Messages */
+.status-message {
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.status-message.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.status-message.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.status-message.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.status-message.info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ennu-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .ennu-form-row label {
+        min-width: auto;
+    }
+    
+    .ennu-form-row input,
+    .ennu-form-row select,
+    .ennu-form-row textarea {
+        width: 100%;
+    }
+    
+    .evidence-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .evidence-form-row label {
+        min-width: auto;
+    }
+    
+    .evidence-form-row input,
+    .evidence-form-row select,
+    .evidence-form-row textarea {
+        width: 100%;
+    }
+    
+    .validation-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .conflict-resolution-actions {
+        flex-direction: column;
+    }
+    
+    .ennu-template-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Keyboard Shortcuts */
+.keyboard-shortcut {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #495057;
+}
+
+/* Help Text */
+.help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+} 

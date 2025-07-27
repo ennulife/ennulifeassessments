@@ -1,0 +1,561 @@
+/**
+ * ENNU Life - Biomarker Management Interface CSS
+ * Comprehensive styling for the biomarker management table and interface
+ */
+
+/* Main Container */
+.ennu-biomarker-management-interface {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+/* Control Bar */
+.ennu-biomarker-controls {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ennu-biomarker-controls .button {
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ennu-biomarker-controls .button-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.ennu-biomarker-controls .button-primary:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.ennu-biomarker-controls .button-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.ennu-biomarker-controls .button-secondary:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Table Container */
+.ennu-biomarker-table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* Main Table */
+.ennu-biomarker-management-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 14px;
+}
+
+.ennu-biomarker-management-table thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ennu-biomarker-management-table th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.ennu-biomarker-management-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f3f4;
+    vertical-align: top;
+}
+
+/* Category Headers */
+.ennu-category-header {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.ennu-category-header td {
+    padding: 15px 12px;
+    border-bottom: 2px solid #2196f3;
+}
+
+.ennu-category-header h3 {
+    margin: 0;
+    color: #1976d2;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Biomarker Rows */
+.ennu-biomarker-row {
+    transition: all 0.3s ease;
+}
+
+.ennu-biomarker-row:hover {
+    background: #f8f9fa;
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ennu-biomarker-row.has-data {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+}
+
+.ennu-biomarker-row.no-data {
+    background: #fafafa;
+    opacity: 0.8;
+}
+
+/* Biomarker Name Column */
+.ennu-biomarker-name {
+    min-width: 150px;
+    max-width: 200px;
+}
+
+.ennu-biomarker-name strong {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.ennu-biomarker-name small {
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Lab Results Column */
+.ennu-lab-results {
+    min-width: 180px;
+}
+
+.ennu-biomarker-value {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    margin-bottom: 6px;
+}
+
+.ennu-biomarker-value:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    outline: none;
+}
+
+.ennu-test-date {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #6c757d;
+    background: #f8f9fa;
+}
+
+/* Range Fields Column */
+.ennu-range-fields {
+    min-width: 200px;
+}
+
+.ennu-range-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.ennu-range-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #495057;
+    min-width: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.ennu-range-group input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #495057;
+    background: #ffffff;
+}
+
+.ennu-range-group input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+    outline: none;
+}
+
+.ennu-optimal-range-display {
+    font-size: 11px;
+    color: #28a745;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #d4edda;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* Provider Recommended Targets Column */
+.ennu-provider-targets {
+	min-width: 220px;
+}
+
+.ennu-target-inputs {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.ennu-target-group {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.ennu-target-group label {
+	font-size: 11px;
+	font-weight: 600;
+	color: #495057;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.ennu-target-group input,
+.ennu-target-group select {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	font-size: 12px;
+	color: #495057;
+	background: #ffffff;
+	transition: all 0.3s ease;
+}
+
+.ennu-target-group input:focus,
+.ennu-target-group select:focus {
+	border-color: #28a745;
+	box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+	outline: none;
+}
+
+.ennu-target-group input[type="number"] {
+	text-align: right;
+}
+
+.ennu-target-group select {
+	cursor: pointer;
+}
+
+/* Priority color indicators */
+.ennu-target-group select option[value="critical"] {
+	color: #dc3545;
+	font-weight: 600;
+}
+
+.ennu-target-group select option[value="high"] {
+	color: #fd7e14;
+	font-weight: 600;
+}
+
+.ennu-target-group select option[value="medium"] {
+	color: #ffc107;
+	font-weight: 600;
+}
+
+.ennu-target-group select option[value="low"] {
+	color: #28a745;
+	font-weight: 600;
+}
+
+/* Provider Notes Column */
+.ennu-provider-notes {
+    min-width: 200px;
+}
+
+.ennu-provider-notes textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #495057;
+    background: #ffffff;
+    resize: vertical;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.ennu-provider-notes textarea:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+    outline: none;
+}
+
+/* Flag Column */
+.ennu-symptom-flagged {
+    min-width: 180px;
+}
+
+.ennu-symptom-flag-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ennu-symptom-flag-indicator.flagged {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.ennu-symptom-flag-indicator.not-flagged {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.ennu-symptom-flag-indicator .dashicons {
+    font-size: 16px;
+    margin-top: 1px;
+}
+
+.symptom-flag-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.symptom-flag-details .flag-reason {
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.symptom-flag-details .flag-action {
+    font-size: 11px;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* Metadata Column */
+.ennu-metadata {
+    min-width: 180px;
+    max-width: 200px;
+}
+
+.ennu-metadata-content {
+    font-size: 11px;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.ennu-metadata-content div {
+    margin-bottom: 4px;
+    padding: 2px 0;
+}
+
+.ennu-metadata-content strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Biomarker Summary */
+.ennu-biomarker-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.ennu-biomarker-summary h3 {
+    margin: 0 0 15px 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ennu-summary-stats {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.ennu-stat {
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.ennu-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ennu-stat strong {
+    display: block;
+    color: #6c757d;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.ennu-stat span {
+    display: block;
+    color: #007bff;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .ennu-biomarker-management-table {
+        font-size: 13px;
+    }
+    
+    .ennu-biomarker-management-table th,
+    .ennu-biomarker-management-table td {
+        padding: 10px 8px;
+    }
+    
+    .ennu-range-group {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .ennu-range-group label {
+        min-width: auto;
+        text-align: left;
+    }
+}
+
+@media (max-width: 768px) {
+    .ennu-biomarker-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .ennu-biomarker-controls .button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .ennu-summary-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .ennu-stat {
+        min-width: auto;
+    }
+}
+
+/* Animation Classes */
+.ennu-biomarker-row.updated {
+    animation: highlightUpdate 2s ease-in-out;
+}
+
+@keyframes highlightUpdate {
+    0% { background-color: #fff3cd; }
+    50% { background-color: #d4edda; }
+    100% { background-color: inherit; }
+}
+
+/* Loading States */
+.ennu-biomarker-management-interface.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.ennu-biomarker-management-interface.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Print Styles */
+@media print {
+    .ennu-biomarker-controls,
+    .ennu-biomarker-summary {
+        display: none;
+    }
+    
+    .ennu-biomarker-management-table {
+        font-size: 12px;
+    }
+    
+    .ennu-biomarker-management-table th,
+    .ennu-biomarker-management-table td {
+        padding: 8px 6px;
+        border: 1px solid #000;
+    }
+} 

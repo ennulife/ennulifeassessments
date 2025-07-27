@@ -1,0 +1,408 @@
+/**
+ * ENNU Enhanced Dashboard Styles
+ * 
+ * Styles for the enhanced dashboard features including profile completeness
+ * 
+ * @package ENNU_Life_Assessments
+ * @version 64.3.30
+ */
+
+/* Profile Completeness Widget */
+.profile-completeness-widget {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.completeness-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.completeness-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.completeness-icon svg {
+    color: white;
+    width: 20px;
+    height: 20px;
+}
+
+.completeness-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.completeness-header p {
+    margin: 5px 0 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* Progress Circle */
+.completeness-overview {
+    margin-bottom: 25px;
+}
+
+.progress-display {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    position: relative;
+}
+
+.progress-inner {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-percentage {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.progress-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Accuracy Indicator */
+.accuracy-indicator {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.accuracy-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+}
+
+.accuracy-badge span {
+    margin-right: 8px;
+}
+
+/* Section Details */
+.section-details {
+    margin-bottom: 25px;
+}
+
+.section-details h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.section-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.section-item.completed {
+    border-left-color: #10b981;
+}
+
+.section-item.incomplete {
+    border-left-color: #f59e0b;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.section-percentage {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.section-percentage.completed {
+    color: #10b981;
+}
+
+.section-percentage.incomplete {
+    color: #f59e0b;
+}
+
+.section-progress {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.section-progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.section-progress-fill.completed {
+    background: #10b981;
+}
+
+.section-progress-fill.incomplete {
+    background: #f59e0b;
+}
+
+.section-missing {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Recommendations */
+.recommendations-section {
+    margin-top: 20px;
+}
+
+.recommendations-section h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.recommendation-item {
+    margin-bottom: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.recommendation-item.critical {
+    border-left-color: #dc3545;
+}
+
+.recommendation-item.high {
+    border-left-color: #fd7e14;
+}
+
+.recommendation-item.medium {
+    border-left-color: #ffc107;
+}
+
+.recommendation-item.low {
+    border-left-color: #28a745;
+}
+
+.recommendation-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.recommendation-icon {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.recommendation-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.recommendation-time {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.recommendation-description {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* No Data States */
+.no-section-data {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+}
+
+.no-section-data p {
+    margin: 0;
+}
+
+/* Error States */
+.ennu-error {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-completeness-widget {
+        padding: 20px;
+    }
+    
+    .completeness-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .completeness-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .progress-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .progress-inner {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .progress-percentage {
+        font-size: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .section-percentage {
+        margin-top: 5px;
+    }
+    
+    .recommendation-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .recommendation-time {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .profile-completeness-widget {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .section-item {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .recommendation-item {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .progress-inner {
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #10b981;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+} 

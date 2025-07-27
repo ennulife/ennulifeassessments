@@ -27,8 +27,9 @@ class ENNU_Objective_Engine {
 	}
 
 	private function load_biomarker_profiles() {
-		$biomarker_file           = ENNU_LIFE_PLUGIN_PATH . 'includes/config/ennu-life-core-biomarkers.php';
-		$this->biomarker_profiles = file_exists( $biomarker_file ) ? require $biomarker_file : array();
+		// Use the new orchestrator instead of old config file
+		$manager = new ENNU_Recommended_Range_Manager();
+		$this->biomarker_profiles = $manager->get_biomarker_configuration();
 	}
 
 	public function apply_biomarker_actuality_adjustments( $base_pillar_scores ) {

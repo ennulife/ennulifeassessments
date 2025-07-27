@@ -1,0 +1,621 @@
+/**
+ * Score Presentation Styles
+ *
+ * Beautiful, modern styles for score presentation components
+ *
+ * @package ENNU_Life
+ * @copyright Copyright (c) 2024, Very Good Plugins, https://verygoodplugins.com
+ * @license GPL-3.0+
+ * @since 62.2.8
+ */
+
+/* ===== SCORE PRESENTATION CONTAINER ===== */
+.ennu-score-presentation {
+	background: var(--glass-bg, rgba(255, 255, 255, 0.95));
+	border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+	border-radius: 20px;
+	padding: 30px;
+	margin: 20px 0;
+	box-shadow: 0 8px 32px var(--shadow-color, rgba(0, 0, 0, 0.1));
+	backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.ennu-score-presentation:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 40px var(--shadow-color, rgba(0, 0, 0, 0.15));
+}
+
+.ennu-score-presentation::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+	pointer-events: none;
+}
+
+/* ===== SIZE VARIATIONS ===== */
+.ennu-score-small {
+	padding: 20px;
+}
+
+.ennu-score-small .ennu-score-orb {
+	width: 80px;
+	height: 80px;
+}
+
+.ennu-score-small .ennu-score-value {
+	font-size: 1.8rem;
+}
+
+.ennu-score-small .ennu-score-label {
+	font-size: 0.8rem;
+}
+
+.ennu-score-medium {
+	padding: 30px;
+}
+
+.ennu-score-medium .ennu-score-orb {
+	width: 120px;
+	height: 120px;
+}
+
+.ennu-score-medium .ennu-score-value {
+	font-size: 2.5rem;
+}
+
+.ennu-score-medium .ennu-score-label {
+	font-size: 0.9rem;
+}
+
+.ennu-score-large {
+	padding: 40px;
+}
+
+.ennu-score-large .ennu-score-orb {
+	width: 160px;
+	height: 160px;
+}
+
+.ennu-score-large .ennu-score-value {
+	font-size: 3.2rem;
+}
+
+.ennu-score-large .ennu-score-label {
+	font-size: 1rem;
+}
+
+/* ===== MAIN SCORE DISPLAY ===== */
+.ennu-score-main {
+	display: flex;
+	align-items: center;
+	gap: 30px;
+	margin-bottom: 30px;
+}
+
+.ennu-score-orb-container {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.ennu-score-orb {
+	position: relative;
+	width: 120px;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ennu-score-svg {
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+}
+
+.ennu-score-orb-bg {
+	fill: none;
+	stroke: var(--border-color, #e5e7eb);
+	stroke-width: 3;
+}
+
+.ennu-score-orb-progress {
+	fill: none;
+	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-dasharray: 100;
+	stroke-dashoffset: calc(100 - var(--score-percent, 0));
+	transition: stroke-dashoffset 1.5s ease-in-out;
+}
+
+.ennu-score-text {
+	position: absolute;
+	text-align: center;
+	color: var(--text-dark, #1f2937);
+}
+
+.ennu-score-value {
+	font-size: 2.5rem;
+	font-weight: 800;
+	line-height: 1;
+	margin-bottom: 5px;
+	color: var(--accent-primary, #667eea);
+}
+
+.ennu-score-label {
+	font-size: 0.9rem;
+	color: var(--text-light, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 600;
+}
+
+/* ===== SCORE DETAILS ===== */
+.ennu-score-details {
+	flex: 1;
+}
+
+.ennu-score-interpretation {
+	margin-bottom: 15px;
+}
+
+.ennu-score-level {
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: 20px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+}
+
+.ennu-score-level-excellent {
+	background: rgba(16, 185, 129, 0.1);
+	color: #10b981;
+}
+
+.ennu-score-level-good {
+	background: rgba(59, 130, 246, 0.1);
+	color: #3b82f6;
+}
+
+.ennu-score-level-fair {
+	background: rgba(245, 158, 11, 0.1);
+	color: #f59e0b;
+}
+
+.ennu-score-level-needs-improvement {
+	background: rgba(239, 68, 68, 0.1);
+	color: #ef4444;
+}
+
+.ennu-score-level-unknown {
+	background: rgba(107, 114, 128, 0.1);
+	color: #6b7280;
+}
+
+.ennu-score-description {
+	color: var(--text-secondary, #6b7280);
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.ennu-score-last-updated {
+	color: var(--text-light, #9ca3af);
+	font-size: 0.85rem;
+}
+
+/* ===== PILLAR SCORES ===== */
+.ennu-pillar-scores {
+	margin-top: 30px;
+	padding-top: 30px;
+	border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.ennu-pillar-title {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--text-dark, #1f2937);
+	margin-bottom: 20px;
+}
+
+.ennu-pillar-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+	gap: 20px;
+}
+
+.ennu-pillar-item {
+	text-align: center;
+}
+
+.ennu-pillar-orb {
+	position: relative;
+	width: 60px;
+	height: 60px;
+	margin: 0 auto 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ennu-pillar-svg {
+	width: 100%;
+	height: 100%;
+	transform: rotate(-90deg);
+}
+
+.ennu-pillar-bg {
+	fill: none;
+	stroke: var(--border-color, #e5e7eb);
+	stroke-width: 2;
+}
+
+.ennu-pillar-progress {
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-dasharray: 62.83;
+	stroke-dashoffset: calc(62.83 - (62.83 * var(--pillar-percent, 0) / 100));
+	transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.ennu-pillar-content {
+	position: absolute;
+	text-align: center;
+}
+
+.ennu-pillar-score {
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: var(--accent-primary, #667eea);
+	line-height: 1;
+}
+
+.ennu-pillar-name {
+	font-size: 0.7rem;
+	color: var(--text-light, #6b7280);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+/* ===== SCORE HISTORY ===== */
+.ennu-score-history {
+	margin-top: 30px;
+	padding-top: 30px;
+	border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.ennu-history-title {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--text-dark, #1f2937);
+	margin-bottom: 20px;
+}
+
+.ennu-history-chart {
+	height: 200px;
+	margin-bottom: 20px;
+	background: var(--glass-bg, rgba(255, 255, 255, 0.5));
+	border-radius: 10px;
+	padding: 15px;
+}
+
+.ennu-history-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ennu-history-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 15px;
+	background: var(--glass-bg, rgba(255, 255, 255, 0.5));
+	border-radius: 8px;
+	border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.ennu-history-score {
+	font-weight: 600;
+	font-size: 1rem;
+}
+
+.ennu-history-date {
+	color: var(--text-light, #6b7280);
+	font-size: 0.9rem;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.ennu-score-actions {
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid var(--border-color, #e5e7eb);
+	text-align: center;
+}
+
+.ennu-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 24px;
+	border: none;
+	border-radius: 12px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ennu-btn-primary {
+	background: linear-gradient(135deg, var(--accent-primary, #667eea) 0%, var(--accent-secondary, #764ba2) 100%);
+	color: white;
+	box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.ennu-btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.ennu-btn-secondary {
+	background: var(--glass-bg, rgba(255, 255, 255, 0.9));
+	color: var(--text-dark, #1f2937);
+	border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.ennu-btn-secondary:hover {
+	background: var(--glass-bg, rgba(255, 255, 255, 1));
+	transform: translateY(-1px);
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ennu-btn-icon {
+	width: 16px;
+	height: 16px;
+	fill: currentColor;
+}
+
+/* ===== ANIMATIONS ===== */
+.ennu-score-presentation.ennu-animated .ennu-score-orb-progress {
+	animation: scoreProgress 1.5s ease-out;
+}
+
+.ennu-score-presentation.ennu-animated .ennu-pillar-progress {
+	animation: pillarProgress 1s ease-out 0.5s both;
+}
+
+@keyframes scoreProgress {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: calc(100 - var(--score-percent, 0));
+	}
+}
+
+@keyframes pillarProgress {
+	from {
+		stroke-dashoffset: 62.83;
+	}
+	to {
+		stroke-dashoffset: calc(62.83 - (62.83 * var(--pillar-percent, 0) / 100));
+	}
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+	.ennu-score-main {
+		flex-direction: column;
+		text-align: center;
+		gap: 20px;
+	}
+
+	.ennu-score-orb {
+		width: 100px;
+		height: 100px;
+	}
+
+	.ennu-score-value {
+		font-size: 2rem;
+	}
+
+	.ennu-pillar-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 15px;
+	}
+
+	.ennu-score-presentation {
+		padding: 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-score-presentation {
+		padding: 15px;
+	}
+
+	.ennu-score-orb {
+		width: 80px;
+		height: 80px;
+	}
+
+	.ennu-score-value {
+		font-size: 1.8rem;
+	}
+
+	.ennu-pillar-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 10px;
+	}
+
+	.ennu-pillar-orb {
+		width: 50px;
+		height: 50px;
+	}
+}
+
+/* ===== THEME VARIATIONS ===== */
+.ennu-theme-dark {
+	--glass-bg: rgba(17, 24, 39, 0.95);
+	--glass-border: rgba(255, 255, 255, 0.1);
+	--text-dark: #f9fafb;
+	--text-secondary: #d1d5db;
+	--text-light: #9ca3af;
+	--border-color: rgba(255, 255, 255, 0.1);
+	--shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+.ennu-theme-dark .ennu-score-presentation {
+	background: var(--glass-bg);
+	border-color: var(--glass-border);
+}
+
+.ennu-theme-dark .ennu-score-value {
+	color: var(--accent-primary, #8b5cf6);
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+	.ennu-score-presentation,
+	.ennu-score-orb-progress,
+	.ennu-pillar-progress,
+	.ennu-btn {
+		transition: none;
+		animation: none;
+	}
+}
+
+/* ===== FOCUS STATES ===== */
+.ennu-btn:focus {
+	outline: 2px solid var(--accent-primary, #667eea);
+	outline-offset: 2px;
+}
+
+.ennu-score-presentation:focus-within {
+	outline: 2px solid var(--accent-primary, #667eea);
+	outline-offset: 2px;
+	border-radius: 20px;
+}
+
+/* ===== DASHBOARD ENHANCED SCORES ===== */
+.enhanced-scores-container {
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	padding: 20px;
+}
+
+.main-score-presentation {
+	order: 1;
+}
+
+.pillar-scores-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
+	order: 2;
+}
+
+.pillar-score-presentation {
+	background: var(--glass-bg, rgba(255, 255, 255, 0.8));
+	border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+	border-radius: 15px;
+	padding: 15px;
+	transition: all 0.3s ease;
+}
+
+.pillar-score-presentation:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px var(--shadow-color, rgba(0, 0, 0, 0.1));
+}
+
+/* Dashboard specific score presentation adjustments */
+.dashboard-scores-accordion .ennu-score-presentation {
+	margin: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+.dashboard-scores-accordion .ennu-score-presentation::before {
+	display: none;
+}
+
+.dashboard-scores-accordion .ennu-score-main {
+	justify-content: center;
+	text-align: center;
+}
+
+.dashboard-scores-accordion .main-score-presentation .ennu-score-orb {
+	width: 140px;
+	height: 140px;
+}
+
+.dashboard-scores-accordion .main-score-presentation .ennu-score-value {
+	font-size: 3rem;
+}
+
+.dashboard-scores-accordion .pillar-score-presentation .ennu-score-orb {
+	width: 60px;
+	height: 60px;
+}
+
+.dashboard-scores-accordion .pillar-score-presentation .ennu-score-value {
+	font-size: 1.5rem;
+}
+
+.dashboard-scores-accordion .pillar-score-presentation .ennu-score-label {
+	font-size: 0.8rem;
+}
+
+/* Responsive adjustments for dashboard */
+@media (max-width: 768px) {
+	.enhanced-scores-container {
+		padding: 15px;
+		gap: 20px;
+	}
+	
+	.pillar-scores-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 15px;
+	}
+	
+	.dashboard-scores-accordion .main-score-presentation .ennu-score-orb {
+		width: 120px;
+		height: 120px;
+	}
+	
+	.dashboard-scores-accordion .main-score-presentation .ennu-score-value {
+		font-size: 2.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.pillar-scores-grid {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+	
+	.dashboard-scores-accordion .main-score-presentation .ennu-score-orb {
+		width: 100px;
+		height: 100px;
+	}
+	
+	.dashboard-scores-accordion .main-score-presentation .ennu-score-value {
+		font-size: 2rem;
+	}
+} 

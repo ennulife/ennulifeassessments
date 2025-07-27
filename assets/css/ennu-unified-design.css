@@ -70,30 +70,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	color: var(--text-dark);
 }
 
-/* ===== STARFIELD ANIMATION ===== */
-.starfield {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-image: 
-		radial-gradient(2px 2px at 20px 30px, var(--star-color-1), transparent),
-		radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-		radial-gradient(1px 1px at 90px 40px, var(--star-color-1), transparent),
-		radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
-		radial-gradient(2px 2px at 160px 100px, var(--star-color-2), transparent);
-	background-repeat: repeat;
-	background-size: 200px 100px;
-	animation: sparkle 20s linear infinite;
-	z-index: 1;
-	pointer-events: none;
-}
 
-@keyframes sparkle {
-	from { transform: translateY(0px); }
-	to { transform: translateY(-100px); }
-}
 
 /* ===== GRID LAYOUTS ===== */
 .ennu-grid {
@@ -125,6 +102,135 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	padding: 20px;
 	position: relative;
 	z-index: 2;
+}
+
+/* ===== SINGLE COLUMN LAYOUT FOR RESULTS PAGE ===== */
+.ennu-single-column {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+.ennu-results-header {
+	text-align: center;
+	margin-bottom: 40px;
+	padding: 30px 0;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.ennu-results-header .ennu-logo-container {
+	margin-bottom: 30px;
+}
+
+.ennu-results-header .ennu-glass-card {
+	max-width: 600px;
+	margin: 0 auto 30px;
+	background: var(--glass-bg);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--rounded-lg);
+	padding: 25px;
+	backdrop-filter: blur(10px);
+}
+
+.ennu-results-header .ennu-section-title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--text-dark);
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.ennu-results-header .ennu-card-content p {
+	color: var(--text-light);
+	line-height: 1.6;
+	margin: 0;
+	text-align: center;
+}
+
+.ennu-results-header .ennu-btn-group {
+	display: flex;
+	gap: 15px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.ennu-results-header .ennu-btn {
+	padding: 12px 24px;
+	border-radius: var(--rounded-md);
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.3s ease;
+	display: inline-block;
+	min-width: 160px;
+	text-align: center;
+}
+
+.ennu-results-header .ennu-btn-primary {
+	background: var(--accent-primary);
+	color: #fff;
+	border: 1px solid var(--accent-primary);
+}
+
+.ennu-results-header .ennu-btn-primary:hover {
+	background: var(--accent-secondary);
+	border-color: var(--accent-secondary);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.ennu-results-header .ennu-btn-secondary {
+	background: transparent;
+	color: var(--text-dark);
+	border: 1px solid var(--border-color);
+}
+
+.ennu-results-header .ennu-btn-secondary:hover {
+	background: var(--card-bg);
+	border-color: var(--accent-primary);
+	color: var(--accent-primary);
+	transform: translateY(-2px);
+}
+
+/* Responsive adjustments for single column layout */
+@media (max-width: 768px) {
+	.ennu-single-column {
+		padding: 0 15px;
+	}
+	
+	.ennu-results-header {
+		padding: 20px 0;
+		margin-bottom: 30px;
+	}
+	
+	.ennu-results-header .ennu-glass-card {
+		padding: 20px;
+		margin-bottom: 25px;
+	}
+	
+	.ennu-results-header .ennu-btn-group {
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.ennu-results-header .ennu-btn {
+		width: 100%;
+		max-width: 280px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-results-header .ennu-glass-card {
+		padding: 15px;
+	}
+	
+	.ennu-results-header .ennu-section-title {
+		font-size: 1.1rem;
+	}
+	
+	.ennu-results-header .ennu-btn {
+		padding: 10px 20px;
+		font-size: 0.9rem;
+	}
 }
 
 /* ===== GLASS CARDS ===== */
@@ -606,9 +712,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 		transition: none;
 	}
 	
-	.starfield {
-		animation: none;
-	}
+
 }
 
 /* ===== HIGH CONTRAST MODE ===== */
@@ -623,9 +727,7 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 
 /* ===== PRINT STYLES ===== */
 @media print {
-	.starfield {
-		display: none;
-	}
+
 	
 	.ennu-unified-container {
 		background: #ffffff;
@@ -893,3 +995,511 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	margin: 30px 0;
 	box-shadow: 0 2px 12px rgba(239, 68, 68, 0.08);
 } 
+
+/* ===== TRANSIENT STATE & DEBUG MESSAGES STYLING ===== */
+/* Comprehensive styling for any transient state or debug messages */
+
+/* Transient State Container */
+.transient-state-container,
+.results-transient-state,
+.debug-transient-state {
+	background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.05) 100%);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-6);
+	margin: var(--spacing-4) 0;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	position: relative;
+	overflow: hidden;
+}
+
+/* Transient State Header */
+.transient-state-header,
+.results-transient-state h1,
+.results-transient-state h2,
+.results-transient-state h3 {
+	color: var(--text-primary);
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-bottom: var(--spacing-4);
+	text-align: center;
+	background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+/* Transient State Content */
+.transient-state-content,
+.results-transient-state p,
+.results-transient-state div {
+	color: var(--text-light);
+	font-size: 1rem;
+	line-height: 1.6;
+	margin-bottom: var(--spacing-3);
+	text-align: center;
+}
+
+/* Transient State Status */
+.transient-state-status {
+	display: inline-block;
+	background: rgba(16, 185, 129, 0.1);
+	color: #10b981;
+	padding: 0.5rem 1rem;
+	border-radius: var(--rounded-md);
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: var(--spacing-2) 0;
+	border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Transient State Error */
+.transient-state-error {
+	background: rgba(239, 68, 68, 0.1);
+	color: #ef4444;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Transient State Warning */
+.transient-state-warning {
+	background: rgba(245, 158, 11, 0.1);
+	color: #f59e0b;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Transient State Loading */
+.transient-state-loading {
+	background: rgba(59, 130, 246, 0.1);
+	color: #3b82f6;
+	border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Transient State Icon */
+.transient-state-icon {
+	font-size: 2rem;
+	margin-bottom: var(--spacing-3);
+	text-align: center;
+}
+
+.transient-state-icon.success {
+	color: #10b981;
+}
+
+.transient-state-icon.error {
+	color: #ef4444;
+}
+
+.transient-state-icon.warning {
+	color: #f59e0b;
+}
+
+.transient-state-icon.loading {
+	color: #3b82f6;
+	animation: pulse 2s infinite;
+}
+
+/* Transient State Actions */
+.transient-state-actions {
+	display: flex;
+	justify-content: center;
+	gap: var(--spacing-3);
+	margin-top: var(--spacing-4);
+	flex-wrap: wrap;
+}
+
+.transient-state-actions .btn {
+	background: var(--accent-primary);
+	color: #fff;
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--rounded-md);
+	text-decoration: none;
+	font-weight: 600;
+	transition: all 0.2s ease;
+	border: none;
+	cursor: pointer;
+	font-size: 0.875rem;
+}
+
+.transient-state-actions .btn:hover {
+	background: var(--accent-secondary);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.transient-state-actions .btn-secondary {
+	background: var(--card-bg);
+	color: var(--text-light);
+	border: 1px solid var(--border-color);
+}
+
+.transient-state-actions .btn-secondary:hover {
+	background: var(--border-color);
+	color: var(--text-primary);
+}
+
+/* Transient State Progress */
+.transient-state-progress {
+	width: 100%;
+	height: 4px;
+	background: var(--border-color);
+	border-radius: 2px;
+	margin: var(--spacing-3) 0;
+	overflow: hidden;
+}
+
+.transient-state-progress-bar {
+	height: 100%;
+	background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+	border-radius: 2px;
+	transition: width 0.3s ease;
+	animation: progress-pulse 2s infinite;
+}
+
+/* Transient State Grid */
+.transient-state-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--spacing-4);
+	margin: var(--spacing-4) 0;
+}
+
+.transient-state-card {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-4);
+	text-align: center;
+	transition: all 0.2s ease;
+}
+
+.transient-state-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Transient State Responsive */
+@media (max-width: 768px) {
+	.transient-state-container,
+	.results-transient-state,
+	.debug-transient-state {
+		padding: var(--spacing-4);
+		margin: var(--spacing-2) 0;
+	}
+	
+	.transient-state-header,
+	.results-transient-state h1,
+	.results-transient-state h2,
+	.results-transient-state h3 {
+		font-size: 1.25rem;
+	}
+	
+	.transient-state-actions {
+		flex-direction: column;
+		align-items: center;
+	}
+	
+	.transient-state-actions .btn {
+		width: 100%;
+		max-width: 300px;
+	}
+	
+	.transient-state-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Transient State Animations */
+@keyframes progress-pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* Transient State Dark Mode Enhancements */
+[data-theme="dark"] .transient-state-container,
+[data-theme="dark"] .results-transient-state,
+[data-theme="dark"] .debug-transient-state {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .transient-state-card {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Transient State Focus States */
+.transient-state-container:focus-within,
+.results-transient-state:focus-within,
+.debug-transient-state:focus-within {
+	outline: 2px solid var(--accent-primary);
+	outline-offset: 2px;
+}
+
+/* Transient State Print Styles */
+@media print {
+	.transient-state-container,
+	.results-transient-state,
+	.debug-transient-state {
+		background: white;
+		border: 1px solid #ccc;
+		color: black;
+		box-shadow: none;
+	}
+	
+	.transient-state-actions {
+		display: none;
+	}
+}
+
+/* ===== END TRANSIENT STATE STYLING ===== */ 
+
+/* ===== UNIVERSAL HEADER COMPONENT STYLES ===== */
+.ennu-universal-header {
+	position: relative;
+	width: 100%;
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid var(--glass-border);
+	padding: var(--spacing-6) 0;
+	margin-bottom: var(--spacing-6);
+	z-index: 10;
+}
+
+.ennu-header-content {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 var(--spacing-6);
+	text-align: center;
+}
+
+.ennu-header-logo {
+	margin-bottom: var(--spacing-4);
+}
+
+.ennu-header-logo-img {
+	max-height: 60px;
+	width: auto;
+}
+
+.ennu-header-welcome {
+	margin-bottom: var(--spacing-5);
+}
+
+.ennu-header-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--text-dark);
+	margin-bottom: var(--spacing-3);
+	line-height: 1.2;
+}
+
+.ennu-header-subtitle {
+	font-size: 1.1rem;
+	color: var(--text-light);
+	line-height: 1.6;
+	margin: 0;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.ennu-header-vital-stats {
+	display: flex;
+	justify-content: center;
+	gap: var(--spacing-4);
+	flex-wrap: wrap;
+	margin-top: var(--spacing-4);
+}
+
+.ennu-vital-stat-item {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-2);
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: var(--rounded-lg);
+	padding: var(--spacing-3) var(--spacing-4);
+	transition: all 0.3s ease;
+}
+
+.ennu-vital-stat-item:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-md);
+	border-color: var(--accent-primary);
+}
+
+.ennu-vital-stat-icon {
+	color: var(--accent-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ennu-vital-stat-value {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--text-dark);
+}
+
+/* Theme Toggle for Universal Header */
+.ennu-universal-header .ennu-theme-toggle {
+	position: absolute;
+	top: var(--spacing-4);
+	right: var(--spacing-4);
+	z-index: 1000;
+}
+
+.ennu-universal-header .ennu-theme-btn {
+	background: var(--glass-bg);
+	backdrop-filter: blur(10px);
+	border: 1px solid var(--glass-border);
+	border-radius: 50%;
+	width: 45px;
+	height: 45px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: var(--shadow-md);
+}
+
+.ennu-universal-header .ennu-theme-btn:hover {
+	transform: scale(1.1);
+	box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.ennu-universal-header .ennu-theme-icon {
+	width: 20px;
+	height: 20px;
+	color: var(--text-color);
+}
+
+/* Responsive Design for Universal Header */
+@media (max-width: 768px) {
+	.ennu-universal-header {
+		padding: var(--spacing-4) 0;
+		margin-bottom: var(--spacing-4);
+	}
+	
+	.ennu-header-content {
+		padding: 0 var(--spacing-4);
+	}
+	
+	.ennu-header-title {
+		font-size: 2rem;
+	}
+	
+	.ennu-header-subtitle {
+		font-size: 1rem;
+	}
+	
+	.ennu-header-vital-stats {
+		gap: var(--spacing-3);
+	}
+	
+	.ennu-vital-stat-item {
+		padding: var(--spacing-2) var(--spacing-3);
+	}
+	
+	.ennu-vital-stat-value {
+		font-size: 0.8rem;
+	}
+	
+	.ennu-universal-header .ennu-theme-toggle {
+		top: var(--spacing-3);
+		right: var(--spacing-3);
+	}
+	
+	.ennu-universal-header .ennu-theme-btn {
+		width: 40px;
+		height: 40px;
+	}
+	
+	.ennu-universal-header .ennu-theme-icon {
+		width: 18px;
+		height: 18px;
+	}
+}
+
+@media (max-width: 480px) {
+	.ennu-header-title {
+		font-size: 1.5rem;
+	}
+	
+	.ennu-header-subtitle {
+		font-size: 0.9rem;
+	}
+	
+	.ennu-header-vital-stats {
+		flex-direction: column;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+	
+	.ennu-vital-stat-item {
+		width: 100%;
+		max-width: 200px;
+		justify-content: center;
+	}
+}
+
+/* Light Mode Specific Styles for Universal Header */
+[data-theme="light"] .ennu-universal-header {
+	background: var(--glass-bg);
+	border-bottom-color: var(--glass-border);
+}
+
+[data-theme="light"] .ennu-header-title {
+	color: var(--text-dark);
+}
+
+[data-theme="light"] .ennu-header-subtitle {
+	color: var(--text-light);
+}
+
+[data-theme="light"] .ennu-vital-stat-item {
+	background: var(--card-bg);
+	border-color: var(--border-color);
+}
+
+[data-theme="light"] .ennu-vital-stat-item:hover {
+	border-color: var(--accent-primary);
+	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* ===== END UNIVERSAL HEADER COMPONENT STYLES ===== */
+
+/* ===== RESULTS PAGE PILLAR ORBS FIX ===== */
+/* Make pillar orbs visible on results page by default */
+.ennu-unified-container .pillar-orb {
+	opacity: 1 !important;
+	transform: translateY(0) !important;
+}
+
+.ennu-unified-container .pillar-orb.visible {
+	opacity: 1 !important;
+	transform: translateY(0) !important;
+}
+
+/* Ensure pillar orbs are always visible on results page */
+.assessment-results-page .pillar-orb,
+.ennu-single-column .pillar-orb {
+	opacity: 1 !important;
+	transform: translateY(0) !important;
+	transition: all 0.3s ease !important;
+}
+
+/* ===== END RESULTS PAGE PILLAR ORBS FIX ===== */ 

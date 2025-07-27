@@ -441,9 +441,10 @@ class ENNU_Redis_Cache_Manager {
 		$cache_key = 'biomarker_profiles';
 
 		if ( ! $this->get( $cache_key, 'biomarker_data' ) ) {
-			$biomarker_file = ENNU_PLUGIN_DIR . 'includes/config/ennu-life-core-biomarkers.php';
-			if ( file_exists( $biomarker_file ) ) {
-				$biomarker_data = include $biomarker_file;
+			// Use the new orchestrator instead of old config file
+			$manager = new ENNU_Recommended_Range_Manager();
+			$biomarker_data = $manager->get_biomarker_configuration();
+			if ( is_array( $biomarker_data ) ) {
 				$this->set( $cache_key, $biomarker_data, 'biomarker_data' );
 			}
 		}

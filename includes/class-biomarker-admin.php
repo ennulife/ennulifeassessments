@@ -433,15 +433,19 @@ class ENNU_Biomarker_Admin {
 	}
 
 	private function get_biomarker_config() {
-		$core_biomarkers_file     = ENNU_LIFE_PLUGIN_PATH . 'includes/config/ennu-life-core-biomarkers.php';
+		// Use the new orchestrator instead of old config file
+		$manager = new ENNU_Recommended_Range_Manager();
+		$core_biomarkers = $manager->get_biomarker_configuration();
 		$advanced_biomarkers_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/advanced-biomarker-addons.php';
 
 		$biomarkers = array();
 
-		if ( file_exists( $core_biomarkers_file ) ) {
-			$core_config = require $core_biomarkers_file;
-			if ( isset( $core_config['biomarkers'] ) ) {
-				$biomarkers = array_merge( $biomarkers, $core_config['biomarkers'] );
+		// Process core biomarkers from orchestrator
+		if ( is_array( $core_biomarkers ) ) {
+			foreach ( $core_biomarkers as $biomarker_key => $biomarker_data ) {
+				if ( $biomarker_key !== 'version_info' ) {
+					$biomarkers[ $biomarker_key ] = $biomarker_data;
+				}
 			}
 		}
 

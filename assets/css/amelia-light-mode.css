@@ -1,0 +1,649 @@
+/**
+ * Amelia Booking Light Mode Customization
+ * 
+ * @package   EnnuLife Assessments
+ * @copyright Copyright (c) 2024, Very Good Plugins, https://verygoodplugins.com
+ * @license   GPL-3.0+
+ * @since     3.37.14
+ */
+
+/* ===== AMELIA BOOKING LIGHT MODE OVERRIDES ===== */
+
+/* Main booking container - ensure light background */
+.amelia-app-booking #amelia-booking-wrap {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+/* Step booking container */
+#am-step-booking, 
+.am-step-booking-catalog {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e6ec !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Service selection area */
+.am-select-service {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-select-service-title {
+    color: #354052 !important;
+}
+
+/* Date/time selection area */
+.am-select-date {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-select-date-title {
+    color: #354052 !important;
+}
+
+/* Calendar styling */
+.v-calendar {
+    background-color: #ffffff !important;
+}
+
+.v-calendar .v-calendar-column {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-header {
+    background-color: #f8f9fa !important;
+    color: #354052 !important;
+    border-bottom: 1px solid #e2e6ec !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body {
+    background-color: #ffffff !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell:hover {
+    background-color: #f8f9fa !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell.selected {
+    background-color: #1a84ee !important;
+    color: #ffffff !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell.available {
+    background-color: #e8f4fd !important;
+    color: #1a84ee !important;
+}
+
+/* Time slots */
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell .v-calendar-column-body-cell-time {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell .v-calendar-column-body-cell-time:hover {
+    background-color: #f8f9fa !important;
+}
+
+.v-calendar .v-calendar-column .v-calendar-column-body .v-calendar-column-body-cell .v-calendar-column-body-cell-time.selected {
+    background-color: #1a84ee !important;
+    color: #ffffff !important;
+}
+
+/* Form inputs */
+.am-form-field {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.am-form-field:focus {
+    border-color: #1a84ee !important;
+    box-shadow: 0 0 0 2px rgba(26, 132, 238, 0.1) !important;
+}
+
+/* Dropdowns */
+.am-dropdown {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.am-dropdown .am-dropdown-item {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-dropdown .am-dropdown-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Buttons */
+.am-btn {
+    background-color: #1a84ee !important;
+    color: #ffffff !important;
+    border: 1px solid #1a84ee !important;
+}
+
+.am-btn:hover {
+    background-color: #0454a2 !important;
+    border-color: #0454a2 !important;
+}
+
+.am-btn.am-btn-secondary {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.am-btn.am-btn-secondary:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Service cards */
+.am-service-card {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.am-service-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.am-service-card.selected {
+    border-color: #1a84ee !important;
+    box-shadow: 0 0 0 2px rgba(26, 132, 238, 0.1) !important;
+}
+
+/* Employee selection */
+.am-employee-card {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.am-employee-card:hover {
+    background-color: #f8f9fa !important;
+}
+
+.am-employee-card.selected {
+    border-color: #1a84ee !important;
+    background-color: #e8f4fd !important;
+}
+
+/* Confirmation form */
+.am-confirmation-form {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-confirmation-form .am-form-field {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+/* Success/confirmation page */
+.am-success-page {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-success-page .am-success-icon {
+    color: #5fce19 !important;
+}
+
+/* Loading states */
+.am-loading {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.am-spinner {
+    color: #1a84ee !important;
+}
+
+/* Error states */
+.am-error {
+    background-color: #fff5f5 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* Info messages */
+.am-info {
+    background-color: #eff6ff !important;
+    color: #1a84ee !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+/* Success messages */
+.am-success {
+    background-color: #f0fdf4 !important;
+    color: #16a34a !important;
+    border: 1px solid #bbf7d0 !important;
+}
+
+/* Warning messages */
+.am-warning {
+    background-color: #fffbeb !important;
+    color: #d97706 !important;
+    border: 1px solid #fed7aa !important;
+}
+
+/* Modal dialogs */
+.am-modal {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.am-modal .am-modal-content {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.am-modal .am-modal-header {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border-bottom: 1px solid #e2e6ec !important;
+}
+
+.am-modal .am-modal-body {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+.am-modal .am-modal-footer {
+    background-color: #f8f9fa !important;
+    border-top: 1px solid #e2e6ec !important;
+}
+
+/* Tooltips */
+.am-tooltip {
+    background-color: #354052 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Progress indicators */
+.am-progress-bar {
+    background-color: #e2e6ec !important;
+}
+
+.am-progress-bar .am-progress-fill {
+    background-color: #1a84ee !important;
+}
+
+/* Step indicators */
+.am-step-indicator {
+    background-color: #ffffff !important;
+}
+
+.am-step-indicator .am-step {
+    background-color: #e2e6ec !important;
+    color: #616e7c !important;
+}
+
+.am-step-indicator .am-step.active {
+    background-color: #1a84ee !important;
+    color: #ffffff !important;
+}
+
+.am-step-indicator .am-step.completed {
+    background-color: #5fce19 !important;
+    color: #ffffff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #am-step-booking, 
+    .am-step-booking-catalog {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    .am-select-service,
+    .am-select-date {
+        padding: 16px !important;
+    }
+}
+
+/* Dark text on light backgrounds */
+.amelia-app-booking * {
+    color: inherit !important;
+}
+
+/* Ensure proper contrast for accessibility */
+.amelia-app-booking a {
+    color: #1a84ee !important;
+}
+
+.amelia-app-booking a:hover {
+    color: #0454a2 !important;
+}
+
+/* Override any dark mode classes */
+.amelia-app-booking.dark-mode,
+.amelia-app-booking [class*="dark"],
+.amelia-app-booking [class*="Dark"] {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+/* Force light mode on all Amelia elements */
+.amelia-app-booking,
+.amelia-app-booking *,
+#amelia-booking-wrap,
+#amelia-booking-wrap * {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+}
+
+/* Specific overrides for common dark elements */
+.amelia-app-booking .v-calendar,
+.amelia-app-booking .am-form,
+.amelia-app-booking .am-card,
+.amelia-app-booking .am-panel {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border-color: #e2e6ec !important;
+}
+
+/* Enhanced refinements for better light mode experience */
+
+/* Improved form field styling */
+.amelia-app-booking input[type="text"],
+.amelia-app-booking input[type="email"],
+.amelia-app-booking input[type="tel"],
+.amelia-app-booking input[type="number"],
+.amelia-app-booking textarea,
+.amelia-app-booking select {
+    background-color: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+    border-radius: 6px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+}
+
+.amelia-app-booking input[type="text"]:focus,
+.amelia-app-booking input[type="email"]:focus,
+.amelia-app-booking input[type="tel"]:focus,
+.amelia-app-booking input[type="number"]:focus,
+.amelia-app-booking textarea:focus,
+.amelia-app-booking select:focus {
+    border-color: #1a84ee !important;
+    box-shadow: 0 0 0 3px rgba(26, 132, 238, 0.1) !important;
+    outline: none !important;
+}
+
+/* Enhanced button styling */
+.amelia-app-booking .am-btn {
+    background: linear-gradient(135deg, #1a84ee 0%, #0454a2 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(26, 132, 238, 0.2) !important;
+}
+
+.amelia-app-booking .am-btn:hover {
+    background: linear-gradient(135deg, #0454a2 0%, #1a84ee 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(26, 132, 238, 0.3) !important;
+}
+
+.amelia-app-booking .am-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(26, 132, 238, 0.2) !important;
+}
+
+/* Secondary button styling */
+.amelia-app-booking .am-btn.am-btn-secondary {
+    background: #ffffff !important;
+    color: #354052 !important;
+    border: 2px solid #e2e6ec !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.amelia-app-booking .am-btn.am-btn-secondary:hover {
+    background: #f8f9fa !important;
+    border-color: #1a84ee !important;
+    color: #1a84ee !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Enhanced card styling */
+.amelia-app-booking .am-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e6ec !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.amelia-app-booking .am-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Enhanced calendar styling */
+.amelia-app-booking .v-calendar {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.amelia-app-booking .v-calendar .v-calendar-column-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    color: #354052 !important;
+    font-weight: 600 !important;
+    padding: 16px !important;
+    border-bottom: 1px solid #e2e6ec !important;
+}
+
+/* Enhanced time slot styling */
+.amelia-app-booking .v-calendar-column-body-cell-time {
+    background: #ffffff !important;
+    color: #354052 !important;
+    border: 1px solid #e2e6ec !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    margin: 2px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.amelia-app-booking .v-calendar-column-body-cell-time:hover {
+    background: #f8f9fa !important;
+    border-color: #1a84ee !important;
+    color: #1a84ee !important;
+}
+
+.amelia-app-booking .v-calendar-column-body-cell-time.selected {
+    background: linear-gradient(135deg, #1a84ee 0%, #0454a2 100%) !important;
+    color: #ffffff !important;
+    border-color: #1a84ee !important;
+    box-shadow: 0 2px 8px rgba(26, 132, 238, 0.3) !important;
+}
+
+/* Enhanced service selection */
+.amelia-app-booking .am-service-card {
+    background: #ffffff !important;
+    border: 2px solid #e2e6ec !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin: 8px 0 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.amelia-app-booking .am-service-card:hover {
+    border-color: #1a84ee !important;
+    box-shadow: 0 4px 16px rgba(26, 132, 238, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+.amelia-app-booking .am-service-card.selected {
+    border-color: #1a84ee !important;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%) !important;
+    box-shadow: 0 0 0 3px rgba(26, 132, 238, 0.1) !important;
+}
+
+/* Enhanced employee selection */
+.amelia-app-booking .am-employee-card {
+    background: #ffffff !important;
+    border: 2px solid #e2e6ec !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    margin: 8px 0 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.amelia-app-booking .am-employee-card:hover {
+    border-color: #1a84ee !important;
+    box-shadow: 0 4px 16px rgba(26, 132, 238, 0.1) !important;
+}
+
+.amelia-app-booking .am-employee-card.selected {
+    border-color: #1a84ee !important;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%) !important;
+    box-shadow: 0 0 0 3px rgba(26, 132, 238, 0.1) !important;
+}
+
+/* Enhanced modal styling */
+.amelia-app-booking .am-modal .am-modal-content {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #e2e6ec !important;
+}
+
+.amelia-app-booking .am-modal .am-modal-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-bottom: 1px solid #e2e6ec !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 20px 24px !important;
+}
+
+.amelia-app-booking .am-modal .am-modal-body {
+    padding: 24px !important;
+}
+
+.amelia-app-booking .am-modal .am-modal-footer {
+    background: #f8f9fa !important;
+    border-top: 1px solid #e2e6ec !important;
+    border-radius: 0 0 16px 16px !important;
+    padding: 20px 24px !important;
+}
+
+/* Enhanced step indicators */
+.amelia-app-booking .am-step-indicator {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.amelia-app-booking .am-step-indicator .am-step {
+    background: #e2e6ec !important;
+    color: #616e7c !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.amelia-app-booking .am-step-indicator .am-step.active {
+    background: linear-gradient(135deg, #1a84ee 0%, #0454a2 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(26, 132, 238, 0.3) !important;
+}
+
+.amelia-app-booking .am-step-indicator .am-step.completed {
+    background: linear-gradient(135deg, #5fce19 0%, #4caf50 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(95, 206, 25, 0.3) !important;
+}
+
+/* Enhanced typography */
+.amelia-app-booking h1,
+.amelia-app-booking h2,
+.amelia-app-booking h3,
+.amelia-app-booking h4,
+.amelia-app-booking h5,
+.amelia-app-booking h6 {
+    color: #354052 !important;
+    font-weight: 600 !important;
+}
+
+.amelia-app-booking p {
+    color: #616e7c !important;
+    line-height: 1.6 !important;
+}
+
+/* Enhanced loading states */
+.amelia-app-booking .am-loading {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+.amelia-app-booking .am-spinner {
+    color: #1a84ee !important;
+    border: 3px solid #e2e6ec !important;
+    border-top: 3px solid #1a84ee !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced focus states for accessibility */
+.amelia-app-booking *:focus {
+    outline: 2px solid #1a84ee !important;
+    outline-offset: 2px !important;
+}
+
+/* Enhanced responsive design */
+@media (max-width: 768px) {
+    .amelia-app-booking .am-card {
+        margin: 8px 0 !important;
+        border-radius: 8px !important;
+    }
+    
+    .amelia-app-booking .am-btn {
+        padding: 14px 20px !important;
+        font-size: 16px !important;
+    }
+    
+    .amelia-app-booking input[type="text"],
+    .amelia-app-booking input[type="email"],
+    .amelia-app-booking input[type="tel"],
+    .amelia-app-booking input[type="number"],
+    .amelia-app-booking textarea,
+    .amelia-app-booking select {
+        padding: 14px 16px !important;
+        font-size: 16px !important;
+    }
+} 

@@ -14,7 +14,7 @@ $symptom_data = $symptom_data ?? array();
 ?>
 
 <div class="ennu-unified-container">
-	<div class="starfield"></div>
+
 	
 	<div class="ennu-single-column">
 		<!-- Header -->

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="400" height="300" fill="#f0f0f0"/>
-  <text x="200" y="150" text-anchor="middle" fill="black" font-family="Arial, sans-serif" font-size="24">Test SVG</text>
-</svg> 

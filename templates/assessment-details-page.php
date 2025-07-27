@@ -15,99 +15,87 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="ennu-unified-container">
-	<div class="starfield"></div>
+<div class="ennu-unified-container assessment-details-page" data-theme="light">
+
+	<!-- Universal Header Component -->
+	<?php
+	// Prepare header data
+	$header_data = array(
+		'display_name' => $current_user->first_name . ' ' . $current_user->last_name,
+		'age' => $age ?? '',
+		'gender' => $gender ?? '',
+		'height' => '',
+		'weight' => '',
+		'bmi' => '',
+		'show_vital_stats' => true,
+		'show_theme_toggle' => false, // No theme toggle on dossier page
+		'page_title' => ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) . ' Dossier',
+		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your detailed assessment analysis and personalized insights.',
+		'show_logo' => true,
+		'logo_color' => 'white',
+		'logo_size' => 'medium'
+	);
 	
-	<div class="ennu-grid">
-		<!-- Sidebar -->
-		<aside class="ennu-sidebar">
-			<!-- Logo -->
-			<?php if ( function_exists( 'ennu_render_logo' ) ) : ?>
-				<div class="ennu-logo-container" style="text-align: center; margin-bottom: 30px;">
-					<?php
-					ennu_render_logo(
-						array(
-							'color' => 'white',
-							'size'  => 'medium',
-							'link'  => home_url( '/' ),
-							'alt'   => 'ENNU Life',
-							'class' => '',
-						)
-					);
-					?>
-				</div>
-			<?php endif; ?>
+	// Load the universal header component
+	ennu_load_template( 'universal-header', $header_data );
+	?>
 
-			<!-- User Info -->
-			<div class="ennu-glass-card">
-				<h3 class="ennu-section-title">Your Profile</h3>
-				<div class="ennu-card-content">
-					<p><strong><?php echo esc_html( $current_user->first_name . ' ' . $current_user->last_name ); ?></strong></p>
-					<p>Age: <?php echo esc_html( $age ); ?></p>
-					<p>Gender: <?php echo esc_html( $gender ); ?></p>
-				</div>
-			</div>
-
-			<!-- Main Score Orb -->
-			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ?? 0 ); ?>">
-				<svg viewBox="0 0 36 36">
-					<defs>
-						<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stop-color="var(--accent-primary)"/>
-							<stop offset="100%" stop-color="var(--accent-secondary)"/>
-						</linearGradient>
-					</defs>
-					<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
-					<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $score ?? 0 ) * 10 ); ?>;"></circle>
-				</svg>
-				<div class="ennu-score-text">
-					<div class="ennu-score-value"><?php echo esc_html( number_format( $score ?? 0, 1 ) ); ?></div>
-					<div class="ennu-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Score</div>
-				</div>
-			</div>
-
-			<!-- Pillar Scores -->
-			<?php if ( is_array( $pillar_scores ) && ! empty( $pillar_scores ) ) : ?>
-				<div class="ennu-glass-card">
-					<h3 class="ennu-section-title">Pillar Scores</h3>
-					<div class="ennu-pillar-grid">
-						<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
-							<?php
-							$has_data     = ! empty( $pillar_score );
-							$pillar_class = esc_attr( strtolower( $pillar ) );
-							?>
-							<div class="ennu-pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>">
-								<div class="ennu-pillar-content">
-									<div class="ennu-pillar-label"><?php echo esc_html( $pillar ); ?></div>
-									<div class="ennu-pillar-score"><?php echo $has_data ? esc_html( number_format( $pillar_score, 1 ) ) : '-'; ?></div>
-								</div>
-							</div>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			<?php endif; ?>
-
-			<!-- Action Buttons -->
-			<div class="ennu-btn-group">
-				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type_slug . '_assessment' ) ); ?>" class="ennu-btn ennu-btn-primary">
-					Book Consultation
-				</a>
-				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'ennu-life-score' ) ); ?>" class="ennu-btn ennu-btn-secondary">
-					Get Your ENNU Life Score
-				</a>
-			</div>
-		</aside>
+	<div class="ennu-single-column">
+		<!-- Action Buttons -->
+		<div class="ennu-btn-group" style="text-align: center; margin-bottom: 2rem;">
+			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type_slug . '_assessment' ) ); ?>" class="ennu-btn ennu-btn-primary">
+				Book Consultation
+			</a>
+			<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+				View Dashboard
+			</a>
+		</div>
 
 		<!-- Main Content -->
 		<main class="ennu-main-content">
-			<!-- Header -->
-			<div class="ennu-animate-in">
-				<h1 class="ennu-title">Your <?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Dossier</h1>
-				<p class="ennu-subtitle">
-					<strong><?php echo esc_html( $result_content['title'] ); ?>:</strong>
-					<?php echo esc_html( $result_content['summary'] ); ?>
-				</p>
+			<!-- Assessment Score Display -->
+			<div class="ennu-card ennu-animate-in">
+				<div class="ennu-score-display" style="text-align: center; margin-bottom: 2rem;">
+					<!-- Main Score Orb -->
+					<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ?? 0 ); ?>" style="margin: 0 auto 1rem;">
+						<svg viewBox="0 0 36 36">
+							<defs>
+								<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+									<stop offset="0%" stop-color="var(--accent-primary)"/>
+									<stop offset="100%" stop-color="var(--accent-secondary)"/>
+								</linearGradient>
+							</defs>
+							<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
+							<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $score ?? 0 ) * 10 ); ?>;"></circle>
+						</svg>
+						<div class="ennu-score-text">
+							<div class="ennu-score-value"><?php echo esc_html( number_format( $score ?? 0, 1 ) ); ?></div>
+							<div class="ennu-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Score</div>
+						</div>
+					</div>
+
+					<!-- Pillar Scores -->
+					<?php if ( is_array( $pillar_scores ) && ! empty( $pillar_scores ) ) : ?>
+						<div class="ennu-pillar-scores" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+							<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
+								<?php
+								$has_data     = ! empty( $pillar_score );
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								?>
+								<div class="ennu-pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="flex: 0 0 auto;">
+									<div class="ennu-pillar-content">
+										<div class="ennu-pillar-label"><?php echo esc_html( $pillar ); ?></div>
+										<div class="ennu-pillar-score"><?php echo $has_data ? esc_html( number_format( $pillar_score, 1 ) ) : '-'; ?></div>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
 			</div>
+
+		<!-- Main Content -->
+		<main class="ennu-main-content">
 
 			<!-- Progress Timeline -->
 			<div class="ennu-card ennu-animate-in ennu-animate-delay-1">
@@ -158,6 +146,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				</div>
 			<?php endif; ?>
+
+			<!-- Biomarkers Section -->
+			<div class="ennu-animate-in ennu-animate-delay-4">
+				<h2 class="ennu-section-title">Related Biomarkers</h2>
+				<div class="ennu-biomarkers-section">
+					<?php
+					// Debug: Check if biomarkers template is loading
+					error_log( 'ENNU Dossier: Loading biomarkers template for user ' . get_current_user_id() );
+					
+					// Load the biomarkers-only template content
+					$biomarkers_data = array(
+						'user_id' => get_current_user_id(),
+						'user_age' => $age ?? 35,
+						'user_gender' => $gender ?? 'male'
+					);
+					
+					// Load the biomarkers template
+					ennu_load_template( 'biomarkers-only', $biomarkers_data );
+					
+					error_log( 'ENNU Dossier: Biomarkers template loaded successfully' );
+					?>
+				</div>
+			</div>
 		</main>
 	</div>
 </div>

@@ -379,7 +379,7 @@ class ENNU_Comprehensive_Assessment_Display {
 				'description' => 'Primary phone number for contact and billing.',
 				'source'      => 'meta',
 			),
-			'ennu_global_user_dob_combined' => array(
+			'ennu_global_date_of_birth' => array(
 				'name'        => 'Date of Birth',
 				'category'    => 'Date of Birth',
 				'description' => 'User\'s date of birth.',

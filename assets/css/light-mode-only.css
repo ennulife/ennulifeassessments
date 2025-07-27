@@ -1,0 +1,125 @@
+/*
+ENNU Life Light Mode Only Pages
+Author: The World's Greatest Developer
+Version: 1.0.0
+Description: Forces light mode only for results pages, dossier pages, and booking pages
+*/
+
+/* Force Light Mode for Specific Pages */
+.ennu-unified-container[data-theme="light"] {
+	/* Override any dark mode variables */
+	--base-bg: #ffffff !important;
+	--card-bg: #f8fafc !important;
+	--border-color: #e2e8f0 !important;
+	--text-light: #64748b !important;
+	--text-dark: #1e293b !important;
+	--text-color: #1e293b !important;
+	--text-muted: #64748b !important;
+	--accent-primary: #10b981 !important;
+	--accent-secondary: #059669 !important;
+	--accent-color: #10b981 !important;
+	--accent-hover: #059669 !important;
+	--shadow-color: rgba(0, 0, 0, 0.1) !important;
+	--star-color-1: #1e293b !important;
+	--star-color-2: #64748b !important;
+	--gradient-start: #ffffff !important;
+	--gradient-end: #f8fafc !important;
+	--glass-bg: rgba(255, 255, 255, 0.8) !important;
+	--glass-border: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hide Theme Toggle on Light Mode Only Pages */
+.ennu-unified-container[data-theme="light"] .ennu-theme-toggle {
+	display: none !important;
+}
+
+
+
+/* Enhanced Light Mode Styling for Better Readability */
+.ennu-unified-container[data-theme="light"] .ennu-glass-card {
+	background: rgba(255, 255, 255, 0.9) !important;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-section-title {
+	color: #1e293b !important;
+	font-weight: 600 !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-card-content {
+	color: #1e293b !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-score-text .ennu-score-value {
+	color: #1e293b !important;
+	text-shadow: none !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-score-text .ennu-score-label {
+	color: #64748b !important;
+	font-weight: 500 !important;
+}
+
+/* Ensure Buttons are Visible in Light Mode */
+.ennu-unified-container[data-theme="light"] .ennu-btn {
+	border: 1px solid var(--accent-primary) !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-btn-primary {
+	background: var(--accent-primary) !important;
+	color: white !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-btn-secondary {
+	background: transparent !important;
+	color: var(--accent-primary) !important;
+}
+
+/* Pillar Orbs in Light Mode */
+.ennu-unified-container[data-theme="light"] .ennu-pillar-orb {
+	background: rgba(255, 255, 255, 0.9) !important;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-pillar-orb .ennu-pillar-label {
+	color: #1e293b !important;
+}
+
+.ennu-unified-container[data-theme="light"] .ennu-pillar-orb .ennu-pillar-score {
+	color: var(--accent-primary) !important;
+}
+
+/* Disable any theme switching JavaScript for these pages */
+.ennu-unified-container[data-theme="light"] * {
+	/* Prevent theme switching */
+	transition: none !important;
+}
+
+/* Ensure proper contrast for accessibility */
+.ennu-unified-container[data-theme="light"] {
+	color-scheme: light !important;
+}
+
+/* Override any existing dark mode styles */
+.ennu-unified-container[data-theme="light"] *[data-theme="dark"] {
+	/* Force light mode variables */
+	--base-bg: #ffffff !important;
+	--card-bg: #f8fafc !important;
+	--border-color: #e2e8f0 !important;
+	--text-light: #64748b !important;
+	--text-dark: #1e293b !important;
+	--text-color: #1e293b !important;
+	--text-muted: #64748b !important;
+	--accent-primary: #10b981 !important;
+	--accent-secondary: #059669 !important;
+	--accent-color: #10b981 !important;
+	--accent-hover: #059669 !important;
+	--shadow-color: rgba(0, 0, 0, 0.1) !important;
+	--star-color-1: #1e293b !important;
+	--star-color-2: #64748b !important;
+	--gradient-start: #ffffff !important;
+	--gradient-end: #f8fafc !important;
+	--glass-bg: rgba(255, 255, 255, 0.8) !important;
+	--glass-border: rgba(0, 0, 0, 0.1) !important;
+} 

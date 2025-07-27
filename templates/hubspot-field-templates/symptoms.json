@@ -1,0 +1,180 @@
+[
+  {
+    "name": "symptom_name",
+    "label": "Symptom Name",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Name of the symptom being tracked"
+  },
+  {
+    "name": "symptom_severity",
+    "label": "Severity",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Severity level of the symptom",
+    "options": [
+      {
+        "label": "None",
+        "value": "none",
+        "displayOrder": 1
+      },
+      {
+        "label": "Mild",
+        "value": "mild",
+        "displayOrder": 2
+      },
+      {
+        "label": "Moderate",
+        "value": "moderate",
+        "displayOrder": 3
+      },
+      {
+        "label": "Severe",
+        "value": "severe",
+        "displayOrder": 4
+      },
+      {
+        "label": "Very Severe",
+        "value": "very_severe",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "name": "symptom_frequency",
+    "label": "Frequency",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "How often the symptom occurs",
+    "options": [
+      {
+        "label": "Never",
+        "value": "never",
+        "displayOrder": 1
+      },
+      {
+        "label": "Rarely",
+        "value": "rarely",
+        "displayOrder": 2
+      },
+      {
+        "label": "Sometimes",
+        "value": "sometimes",
+        "displayOrder": 3
+      },
+      {
+        "label": "Often",
+        "value": "often",
+        "displayOrder": 4
+      },
+      {
+        "label": "Always",
+        "value": "always",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "name": "symptom_duration",
+    "label": "Duration",
+    "type": "string",
+    "fieldType": "text",
+    "description": "How long the symptom typically lasts"
+  },
+  {
+    "name": "symptom_onset_date",
+    "label": "Onset Date",
+    "type": "date",
+    "fieldType": "date",
+    "description": "When the symptom first appeared"
+  },
+  {
+    "name": "symptom_notes",
+    "label": "Notes",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "Additional notes about the symptom"
+  },
+  {
+    "name": "symptom_triggers",
+    "label": "Triggers",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "What triggers or worsens the symptom"
+  },
+  {
+    "name": "symptom_impact",
+    "label": "Impact on Daily Life",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "How much the symptom impacts daily activities",
+    "options": [
+      {
+        "label": "No Impact",
+        "value": "no_impact",
+        "displayOrder": 1
+      },
+      {
+        "label": "Minimal Impact",
+        "value": "minimal_impact",
+        "displayOrder": 2
+      },
+      {
+        "label": "Moderate Impact",
+        "value": "moderate_impact",
+        "displayOrder": 3
+      },
+      {
+        "label": "Significant Impact",
+        "value": "significant_impact",
+        "displayOrder": 4
+      },
+      {
+        "label": "Severe Impact",
+        "value": "severe_impact",
+        "displayOrder": 5
+      }
+    ]
+  },
+  {
+    "name": "symptom_treatment",
+    "label": "Current Treatment",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "Current treatment or management strategies"
+  },
+  {
+    "name": "symptom_improvement",
+    "label": "Improvement Status",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Whether the symptom has improved with treatment",
+    "options": [
+      {
+        "label": "No Improvement",
+        "value": "no_improvement",
+        "displayOrder": 1
+      },
+      {
+        "label": "Slight Improvement",
+        "value": "slight_improvement",
+        "displayOrder": 2
+      },
+      {
+        "label": "Moderate Improvement",
+        "value": "moderate_improvement",
+        "displayOrder": 3
+      },
+      {
+        "label": "Significant Improvement",
+        "value": "significant_improvement",
+        "displayOrder": 4
+      },
+      {
+        "label": "Resolved",
+        "value": "resolved",
+        "displayOrder": 5
+      }
+    ]
+  }
+] 

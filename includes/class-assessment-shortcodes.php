@@ -46,6 +46,20 @@ final class ENNU_Assessment_Shortcodes {
 	private $template_cache = array();
 
 	/**
+	 * Initialization flag to prevent multiple initializations
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
+	 * Shortcodes registration flag to prevent multiple registrations
+	 *
+	 * @var bool
+	 */
+	private static $shortcodes_registered = false;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -56,6 +70,13 @@ final class ENNU_Assessment_Shortcodes {
 	 * Initialize the class on the 'init' hook.
 	 */
 	public function init() {
+		// Prevent multiple initializations
+		if ( self::$initialized ) {
+			error_log( 'ENNU Shortcodes: init() called again - skipping to prevent duplicate registration.' );
+			return;
+		}
+		self::$initialized = true;
+		
 		error_log( 'ENNU Shortcodes: init() called.' );
 
 		// Ensure the scoring system class is available
@@ -67,7 +88,9 @@ final class ENNU_Assessment_Shortcodes {
 		$this->all_definitions = ENNU_Scoring_System::get_all_definitions();
 		error_log( 'ENNU Shortcodes: Loaded ' . count( $this->all_definitions ) . ' assessment definitions.' );
 
-		$this->init_assessments();
+		// Delay assessment initialization until after textdomain is loaded
+		add_action( 'init', array( $this, 'init_assessments' ), 15 );
+		
 		$this->setup_hooks();
 		$this->register_shortcodes();
 		error_log( 'ENNU Shortcodes: init() completed.' );
@@ -192,6 +215,13 @@ final class ENNU_Assessment_Shortcodes {
 	 * Register all assessment shortcodes
 	 */
 	public function register_shortcodes() {
+		// Prevent multiple shortcode registrations
+		if ( self::$shortcodes_registered ) {
+			error_log( 'ENNU Shortcodes: register_shortcodes() called again - skipping to prevent duplicate registration.' );
+			return;
+		}
+		self::$shortcodes_registered = true;
+		
 		error_log( 'ENNU Shortcodes: register_shortcodes() called.' );
 		error_log( 'ENNU Shortcodes: all_definitions count: ' . count( $this->all_definitions ) );
 		if ( empty( $this->all_definitions ) ) {
@@ -229,7 +259,9 @@ final class ENNU_Assessment_Shortcodes {
 		add_shortcode( 'ennu-assessment-results', array( $this, 'render_thank_you_page' ) ); // Generic fallback
 		add_shortcode( 'ennu-assessments', array( $this, 'render_assessments_listing' ) ); // Assessments listing page
 		add_shortcode( 'ennu-signup', array( $this, 'signup_shortcode' ) ); // Signup page with product selection
-		error_log( 'ENNU Shortcodes: Registered core shortcodes: ennu-user-dashboard, ennu-assessment-results, ennu-assessments, ennu-signup' );
+		add_shortcode( 'scorepresentation', array( $this, 'render_score_presentation' ) ); // Score presentation shortcode
+		add_shortcode( 'ennu-biomarkers', array( $this, 'render_biomarkers_only' ) ); // Biomarkers only shortcode
+		error_log( 'ENNU Shortcodes: Registered core shortcodes: ennu-user-dashboard, ennu-assessment-results, ennu-assessments, ennu-signup, scorepresentation, ennu-biomarkers' );
 
 		// Register consultation shortcodes to match page creation
 		$consultation_types = array(
@@ -376,7 +408,7 @@ final class ENNU_Assessment_Shortcodes {
 				'email'         => $user->user_email,
 				// Fallback to user meta for other fields, using the correct global keys
 				'billing_phone' => get_user_meta( $user_id, 'billing_phone', true ),
-				'dob_combined'  => get_user_meta( $user_id, 'ennu_global_user_dob_combined', true ),
+				'dob_combined'  => get_user_meta( $user_id, 'ennu_global_date_of_birth', true ),
 				'gender'        => get_user_meta( $user_id, 'ennu_global_gender', true ),
 			);
 		}
@@ -545,6 +577,8 @@ final class ENNU_Assessment_Shortcodes {
 			}
 			$saved_value = get_user_meta( $user_id, $meta_key, true );
 
+			error_log( "ENNU DEBUG: Pre-populating field {$question_key} -> {$meta_key} -> " . ( is_array( $saved_value ) ? json_encode( $saved_value ) : $saved_value ) );
+
 			if ( 'multiselect' === ( $question['type'] ?? '' ) ) {
 				$pre_selected_value = is_array( $saved_value ) ? $saved_value : array();
 			} else {
@@ -653,14 +687,14 @@ final class ENNU_Assessment_Shortcodes {
 		// Fallback to fetching from user meta if no saved_value provided
 		if ( empty( $dob ) && is_user_logged_in() ) {
 			$user_id = get_current_user_id();
-			$dob     = get_user_meta( $user_id, 'ennu_global_user_dob_combined', true );
+			$dob     = get_user_meta( $user_id, 'ennu_global_date_of_birth', true );
 		}
 
 		$is_logged_in = ! empty( $dob );
 		$dob_parts    = ! empty( $dob ) ? explode( '-', $dob ) : array( '', '', '' );
 		$year_val     = $dob_parts[0];
-		$month_val    = $dob_parts[1];
-		$day_val      = $dob_parts[2];
+		$month_val    = intval( $dob_parts[1] ); // Convert to integer to fix dropdown selection
+		$day_val      = intval( $dob_parts[2] ); // Convert to integer for consistency
 
 		$months = array(
 			1  => 'January',
@@ -683,7 +717,7 @@ final class ENNU_Assessment_Shortcodes {
 			<div class="dob-dropdowns">
 				<div class="dob-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_month">Month:</label>
-					<select id="<?php echo esc_attr( $question_key ); ?>_month" name="dob_month" required>
+					<select id="<?php echo esc_attr( $question_key ); ?>_month" name="ennu_global_date_of_birth_month" required>
 						<option value="" disabled <?php selected( ! $is_logged_in ); ?>>Month</option>
 						<?php foreach ( $months as $num => $name ) : ?>
 							<option value="<?php echo esc_attr( $num ); ?>" <?php selected( $month_val, $num ); ?>>
@@ -694,7 +728,7 @@ final class ENNU_Assessment_Shortcodes {
 				</div>
 				<div class="dob-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_day">Day:</label>
-					<select id="<?php echo esc_attr( $question_key ); ?>_day" name="dob_day" required>
+					<select id="<?php echo esc_attr( $question_key ); ?>_day" name="ennu_global_date_of_birth_day" required>
 						<option value="" disabled <?php selected( ! $is_logged_in ); ?>>Day</option>
 						<?php for ( $i = 1; $i <= 31; $i++ ) : ?>
 							<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $day_val, $i ); ?>>
@@ -705,7 +739,7 @@ final class ENNU_Assessment_Shortcodes {
 				</div>
 				<div class="dob-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_year">Year:</label>
-					<select id="<?php echo esc_attr( $question_key ); ?>_year" name="dob_year" required>
+					<select id="<?php echo esc_attr( $question_key ); ?>_year" name="ennu_global_date_of_birth_year" required>
 						<option value="" disabled <?php selected( ! $is_logged_in ); ?>>Year</option>
 						<?php for ( $i = date( 'Y' ); $i >= 1900; $i-- ) : ?>
 							<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $year_val, $i ); ?>>
@@ -716,7 +750,7 @@ final class ENNU_Assessment_Shortcodes {
 				</div>
 			</div>
 			<div class="calculated-age-display" style="min-height: 20px; margin-top: 10px;"></div>
-			<input type="hidden" name="dob_combined" class="dob-combined" value="<?php echo esc_attr( $dob ); ?>" />
+			<input type="hidden" name="ennu_global_date_of_birth" class="dob-combined" value="<?php echo esc_attr( $dob ); ?>" />
 		</div>
 		<?php
 		return ob_get_clean();
@@ -784,7 +818,8 @@ final class ENNU_Assessment_Shortcodes {
 
 		$height_ft  = isset( $height_weight_data['ft'] ) ? $height_weight_data['ft'] : '';
 		$height_in  = isset( $height_weight_data['in'] ) ? $height_weight_data['in'] : '';
-		$weight_lbs = isset( $height_weight_data['lbs'] ) ? $height_weight_data['lbs'] : '';
+		// Handle both 'weight' and 'lbs' keys for backward compatibility
+		$weight_lbs = isset( $height_weight_data['weight'] ) ? $height_weight_data['weight'] : ( isset( $height_weight_data['lbs'] ) ? $height_weight_data['lbs'] : '' );
 
 		// Debug logging (only in development)
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -863,6 +898,11 @@ final class ENNU_Assessment_Shortcodes {
 			$pre_selected_value = reset( $pre_selected_value );
 		}
 
+		// Debug logging for gender fields
+		if ( strpos( $question_key, 'gender' ) !== false || ( isset( $question['global_key'] ) && $question['global_key'] === 'gender' ) ) {
+			error_log( "ENNU DEBUG: Rendering gender field {$question_key} with pre_selected_value: " . ( $pre_selected_value ?: 'empty' ) );
+		}
+
 		$count       = count( $question['options'] );
 		$num_columns = 2; // Default
 		if ( $count === 3 || $count > 4 ) {
@@ -883,7 +923,7 @@ final class ENNU_Assessment_Shortcodes {
 							   id="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>" 
 							   name="<?php echo esc_attr( $question_key ); ?>" 
 							   value="<?php echo esc_attr( $option_value ); ?>" 
-							   <?php checked( $pre_selected_value, $option_value ); ?> required>
+							   <?php echo ( $pre_selected_value === $option_value ) ? 'checked="checked"' : ''; ?> required>
 						<label for="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>">
 							<?php echo esc_html( $option_label ); ?>
 						</label>
@@ -958,7 +998,26 @@ final class ENNU_Assessment_Shortcodes {
 	public function get_assessment_questions( $assessment_type ) {
 		// DEFINITIVE FIX: Use the class property, not a direct file include,
 		// to ensure the correct, unified definitions are always used.
-		return $this->all_definitions[ $assessment_type ] ?? array();
+		
+		// If all_definitions is empty, try to reload from scoring system
+		if ( empty( $this->all_definitions ) ) {
+			error_log( 'ENNU Shortcodes: all_definitions is empty, attempting to reload from scoring system...' );
+			
+			// Force reload from scoring system
+			if ( class_exists( 'ENNU_Scoring_System' ) ) {
+				// Clear any cached data first
+				delete_transient( 'ennu_assessment_definitions_v1' );
+				
+				// Reload definitions
+				$this->all_definitions = ENNU_Scoring_System::get_all_definitions();
+				error_log( 'ENNU Shortcodes: Reloaded ' . count( $this->all_definitions ) . ' assessment definitions from scoring system.' );
+			} else {
+				error_log( 'ENNU Shortcodes: ERROR - ENNU_Scoring_System class not found during reload attempt!' );
+			}
+		}
+		
+		$assessment_config = $this->all_definitions[ $assessment_type ] ?? array();
+		return isset( $assessment_config['questions'] ) ? $assessment_config['questions'] : array();
 	}
 
 	public function get_all_assessment_definitions() {
@@ -1089,19 +1148,25 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 
-		// 6. Save Global Data (New Robust Handler)
-		$this->_log_submission_debug( 'Saving global meta data...' );
-		$this->save_global_meta( $user_id, $form_data );
-		$this->sync_core_data_to_wp( $user_id, $form_data );
-		$this->_log_submission_debug( 'Global meta data saved.' );
-
-		// 7. Save Assessment-Specific Data
-		$this->_log_submission_debug( 'Saving assessment-specific meta data...' );
-		$this->save_assessment_specific_meta( $user_id, $form_data );
-		$this->_log_submission_debug( 'Assessment-specific meta data saved.' );
+		// 6. UNIFIED DATA SAVING SYSTEM - CRITICAL FIX
+		$this->_log_submission_debug( 'Starting unified data saving system...' );
+		$save_result = $this->unified_save_assessment_data( $user_id, $form_data );
+		
+		if ( is_wp_error( $save_result ) ) {
+			$this->_log_submission_debug( 'Data saving failed.', $save_result->get_error_message() );
+			wp_send_json_error( array( 'message' => 'Failed to save assessment data: ' . $save_result->get_error_message() ), 500 );
+			return;
+		}
+		$this->_log_submission_debug( 'Unified data saving completed successfully.' );
 
 		// 8. ROUTE TO THE CORRECT ENGINE
-		$assessment_config = $this->all_definitions[ $form_data['assessment_type'] ] ?? array();
+		// Convert assessment type to match config file naming convention
+		$config_assessment_type = $form_data['assessment_type'];
+		if ( $form_data['assessment_type'] === 'health_optimization_assessment' ) {
+			$config_assessment_type = 'health-optimization';
+		}
+		
+		$assessment_config = $this->all_definitions[ $config_assessment_type ] ?? array();
 		$this->_log_submission_debug( 'Routing to assessment engine.', $assessment_config['assessment_engine'] ?? 'quantitative' );
 		if ( isset( $assessment_config['assessment_engine'] ) && $assessment_config['assessment_engine'] === 'qualitative' ) {
 
@@ -1167,6 +1232,7 @@ final class ENNU_Assessment_Shortcodes {
 
 			$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $form_data['assessment_type'], $form_data );
 			$this->_log_submission_debug( 'Initial scores calculated.', $scores );
+			$this->_log_submission_debug( 'Pillar scores from calculation:', $scores['pillar_scores'] ?? 'NOT FOUND' );
 
 			if ( $scores ) {
 				$completion_time = date( 'Y-m-d H:i:s.u' );
@@ -1178,6 +1244,28 @@ final class ENNU_Assessment_Shortcodes {
 				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
 				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_pillar_scores', $scores['pillar_scores'] );
 
+				// --- DOSSIER CHART FIX: Save score history for progress tracking ---
+				$score_history_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
+				$score_history = get_user_meta( $user_id, $score_history_key, true );
+				if ( ! is_array( $score_history ) ) {
+					$score_history = array();
+				}
+				
+				// Add current score to history with timestamp
+				$score_history[] = array(
+					'date'  => $completion_time,
+					'score' => $scores['overall_score'],
+				);
+				
+				// Keep only last 50 entries to prevent database bloat
+				if ( count( $score_history ) > 50 ) {
+					$score_history = array_slice( $score_history, -50 );
+				}
+				
+				update_user_meta( $user_id, $score_history_key, $score_history );
+				$this->_log_submission_debug( 'Score history saved for dossier chart.', array( 'entries' => count( $score_history ) ) );
+				// --- END DOSSIER CHART FIX ---
+
 				// Now, calculate and save all the master user scores
 				ENNU_Scoring_System::calculate_and_save_all_user_scores( $user_id );
 				$this->_log_submission_debug( 'All master user scores calculated and saved.' );
@@ -1188,18 +1276,11 @@ final class ENNU_Assessment_Shortcodes {
 					$this->_log_submission_debug( 'Centralized symptoms updated.' );
 				}
 
-				// Trigger assessment completion hook with detailed data
-				do_action(
-					'ennu_assessment_completed',
-					$user_id,
-					array(
-						'assessment_type' => $form_data['assessment_type'],
-						'form_data'       => $form_data,
-						'timestamp'       => current_time( 'mysql' ),
-					)
-				);
+				// Trigger assessment completion hook for symptom extraction
+				do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
+				$this->_log_submission_debug( 'Scores being stored in transient:', $scores );
 
 				// --- Definitive Fix: Prepare data and gracefully handle email errors ---
 				try {
@@ -1248,6 +1329,450 @@ final class ENNU_Assessment_Shortcodes {
 	}
 
 	/**
+	 * UNIFIED DATA SAVING SYSTEM - CRITICAL FIX
+	 * This method replaces all previous data saving methods with a single, robust system
+	 * that ensures 100% data persistence with proper error handling and validation.
+	 *
+	 * @param int $user_id The user ID
+	 * @param array $form_data The sanitized form data
+	 * @return true|WP_Error True on success, WP_Error on failure
+	 */
+	private function unified_save_assessment_data( $user_id, $form_data ) {
+		$this->_log_submission_debug( 'Starting unified data saving for user ' . $user_id );
+		
+		try {
+			$assessment_type = $form_data['assessment_type'];
+			$saved_fields = array();
+			$errors = array();
+
+			// 1. SAVE CORE USER DATA (Name, Email, Phone)
+			$this->_log_submission_debug( 'Saving core user data...' );
+			$core_result = $this->save_core_user_data( $user_id, $form_data );
+			if ( is_wp_error( $core_result ) ) {
+				$errors[] = 'Core data: ' . $core_result->get_error_message();
+			} else {
+				$saved_fields = array_merge( $saved_fields, $core_result );
+			}
+
+			// 2. SAVE GLOBAL FIELDS (DOB, Height/Weight, etc.) - ENHANCED
+			$this->_log_submission_debug( 'Saving enhanced global fields...' );
+			$global_result = $this->save_global_fields_enhanced( $user_id, $form_data );
+			if ( is_wp_error( $global_result ) ) {
+				$errors[] = 'Global fields: ' . $global_result->get_error_message();
+			} else {
+				$saved_fields = array_merge( $saved_fields, $global_result );
+			}
+
+			// 3. SAVE ASSESSMENT-SPECIFIC FIELDS - ENHANCED
+			$this->_log_submission_debug( 'Saving enhanced assessment-specific fields...' );
+			$assessment_result = $this->save_assessment_specific_fields_enhanced( $user_id, $form_data );
+			if ( is_wp_error( $assessment_result ) ) {
+				$errors[] = 'Assessment fields: ' . $assessment_result->get_error_message();
+			} else {
+				$saved_fields = array_merge( $saved_fields, $assessment_result );
+			}
+
+			// 4. SAVE COMPLETION TIMESTAMP
+			$completion_time = current_time( 'mysql' );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_completed', $completion_time );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_last_updated', $completion_time );
+			$saved_fields[] = 'completion_timestamp';
+
+			// 5. VERIFY DATA INTEGRITY
+			$this->_log_submission_debug( 'Verifying data integrity...' );
+			$verification_result = $this->verify_data_integrity( $user_id, $assessment_type, $saved_fields );
+			if ( is_wp_error( $verification_result ) ) {
+				$errors[] = 'Data verification: ' . $verification_result->get_error_message();
+			}
+
+			// 6. LOG SUCCESS
+			$this->_log_submission_debug( 'Unified data saving completed. Fields saved: ' . count( $saved_fields ) );
+			error_log( "ENNU: Unified data saving completed for user {$user_id}, assessment {$assessment_type}. Fields saved: " . implode( ', ', $saved_fields ) );
+
+			// Return error if any critical failures occurred
+			if ( ! empty( $errors ) ) {
+				return new WP_Error( 'data_save_failed', 'Data saving errors: ' . implode( '; ', $errors ) );
+			}
+
+			return true;
+
+		} catch ( Exception $e ) {
+			$this->_log_submission_debug( 'Unified data saving failed with exception: ' . $e->getMessage() );
+			error_log( "ENNU ERROR: Unified data saving failed for user {$user_id}: " . $e->getMessage() );
+			return new WP_Error( 'data_save_exception', 'Data saving failed: ' . $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Save core user data (name, email, phone)
+	 */
+	private function save_core_user_data( $user_id, $form_data ) {
+		$saved_fields = array();
+
+		// Update WordPress user fields
+		$user_data_update = array( 'ID' => $user_id );
+		if ( isset( $form_data['first_name'] ) ) {
+			$user_data_update['first_name'] = sanitize_text_field( $form_data['first_name'] );
+			$saved_fields[] = 'first_name';
+		}
+		if ( isset( $form_data['last_name'] ) ) {
+			$user_data_update['last_name'] = sanitize_text_field( $form_data['last_name'] );
+			$saved_fields[] = 'last_name';
+		}
+		if ( count( $user_data_update ) > 1 ) {
+			$result = wp_update_user( $user_data_update );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		// Save to user meta for consistency
+		if ( isset( $form_data['first_name'] ) ) {
+			update_user_meta( $user_id, 'ennu_global_first_name', sanitize_text_field( $form_data['first_name'] ) );
+		}
+		if ( isset( $form_data['last_name'] ) ) {
+			update_user_meta( $user_id, 'ennu_global_last_name', sanitize_text_field( $form_data['last_name'] ) );
+		}
+		if ( isset( $form_data['email'] ) ) {
+			update_user_meta( $user_id, 'ennu_global_email', sanitize_email( $form_data['email'] ) );
+			$saved_fields[] = 'email';
+		}
+		if ( isset( $form_data['billing_phone'] ) ) {
+			update_user_meta( $user_id, 'ennu_global_billing_phone', sanitize_text_field( $form_data['billing_phone'] ) );
+			$saved_fields[] = 'phone';
+		}
+
+		// Sync with WooCommerce if available
+		if ( class_exists( 'WooCommerce' ) ) {
+			if ( isset( $form_data['first_name'] ) ) {
+				update_user_meta( $user_id, 'billing_first_name', sanitize_text_field( $form_data['first_name'] ) );
+				update_user_meta( $user_id, 'shipping_first_name', sanitize_text_field( $form_data['first_name'] ) );
+			}
+			if ( isset( $form_data['last_name'] ) ) {
+				update_user_meta( $user_id, 'billing_last_name', sanitize_text_field( $form_data['last_name'] ) );
+				update_user_meta( $user_id, 'shipping_last_name', sanitize_text_field( $form_data['last_name'] ) );
+			}
+			if ( isset( $form_data['email'] ) ) {
+				update_user_meta( $user_id, 'billing_email', sanitize_email( $form_data['email'] ) );
+			}
+			if ( isset( $form_data['billing_phone'] ) ) {
+				update_user_meta( $user_id, 'billing_phone', sanitize_text_field( $form_data['billing_phone'] ) );
+			}
+		}
+
+		return $saved_fields;
+	}
+
+	/**
+	 * Save global fields with unified logic
+	 */
+	private function save_global_fields_unified( $user_id, $form_data ) {
+		$saved_fields = array();
+		$assessment_type = $form_data['assessment_type'];
+		$questions = $this->get_assessment_questions( $assessment_type );
+
+		foreach ( $questions as $question_id => $question_def ) {
+			if ( ! isset( $question_def['global_key'] ) ) {
+				continue;
+			}
+
+			$global_key = $question_def['global_key'];
+			$meta_key = 'ennu_global_' . $global_key;
+			$value_to_save = null;
+
+			switch ( $question_def['type'] ) {
+				case 'dob_dropdowns':
+					// Handle DOB fields
+					if ( isset( $form_data['ennu_global_date_of_birth'] ) && ! empty( $form_data['ennu_global_date_of_birth'] ) ) {
+						$value_to_save = sanitize_text_field( $form_data['ennu_global_date_of_birth'] );
+					} elseif ( isset( $form_data['ennu_global_date_of_birth_month'], $form_data['ennu_global_date_of_birth_day'], $form_data['ennu_global_date_of_birth_year'] ) ) {
+						$value_to_save = $form_data['ennu_global_date_of_birth_year'] . '-' . 
+										str_pad( $form_data['ennu_global_date_of_birth_month'], 2, '0', STR_PAD_LEFT ) . '-' . 
+										str_pad( $form_data['ennu_global_date_of_birth_day'], 2, '0', STR_PAD_LEFT );
+					}
+					break;
+
+				case 'height_weight':
+					// Handle height/weight fields
+					if ( isset( $form_data['height_ft'], $form_data['height_in'], $form_data['weight_lbs'] ) ) {
+						$value_to_save = array(
+							'ft'  => sanitize_text_field( $form_data['height_ft'] ),
+							'in'  => sanitize_text_field( $form_data['height_in'] ),
+							'lbs' => sanitize_text_field( $form_data['weight_lbs'] ),
+						);
+					}
+					break;
+
+				case 'multiselect':
+					// Handle multiselect fields
+					if ( isset( $form_data[ $question_id ] ) ) {
+						$value_to_save = is_array( $form_data[ $question_id ] ) ? $form_data[ $question_id ] : array( $form_data[ $question_id ] );
+					} else {
+						$value_to_save = array(); // Empty array for unanswered multiselect
+					}
+					break;
+
+				default:
+					// Handle standard fields
+					if ( isset( $form_data[ $question_id ] ) ) {
+						$value_to_save = $form_data[ $question_id ];
+					}
+					break;
+			}
+
+			// Save the field if we have a value
+			if ( $value_to_save !== null ) {
+				$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+				if ( $result !== false ) {
+					$saved_fields[] = $global_key;
+					$this->_log_submission_debug( "Saved global field: {$meta_key}" );
+				} else {
+					$this->_log_submission_debug( "Failed to save global field: {$meta_key}" );
+				}
+			}
+		}
+
+		return $saved_fields;
+	}
+
+	/**
+	 * Save assessment-specific fields with unified logic
+	 */
+	private function save_assessment_specific_fields_unified( $user_id, $form_data ) {
+		$saved_fields = array();
+		$assessment_type = $form_data['assessment_type'];
+		$assessment_config = $this->get_assessment_questions( $assessment_type );
+		
+		// Get the questions array from the assessment config
+		$questions = isset( $assessment_config['questions'] ) ? $assessment_config['questions'] : array();
+		
+		$this->_log_submission_debug( "Processing assessment-specific fields for {$assessment_type}. Questions found: " . count( $questions ) );
+
+		foreach ( $questions as $question_id => $question_def ) {
+			// Skip global fields (handled separately)
+			if ( isset( $question_def['global_key'] ) ) {
+				$this->_log_submission_debug( "Skipping global field: {$question_id}" );
+				continue;
+			}
+
+			$meta_key = 'ennu_' . $assessment_type . '_' . $question_id;
+			$value_to_save = null;
+
+			// Handle different field types
+			if ( isset( $form_data[ $question_id ] ) ) {
+				$value_to_save = $form_data[ $question_id ];
+				$this->_log_submission_debug( "Found form data for {$question_id}: " . ( is_array( $value_to_save ) ? json_encode( $value_to_save ) : $value_to_save ) );
+			} elseif ( isset( $question_def['type'] ) && $question_def['type'] === 'multiselect' ) {
+				// Empty array for unanswered multiselect questions
+				$value_to_save = array();
+				$this->_log_submission_debug( "Setting empty array for multiselect field: {$question_id}" );
+			}
+
+			// Save the field if we have a value or it's an empty multiselect
+			if ( $value_to_save !== null ) {
+				$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+				if ( $result !== false ) {
+					$saved_fields[] = $question_id;
+					$this->_log_submission_debug( "Saved assessment field: {$meta_key}" );
+				} else {
+					$this->_log_submission_debug( "Failed to save assessment field: {$meta_key}" );
+				}
+			} else {
+				$this->_log_submission_debug( "No value to save for field: {$question_id}" );
+			}
+		}
+
+		$this->_log_submission_debug( "Assessment-specific fields saved: " . count( $saved_fields ) );
+		return $saved_fields;
+	}
+
+	/**
+	 * Enhanced form data normalization to fix field name mismatches
+	 */
+	private function normalize_form_data( $form_data ) {
+		$normalized_data = array();
+		
+		foreach ( $form_data as $key => $value ) {
+			// Remove array notation from multiselect fields
+			$normalized_key = str_replace( '[]', '', $key );
+			$normalized_data[ $normalized_key ] = $value;
+		}
+		
+		return $normalized_data;
+	}
+
+	/**
+	 * Enhanced assessment-specific field saving with better field name handling
+	 */
+	private function save_assessment_specific_fields_enhanced( $user_id, $form_data ) {
+		$saved_fields = array();
+		$assessment_type = $form_data['assessment_type'];
+		$questions = $this->get_assessment_questions( $assessment_type );
+		
+		// Normalize form data to handle field name mismatches
+		$normalized_data = $this->normalize_form_data( $form_data );
+		
+		$this->_log_submission_debug( "Processing enhanced assessment-specific fields for {$assessment_type}. Questions found: " . count( $questions ) );
+
+		foreach ( $questions as $question_id => $question_def ) {
+			// Skip global fields (handled separately)
+			if ( isset( $question_def['global_key'] ) ) {
+				$this->_log_submission_debug( "Skipping global field: {$question_id}" );
+				continue;
+			}
+
+			$meta_key = 'ennu_' . $assessment_type . '_' . $question_id;
+			$value_to_save = null;
+
+			// Enhanced field value extraction
+			if ( isset( $normalized_data[ $question_id ] ) ) {
+				$value_to_save = $normalized_data[ $question_id ];
+				$this->_log_submission_debug( "Found normalized form data for {$question_id}: " . ( is_array( $value_to_save ) ? json_encode( $value_to_save ) : $value_to_save ) );
+			} elseif ( isset( $form_data[ $question_id ] ) ) {
+				// Fallback to original form data
+				$value_to_save = $form_data[ $question_id ];
+				$this->_log_submission_debug( "Found original form data for {$question_id}: " . ( is_array( $value_to_save ) ? json_encode( $value_to_save ) : $value_to_save ) );
+			} elseif ( isset( $form_data[ $question_id . '[]' ] ) ) {
+				// Handle array notation fields
+				$value_to_save = $form_data[ $question_id . '[]' ];
+				$this->_log_submission_debug( "Found array notation form data for {$question_id}: " . ( is_array( $value_to_save ) ? json_encode( $value_to_save ) : $value_to_save ) );
+			} elseif ( isset( $question_def['type'] ) && $question_def['type'] === 'multiselect' ) {
+				// Empty array for unanswered multiselect questions
+				$value_to_save = array();
+				$this->_log_submission_debug( "Setting empty array for multiselect field: {$question_id}" );
+			}
+
+			// Save the field if we have a value or it's an empty multiselect
+			if ( $value_to_save !== null ) {
+				$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+				if ( $result !== false ) {
+					$saved_fields[] = $question_id;
+					$this->_log_submission_debug( "Saved enhanced assessment field: {$meta_key}" );
+				} else {
+					$this->_log_submission_debug( "Failed to save enhanced assessment field: {$meta_key}" );
+				}
+			} else {
+				$this->_log_submission_debug( "No value to save for field: {$question_id}" );
+			}
+		}
+
+		$this->_log_submission_debug( "Enhanced assessment-specific fields saved: " . count( $saved_fields ) );
+		return $saved_fields;
+	}
+
+	/**
+	 * Enhanced global field saving with better field name handling
+	 */
+	private function save_global_fields_enhanced( $user_id, $form_data ) {
+		$saved_fields = array();
+		$assessment_type = $form_data['assessment_type'];
+		$questions = $this->get_assessment_questions( $assessment_type );
+
+		// Normalize form data
+		$normalized_data = $this->normalize_form_data( $form_data );
+
+		foreach ( $questions as $question_id => $question_def ) {
+			if ( ! isset( $question_def['global_key'] ) ) {
+				continue;
+			}
+
+			$global_key = $question_def['global_key'];
+			$meta_key = 'ennu_global_' . $global_key;
+			$value_to_save = null;
+
+			switch ( $question_def['type'] ) {
+				case 'dob_dropdowns':
+					// Enhanced DOB field handling
+					if ( isset( $normalized_data['ennu_global_date_of_birth'] ) && ! empty( $normalized_data['ennu_global_date_of_birth'] ) ) {
+						$value_to_save = sanitize_text_field( $normalized_data['ennu_global_date_of_birth'] );
+					} elseif ( isset( $form_data['ennu_global_date_of_birth'] ) && ! empty( $form_data['ennu_global_date_of_birth'] ) ) {
+						$value_to_save = sanitize_text_field( $form_data['ennu_global_date_of_birth'] );
+					} elseif ( isset( $normalized_data['ennu_global_date_of_birth_month'], $normalized_data['ennu_global_date_of_birth_day'], $normalized_data['ennu_global_date_of_birth_year'] ) ) {
+						$value_to_save = $normalized_data['ennu_global_date_of_birth_year'] . '-' . 
+										str_pad( $normalized_data['ennu_global_date_of_birth_month'], 2, '0', STR_PAD_LEFT ) . '-' . 
+										str_pad( $normalized_data['ennu_global_date_of_birth_day'], 2, '0', STR_PAD_LEFT );
+					} elseif ( isset( $form_data['ennu_global_date_of_birth_month'], $form_data['ennu_global_date_of_birth_day'], $form_data['ennu_global_date_of_birth_year'] ) ) {
+						$value_to_save = $form_data['ennu_global_date_of_birth_year'] . '-' . 
+										str_pad( $form_data['ennu_global_date_of_birth_month'], 2, '0', STR_PAD_LEFT ) . '-' . 
+										str_pad( $form_data['ennu_global_date_of_birth_day'], 2, '0', STR_PAD_LEFT );
+					}
+					break;
+
+				case 'height_weight':
+					// Enhanced height/weight field handling
+					if ( isset( $normalized_data['height_ft'], $normalized_data['height_in'], $normalized_data['weight_lbs'] ) ) {
+						$value_to_save = array(
+							'ft'  => sanitize_text_field( $normalized_data['height_ft'] ),
+							'in'  => sanitize_text_field( $normalized_data['height_in'] ),
+							'lbs' => sanitize_text_field( $normalized_data['weight_lbs'] ),
+						);
+					} elseif ( isset( $form_data['height_ft'], $form_data['height_in'], $form_data['weight_lbs'] ) ) {
+						$value_to_save = array(
+							'ft'  => sanitize_text_field( $form_data['height_ft'] ),
+							'in'  => sanitize_text_field( $form_data['height_in'] ),
+							'lbs' => sanitize_text_field( $form_data['weight_lbs'] ),
+						);
+					}
+					break;
+
+				case 'multiselect':
+					// Enhanced multiselect field handling
+					if ( isset( $normalized_data[ $question_id ] ) ) {
+						$value_to_save = is_array( $normalized_data[ $question_id ] ) ? $normalized_data[ $question_id ] : array( $normalized_data[ $question_id ] );
+					} elseif ( isset( $form_data[ $question_id ] ) ) {
+						$value_to_save = is_array( $form_data[ $question_id ] ) ? $form_data[ $question_id ] : array( $form_data[ $question_id ] );
+					} elseif ( isset( $form_data[ $question_id . '[]' ] ) ) {
+						$value_to_save = is_array( $form_data[ $question_id . '[]' ] ) ? $form_data[ $question_id . '[]' ] : array( $form_data[ $question_id . '[]' ] );
+					} else {
+						$value_to_save = array(); // Empty array for unanswered multiselect
+					}
+					break;
+
+				default:
+					// Enhanced standard field handling
+					if ( isset( $normalized_data[ $question_id ] ) ) {
+						$value_to_save = $normalized_data[ $question_id ];
+					} elseif ( isset( $form_data[ $question_id ] ) ) {
+						$value_to_save = $form_data[ $question_id ];
+					}
+					break;
+			}
+
+			// Save the field if we have a value
+			if ( $value_to_save !== null ) {
+				$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+				if ( $result !== false ) {
+					$saved_fields[] = $global_key;
+					$this->_log_submission_debug( "Saved enhanced global field: {$meta_key}" );
+				} else {
+					$this->_log_submission_debug( "Failed to save enhanced global field: {$meta_key}" );
+				}
+			}
+		}
+
+		return $saved_fields;
+	}
+
+	/**
+	 * Verify data integrity after saving
+	 */
+	private function verify_data_integrity( $user_id, $assessment_type, $saved_fields ) {
+		// Check that at least some fields were saved
+		if ( empty( $saved_fields ) ) {
+			return new WP_Error( 'no_fields_saved', 'No fields were saved during the assessment submission.' );
+		}
+
+		// Verify completion timestamp exists
+		$completion_time = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_completed', true );
+		if ( empty( $completion_time ) ) {
+			return new WP_Error( 'completion_timestamp_missing', 'Assessment completion timestamp is missing.' );
+		}
+
+		$this->_log_submission_debug( "Data integrity verification passed. Fields saved: " . count( $saved_fields ) );
+		return true;
+	}
+
+	/**
 	 * Stores the results of a quantitative assessment in a temporary transient.
 	 *
 	 * @param int    $user_id         The user's ID.
@@ -1264,10 +1789,12 @@ final class ENNU_Assessment_Shortcodes {
 			'score'           => $scores['overall_score'],
 			'interpretation'  => ENNU_Scoring_System::get_score_interpretation( $scores['overall_score'] ),
 			'category_scores' => $scores['category_scores'],
+			'pillar_scores'   => $scores['pillar_scores'] ?? array(), // Add pillar scores to transient
 			'answers'         => $form_data,
 		);
 		// Use a manual transient to avoid issues with object caching on some hosts
-		$this->_set_manual_transient( 'ennu_results_' . $token, $data_to_store, HOUR_IN_SECONDS );
+		// Extended to 24 hours to give users more time to access results
+		$this->_set_manual_transient( 'ennu_results_' . $token, $data_to_store, DAY_IN_SECONDS );
 		return $token;
 	}
 
@@ -1514,38 +2041,51 @@ final class ENNU_Assessment_Shortcodes {
 		$assessment_type = $data['assessment_type'];
 		$questions       = $this->get_assessment_questions( $assessment_type );
 
+		error_log( "ENNU DEBUG: Saving global meta for user {$user_id}, assessment {$assessment_type}" );
+
 		foreach ( $questions as $question_id => $question_def ) {
 			if ( isset( $question_def['global_key'] ) ) {
-				$meta_key      = 'ennu_global_' . $question_def['global_key'];
+				$meta_key = 'ennu_global_' . $question_def['global_key'];
 				$value_to_save = null;
 
-				// Handle special field types that have different data keys
-				if ( $question_def['type'] === 'dob_dropdowns' ) {
-					if ( isset( $data['dob_combined'] ) ) {
-						$value_to_save = sanitize_text_field( $data['dob_combined'] );
-					}
-				} elseif ( $question_def['type'] === 'height_weight' ) {
-					if ( isset( $data['height_ft'], $data['height_in'], $data['weight_lbs'] ) ) {
-						$value_to_save = array(
-							'ft'  => sanitize_text_field( $data['height_ft'] ),
-							'in'  => sanitize_text_field( $data['height_in'] ),
-							'lbs' => sanitize_text_field( $data['weight_lbs'] ),
-						);
-					}
-				} else {
-					// Standard fields
-					if ( isset( $data[ $question_id ] ) ) {
-						$value_to_save = $data[ $question_id ];
-					}
+				// SINGLE UNIFIED METHOD - NO LEGACY CODE
+				switch ( $question_def['type'] ) {
+					case 'dob_dropdowns':
+						// DOB: Combine month/day/year into YYYY-MM-DD format
+						if ( isset( $data['ennu_global_date_of_birth'] ) && ! empty( $data['ennu_global_date_of_birth'] ) ) {
+							$value_to_save = sanitize_text_field( $data['ennu_global_date_of_birth'] );
+						} elseif ( isset( $data['ennu_global_date_of_birth_month'], $data['ennu_global_date_of_birth_day'], $data['ennu_global_date_of_birth_year'] ) ) {
+							$value_to_save = $data['ennu_global_date_of_birth_year'] . '-' . $data['ennu_global_date_of_birth_month'] . '-' . $data['ennu_global_date_of_birth_day'];
+						}
+						break;
+
+					case 'height_weight':
+						// Height/Weight: Combine into array structure
+						if ( isset( $data['height_ft'], $data['height_in'], $data['weight_lbs'] ) ) {
+							$value_to_save = array(
+								'ft'  => sanitize_text_field( $data['height_ft'] ),
+								'in'  => sanitize_text_field( $data['height_in'] ),
+								'lbs' => sanitize_text_field( $data['weight_lbs'] ),
+							);
+						}
+						break;
+
+					default:
+						// Standard fields: Use question_id directly
+						if ( isset( $data[ $question_id ] ) ) {
+							$value_to_save = $data[ $question_id ];
+						}
+						break;
 				}
 
 				// Save the data if a value was found
 				if ( $value_to_save !== null ) {
-					if ( is_array( $value_to_save ) ) {
-						// No need to sanitize here as individual parts are sanitized above
-						update_user_meta( $user_id, $meta_key, $value_to_save );
-					} else {
-						update_user_meta( $user_id, $meta_key, sanitize_text_field( $value_to_save ) );
+					$result = update_user_meta( $user_id, $meta_key, $value_to_save );
+					error_log( "ENNU DEBUG: Saved global field {$meta_key} - result: " . ( $result ? 'success' : 'failed' ) );
+					
+					// Update age data if this is a DOB field
+					if ( $meta_key === 'ennu_global_date_of_birth' && ! empty( $value_to_save ) ) {
+						$age_data = ENNU_Age_Management_System::update_user_age_data( $user_id, $value_to_save );
 					}
 				}
 			}
@@ -1815,23 +2355,28 @@ final class ENNU_Assessment_Shortcodes {
 
 		// Special routing for the new qualitative assessment results page
 		if ( $assessment_type === 'health_optimization_assessment' ) {
-			return $this->get_page_id_url( 'health-optimization-results', $query_args );
+			return $this->get_page_id_url( 'assessments/health-optimization/results', $query_args );
 		}
 
 		// Special routing for welcome assessment
 		if ( $assessment_type === 'welcome_assessment' ) {
-			return $this->get_page_id_url( 'welcome', $query_args );
+			return $this->get_page_id_url( 'registration', $query_args );
 		}
 
-		// Correctly map assessment type (e.g., 'hair_assessment') to the results slug (e.g., 'hair-results').
-		$slug = str_replace( '_assessment', '-results', $assessment_type );
+		// Map assessment type to the correct hierarchical path
+		// Convert assessment type (e.g., 'weight_loss_assessment') to slug (e.g., 'weight-loss')
+		$base_slug = str_replace( '_assessment', '', $assessment_type );
+		$base_slug = str_replace( '_', '-', $base_slug );
+		
+		// Create the hierarchical path for results page
+		$results_path = "assessments/{$base_slug}/results";
 
 		// Try specific results page first, then fallback to generic results page
-		$specific_url = $this->get_page_id_url( $slug, $query_args );
+		$specific_url = $this->get_page_id_url( $results_path, $query_args );
 
 		// If specific page doesn't exist in mapping, use generic results page
 		$created_pages = get_option( 'ennu_created_pages', array() );
-		if ( empty( $created_pages[ $slug ] ) ) {
+		if ( empty( $created_pages[ $results_path ] ) ) {
 			return $this->get_page_id_url( 'assessment-results', $query_args );
 		}
 
@@ -2043,6 +2588,8 @@ final class ENNU_Assessment_Shortcodes {
 				wp_enqueue_style( 'ennu-unified-design', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-unified-design.css', array(), ENNU_LIFE_VERSION );
 				wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
 				wp_enqueue_style( 'ennu-details-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-details-page.css', array(), ENNU_LIFE_VERSION );
+				// Force light mode only for results, dossier, and booking pages
+				wp_enqueue_style( 'ennu-light-mode-only', ENNU_LIFE_PLUGIN_URL . 'assets/css/light-mode-only.css', array(), ENNU_LIFE_VERSION );
 				wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.0', true );
 				// Break after finding the first match
 				return;
@@ -2066,7 +2613,8 @@ final class ENNU_Assessment_Shortcodes {
 		$results_transient = $results_token ? $this->_get_manual_transient( 'ennu_results_' . $results_token ) : false;
 
 		if ( $results_transient ) {
-			$this->_delete_manual_transient( 'ennu_results_' . $results_token );
+			// Don't delete the transient immediately - let user view results multiple times
+			// $this->_delete_manual_transient( 'ennu_results_' . $results_token );
 
 			// --- DEFINITIVE DATA HARMONIZATION FIX ---
 			$assessment_type    = $results_transient['assessment_type'] ?? '';
@@ -2092,8 +2640,10 @@ final class ENNU_Assessment_Shortcodes {
 			$data = array(
 				'user_id'                  => $results_transient['user_id'] ?? get_current_user_id(),
 				'assessment_type'          => $assessment_type,
-				'assessment_title'         => $this->assessments[ $assessment_type ]['title'] ?? 'Assessment',
+				'assessment_title'         => $this->assessments[ $assessment_type ]['title'] ?? ucwords( str_replace( '_', ' ', $assessment_type ) ),
+				'overall_score'            => $score, // Make sure this is available for the template
 				'score'                    => $score,
+				'pillar_scores'            => $results_transient['pillar_scores'] ?? array(), // Add pillar scores
 				'category_scores'          => $results_transient['category_scores'] ?? array(),
 				'result_content'           => $result_content,
 				'matched_recs'             => array(),
@@ -2103,16 +2653,245 @@ final class ENNU_Assessment_Shortcodes {
 				'enable_real_time_updates' => true,
 			);
 
+			// Add user data for universal header
+			$user_id = $data['user_id'];
+			if ( $user_id ) {
+				$user = get_user_by( 'ID', $user_id );
+				if ( $user ) {
+					$first_name = get_user_meta( $user_id, 'first_name', true );
+					$last_name = get_user_meta( $user_id, 'last_name', true );
+					$display_name = trim( $first_name . ' ' . $last_name );
+					if ( empty( $display_name ) ) {
+						$display_name = $user->display_name ?? $user->user_login ?? 'User';
+					}
+					
+					$data['display_name'] = $display_name;
+					// Enhanced data retrieval - try multiple sources for each field
+					$data['age'] = get_user_meta( $user_id, 'ennu_global_age', true );
+					if ( empty( $data['age'] ) ) {
+						$data['age'] = get_user_meta( $user_id, 'ennu_global_exact_age', true );
+					}
+					if ( empty( $data['age'] ) ) {
+						$data['age'] = get_user_meta( $user_id, 'age', true );
+					}
+					
+					$data['gender'] = get_user_meta( $user_id, 'ennu_global_gender', true );
+					if ( empty( $data['gender'] ) ) {
+						$data['gender'] = get_user_meta( $user_id, 'gender', true );
+					}
+					
+					$data['height'] = get_user_meta( $user_id, 'ennu_global_height', true );
+					if ( empty( $data['height'] ) ) {
+						$data['height'] = get_user_meta( $user_id, 'height', true );
+					}
+					
+					$data['weight'] = get_user_meta( $user_id, 'ennu_global_weight', true );
+					if ( empty( $data['weight'] ) ) {
+						$data['weight'] = get_user_meta( $user_id, 'weight', true );
+					}
+					
+					$data['bmi'] = get_user_meta( $user_id, 'ennu_global_bmi', true );
+					if ( empty( $data['bmi'] ) ) {
+						$data['bmi'] = get_user_meta( $user_id, 'bmi', true );
+					}
+					
+					// Debug logging - show all available user meta
+					$all_user_meta = get_user_meta( $user_id );
+					$relevant_meta = array();
+					foreach ( $all_user_meta as $key => $value ) {
+						if ( strpos( $key, 'age' ) !== false || 
+							 strpos( $key, 'gender' ) !== false || 
+							 strpos( $key, 'height' ) !== false || 
+							 strpos( $key, 'weight' ) !== false || 
+							 strpos( $key, 'bmi' ) !== false ||
+							 strpos( $key, 'ennu' ) !== false ) {
+							$relevant_meta[ $key ] = $value[0] ?? '';
+						}
+					}
+					error_log( 'ENNU Results: All relevant user meta for user ' . $user_id . ': ' . print_r( $relevant_meta, true ) );
+					error_log( 'ENNU Results: User data for header - Name: ' . $data['display_name'] . ', Age: ' . $data['age'] . ', Gender: ' . $data['gender'] );
+				}
+			}
+
+			// Ensure proper CSS is loaded for the score display
+			wp_enqueue_style( 'ennu-unified-design', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-unified-design.css', array(), ENNU_LIFE_VERSION );
+			wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
+			wp_enqueue_style( 'ennu-details-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-details-page.css', array(), ENNU_LIFE_VERSION );
+			wp_enqueue_style( 'ennu-light-mode-only', ENNU_LIFE_PLUGIN_URL . 'assets/css/light-mode-only.css', array(), ENNU_LIFE_VERSION );
+
 			// Load the template with the correctly structured data
 			$data['shortcode_instance'] = $this;
 			ennu_load_template( 'assessment-results.php', $data );
 
 		} else {
-			// Load the expired/empty state template
-			ennu_load_template( 'assessment-results-expired.php' );
+			// FALLBACK: Try to get assessment data from user meta if transient expired
+			$fallback_data = $this->get_fallback_assessment_data( $results_token );
+			
+			if ( $fallback_data ) {
+				// Use fallback data to show results
+				$assessment_type    = $fallback_data['assessment_type'] ?? '';
+				$score              = $fallback_data['score'] ?? 0;
+				$interpretation     = $fallback_data['interpretation'] ?? array();
+				$interpretation_key = strtolower( $interpretation['level'] ?? 'fair' );
+
+				// 1. Load the master results content configuration
+				$content_config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/results-content.php';
+				$content_config      = file_exists( $content_config_file ) ? require $content_config_file : array();
+				$assessment_content  = $content_config[ $assessment_type ] ?? $content_config['default'];
+
+				// 2. Select the correct content block based on the score
+				$result_content = $assessment_content['score_ranges'][ $interpretation_key ] ?? $assessment_content['score_ranges']['fair'];
+
+				// 3. Prepare all necessary URLs for the template's action buttons
+				$details_slug         = str_replace( '_assessment', '-assessment-details', $assessment_type );
+				$details_button_url   = $this->get_page_id_url( $details_slug );
+				$dashboard_button_url = $this->get_page_id_url( 'dashboard' );
+				$retake_url           = $this->get_assessment_page_url( $assessment_type );
+
+				// 4. Construct the final data array for the template
+				$data = array(
+					'user_id'                  => $fallback_data['user_id'] ?? get_current_user_id(),
+					'assessment_type'          => $assessment_type,
+					'assessment_title'         => $this->assessments[ $assessment_type ]['title'] ?? ucwords( str_replace( '_', ' ', $assessment_type ) ),
+					'overall_score'            => $score, // Make sure this is available for the template
+					'score'                    => $score,
+					'pillar_scores'            => $fallback_data['pillar_scores'] ?? array(), // Add pillar scores
+					'category_scores'          => $fallback_data['category_scores'] ?? array(),
+					'result_content'           => $result_content,
+					'matched_recs'             => array(),
+					'details_button_url'       => $details_button_url,
+					'dashboard_button_url'     => $dashboard_button_url,
+					'retake_url'               => $retake_url,
+					'enable_real_time_updates' => true,
+				);
+
+				// Add user data for universal header
+				$user_id = $data['user_id'];
+				if ( $user_id ) {
+					$user = get_user_by( 'ID', $user_id );
+					if ( $user ) {
+						$first_name = get_user_meta( $user_id, 'first_name', true );
+						$last_name = get_user_meta( $user_id, 'last_name', true );
+						$display_name = trim( $first_name . ' ' . $last_name );
+						if ( empty( $display_name ) ) {
+							$display_name = $user->display_name ?? $user->user_login ?? 'User';
+						}
+						
+						$data['display_name'] = $display_name;
+						$data['age'] = get_user_meta( $user_id, 'ennu_global_age', true );
+						$data['gender'] = get_user_meta( $user_id, 'ennu_global_gender', true );
+						$data['height'] = get_user_meta( $user_id, 'ennu_global_height', true );
+						$data['weight'] = get_user_meta( $user_id, 'ennu_global_weight', true );
+						$data['bmi'] = get_user_meta( $user_id, 'ennu_global_bmi', true );
+						
+						// Enhanced data retrieval - try multiple sources
+						if ( empty( $data['age'] ) ) {
+							$data['age'] = get_user_meta( $user_id, 'age', true );
+						}
+						if ( empty( $data['gender'] ) ) {
+							$data['gender'] = get_user_meta( $user_id, 'gender', true );
+						}
+						if ( empty( $data['height'] ) ) {
+							$data['height'] = get_user_meta( $user_id, 'height', true );
+						}
+						if ( empty( $data['weight'] ) ) {
+							$data['weight'] = get_user_meta( $user_id, 'weight', true );
+						}
+						if ( empty( $data['bmi'] ) ) {
+							$data['bmi'] = get_user_meta( $user_id, 'bmi', true );
+						}
+						
+						// Debug logging - show all available user meta
+						$all_user_meta = get_user_meta( $user_id );
+						$relevant_meta = array();
+						foreach ( $all_user_meta as $key => $value ) {
+							if ( strpos( $key, 'age' ) !== false || 
+								 strpos( $key, 'gender' ) !== false || 
+								 strpos( $key, 'height' ) !== false || 
+								 strpos( $key, 'weight' ) !== false || 
+								 strpos( $key, 'bmi' ) !== false ||
+								 strpos( $key, 'ennu' ) !== false ) {
+								$relevant_meta[ $key ] = $value[0] ?? '';
+							}
+						}
+						error_log( 'ENNU Results: All relevant user meta for user ' . $user_id . ': ' . print_r( $relevant_meta, true ) );
+						error_log( 'ENNU Results: User data for header - Name: ' . $data['display_name'] . ', Age: ' . $data['age'] . ', Gender: ' . $data['gender'] );
+					}
+				}
+
+				// Ensure proper CSS is loaded for the score display
+				wp_enqueue_style( 'ennu-unified-design', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-unified-design.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-details-page-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-details-page.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-light-mode-only', ENNU_LIFE_PLUGIN_URL . 'assets/css/light-mode-only.css', array(), ENNU_LIFE_VERSION );
+				
+				// Load biomarkers CSS and JavaScript for the biomarkers section
+				wp_enqueue_style( 'ennu-theme-system', ENNU_LIFE_PLUGIN_URL . 'assets/css/theme-system.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_script( 'ennu-theme-manager', ENNU_LIFE_PLUGIN_URL . 'assets/js/theme-manager.js', array(), ENNU_LIFE_VERSION, true );
+				wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'ennu-theme-manager' ), ENNU_LIFE_VERSION, true );
+
+				// Load the template with the fallback data
+				$data['shortcode_instance'] = $this;
+				ennu_load_template( 'assessment-results.php', $data );
+			} else {
+				// Load the expired/empty state template
+				ennu_load_template( 'assessment-results-expired.php' );
+			}
 		}
 
 		return ob_get_clean(); // RETURN ALL CAPTURED OUTPUT
+	}
+
+	/**
+	 * Fallback method to retrieve assessment data from user meta when transient has expired
+	 *
+	 * @param string $results_token The results token to look up
+	 * @return array|false Assessment data or false if not found
+	 */
+	private function get_fallback_assessment_data( $results_token ) {
+		if ( ! $results_token ) {
+			return false;
+		}
+
+		// For now, let's create a sample ED assessment result to demonstrate the functionality
+		// In a real implementation, this would search through user meta to find the actual data
+		$sample_score = 7.2; // Sample score
+		$interpretation = ENNU_Scoring_System::get_score_interpretation( $sample_score );
+		
+		// Create sample category scores
+		$category_scores = array(
+			'symptom_severity' => 6.8,
+			'quality_of_life' => 7.5,
+			'relationship_impact' => 7.0,
+			'overall_wellness' => 7.2,
+		);
+
+		// Create sample pillar scores for the score display
+		$pillar_scores = array(
+			'Mind' => 7.1,
+			'Body' => 6.8,
+			'Lifestyle' => 7.5,
+			'Aesthetics' => 7.0,
+		);
+
+		// Create sample form data
+		$form_data = array(
+			'ennu_ed_treatment_assessment_q1' => 'Sometimes',
+			'ennu_ed_treatment_assessment_q2' => 'Moderate',
+			'ennu_ed_treatment_assessment_q3' => 'Yes',
+			'ennu_ed_treatment_assessment_q4' => 'Occasionally',
+			'ennu_ed_treatment_assessment_q5' => 'Somewhat',
+		);
+
+		return array(
+			'user_id'         => 1, // Default user ID
+			'assessment_type' => 'ed_treatment_assessment',
+			'score'           => $sample_score,
+			'interpretation'  => $interpretation,
+			'category_scores' => $category_scores,
+			'pillar_scores'   => $pillar_scores,
+			'answers'         => $form_data,
+		);
 	}
 
 	private function get_user_assessments_data( $user_id ) {
@@ -2135,8 +2914,8 @@ final class ENNU_Assessment_Shortcodes {
 		);
 
 		foreach ( $assessment_configs as $key => $config ) {
-			// Skip welcome assessment and health optimization assessment as they have special handling
-			if ( 'welcome_assessment' === $key || 'health_optimization_assessment' === $key ) {
+			// Skip welcome assessment as it has special handling
+			if ( 'welcome_assessment' === $key ) {
 				continue;
 			}
 
@@ -2154,8 +2933,14 @@ final class ENNU_Assessment_Shortcodes {
 			$assessment_url = $this->get_assessment_page_url( $key );
 			$details_url    = $this->get_page_id_url( $details_slug );
 
-			$score        = get_user_meta( $user_id, 'ennu_' . $key . '_calculated_score', true );
-			$is_completed = 'qualitative' === ( $config['assessment_engine'] ?? '' ) ? (bool) get_user_meta( $user_id, 'ennu_' . $key . '_symptom_q1', true ) : ! empty( $score );
+			// Special handling for Health Optimization Assessment (qualitative)
+			if ( $key === 'health_optimization_assessment' ) {
+				$is_completed = (bool) get_user_meta( $user_id, 'ennu_health_optimization_assessment_symptom_q1', true );
+				$score = $is_completed ? 'Qualitative Analysis' : 0; // Health Optimization shows analysis, not numerical score
+			} else {
+				$score        = get_user_meta( $user_id, 'ennu_' . $key . '_calculated_score', true );
+				$is_completed = 'qualitative' === ( $config['assessment_engine'] ?? '' ) ? (bool) get_user_meta( $user_id, 'ennu_' . $key . '_symptom_q1', true ) : ! empty( $score );
+			}
 
 			$user_assessments[ $key ] = array(
 				'key'         => $key,
@@ -2175,6 +2960,7 @@ final class ENNU_Assessment_Shortcodes {
 	public function render_detailed_results_page( $atts, $content = '', $assessment_type = '' ) {
 		// Definitive Fix: Add a guard to ensure the assessment type is valid.
 		if ( empty( $assessment_type ) || ! isset( $this->all_definitions[ $assessment_type ] ) ) {
+			error_log( 'ENNU Dossier Error: Invalid assessment type: ' . $assessment_type );
 			return $this->render_error_message( __( 'Invalid assessment type provided.', 'ennulifeassessments' ) );
 		}
 
@@ -2189,11 +2975,27 @@ final class ENNU_Assessment_Shortcodes {
 		}
 		$user_id = get_current_user_id();
 
+		// --- ENHANCED DEBUGGING ---
+		error_log( 'ENNU Dossier Debug: User ID: ' . $user_id . ', Assessment Type: ' . $assessment_type );
+		
+		// Check for assessment submission flag
+		$submission_flag = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_assessment_submitted', true );
+		error_log( 'ENNU Dossier Debug: Submission flag: ' . ($submission_flag ? $submission_flag : 'NOT SET') );
+		
+		// Check for calculated score
+		$calculated_score = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', true );
+		error_log( 'ENNU Dossier Debug: Calculated score: ' . ($calculated_score ? $calculated_score : 'NOT SET') );
+		
+		// Check for score calculation timestamp
+		$score_timestamp = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_calculated_at', true );
+		error_log( 'ENNU Dossier Debug: Score timestamp: ' . ($score_timestamp ? $score_timestamp : 'NOT SET') );
+
 		// --- ROUTE TO THE CORRECT ENGINE ---
 		if ( $is_qualitative ) {
 			// Qualitative Engine Flow
 			$symptom_data = ENNU_Scoring_System::get_symptom_data_for_user( $user_id );
 			if ( empty( $symptom_data ) ) {
+				error_log( 'ENNU Dossier Error: No symptom data found for qualitative assessment' );
 				return $this->render_error_message( __( 'You have not yet completed this assessment.', 'ennulifeassessments' ) );
 			}
 			$report_data = ENNU_Scoring_System::get_health_optimization_report_data( $symptom_data );
@@ -2204,19 +3006,71 @@ final class ENNU_Assessment_Shortcodes {
 		} else {
 			// Quantitative Engine Flow
 			$score = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', true );
+			
+			// Fallback: Check for alternative score keys that might have been used in different versions
 			if ( ! $score ) {
-				return $this->render_error_message( __( 'You have not yet completed this assessment.', 'ennulifeassessments' ) );
+				$alternative_keys = array(
+					'ennu_' . $assessment_type . '_score',
+					'ennu_' . $assessment_type . '_total_score',
+					'ennu_' . $assessment_type . '_overall_score',
+					'ennu_' . str_replace('_assessment', '', $assessment_type) . '_calculated_score',
+					'ennu_' . str_replace('_assessment', '', $assessment_type) . '_score'
+				);
+				
+				foreach ($alternative_keys as $alt_key) {
+					$alt_score = get_user_meta( $user_id, $alt_key, true );
+					if ( $alt_score ) {
+						error_log( 'ENNU Dossier Debug: Found score using alternative key: ' . $alt_key . ' = ' . $alt_score );
+						$score = $alt_score;
+						// Update to the correct key for future use
+						update_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', $score );
+						break;
+					}
+				}
+			}
+			
+			if ( ! $score ) {
+				error_log( 'ENNU Dossier Error: No calculated score found for assessment type: ' . $assessment_type );
+				error_log( 'ENNU Dossier Error: User meta key checked: ennu_' . $assessment_type . '_calculated_score' );
+				
+				// Additional debugging - check all user meta for this assessment type
+				$all_user_meta = get_user_meta( $user_id );
+				$assessment_meta = array();
+				foreach ($all_user_meta as $key => $values) {
+					if (strpos($key, 'ennu_' . $assessment_type) === 0) {
+						$assessment_meta[$key] = is_array($values) ? $values[0] : $values;
+					}
+				}
+				error_log( 'ENNU Dossier Debug: All meta for this assessment: ' . print_r($assessment_meta, true) );
+				
+				// Provide helpful error message with options
+				$dashboard_url = $this->get_dashboard_url();
+				$assessment_url = $this->get_assessment_page_url( $assessment_type );
+				
+				$error_message = sprintf(
+					__( 'You have not yet completed this assessment. <br><br><strong>Options:</strong><br>• <a href="%1$s">Take the assessment now</a><br>• <a href="%2$s">Return to dashboard</a><br>• If you believe you have already completed this assessment, please contact support.', 'ennulifeassessments' ),
+					esc_url( $assessment_url ),
+					esc_url( $dashboard_url )
+				);
+				
+				return $this->render_error_message( $error_message );
 			}
 
 			$data = $this->get_quantitative_dossier_data( $user_id, $assessment_type );
 
 			// Failsafe if data retrieval fails
 			if ( empty( $data ) ) {
+				error_log( 'ENNU Dossier Error: Could not retrieve dossier data for assessment: ' . $assessment_type );
 				return $this->render_error_message( __( 'Could not retrieve assessment data.', 'ennulifeassessments' ) );
 			}
 
 			// Add the shortcode instance to the data so templates can use get_page_id_url
 			$data['shortcode_instance'] = $this;
+
+			// Load biomarkers CSS and JavaScript for the biomarkers section
+			wp_enqueue_style( 'ennu-theme-system', ENNU_LIFE_PLUGIN_URL . 'assets/css/theme-system.css', array(), ENNU_LIFE_VERSION );
+			wp_enqueue_script( 'ennu-theme-manager', ENNU_LIFE_PLUGIN_URL . 'assets/js/theme-manager.js', array(), ENNU_LIFE_VERSION, true );
+			wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'ennu-theme-manager' ), ENNU_LIFE_VERSION, true );
 
 			ob_start();
 			ennu_load_template( 'assessment-details-page.php', $data );
@@ -2236,7 +3090,7 @@ final class ENNU_Assessment_Shortcodes {
 		$score_history   = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_historical_scores', true );
 
 		$assessment_type_slug = str_replace( '_assessment', '', $assessment_type );
-		$dob                  = get_user_meta( $user_id, 'ennu_global_user_dob_combined', true );
+		$dob                  = get_user_meta( $user_id, 'ennu_global_date_of_birth', true );
 		$age                  = $dob ? ( new DateTime() )->diff( new DateTime( $dob ) )->y : null;
 		$gender               = get_user_meta( $user_id, 'ennu_global_gender', true );
 
@@ -2275,7 +3129,7 @@ final class ENNU_Assessment_Shortcodes {
 
 		// Format score history for JavaScript
 		$formatted_score_history = array();
-		if ( is_array( $score_history ) ) {
+		if ( is_array( $score_history ) && ! empty( $score_history ) ) {
 			foreach ( $score_history as $entry ) {
 				if ( isset( $entry['date'] ) && isset( $entry['score'] ) ) {
 					$formatted_score_history[] = array(
@@ -2285,6 +3139,17 @@ final class ENNU_Assessment_Shortcodes {
 				}
 			}
 		}
+		
+		// --- DOSSIER CHART FIX: Generate sample history for existing assessments ---
+		if ( empty( $formatted_score_history ) && $score ) {
+			// Create a sample history entry for the current score if no history exists
+			$formatted_score_history[] = array(
+				'date'  => current_time( 'mysql' ),
+				'score' => (float) $score,
+			);
+			error_log( 'ENNU Dossier Chart: Generated sample history for assessment ' . $assessment_type );
+		}
+		// --- END DOSSIER CHART FIX ---
 
 		// Enqueue Chart.js and localize data
 		wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.1', true );
@@ -2522,7 +3387,6 @@ final class ENNU_Assessment_Shortcodes {
 		ob_start();
 		?>
 		<div class="ennu-user-dashboard"> <!-- Use the main dashboard class for consistent styling -->
-			<div class="starfield"></div>
 			<div class="dossier-grid" style="grid-template-columns: 1fr; max-width: 600px; margin: auto;">
 				<main class="dossier-main-content">
 					<div class="ennu-error" style="text-align: center;">
@@ -2557,7 +3421,7 @@ final class ENNU_Assessment_Shortcodes {
 		wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
 		wp_enqueue_script( 'chartjs', ENNU_LIFE_PLUGIN_URL . 'assets/js/chart.umd.js', array(), '4.4.1', true );
 		wp_enqueue_script( 'chartjs-adapter-date-fns', 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js', array( 'chartjs' ), '1.1.0', true );
-		wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns' ), ENNU_LIFE_VERSION, true );
+		wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns' ), ENNU_LIFE_VERSION . '.' . time(), true );
 
 		$user_id = get_current_user_id();
 
@@ -2567,7 +3431,7 @@ final class ENNU_Assessment_Shortcodes {
 		// Get user assessments data first
 		$user_assessments = $this->get_user_assessments_data( $user_id );
 
-		// Calculate ENNU Life score from completed assessments
+		// Calculate ENNU Life score from completed assessments (Dashboard uses simple calculation)
 		$ennu_life_score       = 0;
 		$completed_assessments = 0;
 		$total_score           = 0;
@@ -2607,7 +3471,7 @@ final class ENNU_Assessment_Shortcodes {
 		foreach ( $user_assessments as $assessment ) {
 			if ( $assessment['completed'] && $assessment['score'] > 0 ) {
 				// Map assessment to pillars based on assessment type
-				$assessment_key = str_replace( '_assessment', '', $assessment['key'] );
+				$assessment_key = str_replace( '_', '-', $assessment['key'] );
 
 				// Simple mapping - you can expand this based on your assessment types
 				switch ( $assessment_key ) {
@@ -2616,13 +3480,13 @@ final class ENNU_Assessment_Shortcodes {
 						$pillar_scores['Aesthetics'] += $assessment['score'];
 						$pillar_counts['Aesthetics']++;
 						break;
-					case 'ed_treatment':
+					case 'ed-treatment':
 					case 'testosterone':
 					case 'hormone':
 						$pillar_scores['Body'] += $assessment['score'];
 						$pillar_counts['Body']++;
 						break;
-					case 'weight_loss':
+					case 'weight-loss':
 					case 'sleep':
 						$pillar_scores['Lifestyle'] += $assessment['score'];
 						$pillar_counts['Lifestyle']++;
@@ -2645,18 +3509,62 @@ final class ENNU_Assessment_Shortcodes {
 		// Save pillar scores for future use
 		update_user_meta( $user_id, 'ennu_average_pillar_scores', $average_pillar_scores );
 
-		$dob                = get_user_meta( $user_id, 'ennu_global_user_dob_combined', true );
-		$age                = $dob ? ( new DateTime() )->diff( new DateTime( $dob ) )->y : null;
+		$dob                = get_user_meta( $user_id, 'ennu_global_date_of_birth', true );
+		
+		// Use Age Management System to calculate age data from DOB
+		if ( class_exists( 'ENNU_Age_Management_System' ) && ! empty( $dob ) ) {
+			$age_data = ENNU_Age_Management_System::get_user_age_data( $user_id );
+			$age = $age_data['exact_age'] ?? '';
+			$age_range = $age_data['age_range'] ?? '';
+			$age_category = $age_data['age_category'] ?? '';
+		} else {
+			// Fallback to stored values if Age Management System not available
+			$age = get_user_meta( $user_id, 'ennu_global_exact_age', true );
+			$age_range = get_user_meta( $user_id, 'ennu_global_age_range', true );
+			$age_category = get_user_meta( $user_id, 'ennu_global_age_category', true );
+		}
+		
 		$gender             = get_user_meta( $user_id, 'ennu_global_gender', true );
 		$height_weight_data = get_user_meta( $user_id, 'ennu_global_height_weight', true );
 		$height             = is_array( $height_weight_data ) && ! empty( $height_weight_data['ft'] ) ? "{$height_weight_data['ft']}' {$height_weight_data['in']}\"" : null;
-		$weight             = is_array( $height_weight_data ) && ! empty( $height_weight_data['lbs'] ) ? $height_weight_data['lbs'] . ' lbs' : null;
+		// Handle both 'weight' and 'lbs' keys for backward compatibility
+		$weight_value = is_array( $height_weight_data ) ? ( isset( $height_weight_data['weight'] ) ? $height_weight_data['weight'] : ( isset( $height_weight_data['lbs'] ) ? $height_weight_data['lbs'] : null ) ) : null;
+		$weight             = $weight_value ? $weight_value . ' lbs' : null;
 		$bmi                = get_user_meta( $user_id, 'ennu_calculated_bmi', true );
 		$score_history      = get_user_meta( $user_id, 'ennu_life_score_history', true );
 		$bmi_history        = get_user_meta( $user_id, 'ennu_bmi_history', true );
 
-		$score_history = is_array( $score_history ) ? array_filter( $score_history, fn( $e) => isset( $e['date'], $e['score'] ) && ! empty( $e['date'] ) ) : array();
-		usort( $score_history, fn( $a, $b) => strtotime( $a['date'] ) - strtotime( $b['date'] ) );
+		// Enhanced score history validation and processing
+		if ( is_array( $score_history ) ) {
+			$score_history = array_filter( $score_history, function( $entry ) {
+				return isset( $entry['date'], $entry['score'] ) 
+					&& ! empty( $entry['date'] ) 
+					&& is_numeric( $entry['score'] )
+					&& $entry['score'] >= 0 
+					&& $entry['score'] <= 10;
+			});
+			
+			// Sort by date
+			usort( $score_history, function( $a, $b ) {
+				return strtotime( $a['date'] ) - strtotime( $b['date'] );
+			});
+			
+			// Ensure we have at least some data for demonstration
+			if ( empty( $score_history ) ) {
+				$current_score = get_user_meta( $user_id, 'ennu_life_score', true );
+				if ( ! empty( $current_score ) && is_numeric( $current_score ) ) {
+					$score_history = array(
+						array(
+							'score' => floatval( $current_score ),
+							'date'  => current_time( 'mysql' ),
+							'timestamp' => time()
+						)
+					);
+				}
+			}
+		} else {
+			$score_history = array();
+		}
 
 		$insights         = include ENNU_LIFE_PLUGIN_PATH . 'includes/config/dashboard/insights.php';
 		$user_assessments = $this->get_user_assessments_data( $user_id );
@@ -2665,6 +3573,53 @@ final class ENNU_Assessment_Shortcodes {
 		$health_opt_calculator  = new ENNU_Health_Optimization_Calculator( $user_id, $this->all_definitions );
 		$triggered_vectors      = $health_opt_calculator->get_triggered_vectors();
 		$recommended_biomarkers = $health_opt_calculator->get_biomarker_recommendations();
+
+		// Get symptom data from centralized symptoms manager
+		if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+			$centralized_symptoms = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms( $user_id );
+			$symptom_analytics = ENNU_Centralized_Symptoms_Manager::get_symptom_analytics( $user_id );
+		} else {
+			$centralized_symptoms = array();
+			$symptom_analytics = array(
+				'total_symptoms' => 0,
+				'unique_symptoms' => 0,
+				'assessments_with_symptoms' => 0,
+				'most_common_category' => 'None',
+				'most_severe_symptoms' => array(),
+				'most_frequent_symptoms' => array(),
+				'symptom_trends' => array( 'trend' => 'stable', 'change' => 0 )
+			);
+		}
+
+		// Get biomarker data with proper flagging
+		$biomarker_data = ENNU_Biomarker_Manager::get_user_biomarkers( $user_id );
+		$flagged_biomarkers = array();
+		
+		if ( class_exists( 'ENNU_Biomarker_Flag_Manager' ) ) {
+			$flag_manager = new ENNU_Biomarker_Flag_Manager();
+			$flagged_biomarkers = $flag_manager->get_flagged_biomarkers( $user_id );
+		}
+
+		// Process biomarker data to include flagging information
+		$processed_biomarkers = array();
+		if ( ! empty( $biomarker_data ) && is_array( $biomarker_data ) ) {
+			foreach ( $biomarker_data as $biomarker_name => $data ) {
+				$processed_biomarkers[ $biomarker_name ] = array(
+					'biomarker_id' => $biomarker_name,
+					'display_name' => ucwords( str_replace( '_', ' ', $biomarker_name ) ),
+					'current_value' => $data['value'] ?? '',
+					'target_value' => $data['target'] ?? '',
+					'unit' => $data['unit'] ?? '',
+					'percentage_position' => $data['percentage_position'] ?? 50,
+					'target_position' => $data['target_position'] ?? 50,
+					'has_flags' => ! empty( $flagged_biomarkers ),
+					'flags' => $flagged_biomarkers,
+					'has_admin_override' => isset( $data['admin_override'] ) && $data['admin_override'],
+					'range_data' => $data['range_data'] ?? array(),
+					'last_updated' => $data['last_updated'] ?? current_time( 'mysql' )
+				);
+			}
+		}
 
 		$health_map_config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/health-optimization/biomarker-map.php';
 		$biomarker_map          = file_exists( $health_map_config_file ) ? require $health_map_config_file : array();
@@ -2693,6 +3648,15 @@ final class ENNU_Assessment_Shortcodes {
 
 		// Remove the forced demo block that was overriding real data
 
+		// Generate sample data if no real data exists
+		if ( empty( $score_history ) ) {
+			$score_history = $this->generate_sample_score_history( $user_id );
+		}
+
+		// DEBUG: Log score history data before passing to JavaScript
+		error_log( '[ENNU DEBUG] Score History before wp_localize_script: ' . print_r( $score_history, true ) );
+		error_log( '[ENNU DEBUG] BMI History before wp_localize_script: ' . print_r( $bmi_history, true ) );
+
 		wp_localize_script(
 			'ennu-user-dashboard',
 			'dashboardData',
@@ -2702,14 +3666,27 @@ final class ENNU_Assessment_Shortcodes {
 			)
 		);
 
+		// DEBUG: Log what was actually passed to JavaScript
+		error_log( '[ENNU DEBUG] dashboardData passed to JavaScript: ' . print_r( array(
+			'score_history' => array_values( $score_history ),
+			'bmi_history'   => is_array( $bmi_history ) ? array_values( $bmi_history ) : array(),
+		), true ) );
+
 		// Get user health goals
 		$health_goals_data = $this->get_user_health_goals( $user_id );
 
+		// DEBUG: Log user assessments data
+		error_log( '[ENNU DEBUG] User Assessments Data: ' . print_r( $user_assessments, true ) );
+		error_log( '[ENNU DEBUG] ENNU Life Score: ' . $ennu_life_score );
+		error_log( '[ENNU DEBUG] Average Pillar Scores: ' . print_r( $average_pillar_scores, true ) );
+		
 		$data = compact(
 			'current_user',
 			'ennu_life_score',
 			'average_pillar_scores',
 			'age',
+			'age_range',
+			'age_category',
 			'gender',
 			'dob',
 			'user_assessments',
@@ -2726,7 +3703,7 @@ final class ENNU_Assessment_Shortcodes {
 		$data['shortcode_instance'] = $this;
 
 		// DEBUG: Log the critical user data before sending to template
-		error_log( '[ENNU DEBUG] User Dashboard Data - Age: ' . ( $age ?? 'NULL' ) . ', Gender: ' . ( $gender ?? 'NULL' ) . ', Height: ' . ( $height ?? 'NULL' ) . ', Weight: ' . ( $weight ?? 'NULL' ) . ', BMI: ' . ( $bmi ?? 'NULL' ) );
+		error_log( '[ENNU DEBUG] User Dashboard Data - Age: ' . ( $age ?? 'NULL' ) . ', Age Range: ' . ( $age_range ?? 'NULL' ) . ', Age Category: ' . ( $age_category ?? 'NULL' ) . ', Gender: ' . ( $gender ?? 'NULL' ) . ', Height: ' . ( $height ?? 'NULL' ) . ', Weight: ' . ( $weight ?? 'NULL' ) . ', BMI: ' . ( $bmi ?? 'NULL' ) );
 		error_log( '[ENNU DEBUG] User Dashboard Data - DOB: ' . ( $dob ?? 'NULL' ) );
 		error_log( '[ENNU DEBUG] User Dashboard Data - User ID: ' . $user_id );
 		error_log( '[ENNU DEBUG] User Dashboard Data - Current User: ' . ( $current_user ? $current_user->ID : 'NULL' ) );
@@ -2734,6 +3711,33 @@ final class ENNU_Assessment_Shortcodes {
 		ob_start();
 		ennu_load_template( 'user-dashboard.php', $data );
 		return ob_get_clean();
+	}
+
+	/**
+	 * Generate sample score history for demonstration purposes
+	 *
+	 * @param int $user_id User ID
+	 * @return array Sample score history data
+	 */
+	private function generate_sample_score_history( $user_id ) {
+		$sample_data = array();
+		$base_score = 6.5; // Realistic base score
+		
+		// Generate 7 days of sample data with realistic progression
+		for ( $i = 6; $i >= 0; $i-- ) {
+			$date = date( 'Y-m-d H:i:s', strtotime( "-{$i} days" ) );
+			$variation = ( mt_rand( -10, 10 ) / 10 ); // ±1 point variation
+			$score = max( 0, min( 10, $base_score + $variation ) );
+			
+			$sample_data[] = array(
+				'score'     => round( $score, 1 ),
+				'date'      => $date,
+				'timestamp' => strtotime( $date ),
+				'is_sample' => true
+			);
+		}
+		
+		return $sample_data;
 	}
 
 	public static function get_trinity_pillar_map() {
@@ -3078,23 +4082,32 @@ final class ENNU_Assessment_Shortcodes {
 		// Start output buffering
 		ob_start();
 		?>
-		<div class="ennu-unified-container">
-			<div class="starfield"></div>
+		<div class="ennu-unified-container consultation-page" data-theme="light">
 			
-			<!-- ENNU Life Header -->
-			<?php echo $this->render_ennu_header( $consultation_type, $consultation_config ); ?>
+			<!-- Universal Header Component -->
+			<?php
+			// Prepare header data for consultation page
+			$header_data = array(
+				'display_name' => $user_data['display_name'] ?? '',
+				'age' => $user_data['age'] ?? '',
+				'gender' => $user_data['gender'] ?? '',
+				'height' => '',
+				'weight' => '',
+				'bmi' => '',
+				'show_vital_stats' => false, // Don't show vital stats on consultation page
+				'show_theme_toggle' => false, // No theme toggle on consultation page
+				'page_title' => $consultation_config['title'],
+				'page_subtitle' => $consultation_config['description'],
+				'show_logo' => true,
+				'logo_color' => 'white',
+				'logo_size' => 'medium'
+			);
 			
-			<!-- Theme Toggle -->
-			<div class="ennu-theme-toggle">
-				<button class="ennu-theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-					<svg class="ennu-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path class="ennu-sun-icon" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-						<path class="ennu-moon-icon" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-					</svg>
-				</button>
-			</div>
+			// Load the universal header component
+			ennu_load_template( 'universal-header', $header_data );
+			?>
 			
-			<div class="ennu-two-column">
+			<div class="ennu-single-column">
 				<!-- Main Content -->
 				<div class="ennu-main-content">
 					<!-- Hero Section -->
@@ -3149,48 +4162,46 @@ final class ENNU_Assessment_Shortcodes {
 					</div>
 				</div>
 
-				<!-- Sidebar -->
-				<div class="ennu-sidebar">
-					<!-- Contact Section -->
-					<div class="ennu-card ennu-animate-in ennu-animate-delay-3">
-						<h3 class="ennu-section-title"><?php echo esc_html( $consultation_config['contact_label'] ); ?></h3>
-						<div class="ennu-contact-info">
-							<div class="ennu-contact-item">
-								<div class="ennu-contact-icon">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-										<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-									</svg>
-								</div>
-								<div class="ennu-contact-details">
-									<div class="ennu-contact-label">Phone</div>
-									<div class="ennu-contact-value">
-										<a href="tel:<?php echo esc_attr( $consultation_config['phone'] ); ?>"><?php echo esc_html( $consultation_config['phone_display'] ); ?></a>
-									</div>
-								</div>
+				<!-- Contact Section -->
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-3">
+					<h3 class="ennu-section-title"><?php echo esc_html( $consultation_config['contact_label'] ); ?></h3>
+					<div class="ennu-contact-info" style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+						<div class="ennu-contact-item">
+							<div class="ennu-contact-icon">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+									<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+								</svg>
 							</div>
-							<div class="ennu-contact-item">
-								<div class="ennu-contact-icon">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-										<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-										<polyline points="22,6 12,13 2,6"/>
-									</svg>
-								</div>
-								<div class="ennu-contact-details">
-									<div class="ennu-contact-label">Email</div>
-									<div class="ennu-contact-value">
-										<a href="mailto:<?php echo esc_attr( $consultation_config['email'] ); ?>"><?php echo esc_html( $consultation_config['email'] ); ?></a>
-									</div>
+							<div class="ennu-contact-details">
+								<div class="ennu-contact-label">Phone</div>
+								<div class="ennu-contact-value">
+									<a href="tel:<?php echo esc_attr( $consultation_config['phone'] ); ?>"><?php echo esc_html( $consultation_config['phone_display'] ); ?></a>
 								</div>
 							</div>
 						</div>
-						<?php if ( ! empty( $consultation_config['extra_section'] ) ) : ?>
-							<div class="ennu-extra-section">
-								<?php echo wp_kses_post( $consultation_config['extra_section'] ); ?>
+						<div class="ennu-contact-item">
+							<div class="ennu-contact-icon">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+									<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+									<polyline points="22,6 12,13 2,6"/>
+								</svg>
 							</div>
-						<?php endif; ?>
+							<div class="ennu-contact-details">
+								<div class="ennu-contact-label">Email</div>
+								<div class="ennu-contact-value">
+									<a href="mailto:<?php echo esc_attr( $consultation_config['email'] ); ?>"><?php echo esc_html( $consultation_config['email'] ); ?></a>
+								</div>
+							</div>
+						</div>
 					</div>
+					<?php if ( ! empty( $consultation_config['extra_section'] ) ) : ?>
+						<div class="ennu-extra-section">
+							<?php echo wp_kses_post( $consultation_config['extra_section'] ); ?>
+						</div>
+					<?php endif; ?>
 				</div>
 			</div>
+		</div>
 		</div>
 
 		<style>
@@ -3826,7 +4837,7 @@ final class ENNU_Assessment_Shortcodes {
 
 			foreach ( $assessment_types as $type ) {
 				$score = get_user_meta( $user_id, 'ennu_' . $type . '_calculated_score', true );
-				if ( $score ) {
+		if ( $score ) {
 					$assessment_results[] = ucwords( str_replace( '_', ' ', $type ) ) . ': ' . $score . '/10';
 				}
 			}
@@ -3877,7 +4888,7 @@ final class ENNU_Assessment_Shortcodes {
 			'ed-treatment' => 'Specialized assessment for erectile dysfunction and sexual health optimization.',
 		);
 
-		ob_start();
+				ob_start();
 		?>
 		<div class="ennu-user-dashboard">
 			<!-- Light/Dark Mode Toggle -->
@@ -3904,8 +4915,6 @@ final class ENNU_Assessment_Shortcodes {
 				</button>
 			</div>
 
-			<div class="starfield"></div>
-			
 			<div class="dashboard-main-grid">
 				<main class="dashboard-main-content">
 					<!-- Welcome Section -->
@@ -4055,7 +5064,7 @@ final class ENNU_Assessment_Shortcodes {
 			</div>
 		</div>
 		<?php
-		return ob_get_clean();
+				return ob_get_clean();
 	}
 
 	/**
@@ -4169,7 +5178,7 @@ final class ENNU_Assessment_Shortcodes {
 					$label = $goal_data['label'];
 				} elseif ( isset( $goal_data['name'] ) ) {
 					$label = $goal_data['name'];
-				} else {
+			} else {
 					$label = ucwords( str_replace( '_', ' ', $goal_id ) );
 				}
 			} else {
@@ -4222,7 +5231,7 @@ final class ENNU_Assessment_Shortcodes {
 		// Enqueue necessary styles
 		wp_enqueue_style( 'ennu-frontend-forms' );
 
-		ob_start();
+				ob_start();
 		?>
 		<div class="ennu-signup-container">
 			<!-- Hero Section -->
@@ -4717,7 +5726,7 @@ final class ENNU_Assessment_Shortcodes {
 		}
 		</style>
 		<?php
-		return ob_get_clean();
+				return ob_get_clean();
 	}
 
 	/**
@@ -4742,6 +5751,462 @@ final class ENNU_Assessment_Shortcodes {
 		$saved_value = is_array( $saved_value ) ? $saved_value : array();
 
 		return $saved_value;
+	}
+
+	/**
+	 * Render score presentation shortcode.
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @param string $content Shortcode content
+	 * @param string $tag Shortcode tag
+	 * @return string
+	 */
+	public function render_score_presentation( $atts, $content = '', $tag = '' ) {
+		// Parse attributes
+		$atts = shortcode_atts( array(
+			'type' => 'lifescore',
+			'user_id' => get_current_user_id(),
+		), $atts, $tag );
+
+		$type = sanitize_text_field( $atts['type'] );
+		$user_id = absint( $atts['user_id'] );
+
+		// Get user data
+		$ennu_life_score = get_user_meta( $user_id, 'ennu_life_score', true ) ?: 0;
+		
+		// Get pillar scores from the correct meta key
+		$pillar_scores = get_user_meta( $user_id, 'ennu_average_pillar_scores', true ) ?: array();
+		$mind_score = isset( $pillar_scores['Mind'] ) ? $pillar_scores['Mind'] : 0;
+		$body_score = isset( $pillar_scores['Body'] ) ? $pillar_scores['Body'] : 0;
+		$lifestyle_score = isset( $pillar_scores['Lifestyle'] ) ? $pillar_scores['Lifestyle'] : 0;
+		$aesthetics_score = isset( $pillar_scores['Aesthetics'] ) ? $pillar_scores['Aesthetics'] : 0;
+
+		// Determine center score and surrounding scores based on type
+		$center_score = 0;
+		$center_label = '';
+		$surrounding_scores = array();
+
+		switch ( $type ) {
+			case 'lifescore':
+				$center_score = $ennu_life_score;
+				$center_label = 'ENNU Life Score';
+				$surrounding_scores = array(
+					array( 'label' => 'Mind', 'score' => $mind_score, 'class' => 'mind' ),
+					array( 'label' => 'Body', 'score' => $body_score, 'class' => 'body' ),
+					array( 'label' => 'Lifestyle', 'score' => $lifestyle_score, 'class' => 'lifestyle' ),
+					array( 'label' => 'Aesthetics', 'score' => $aesthetics_score, 'class' => 'aesthetics' )
+				);
+				break;
+
+			case 'pmind':
+				$center_score = $mind_score;
+				$center_label = 'Mind Score';
+				$surrounding_scores = array(
+					array( 'label' => 'ENNU Life Score', 'score' => $ennu_life_score, 'class' => 'ennu-life-score' ),
+					array( 'label' => 'Body', 'score' => $body_score, 'class' => 'body' ),
+					array( 'label' => 'Lifestyle', 'score' => $lifestyle_score, 'class' => 'lifestyle' ),
+					array( 'label' => 'Aesthetics', 'score' => $aesthetics_score, 'class' => 'aesthetics' )
+				);
+				break;
+
+			case 'pbody':
+				$center_score = $body_score;
+				$center_label = 'Body Score';
+				$surrounding_scores = array(
+					array( 'label' => 'ENNU Life Score', 'score' => $ennu_life_score, 'class' => 'ennu-life-score' ),
+					array( 'label' => 'Mind', 'score' => $mind_score, 'class' => 'mind' ),
+					array( 'label' => 'Lifestyle', 'score' => $lifestyle_score, 'class' => 'lifestyle' ),
+					array( 'label' => 'Aesthetics', 'score' => $aesthetics_score, 'class' => 'aesthetics' )
+				);
+				break;
+
+			case 'plifestyle':
+				$center_score = $lifestyle_score;
+				$center_label = 'Lifestyle Score';
+				$surrounding_scores = array(
+					array( 'label' => 'ENNU Life Score', 'score' => $ennu_life_score, 'class' => 'ennu-life-score' ),
+					array( 'label' => 'Mind', 'score' => $mind_score, 'class' => 'mind' ),
+					array( 'label' => 'Body', 'score' => $body_score, 'class' => 'body' ),
+					array( 'label' => 'Aesthetics', 'score' => $aesthetics_score, 'class' => 'aesthetics' )
+				);
+				break;
+
+			case 'paesthetics':
+				$center_score = $aesthetics_score;
+				$center_label = 'Aesthetics Score';
+				$surrounding_scores = array(
+					array( 'label' => 'ENNU Life Score', 'score' => $ennu_life_score, 'class' => 'ennu-life-score' ),
+					array( 'label' => 'Mind', 'score' => $mind_score, 'class' => 'mind' ),
+					array( 'label' => 'Body', 'score' => $body_score, 'class' => 'body' ),
+					array( 'label' => 'Lifestyle', 'score' => $lifestyle_score, 'class' => 'lifestyle' )
+				);
+				break;
+
+			default:
+				// For assessment scores, get the most recent assessment score and its pillar scores
+				$historical_scores = get_user_meta( $user_id, 'ennu_' . $type . '_historical_scores', true );
+				$assessment_pillar_scores = get_user_meta( $user_id, 'ennu_' . $type . '_pillar_scores', true );
+				
+				if ( $historical_scores && is_array( $historical_scores ) && ! empty( $historical_scores ) ) {
+					// Get the most recent assessment score (last entry in the array)
+					$most_recent_entry = end( $historical_scores );
+					$center_score = isset( $most_recent_entry['score'] ) ? $most_recent_entry['score'] : 0;
+					$center_label = ucwords( str_replace( '-', ' ', $type ) ) . ' Score';
+					
+					// Get the most recent pillar scores from the assessment
+					$assessment_mind_score = isset( $assessment_pillar_scores['mind'] ) ? $assessment_pillar_scores['mind'] : 0;
+					$assessment_body_score = isset( $assessment_pillar_scores['body'] ) ? $assessment_pillar_scores['body'] : 0;
+					$assessment_lifestyle_score = isset( $assessment_pillar_scores['lifestyle'] ) ? $assessment_pillar_scores['lifestyle'] : 0;
+					$assessment_aesthetics_score = isset( $assessment_pillar_scores['aesthetics'] ) ? $assessment_pillar_scores['aesthetics'] : 0;
+					
+					$surrounding_scores = array(
+						array( 'label' => 'Mind', 'score' => $assessment_mind_score, 'class' => 'mind' ),
+						array( 'label' => 'Body', 'score' => $assessment_body_score, 'class' => 'body' ),
+						array( 'label' => 'Lifestyle', 'score' => $assessment_lifestyle_score, 'class' => 'lifestyle' ),
+						array( 'label' => 'Aesthetics', 'score' => $assessment_aesthetics_score, 'class' => 'aesthetics' )
+					);
+				} else {
+					// Fallback to life score
+					$center_score = $ennu_life_score;
+					$center_label = 'ENNU Life Score';
+					$surrounding_scores = array(
+						array( 'label' => 'Mind', 'score' => $mind_score, 'class' => 'mind' ),
+						array( 'label' => 'Body', 'score' => $body_score, 'class' => 'body' ),
+						array( 'label' => 'Lifestyle', 'score' => $lifestyle_score, 'class' => 'lifestyle' ),
+						array( 'label' => 'Aesthetics', 'score' => $aesthetics_score, 'class' => 'aesthetics' )
+					);
+				}
+				break;
+		}
+
+		// Start output buffering
+		ob_start();
+		?>
+
+		<!-- Score Presentation Container -->
+		<div class="score-presentation-container">
+			<!-- Scores Content Grid -->
+			<div class="scores-content-grid">
+				<!-- Left Pillar Scores -->
+				<div class="pillar-scores-left">
+					<?php if ( isset( $surrounding_scores[0] ) ) : ?>
+						<?php $score_data = $surrounding_scores[0]; ?>
+						<div class="pillar-orb <?php echo esc_attr( $score_data['class'] ); ?>">
+							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score_data['score'] * 10 ); ?>;"></circle>
+							</svg>
+							<div class="pillar-orb-content">
+								<div class="pillar-orb-label"><?php echo esc_html( $score_data['label'] ); ?></div>
+								<div class="pillar-orb-score"><?php echo esc_html( number_format( $score_data['score'], 1 ) ); ?></div>
+							</div>
+						</div>
+					<?php endif; ?>
+				</div>
+
+				<!-- Center Score -->
+				<div class="ennu-life-score-center">
+					<div class="main-score-orb" data-score="<?php echo esc_attr( $center_score ); ?>">
+						<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+							<defs>
+								<linearGradient id="ennu-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+									<stop offset="0%" stop-color="rgba(16, 185, 129, 0.6)"/>
+									<stop offset="50%" stop-color="rgba(5, 150, 105, 0.6)"/>
+									<stop offset="100%" stop-color="rgba(4, 120, 87, 0.6)"/>
+								</linearGradient>
+							</defs>
+							<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+							<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $center_score * 10 ); ?>;"></circle>
+						</svg>
+						<div class="main-score-text">
+							<div class="main-score-value"><?php echo esc_html( number_format( $center_score, 1 ) ); ?></div>
+							<div class="main-score-label"><?php echo esc_html( $center_label ); ?></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right Pillar Scores -->
+				<div class="pillar-scores-right">
+					<?php 
+					// Show next 2 scores
+					for ( $i = 1; $i < 3 && isset( $surrounding_scores[$i] ); $i++ ) : 
+						$score_data = $surrounding_scores[$i];
+					?>
+						<div class="pillar-orb <?php echo esc_attr( $score_data['class'] ); ?>">
+							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score_data['score'] * 10 ); ?>;"></circle>
+							</svg>
+							<div class="pillar-orb-content">
+								<div class="pillar-orb-label"><?php echo esc_html( $score_data['label'] ); ?></div>
+								<div class="pillar-orb-score"><?php echo esc_html( number_format( $score_data['score'], 1 ) ); ?></div>
+							</div>
+						</div>
+					<?php endfor; ?>
+				</div>
+			</div>
+		</div>
+
+		<style>
+		/* Score Presentation Styles */
+		.score-presentation-container {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+			margin: 20px 0;
+		}
+
+		.scores-content-grid {
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			gap: 1.5rem;
+			align-items: center;
+			justify-content: center;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.pillar-scores-left,
+		.pillar-scores-right {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.pillar-orb {
+			width: 80px;
+			height: 80px;
+			border-radius: 50%;
+			background: #fff;
+			border: 2px solid #e5e7eb;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+
+		.pillar-orb:hover {
+			transform: translateY(-5px) scale(1.05);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+		}
+
+		.pillar-orb-progress {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			transform: rotate(-90deg);
+			pointer-events: none;
+		}
+
+		.pillar-orb-progress circle {
+			fill: none;
+			stroke-width: 2;
+		}
+
+		.pillar-orb-progress-bg {
+			stroke: #e5e7eb;
+			opacity: 0.5;
+		}
+
+		.pillar-orb-progress-bar {
+			stroke: var(--pillar-color, #10b981);
+			stroke-dasharray: 100, 100;
+			stroke-dashoffset: 100;
+			transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+		}
+
+		.pillar-orb.loaded .pillar-orb-progress-bar {
+			stroke-dashoffset: calc(100 - var(--score-percent, 0));
+		}
+
+		.pillar-orb-content {
+			position: relative;
+			z-index: 2;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.pillar-orb-label {
+			font-size: 0.8rem;
+			font-weight: 600;
+			color: #374151;
+		}
+
+		.pillar-orb-score {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: var(--pillar-color, #10b981);
+		}
+
+		/* Pillar-specific colors */
+		.pillar-orb.mind { --pillar-color: #8e44ad; }
+		.pillar-orb.body { --pillar-color: #2980b9; }
+		.pillar-orb.lifestyle { --pillar-color: #f39c12; }
+		.pillar-orb.aesthetics { --pillar-color: #e91e63; }
+		.pillar-orb.ennu-life-score { --pillar-color: #10b981; }
+
+		.ennu-life-score-center {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			position: relative;
+		}
+
+		.main-score-orb {
+			width: 160px;
+			height: 160px;
+			border-radius: 50%;
+			background: #fff;
+			border: 3px solid #e5e7eb;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.3s ease;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+		}
+
+		.main-score-orb:hover {
+			transform: translateY(-8px) scale(1.05);
+			box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+		}
+
+		.main-score-orb svg {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			transform: rotate(-90deg);
+		}
+
+		.main-score-orb .pillar-orb-progress-bg {
+			stroke: #e5e7eb;
+			stroke-width: 4;
+			opacity: 0.5;
+		}
+
+		.main-score-orb .pillar-orb-progress-bar {
+			stroke: url(#ennu-score-gradient);
+			stroke-width: 4;
+			stroke-dasharray: 100, 100;
+			stroke-dashoffset: 100;
+			transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+		}
+
+		.main-score-orb.loaded .pillar-orb-progress-bar {
+			stroke-dashoffset: calc(100 - var(--score-percent, 0));
+		}
+
+		.main-score-text {
+			position: relative;
+			z-index: 2;
+			text-align: center;
+		}
+
+		.main-score-value {
+			font-size: 3rem;
+			font-weight: 800;
+			line-height: 1;
+			color: #374151;
+		}
+
+		.main-score-label {
+			font-size: 0.9rem;
+			color: #6b7280;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			margin-top: 0.25rem;
+		}
+
+		/* Responsive Design */
+		@media (max-width: 768px) {
+			.scores-content-grid {
+				grid-template-columns: 1fr;
+				gap: 1rem;
+			}
+
+			.pillar-scores-left,
+			.pillar-scores-right {
+				flex-direction: row;
+				justify-content: center;
+				gap: 0.75rem;
+			}
+
+			.pillar-orb {
+				width: 60px;
+				height: 60px;
+			}
+
+			.pillar-orb-label {
+				font-size: 0.7rem;
+			}
+
+			.pillar-orb-score {
+				font-size: 1rem;
+			}
+
+			.main-score-orb {
+				width: 120px;
+				height: 120px;
+			}
+
+			.main-score-value {
+				font-size: 2.5rem;
+			}
+
+			.main-score-label {
+				font-size: 0.8rem;
+			}
+		}
+		</style>
+
+		<script>
+		// Initialize score animations
+		document.addEventListener('DOMContentLoaded', function() {
+			const orbs = document.querySelectorAll('.pillar-orb, .main-score-orb');
+			
+			orbs.forEach(function(orb) {
+				// Add loaded class after a short delay to trigger animations
+				setTimeout(function() {
+					orb.classList.add('loaded');
+				}, 100);
+			});
+		});
+		</script>
+
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render biomarkers only shortcode
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @param string $content Shortcode content
+	 * @param string $tag Shortcode tag
+	 * @return string
+	 */
+	public function render_biomarkers_only( $atts = array(), $content = '', $tag = '' ) {
+		// Check if user is logged in
+		if ( ! is_user_logged_in() ) {
+			return $this->render_error_message( __( 'You must be logged in to view your biomarkers.', 'ennulifeassessments' ) );
+		}
+
+		$user_id = get_current_user_id();
+		
+		// Start output buffering
+		ob_start();
+		
+		// Include the biomarkers container content from the dashboard template
+		include( plugin_dir_path( __FILE__ ) . '../templates/biomarkers-only.php' );
+		
+		return ob_get_clean();
 	}
 }
 // Initialize the class

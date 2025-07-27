@@ -29,6 +29,8 @@ class ENNU_Trends_Visualization_System {
 	 * Enqueue visualization scripts
 	 */
 	public static function enqueue_scripts() {
+		// Commented out - file doesn't exist
+		/*
 		if ( is_user_logged_in() ) {
 			wp_enqueue_script(
 				'ennu-trends-visualization',
@@ -55,6 +57,7 @@ class ENNU_Trends_Visualization_System {
 				)
 			);
 		}
+		*/
 	}
 
 	/**

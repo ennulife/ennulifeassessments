@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="ennu-user-dashboard">
-	<div class="starfield"></div>
+
 	<?php
 	if ( function_exists( 'ennu_render_logo' ) ) {
 		echo '<div class="ennu-logo-container">';

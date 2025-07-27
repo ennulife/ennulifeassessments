@@ -1,0 +1,367 @@
+/**
+ * ENNU Life Assessments - Admin User Profile Styles
+ * Enhanced styling for the user profile assessment fields
+ * 
+ * @package ENNU_Life
+ * @version 62.8.0
+ */
+
+/* ===== MAIN CONTAINER STYLES ===== */
+.ennu-admin-tabs {
+    margin: 20px 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ===== TAB NAVIGATION ===== */
+.ennu-admin-tab-nav {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 1px solid #ddd;
+}
+
+.ennu-admin-tab-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: none;
+}
+
+.ennu-admin-tab-nav li {
+    margin: 0;
+    border: none;
+}
+
+.ennu-admin-tab-nav a {
+    display: block;
+    padding: 15px 20px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ennu-admin-tab-nav a:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    text-decoration: none;
+}
+
+.ennu-admin-tab-nav a.ennu-admin-tab-active {
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+    border-bottom: 3px solid #fff;
+}
+
+.ennu-admin-tab-nav a.ennu-admin-tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #fff;
+}
+
+/* ===== TAB CONTENT ===== */
+.ennu-admin-tab-content {
+    display: none;
+    padding: 25px;
+    background: #fff;
+}
+
+.ennu-admin-tab-content.ennu-admin-tab-active {
+    display: block;
+}
+
+/* ===== FORM STYLES ===== */
+.ennu-admin-tab-content .form-table {
+    margin-top: 0;
+}
+
+.ennu-admin-tab-content .form-table th {
+    width: 200px;
+    padding: 15px 10px 15px 0;
+    font-weight: 600;
+    color: #23282d;
+    vertical-align: top;
+}
+
+.ennu-admin-tab-content .form-table td {
+    padding: 15px 10px;
+    vertical-align: top;
+}
+
+/* ===== FIELD STYLES ===== */
+.ennu-admin-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ennu-admin-checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f9f9f9;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ennu-admin-checkbox-group label:hover {
+    background: #f0f0f0;
+    border-color: #ccc;
+}
+
+.ennu-admin-checkbox-group input[type="checkbox"] {
+    margin: 0;
+}
+
+.ennu-admin-hw-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ennu-admin-hw-group span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ennu-admin-hw-group input[type="number"] {
+    width: 60px;
+    text-align: center;
+}
+
+/* ===== ADMIN ACTIONS SECTION ===== */
+.ennu-admin-actions-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.ennu-admin-actions-section h3 {
+    margin-top: 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.ennu-admin-actions-section p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.ennu-admin-action-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ennu-admin-action-buttons .button {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.ennu-admin-action-buttons .button-primary {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+
+.ennu-admin-action-buttons .button-primary:hover {
+    background: #005a87;
+    border-color: #005a87;
+}
+
+.ennu-admin-action-buttons .button-delete {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.ennu-admin-action-buttons .button-delete:hover {
+    background: #c82333;
+    border-color: #c82333;
+}
+
+.ennu-admin-action-buttons .button-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.ennu-admin-action-buttons .button-secondary:hover {
+    background: #5a6268;
+    border-color: #5a6268;
+}
+
+/* ===== SPINNER ===== */
+.ennu-admin-action-buttons .spinner {
+    float: none;
+    margin: 0;
+    display: none;
+}
+
+.ennu-admin-action-buttons .spinner.is-active {
+    display: inline-block;
+}
+
+/* ===== HEALTH SUMMARY STYLES ===== */
+.ennu-health-summary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ennu-health-summary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>') center/contain no-repeat;
+    opacity: 0.3;
+}
+
+.ennu-health-summary h3 {
+    margin: 0 0 15px 0;
+    font-size: 20px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.ennu-health-summary .ennu-score-display {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.ennu-score-item {
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+}
+
+.ennu-score-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.ennu-score-label {
+    font-size: 14px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .ennu-admin-tab-nav ul {
+        flex-direction: column;
+    }
+    
+    .ennu-admin-tab-nav a {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .ennu-admin-tab-content {
+        padding: 15px;
+    }
+    
+    .ennu-admin-tab-content .form-table th,
+    .ennu-admin-tab-content .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+    
+    .ennu-admin-tab-content .form-table th {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+    }
+    
+    .ennu-admin-action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .ennu-admin-action-buttons .button {
+        text-align: center;
+    }
+    
+    .ennu-health-summary .ennu-score-display {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .ennu-score-item {
+        min-width: auto;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ennu-admin-tab-content.ennu-admin-tab-active {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ===== ACCESSIBILITY ===== */
+.ennu-admin-tab-nav a:focus {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+
+.ennu-admin-checkbox-group label:focus-within {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .ennu-admin-tab-nav,
+    .ennu-admin-actions-section {
+        display: none;
+    }
+    
+    .ennu-admin-tab-content {
+        display: block !important;
+        border: 1px solid #000;
+        margin-bottom: 20px;
+        page-break-inside: avoid;
+    }
+} 

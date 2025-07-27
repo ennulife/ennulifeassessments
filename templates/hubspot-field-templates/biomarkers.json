@@ -1,0 +1,94 @@
+[
+  {
+    "name": "biomarker_name",
+    "label": "Biomarker Name",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Name of the biomarker being tested"
+  },
+  {
+    "name": "biomarker_value",
+    "label": "Biomarker Value",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Numeric value of the biomarker test result"
+  },
+  {
+    "name": "biomarker_unit",
+    "label": "Unit",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Unit of measurement for the biomarker value"
+  },
+  {
+    "name": "biomarker_status",
+    "label": "Status",
+    "type": "enumeration",
+    "fieldType": "select",
+    "description": "Status of the biomarker result",
+    "options": [
+      {
+        "label": "Normal",
+        "value": "normal",
+        "displayOrder": 1
+      },
+      {
+        "label": "Low",
+        "value": "low",
+        "displayOrder": 2
+      },
+      {
+        "label": "High",
+        "value": "high",
+        "displayOrder": 3
+      },
+      {
+        "label": "Critical",
+        "value": "critical",
+        "displayOrder": 4
+      }
+    ]
+  },
+  {
+    "name": "biomarker_date",
+    "label": "Test Date",
+    "type": "date",
+    "fieldType": "date",
+    "description": "Date when the biomarker test was performed"
+  },
+  {
+    "name": "biomarker_notes",
+    "label": "Notes",
+    "type": "string",
+    "fieldType": "textarea",
+    "description": "Additional notes about the biomarker result"
+  },
+  {
+    "name": "biomarker_reference_low",
+    "label": "Reference Range Low",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Lower limit of the normal reference range"
+  },
+  {
+    "name": "biomarker_reference_high",
+    "label": "Reference Range High",
+    "type": "number",
+    "fieldType": "number",
+    "description": "Upper limit of the normal reference range"
+  },
+  {
+    "name": "biomarker_lab",
+    "label": "Laboratory",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Laboratory that performed the test"
+  },
+  {
+    "name": "biomarker_test_code",
+    "label": "Test Code",
+    "type": "string",
+    "fieldType": "text",
+    "description": "Laboratory test code for the biomarker"
+  }
+] 

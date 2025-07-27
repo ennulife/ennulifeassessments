@@ -22,7 +22,11 @@ class ENNU_Recommended_Range_Manager {
 		add_action( 'wp_ajax_ennu_get_recommended_ranges', array( $this, 'ajax_get_recommended_ranges' ) );
 		add_action( 'wp_ajax_nopriv_ennu_get_recommended_ranges', array( $this, 'ajax_get_recommended_ranges' ) );
 		add_action( 'wp_ajax_ennu_update_user_ranges', array( $this, 'ajax_update_user_ranges' ) );
+		add_action( 'wp_ajax_ennu_synchronize_user_data', array( $this, 'ajax_synchronize_user_data' ) );
 		add_action( 'ennu_biomarker_uploaded', array( $this, 'check_biomarker_ranges' ), 10, 2 );
+		
+		// Hook to synchronize user data when AI Medical Team updates ranges
+		add_action( 'ennu_ai_medical_team_ranges_updated', array( $this, 'synchronize_user_biomarker_data' ) );
 	}
 
 	/**
@@ -59,7 +63,7 @@ class ENNU_Recommended_Range_Manager {
 			'critical_min' => $ranges['critical_min'],
 			'critical_max' => $ranges['critical_max'],
 			'description'  => $config['description'],
-			'factors'      => $config['factors'],
+			'factors'      => isset( $config['factors'] ) ? $config['factors'] : array(),
 			'age_group'    => $this->get_age_group( $user_age ),
 			'gender'       => $user_gender,
 		);
@@ -116,18 +120,11 @@ class ENNU_Recommended_Range_Manager {
 	 * @return array Adjusted ranges
 	 */
 	private function apply_range_adjustments( $ranges, $adjustments ) {
-		foreach ( $adjustments as $range_type => $factor ) {
+		// Apply adjustments to the base ranges
+		foreach ( $adjustments as $range_type => $value ) {
 			if ( isset( $ranges[ $range_type ] ) ) {
-				if ( is_array( $factor ) ) {
-					if ( isset( $factor['min'] ) ) {
-						$ranges[ $range_type ] = $ranges[ $range_type ] * $factor['min'];
-					}
-					if ( isset( $factor['max'] ) ) {
-						$ranges[ $range_type ] = $ranges[ $range_type ] * $factor['max'];
-					}
-				} else {
-					$ranges[ $range_type ] = $ranges[ $range_type ] * $factor;
-				}
+				// Apply the adjustment value directly (this replaces the base value)
+				$ranges[ $range_type ] = $value;
 			}
 		}
 
@@ -142,16 +139,16 @@ class ENNU_Recommended_Range_Manager {
 	 */
 	private function get_age_group( $age ) {
 		if ( $age < 25 ) {
-			return 'young_adult';
+			return 'young';
 		}
 		if ( $age < 35 ) {
 			return 'adult';
 		}
 		if ( $age < 50 ) {
-			return 'middle_aged';
+			return 'adult';
 		}
 		if ( $age < 65 ) {
-			return 'mature';
+			return 'adult';
 		}
 		return 'senior';
 	}
@@ -187,163 +184,105 @@ class ENNU_Recommended_Range_Manager {
 	 *
 	 * @return array Biomarker configuration
 	 */
-	private function get_biomarker_configuration() {
-		return array(
-			'testosterone_total' => array(
-				'display_name'       => 'Total Testosterone',
-				'unit'               => 'ng/dL',
-				'description'        => 'Primary male hormone affecting energy, muscle mass, and libido',
-				'ranges'             => array(
-					'optimal_min'  => 600,
-					'optimal_max'  => 1000,
-					'normal_min'   => 300,
-					'normal_max'   => 1200,
-					'critical_min' => 200,
-					'critical_max' => 1500,
-				),
-				'gender_adjustments' => array(
-					'female' => array(
-						'optimal_min' => 0.15,
-						'optimal_max' => 0.08,
-						'normal_min'  => 0.1,
-						'normal_max'  => 0.1,
-					),
-				),
-				'age_adjustments'    => array(
-					'senior' => array(
-						'optimal_min' => 0.9,
-						'optimal_max' => 0.9,
-					),
-				),
-				'factors'            => array( 'Age', 'Exercise', 'Sleep', 'Stress', 'Diet' ),
-			),
-			'testosterone_free'  => array(
-				'display_name'       => 'Free Testosterone',
-				'unit'               => 'pg/mL',
-				'description'        => 'Bioavailable testosterone not bound to proteins',
-				'ranges'             => array(
-					'optimal_min'  => 15,
-					'optimal_max'  => 25,
-					'normal_min'   => 9,
-					'normal_max'   => 30,
-					'critical_min' => 5,
-					'critical_max' => 40,
-				),
-				'gender_adjustments' => array(
-					'female' => array(
-						'optimal_min' => 0.1,
-						'optimal_max' => 0.12,
-						'normal_min'  => 0.08,
-						'normal_max'  => 0.15,
-					),
-				),
-				'factors'            => array( 'SHBG levels', 'Body composition', 'Insulin sensitivity' ),
-			),
-			'estradiol'          => array(
-				'display_name'       => 'Estradiol (E2)',
-				'unit'               => 'pg/mL',
-				'description'        => 'Primary estrogen hormone affecting mood, bone health, and cardiovascular function',
-				'ranges'             => array(
-					'optimal_min'  => 20,
-					'optimal_max'  => 40,
-					'normal_min'   => 10,
-					'normal_max'   => 50,
-					'critical_min' => 5,
-					'critical_max' => 80,
-				),
-				'gender_adjustments' => array(
-					'female' => array(
-						'optimal_min' => 3,
-						'optimal_max' => 10,
-						'normal_min'  => 2,
-						'normal_max'  => 15,
-					),
-				),
-				'factors'            => array( 'Menstrual cycle', 'Aromatase activity', 'Body fat percentage' ),
-			),
-			'vitamin_d'          => array(
-				'display_name' => 'Vitamin D (25-OH)',
-				'unit'         => 'ng/mL',
-				'description'  => 'Essential for bone health, immune function, and hormone production',
-				'ranges'       => array(
-					'optimal_min'  => 50,
-					'optimal_max'  => 80,
-					'normal_min'   => 30,
-					'normal_max'   => 100,
-					'critical_min' => 20,
-					'critical_max' => 150,
-				),
-				'factors'      => array( 'Sun exposure', 'Supplementation', 'Geographic location', 'Skin pigmentation' ),
-			),
-			'thyroid_tsh'        => array(
-				'display_name'    => 'TSH (Thyroid Stimulating Hormone)',
-				'unit'            => 'mIU/L',
-				'description'     => 'Regulates thyroid function and metabolism',
-				'ranges'          => array(
-					'optimal_min'  => 1.0,
-					'optimal_max'  => 2.5,
-					'normal_min'   => 0.4,
-					'normal_max'   => 4.0,
-					'critical_min' => 0.1,
-					'critical_max' => 10.0,
-				),
-				'age_adjustments' => array(
-					'senior' => array(
-						'optimal_max' => 1.2,
-						'normal_max'  => 1.3,
-					),
-				),
-				'factors'         => array( 'Stress', 'Iodine intake', 'Autoimmune conditions' ),
-			),
-			'insulin'            => array(
-				'display_name' => 'Fasting Insulin',
-				'unit'         => 'μIU/mL',
-				'description'  => 'Regulates blood sugar and metabolic health',
-				'ranges'       => array(
-					'optimal_min'  => 2,
-					'optimal_max'  => 6,
-					'normal_min'   => 2,
-					'normal_max'   => 12,
-					'critical_min' => 1,
-					'critical_max' => 25,
-				),
-				'factors'      => array( 'Diet', 'Exercise', 'Body composition', 'Sleep quality' ),
-			),
-			'cortisol'           => array(
-				'display_name' => 'Morning Cortisol',
-				'unit'         => 'μg/dL',
-				'description'  => 'Primary stress hormone affecting energy and immune function',
-				'ranges'       => array(
-					'optimal_min'  => 10,
-					'optimal_max'  => 18,
-					'normal_min'   => 6,
-					'normal_max'   => 23,
-					'critical_min' => 3,
-					'critical_max' => 30,
-				),
-				'factors'      => array( 'Stress levels', 'Sleep quality', 'Exercise intensity', 'Caffeine intake' ),
-			),
-			'dhea_s'             => array(
-				'display_name'    => 'DHEA-S',
-				'unit'            => 'μg/dL',
-				'description'     => 'Precursor hormone affecting energy, mood, and anti-aging',
-				'ranges'          => array(
-					'optimal_min'  => 200,
-					'optimal_max'  => 400,
-					'normal_min'   => 100,
-					'normal_max'   => 500,
-					'critical_min' => 50,
-					'critical_max' => 700,
-				),
-				'age_adjustments' => array(
-					'senior' => array(
-						'optimal_min' => 0.7,
-						'optimal_max' => 0.7,
-					),
-				),
-				'factors'         => array( 'Age', 'Stress', 'Adrenal function' ),
-			),
-		);
+	public function get_biomarker_configuration() {
+		// Load all biomarker ranges from AI medical specialists with error handling
+		$cardiovascular_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-victor-pulse/cardiovascular-ranges.php' );
+		$hematology_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-harlan-vitalis/hematology-ranges.php' );
+		$neurology_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-nora-cognita/neurology-ranges.php' );
+		$endocrinology_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-elena-harmonix/endocrinology-ranges.php' );
+		$health_coaching_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/coach-aria-vital/health-coaching-ranges.php' );
+		$sports_medicine_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-silas-apex/sports-medicine-ranges.php' );
+		$gerontology_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-linus-eternal/gerontology-ranges.php' );
+		$nephrology_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-renata-flux/nephrology-hepatology-ranges.php' );
+		$general_practice_ranges = $this->safe_include_file( '../ai-medical-research/official-documentation/specialist-assignments/biomarker-ranges/dr-orion-nexus/general-practice-ranges.php' );
+
+		// Ensure all ranges are arrays before merging
+		$all_ranges_arrays = array_filter( array(
+			$cardiovascular_ranges,
+			$hematology_ranges,
+			$neurology_ranges,
+			$endocrinology_ranges,
+			$health_coaching_ranges,
+			$sports_medicine_ranges,
+			$gerontology_ranges,
+			$nephrology_ranges,
+			$general_practice_ranges
+		), 'is_array' );
+
+		// Merge all ranges into single configuration
+		$all_ranges = array();
+		foreach ( $all_ranges_arrays as $ranges ) {
+			if ( is_array( $ranges ) ) {
+				$all_ranges = array_merge( $all_ranges, $ranges );
+			}
+		}
+
+		// Convert AI specialist format to ENNU system format with enhanced safety checks
+		$biomarker_config = array();
+		foreach ( $all_ranges as $biomarker_name => $ai_data ) {
+			// Enhanced safety check for ai_data structure
+			if ( ! is_array( $ai_data ) ) {
+				error_log( "ENNU Recommended Range Manager: Invalid ai_data for {$biomarker_name}: not an array" );
+				continue;
+			}
+
+			// Check for required fields with safe array access
+			if ( ! array_key_exists( 'display_name', $ai_data ) || 
+				 ! array_key_exists( 'unit', $ai_data ) || 
+				 ! array_key_exists( 'description', $ai_data ) || 
+				 ! array_key_exists( 'ranges', $ai_data ) ) {
+				error_log( "ENNU Recommended Range Manager: Missing required fields for {$biomarker_name}" );
+				continue;
+			}
+
+			$biomarker_config[ $biomarker_name ] = array(
+				'display_name'       => $ai_data['display_name'],
+				'unit'               => $ai_data['unit'],
+				'description'        => $ai_data['description'],
+				'ranges'             => $ai_data['ranges'],
+				'age_adjustments'    => array_key_exists( 'age_adjustments', $ai_data ) ? $ai_data['age_adjustments'] : array(),
+				'gender_adjustments' => array_key_exists( 'gender_adjustments', $ai_data ) ? $ai_data['gender_adjustments'] : array(),
+				'risk_factors'       => array_key_exists( 'risk_factors', $ai_data ) ? $ai_data['risk_factors'] : array(),
+				'clinical_significance' => array_key_exists( 'clinical_significance', $ai_data ) ? $ai_data['clinical_significance'] : '',
+				'optimization_recommendations' => array_key_exists( 'optimization_recommendations', $ai_data ) ? $ai_data['optimization_recommendations'] : array(),
+				'flag_criteria'      => array_key_exists( 'flag_criteria', $ai_data ) ? $ai_data['flag_criteria'] : array(),
+				'scoring_algorithm'  => array_key_exists( 'scoring_algorithm', $ai_data ) ? $ai_data['scoring_algorithm'] : array(),
+				'target_setting'     => array_key_exists( 'target_setting', $ai_data ) ? $ai_data['target_setting'] : array(),
+				'sources'            => array_key_exists( 'sources', $ai_data ) ? $ai_data['sources'] : array(),
+				'factors'            => array_key_exists( 'factors', $ai_data ) ? $ai_data['factors'] : array(),
+			);
+		}
+
+		return $biomarker_config;
+	}
+
+	/**
+	 * Safely include a file with error handling
+	 *
+	 * @param string $file_path Relative path to the file
+	 * @return array|false Array data or false on error
+	 */
+	private function safe_include_file( $file_path ) {
+		$full_path = plugin_dir_path( __FILE__ ) . $file_path;
+		
+		if ( ! file_exists( $full_path ) ) {
+			error_log( "ENNU Recommended Range Manager: File not found: {$full_path}" );
+			return array();
+		}
+
+		try {
+			$data = include( $full_path );
+			
+			if ( ! is_array( $data ) ) {
+				error_log( "ENNU Recommended Range Manager: File does not return array: {$full_path}" );
+				return array();
+			}
+			
+			return $data;
+		} catch ( Exception $e ) {
+			error_log( "ENNU Recommended Range Manager: Error including file {$full_path}: " . $e->getMessage() );
+			return array();
+		}
 	}
 
 	/**
@@ -547,6 +486,120 @@ class ENNU_Recommended_Range_Manager {
 		update_user_meta( $user_id, 'ennu_biomarker_ranges', $user_ranges );
 
 		wp_send_json_success( $range_check );
+	}
+	
+	/**
+	 * AJAX handler for synchronizing all user biomarker data
+	 * Admin-only function to manually trigger synchronization
+	 */
+	public function ajax_synchronize_user_data() {
+		check_ajax_referer( 'ennu_admin_nonce', 'nonce' );
+		
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Insufficient permissions' );
+			return;
+		}
+		
+		$biomarker = sanitize_text_field( $_POST['biomarker'] ?? '' );
+		
+		// Perform synchronization
+		$this->synchronize_user_biomarker_data($biomarker);
+		
+		$biomarker_text = !empty($biomarker) ? "biomarker '{$biomarker}'" : 'all biomarkers';
+		wp_send_json_success( "Successfully synchronized {$biomarker_text} for all users" );
+	}
+	
+	/**
+	 * Synchronize all user biomarker data when AI Medical Team updates ranges
+	 * This ensures all users get the latest validated ranges
+	 * 
+	 * @param string $biomarker Biomarker key (optional, if empty syncs all)
+	 */
+	public function synchronize_user_biomarker_data($biomarker = '') {
+		global $wpdb;
+		
+		// Get all users
+		$users = get_users(array('fields' => 'ID'));
+		
+		foreach ($users as $user_id) {
+			// Get user's current biomarker data
+			$user_biomarker_data = get_user_meta($user_id, 'ennu_biomarker_data', true);
+			$doctor_targets = get_user_meta($user_id, 'ennu_doctor_targets', true);
+			
+			if (!is_array($user_biomarker_data)) {
+				$user_biomarker_data = array();
+			}
+			if (!is_array($doctor_targets)) {
+				$doctor_targets = array();
+			}
+			
+			// Get user demographic data
+			$user_data = $this->get_user_demographic_data($user_id);
+			
+			// If specific biomarker, only update that one
+			if (!empty($biomarker)) {
+				$this->update_user_biomarker_if_exists($user_id, $biomarker, $user_biomarker_data, $doctor_targets, $user_data);
+			} else {
+				// Update all biomarkers for this user
+				$biomarker_config = $this->get_biomarker_configuration();
+				foreach ($biomarker_config as $biomarker_key => $config) {
+					$this->update_user_biomarker_if_exists($user_id, $biomarker_key, $user_biomarker_data, $doctor_targets, $user_data);
+				}
+			}
+			
+			// Save updated data
+			update_user_meta($user_id, 'ennu_biomarker_data', $user_biomarker_data);
+			update_user_meta($user_id, 'ennu_doctor_targets', $doctor_targets);
+		}
+		
+		$biomarker_text = !empty($biomarker) ? "biomarker '{$biomarker}'" : 'all biomarkers';
+		error_log("ENNU Recommended Range Manager: Synchronized {$biomarker_text} data for " . count($users) . " users");
+	}
+	
+	/**
+	 * Update user biomarker data if it exists
+	 * 
+	 * @param int $user_id User ID
+	 * @param string $biomarker_key Biomarker key
+	 * @param array $user_biomarker_data User biomarker data (by reference)
+	 * @param array $doctor_targets Doctor targets (by reference)
+	 * @param array $user_data User demographic data
+	 */
+	private function update_user_biomarker_if_exists($user_id, $biomarker_key, &$user_biomarker_data, &$doctor_targets, $user_data) {
+		// Get latest range for this biomarker
+		$latest_range = $this->get_recommended_range($biomarker_key, $user_data);
+		
+		if (isset($latest_range['error'])) {
+			return; // Skip if biomarker not found
+		}
+		
+		// Update biomarker data if it exists for this user
+		if (isset($user_biomarker_data[$biomarker_key])) {
+			// Update unit if it changed
+			if (isset($latest_range['unit'])) {
+				$user_biomarker_data[$biomarker_key]['unit'] = $latest_range['unit'];
+			}
+			
+			// Update range validation
+			$current_value = $user_biomarker_data[$biomarker_key]['value'];
+			$range_check = $this->check_biomarker_range($biomarker_key, $current_value, $user_data);
+			
+			$user_biomarker_data[$biomarker_key]['status'] = $range_check['status'];
+			$user_biomarker_data[$biomarker_key]['last_validated'] = current_time('mysql');
+		}
+		
+		// Update doctor targets if they exist for this user
+		if (isset($doctor_targets[$biomarker_key])) {
+			$target_value = $doctor_targets[$biomarker_key];
+			$optimal_min = $latest_range['optimal_min'] ?? 0;
+			$optimal_max = $latest_range['optimal_max'] ?? 100;
+			
+			// If target is outside new optimal range, flag it for review
+			if ($target_value < $optimal_min || $target_value > $optimal_max) {
+				$doctor_targets[$biomarker_key . '_needs_review'] = true;
+				$doctor_targets[$biomarker_key . '_review_date'] = current_time('mysql');
+			}
+		}
 	}
 
 	/**

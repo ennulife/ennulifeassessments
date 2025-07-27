@@ -3,7 +3,7 @@
  * Assessment Definition: Welcome Assessment
  *
  * @package ENNU_Life
- * @version 60.0.0
+ * @version 62.11.0
  */
 
 return array(
@@ -14,15 +14,14 @@ return array(
 			'title'      => 'What is your date of birth?',
 			'type'       => 'dob_dropdowns',
 			'required'   => true,
-			'global_key' => 'user_dob_combined',
+			'global_key' => 'date_of_birth',
 		),
 		'welcome_q2' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
-				'male'   => 'Male',
-				'female' => 'Female',
-				'other'  => 'Other / Prefer not to say',
+				'female' => 'FEMALE',
+				'male'   => 'MALE',
 			),
 			'required'   => true,
 			'global_key' => 'gender',
