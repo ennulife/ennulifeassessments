@@ -923,7 +923,4 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			),
 		);
 	}
-}
-
-// Initialize the class
-new ENNU_HubSpot_Bulk_Field_Creator(); 
+} 

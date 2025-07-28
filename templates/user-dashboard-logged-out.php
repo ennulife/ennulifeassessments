@@ -9,6 +9,13 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Get the proper page URLs using the shortcode instance
+$shortcode_instance = ennu_life()->get_shortcodes();
+$login_url = $shortcode_instance->get_login_url();
+$registration_url = $shortcode_instance->get_registration_url();
+$learn_more_url = $shortcode_instance->get_page_id_url('assessments');
+$home_url = $shortcode_instance->get_page_id_url('dashboard');
 ?>
 
 <div class="ennu-user-dashboard">
@@ -18,9 +25,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		echo '<div class="ennu-logo-container">';
 		ennu_render_logo(
 			array(
-				'color' => 'white',
+				'color' => 'black',
 				'size'  => 'medium',
-				'link'  => home_url( '/' ),
+				'link'  => $home_url,
 				'alt'   => 'ENNU Life',
 				'class' => '',
 			)
@@ -34,16 +41,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 			Please log in to view your personalized health assessments, track your progress, and access your ENNU LIFE SCORE.
 		</p>
 		
-		<div class="dashboard-actions">
+		<div class="action-buttons" style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
 			<a href="<?php echo esc_url( $login_url ); ?>" class="action-button button-primary">Log In</a>
 			<a href="<?php echo esc_url( $registration_url ); ?>" class="action-button button-secondary">Create Account</a>
 		</div>
 		
-		<div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border-color);">
-			<p style="color: var(--text-light); font-size: 0.9rem;">
-				New to ENNU Life? Start your health journey today with our comprehensive assessments.
-			</p>
-			<a href="<?php echo esc_url( home_url( '/?page_id=190' ) ); ?>" 
+		<div class="learn-more-section" style="text-align: center; margin-top: 30px;">
+			<a href="<?php echo esc_url( $learn_more_url ); ?>"
 			   style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">
 				Learn More →
 			</a>

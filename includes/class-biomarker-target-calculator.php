@@ -328,8 +328,8 @@ class ENNU_Biomarker_Target_Calculator {
 		}
 
 		// Get AI specialist biomarker configurations
-		$range_manager = new ENNU_Recommended_Range_Manager();
-		$biomarker_config = $range_manager->get_biomarker_configuration();
+		$range_manager = new ENNU_Range_Adapter();
+		$biomarker_config = self::get_biomarker_configuration();
 
 		$all_targets = array();
 
@@ -396,5 +396,16 @@ class ENNU_Biomarker_Target_Calculator {
 			'optimal_bounds' => array( 'min' => $reference_range['ranges']['optimal_min'], 'max' => $reference_range['ranges']['optimal_max'] ),
 			'critical_bounds' => array( 'min' => $critical_min, 'max' => $critical_max )
 		);
+	}
+
+	private static function get_biomarker_configuration() {
+		// This should be cached in a real application
+		$all_biomarkers = ENNU_Biomarker_Manager::get_all_available_biomarkers();
+		$user_data = array('age' => 35, 'gender' => 'male', 'user_id' => 0);
+		$config = array();
+		foreach($all_biomarkers as $biomarker){
+			$config[$biomarker] = ENNU_Range_Adapter::get_recommended_range($biomarker, $user_data);
+		}
+		return $config;
 	}
 } 

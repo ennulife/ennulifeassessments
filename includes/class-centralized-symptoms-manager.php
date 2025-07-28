@@ -27,6 +27,11 @@ class ENNU_Centralized_Symptoms_Manager {
 	const SYMPTOM_TRIGGERS_KEY = 'ennu_symptom_triggers';
 
 	/**
+	 * Lock key for preventing race conditions.
+	 */
+	const SYMPTOM_LOCK_KEY = '_symptom_update_lock';
+
+	/**
 	 * Update centralized symptoms for a user
 	 *
 	 * @param int $user_id User ID
@@ -34,6 +39,14 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @return bool Success status
 	 */
 	public static function update_centralized_symptoms( $user_id, $assessment_type = null ) {
+		// --- TRANSACTIONAL LOCKING: Prevent race conditions ---
+		$lock_key = self::SYMPTOM_LOCK_KEY . $user_id;
+		if ( get_transient( $lock_key ) ) {
+			error_log( "ENNU Centralized Symptoms: Update process for user {$user_id} is already locked. Aborting." );
+			return false; // Already processing for this user.
+		}
+		set_transient( $lock_key, true, 30 ); // Set a 30-second lock
+
 		try {
 			error_log( "ENNU Centralized Symptoms: Starting update for user {$user_id}, assessment_type: " . ($assessment_type ?: 'all') );
 			
@@ -75,6 +88,9 @@ class ENNU_Centralized_Symptoms_Manager {
 		} catch ( Exception $e ) {
 			error_log( 'ENNU Centralized Symptoms: Error updating symptoms for user ' . $user_id . ': ' . $e->getMessage() );
 			return false;
+		} finally {
+			// --- TRANSACTIONAL LOCKING: Always release the lock ---
+			delete_transient( $lock_key );
 		}
 	}
 
@@ -86,6 +102,10 @@ class ENNU_Centralized_Symptoms_Manager {
 	 */
 	public static function get_centralized_symptoms( $user_id ) {
 		// Use batch retrieval for better performance
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return array(); // Return empty array to prevent fatal error
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			self::CENTRALIZED_SYMPTOMS_KEY,
@@ -112,6 +132,18 @@ class ENNU_Centralized_Symptoms_Manager {
 	}
 
 	/**
+	 * Create a standardized, sanitized key for a symptom.
+	 *
+	 * @param string $symptom_name The raw symptom name.
+	 * @return string The sanitized symptom key.
+	 */
+	private static function _sanitize_symptom_key( $symptom_name ) {
+		$symptom_key = strtolower( str_replace( array( ' ', '-', '_' ), '_', $symptom_name ) );
+		$symptom_key = preg_replace( '/[^a-z0-9_]/', '', $symptom_key );
+		return $symptom_key;
+	}
+
+	/**
 	 * Merge symptoms using proper logic - symptoms are ONE LOG
 	 *
 	 * @param array $current_symptoms Current symptoms
@@ -133,6 +165,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		);
 
 		// Get symptom triggers to understand what caused each symptom
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $merged_symptoms; // Return what we have so far
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			self::SYMPTOM_TRIGGERS_KEY
@@ -142,6 +178,23 @@ class ENNU_Centralized_Symptoms_Manager {
 		if ( ! is_array( $symptom_triggers ) ) {
 			$symptom_triggers = array();
 		}
+
+		// --- ENHANCEMENT: Logic to handle symptom resolution ---
+		// If this is an update for a specific assessment, we can resolve old symptoms from that source.
+		if ( $assessment_type ) {
+			foreach ( $current_symptoms['symptoms'] as $symptom_key => $symptom_data ) {
+				// If a current symptom was triggered by this assessment type, but is NOT in the new list, resolve it.
+				$was_triggered_by_this_assessment = isset( $symptom_data['assessments'] ) && in_array( $assessment_type, $symptom_data['assessments'] );
+				$is_in_new_list = isset( $new_symptoms['symptoms'][ $symptom_key ] );
+
+				if ( $was_triggered_by_this_assessment && ! $is_in_new_list ) {
+					// This symptom has been resolved in the new assessment. Do not include it in the merged list.
+					error_log( "ENNU Centralized Symptoms: Resolving symptom '{$symptom_key}' for user {$user_id} as it is no longer present in assessment {$assessment_type}" );
+					unset( $current_symptoms['symptoms'][ $symptom_key ] );
+				}
+			}
+		}
+
 
 		// Process current symptoms - keep them unless explicitly resolved
 		if ( ! empty( $current_symptoms['symptoms'] ) ) {
@@ -362,6 +415,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$data = array();
 
 		// Get all user meta for this assessment using batch retrieval
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $data;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$user_meta = $db_optimizer->get_user_meta_batch( $user_id, array() );
 		$assessment_prefix = 'ennu_' . $assessment_type . '_';
@@ -481,10 +538,7 @@ class ENNU_Centralized_Symptoms_Manager {
 
 		foreach ( $symptoms as $symptom_data ) {
 			$symptom_name = is_array( $symptom_data ) ? $symptom_data['name'] : $symptom_data;
-			$symptom_key = strtolower( str_replace( array( ' ', '-', '_' ), '_', $symptom_name ) );
-			
-			// Clean up the symptom key
-			$symptom_key = preg_replace( '/[^a-z0-9_]/', '', $symptom_key );
+			$symptom_key = self::_sanitize_symptom_key( $symptom_name );
 			
 			error_log( "ENNU Centralized Symptoms: Processing symptom '{$symptom_name}' with key '{$symptom_key}'" );
 			
@@ -500,7 +554,8 @@ class ENNU_Centralized_Symptoms_Manager {
 						"Flagged due to reported symptom: {$symptom_name}",
 						null,
 						'centralized_symptoms',
-						$symptom_name
+						$symptom_name,
+						$symptom_key // Pass the sanitized key here
 					);
 					
 					if ( $flag_created ) {
@@ -681,69 +736,32 @@ class ENNU_Centralized_Symptoms_Manager {
 			return 0;
 		}
 
-		// Get symptom to biomarker mapping (reverse lookup)
-		$symptom_biomarker_mapping = array(
-			'fatigue' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
-			'low_libido' => array( 'testosterone_total', 'testosterone_free', 'estradiol', 'prolactin' ),
-			'mood_swings' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'brain_fog' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'magnesium', 'homocysteine' ),
-			'anxiety' => array( 'cortisol', 'magnesium', 'vitamin_d', 'thyroid_tsh' ),
-			'depression' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'cortisol', 'serotonin' ),
-			'insomnia' => array( 'melatonin', 'cortisol', 'magnesium', 'thyroid_tsh' ),
-			'hot_flashes' => array( 'estradiol', 'fsh', 'lh', 'progesterone' ),
-			'night_sweats' => array( 'estradiol', 'cortisol', 'thyroid_tsh', 'progesterone' ),
-			'acne' => array( 'testosterone_total', 'estradiol', 'insulin', 'cortisol' ),
-			'diabetes' => array( 'glucose', 'hba1c', 'insulin', 'homa_ir' ),
-			'high_blood_pressure' => array( 'sodium', 'potassium', 'aldosterone', 'cortisol' ),
-			'thyroid_issues' => array( 'tsh', 't3', 't4', 'thyroid_antibodies' ),
-			'weight_gain' => array( 'insulin', 'cortisol', 'thyroid_tsh', 'testosterone_total' ),
-			'weight_loss' => array( 'thyroid_tsh', 'cortisol', 'insulin', 'glucose' ),
-			'irritability' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'headaches' => array( 'magnesium', 'vitamin_d', 'cortisol', 'estradiol' ),
-			'joint_pain' => array( 'vitamin_d', 'omega_3', 'cortisol', 'estradiol' ),
-			'muscle_weakness' => array( 'testosterone_total', 'vitamin_d', 'magnesium', 'cortisol' ),
-			'frequent_illness' => array( 'vitamin_d', 'vitamin_c', 'zinc', 'wbc' ),
-			'slow_healing' => array( 'vitamin_d', 'zinc', 'vitamin_c', 'glucose' )
-		);
-
 		$flag_manager = new ENNU_Biomarker_Flag_Manager();
 		$symptoms_to_remove = array();
 
+		// Get all currently active flags for the user
+		$active_flags = $flag_manager->get_flagged_biomarkers( $user_id, 'active' );
+
 		foreach ( $symptoms['symptoms'] as $symptom_key => $symptom_data ) {
-			if ( ! is_array( $symptom_data ) || ! isset( $symptom_data['name'] ) ) {
-				continue;
-			}
+			// Assume we will remove the symptom, unless we find a flag that keeps it active.
+			$should_remove = true;
 
-			$symptom_name = $symptom_data['name'];
-			$symptom_key_clean = strtolower( str_replace( array( ' ', '-', '_' ), '_', $symptom_name ) );
-			$symptom_key_clean = preg_replace( '/[^a-z0-9_]/', '', $symptom_key_clean );
-
-			if ( isset( $symptom_biomarker_mapping[$symptom_key_clean] ) ) {
-				$associated_biomarkers = $symptom_biomarker_mapping[$symptom_key_clean];
-				
-				if ( in_array( $biomarker_name, $associated_biomarkers ) ) {
-					// Check if ALL associated biomarkers are unflagged
-					$all_unflagged = true;
-					
-					foreach ( $associated_biomarkers as $associated_biomarker ) {
-						$flags = $flag_manager->get_biomarker_flags( $user_id, $associated_biomarker );
-						if ( ! empty( $flags ) ) {
-							foreach ( $flags as $flag ) {
-								if ( isset( $flag['status'] ) && $flag['status'] === 'active' ) {
-									$all_unflagged = false;
-									break 2;
-								}
-							}
-						}
-					}
-					
-					if ( $all_unflagged ) {
-						$symptoms_to_remove[] = $symptom_key;
-						$symptoms_resolved++;
-					}
+			// Check if any *other* active flag is linked to this symptom key.
+			foreach ( $active_flags as $flag_id => $flag_data ) {
+				if ( isset( $flag_data['symptom_key'] ) && $flag_data['symptom_key'] === $symptom_key ) {
+					// Found a flag for this symptom. Don't remove it.
+					$should_remove = false;
+					break; // No need to check other flags for this symptom
 				}
 			}
+
+			if ( $should_remove ) {
+				// No active flags are linked to this symptom key anymore, so it can be resolved.
+				$symptoms_to_remove[] = $symptom_key;
+				$symptoms_resolved++;
+			}
 		}
+
 
 		// Remove resolved symptoms
 		if ( ! empty( $symptoms_to_remove ) ) {
@@ -821,7 +839,7 @@ class ENNU_Centralized_Symptoms_Manager {
 					if ( ! isset( $symptom['name'] ) || ! is_string( $symptom['name'] ) ) {
 						continue;
 					}
-					$symptom_key = $symptom['name'];
+					$symptom_key = self::_sanitize_symptom_key( $symptom['name'] );
 
 					// Add to main symptoms array
 					if ( ! isset( $all_symptoms['symptoms'][ $symptom_key ] ) ) {
@@ -951,6 +969,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$meta_keys[] = 'ennu_health_optimization_assessment_score_calculated_at';
 
 		// Get all meta data in one batch query
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, $meta_keys );
 
@@ -981,6 +1003,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get hormone data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_hormone_hormone_q1',
@@ -1009,6 +1035,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get testosterone data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_testosterone_testosterone_q1',
@@ -1037,6 +1067,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get menopause data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_menopause_menopause_q1',
@@ -1065,6 +1099,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get ED treatment data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_ed_treatment_ed_treatment_q1',
@@ -1093,6 +1131,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get skin data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_skin_skin_q1',
@@ -1121,6 +1163,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get hair data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_hair_hair_q1',
@@ -1149,6 +1195,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 		
 		// Get sleep data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_sleep_sleep_q1',
@@ -1178,6 +1228,10 @@ class ENNU_Centralized_Symptoms_Manager {
 		$symptoms = array();
 
 		// Get all weight loss data in batch
+		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
+			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
+			return $symptoms;
+		}
 		$db_optimizer = ENNU_Database_Optimizer::get_instance();
 		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
 			'ennu_weight-loss_wl_q9',

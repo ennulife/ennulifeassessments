@@ -15,26 +15,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Objective_Engine {
 
 	private $user_biomarkers;
-	private $biomarker_profiles;
+	private $biomarker_config;
 	private $adjustment_log;
 
 	public function __construct( $user_biomarkers ) {
 		$this->user_biomarkers = is_array( $user_biomarkers ) ? $user_biomarkers : array();
-		$this->load_biomarker_profiles();
+		$this->load_biomarker_config();
 		$this->adjustment_log = array();
 
 		error_log( 'ENNU Objective Engine: Initialized with ' . count( $this->user_biomarkers ) . ' biomarkers' );
 	}
 
-	private function load_biomarker_profiles() {
-		// Use the new orchestrator instead of old config file
-		$manager = new ENNU_Recommended_Range_Manager();
-		$this->biomarker_profiles = $manager->get_biomarker_configuration();
+	private function load_biomarker_config() {
+		$biomarkers = ENNU_Biomarker_Manager::get_all_available_biomarkers();
+		$user_data = array('age' => 35, 'gender' => 'male', 'user_id' => 0); // Use defaults for config
+		$config = array();
+		foreach($biomarkers as $biomarker){
+			$config[$biomarker] = ENNU_Range_Adapter::get_recommended_range($biomarker, $user_data);
+		}
+		$this->biomarker_config = $config;
 	}
 
 	public function apply_biomarker_actuality_adjustments( $base_pillar_scores ) {
-		if ( empty( $this->user_biomarkers ) || empty( $this->biomarker_profiles ) ) {
-			error_log( 'ENNU Objective Engine: No biomarkers or profiles available' );
+		if ( empty( $this->user_biomarkers ) || empty( $this->biomarker_config ) ) {
+			error_log( 'ENNU Objective Engine: No biomarkers or config available' );
 			return $base_pillar_scores;
 		}
 
@@ -91,7 +95,7 @@ class ENNU_Objective_Engine {
 	}
 
 	private function find_biomarker_profile( $biomarker_name ) {
-		foreach ( $this->biomarker_profiles as $category => $biomarkers ) {
+		foreach ( $this->biomarker_config as $category => $biomarkers ) {
 			if ( is_array( $biomarkers ) ) {
 				foreach ( $biomarkers as $key => $profile ) {
 					if ( $key === $biomarker_name ||

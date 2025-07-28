@@ -44,21 +44,36 @@ class ENNU_AJAX_Handler {
 
 	/**
 	 * Handle assessment form submission via AJAX
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
 	 */
 	public function handle_assessment_submission() {
 		$this->logger->log( 'AJAX assessment submission started' );
 
 		try {
-			// 1. Security validation
-			$security_result = $this->security->validate_request( 'ennu_submit_assessment' );
-			if ( ! $security_result->is_valid() ) {
-				wp_send_json_error( array(
-					'message' => $security_result->get_error_message(),
-					'code'    => $security_result->get_error_code()
-				) );
+			// 1. Security validation using legacy security classes
+			if ( class_exists( 'ENNU_AJAX_Security' ) ) {
+				$security_result = ENNU_AJAX_Security::validate_ajax_request( 'ennu_submit_assessment' );
+				if ( is_wp_error( $security_result ) ) {
+					wp_send_json_error( array(
+						'message' => $security_result->get_error_message(),
+						'code'    => $security_result->get_error_code()
+					) );
+				}
 			}
 
-			// 2. Get and validate form data
+			// 2. Verify nonce
+			check_ajax_referer( 'ennu_ajax_nonce', 'nonce' );
+
+			// 3. Rate limiting
+			if ( class_exists( 'ENNU_Security_Validator' ) ) {
+				$security_validator = ENNU_Security_Validator::get_instance();
+				if ( ! $security_validator->rate_limit_check( 'assessment_submission', 5, 300 ) ) {
+					wp_send_json_error( array( 'message' => 'Too many submission attempts. Please wait before trying again.' ), 429 );
+					return;
+				}
+			}
+
+			// 4. Get and sanitize form data
 			$form_data = $this->get_form_data();
 			if ( empty( $form_data ) ) {
 				wp_send_json_error( array(
@@ -67,10 +82,32 @@ class ENNU_AJAX_Handler {
 				) );
 			}
 
-			// 3. Process submission
+			// 5. Validate form data
+			$validation_result = $this->validate_assessment_data( $form_data );
+			if ( is_wp_error( $validation_result ) ) {
+				wp_send_json_error( array(
+					'message' => $validation_result->get_error_message(),
+					'code'    => $validation_result->get_error_code()
+				), 400 );
+			}
+
+			// 6. Process user creation/retrieval
+			$user_result = $this->process_user( $form_data );
+			if ( is_wp_error( $user_result ) ) {
+				wp_send_json_error( array(
+					'message' => $user_result->get_error_message(),
+					'code'    => $user_result->get_error_code()
+				) );
+			}
+			$user_id = $user_result;
+
+			// 7. Calculate and save BMI if applicable
+			$this->calculate_and_save_bmi( $user_id, $form_data );
+
+			// 8. Process submission using form handler
 			$result = $this->form_handler->process_submission( $form_data );
 
-			// 4. Handle result
+			// 9. Handle result
 			if ( $result->is_success() ) {
 				$response_data = $result->get_data();
 				
@@ -80,9 +117,16 @@ class ENNU_AJAX_Handler {
 					$response_data['results_token'] = $token;
 				}
 
+				// Generate redirect URL based on assessment type
+				$redirect_url = $this->generate_redirect_url( $form_data['assessment_type'], $response_data );
+				$response_data['redirect_url'] = $redirect_url;
+
+				$this->logger->log( 'Assessment submission successful, redirecting to: ' . $redirect_url );
+
 				wp_send_json_success( array(
 					'message' => 'Assessment submitted successfully',
-					'data'    => $response_data
+					'data'    => $response_data,
+					'redirect_url' => $redirect_url
 				) );
 			} else {
 				wp_send_json_error( array(
@@ -235,7 +279,7 @@ class ENNU_AJAX_Handler {
 	 * Check if assessment is quantitative (generates scores)
 	 */
 	private function is_quantitative_assessment( $assessment_type ) {
-		$quantitative_types = array( 'health', 'weight_loss', 'hormone', 'sleep', 'skin', 'hair' );
+		$quantitative_types = array( 'health', 'weight_loss', 'weight-loss', 'hormone', 'sleep', 'skin', 'hair', 'ed-treatment', 'menopause', 'testosterone', 'health-optimization' );
 		return in_array( $assessment_type, $quantitative_types );
 	}
 
@@ -245,24 +289,66 @@ class ENNU_AJAX_Handler {
 	private function generate_results_token( $user_id, $form_data ) {
 		$token = wp_generate_password( 32, false );
 		
-		// Store results in transient
+		// Calculate assessment scores
+		$scores = $this->calculate_assessment_scores( $form_data );
+		
+		// Store complete results data in transient
 		$results_data = array(
 			'user_id' => $user_id,
 			'assessment_type' => $form_data['assessment_type'],
-			'form_data' => $form_data,
+			'score' => $scores['overall_score'],
+			'interpretation' => array(
+				'level' => $scores['level'],
+				'color' => $scores['color']
+			),
+			'category_scores' => $scores['category_scores'] ?? array(),
+			'answers' => $form_data,
+			'token_created' => time(),
 			'timestamp' => current_time( 'mysql' )
 		);
 
-		set_transient( 'ennu_results_' . $token, $results_data, HOUR_IN_SECONDS );
+		// Store for 24 hours (86400 seconds) using manual transient storage
+		$transient_key = 'ennu_results_' . $token;
+		$this->_set_manual_transient( $transient_key, $results_data, 86400 );
+		error_log( 'ENNU AJAX Debug: Stored manual transient with key: ' . $transient_key . ', Assessment type: ' . ( $results_data['assessment_type'] ?? 'unknown' ) );
 
 		return $token;
+	}
+
+	/**
+	 * Manually sets a transient-like value in the options table.
+	 */
+	private function _set_manual_transient( $key, $value, $expiration ) {
+		$timeout = time() + $expiration;
+		update_option( '_ennu_manual_transient_' . $key, $value );
+		update_option( '_ennu_manual_transient_timeout_' . $key, $timeout );
+	}
+
+	/**
+	 * Manually gets a transient-like value from the options table.
+	 */
+	private function _get_manual_transient( $key ) {
+		$timeout = get_option( '_ennu_manual_transient_timeout_' . $key );
+		if ( false === $timeout || $timeout < time() ) {
+			$this->_delete_manual_transient( $key );
+			return false;
+		}
+		return get_option( '_ennu_manual_transient_' . $key );
+	}
+
+	/**
+	 * Manually deletes a transient-like value from the options table.
+	 */
+	private function _delete_manual_transient( $key ) {
+		delete_option( '_ennu_manual_transient_' . $key );
+		delete_option( '_ennu_manual_transient_timeout_' . $key );
 	}
 
 	/**
 	 * Get results by token
 	 */
 	private function get_results_by_token( $token ) {
-		$results_data = get_transient( 'ennu_results_' . $token );
+		$results_data = $this->_get_manual_transient( 'ennu_results_' . $token );
 		
 		if ( ! $results_data ) {
 			return false;
@@ -280,11 +366,17 @@ class ENNU_AJAX_Handler {
 	 */
 	private function calculate_assessment_scores( $form_data ) {
 		// This would contain the scoring logic
-		// For now, return placeholder
+		// For now, return placeholder with category scores
 		return array(
 			'overall_score' => 7.5,
 			'level' => 'Good',
-			'color' => '#10b981'
+			'color' => '#10b981',
+			'category_scores' => array(
+				'Overall Health' => 7.5,
+				'Energy Levels' => 7.2,
+				'Lifestyle' => 7.8,
+				'Wellness' => 7.3
+			)
 		);
 	}
 
@@ -307,6 +399,161 @@ class ENNU_AJAX_Handler {
 		} catch ( Exception $e ) {
 			return ENNU_Form_Result::error( 'save_failed', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Validate assessment data
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function validate_assessment_data( $data ) {
+		if ( empty( $data['assessment_type'] ) ) {
+			return new WP_Error( 'missing_assessment_type', 'Assessment type is required' );
+		}
+
+		if ( empty( $data['email'] ) ) {
+			return new WP_Error( 'missing_email', 'Email address is required' );
+		}
+
+		if ( ! is_email( $data['email'] ) ) {
+			return new WP_Error( 'invalid_email', 'Invalid email address' );
+		}
+
+		if ( empty( $data['first_name'] ) ) {
+			return new WP_Error( 'missing_first_name', 'First name is required' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Process user creation or retrieval
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function process_user( $form_data ) {
+		$email = $form_data['email'];
+		$user_id = email_exists( $email );
+
+		if ( ! $user_id ) {
+			// Create new user
+			$password = wp_generate_password();
+			$user_data = array(
+				'user_login' => $email,
+				'user_email' => $email,
+				'user_pass'  => $password,
+				'first_name' => $form_data['first_name'] ?? '',
+				'last_name'  => $form_data['last_name'] ?? '',
+			);
+			$user_id = wp_insert_user( $user_data );
+
+			if ( is_wp_error( $user_id ) ) {
+				return $user_id;
+			}
+
+			// Log the new user in
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id );
+		} else {
+			// User already exists, check if they are logged in
+			if ( ! is_user_logged_in() || get_current_user_id() != $user_id ) {
+				$login_url = wp_login_url( get_permalink() );
+				return new WP_Error( 
+					'login_required', 
+					'An account with this email already exists. Please <a href="' . esc_url( $login_url ) . '">log in</a> to continue.'
+				);
+			}
+		}
+
+		return $user_id;
+	}
+
+	/**
+	 * Calculate and save BMI if applicable
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function calculate_and_save_bmi( $user_id, $form_data ) {
+		if ( isset( $form_data['height_ft'] ) && isset( $form_data['height_in'] ) && isset( $form_data['weight_lbs'] ) ) {
+			$height_in_total = ( intval( $form_data['height_ft'] ) * 12 ) + intval( $form_data['height_in'] );
+			$weight_lbs = intval( $form_data['weight_lbs'] );
+			
+			if ( $height_in_total > 0 && $weight_lbs > 0 ) {
+				$bmi = ( $weight_lbs / ( $height_in_total * $height_in_total ) ) * 703;
+				update_user_meta( $user_id, 'ennu_calculated_bmi', round( $bmi, 1 ) );
+
+				// Store historical BMI
+				$bmi_history = get_user_meta( $user_id, 'ennu_bmi_history', true );
+				if ( ! is_array( $bmi_history ) ) {
+					$bmi_history = array();
+				}
+				$bmi_history[] = array(
+					'date' => date( 'Y-m-d H:i:s.u' ),
+					'bmi'  => round( $bmi, 1 ),
+				);
+				update_user_meta( $user_id, 'ennu_bmi_history', $bmi_history );
+			}
+		}
+	}
+
+	/**
+	 * Generate redirect URL based on assessment type using admin-configured results pages
+	 */
+	private function generate_redirect_url( $assessment_type, $response_data ) {
+		$base_url = home_url();
+		
+		// Get the page mappings from admin settings
+		$page_mappings = get_option( 'ennu_created_pages', array() );
+		
+		// Map assessment types to their results page slugs
+		$assessment_results_map = array(
+			'weight-loss' => 'assessments/weight-loss/results',
+			'health-optimization' => 'assessments/health-optimization/results',
+			'hormone' => 'assessments/hormone/results',
+			'menopause' => 'assessments/menopause/results',
+			'testosterone' => 'assessments/testosterone/results',
+			'sleep' => 'assessments/sleep/results',
+			'skin' => 'assessments/skin/results',
+			'hair' => 'assessments/hair/results',
+			'ed-treatment' => 'assessments/ed-treatment/results',
+			'health' => 'assessments/health/results',
+			'welcome' => 'assessments/welcome/results'
+		);
+		
+		// Check if we have a specific results page for this assessment
+		if ( isset( $assessment_results_map[ $assessment_type ] ) ) {
+			$results_slug = $assessment_results_map[ $assessment_type ];
+			
+			// Check if the results page is configured in admin
+			if ( isset( $page_mappings[ $results_slug ] ) && ! empty( $page_mappings[ $results_slug ] ) ) {
+				$page_id = $page_mappings[ $results_slug ];
+				
+				// Use the ?page_id= format as requested
+				$redirect_url = $base_url . '/?page_id=' . $page_id;
+				
+				// Add results token if available
+				if ( isset( $response_data['results_token'] ) ) {
+					$redirect_url .= '&token=' . urlencode( $response_data['results_token'] );
+				}
+				
+				$this->logger->log( 'ENNU REDIRECT DEBUG: Using admin-configured results page for ' . $assessment_type . ' with page_id=' . $page_id );
+				return $redirect_url;
+			}
+		}
+		
+		// Fallback to generic assessment results page
+		if ( isset( $page_mappings['assessment-results'] ) && ! empty( $page_mappings['assessment-results'] ) ) {
+			$page_id = $page_mappings['assessment-results'];
+			$fallback_url = $base_url . '/?page_id=' . $page_id;
+			
+			if ( isset( $response_data['results_token'] ) ) {
+				$fallback_url .= '&token=' . urlencode( $response_data['results_token'] );
+			}
+			
+			$this->logger->log( 'ENNU REDIRECT DEBUG: Using fallback assessment-results page with page_id=' . $page_id );
+			return $fallback_url;
+		}
+		
+		// Ultimate fallback to home page
+		$this->logger->log( 'ENNU REDIRECT DEBUG: No results page configured, redirecting to home page' );
+		return $base_url . '/';
 	}
 }
 

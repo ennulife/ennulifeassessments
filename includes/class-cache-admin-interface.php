@@ -751,7 +751,3 @@ class ENNU_Cache_Admin_Interface {
 		);
 	}
 }
-
-if ( is_admin() ) {
-	new ENNU_Cache_Admin_Interface();
-}

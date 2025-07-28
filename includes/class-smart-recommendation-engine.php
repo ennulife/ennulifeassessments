@@ -11,41 +11,52 @@
 class ENNU_Smart_Recommendation_Engine {
 
 	/**
-	 * Biomarker manager instance
+	 * User ID
 	 */
-	private $biomarker_manager;
+	private $user_id;
+
+	/**
+	 * User biomarkers
+	 */
+	private $user_biomarkers;
+
+	/**
+	 * Biomarker configuration
+	 */
+	private $biomarker_config;
 
 	/**
 	 * Constructor
 	 */
-	public function __construct() {
-		$this->biomarker_manager = new ENNU_Biomarker_Manager();
+	public function __construct( $user_id ) {
+		$this->user_id = $user_id;
+		$this->user_biomarkers = ENNU_Biomarker_Manager::get_user_biomarkers( $user_id );
+		$this->load_biomarker_config();
 	}
 
 	/**
 	 * Get updated biomarker recommendations for a user
 	 *
-	 * @param int $user_id User ID
 	 * @return array Recommendations
 	 */
-	public function get_updated_recommendations( $user_id ) {
+	public function get_updated_recommendations() {
 		try {
 			$recommendations = array();
 
-			// Get user symptoms
-			$symptoms = $this->get_user_symptoms( $user_id );
+			// Step 1: Get all user symptoms
+			$user_symptoms = $this->get_user_symptoms();
 
-			// Get existing biomarkers
-			$existing_biomarkers = $this->biomarker_manager->get_user_biomarkers( $user_id );
+			// Step 2: Get user's existing biomarker data
+			$user_biomarkers = $this->user_biomarkers;
 
-			// Get symptom-biomarker correlations
-			$correlations = $this->get_symptom_biomarker_correlations();
+			// Step 3: Get symptom-to-biomarker correlation map
+			$symptom_biomarker_map = $this->get_symptom_biomarker_map();
 
 			// Process each symptom
-			foreach ( $symptoms as $symptom ) {
-				if ( isset( $correlations[ $symptom ] ) ) {
-					foreach ( $correlations[ $symptom ] as $biomarker ) {
-						$recommendation = $this->evaluate_biomarker_recommendation( $user_id, $symptom, $biomarker );
+			foreach ( $user_symptoms as $symptom ) {
+				if ( isset( $symptom_biomarker_map[ $symptom ] ) ) {
+					foreach ( $symptom_biomarker_map[ $symptom ] as $biomarker ) {
+						$recommendation = $this->evaluate_biomarker_recommendation( $symptom, $biomarker );
 						if ( $recommendation ) {
 							$recommendations[] = $recommendation;
 						}
@@ -75,13 +86,12 @@ class ENNU_Smart_Recommendation_Engine {
 	/**
 	 * Evaluate if a biomarker should be recommended
 	 *
-	 * @param int $user_id User ID
 	 * @param string $symptom Symptom name
 	 * @param string $biomarker Biomarker name
 	 * @return array|null Recommendation data or null
 	 */
-	private function evaluate_biomarker_recommendation( $user_id, $symptom, $biomarker ) {
-		$latest_test = $this->biomarker_manager->get_latest_biomarker_test( $user_id, $biomarker );
+	private function evaluate_biomarker_recommendation( $symptom, $biomarker ) {
+		$latest_test = ENNU_Biomarker_Manager::get_latest_biomarker_test( $this->user_id, $biomarker );
 
 		// If no test exists, recommend it
 		if ( ! $latest_test ) {
@@ -89,7 +99,7 @@ class ENNU_Smart_Recommendation_Engine {
 		}
 
 		// Check if test is outdated
-		if ( $this->biomarker_manager->is_test_outdated( $latest_test ) ) {
+		if ( ENNU_Biomarker_Manager::is_test_outdated( $latest_test ) ) {
 			return $this->create_recommendation( $symptom, $biomarker, 'outdated', $latest_test['date_tested'], 'medium' );
 		}
 
@@ -415,11 +425,10 @@ class ENNU_Smart_Recommendation_Engine {
 	/**
 	 * Get user symptoms from centralized symptoms system
 	 *
-	 * @param int $user_id User ID
 	 * @return array Symptoms
 	 */
-	private function get_user_symptoms( $user_id ) {
-		$centralized_symptoms = get_user_meta( $user_id, 'ennu_centralized_symptoms', true );
+	private function get_user_symptoms() {
+		$centralized_symptoms = get_user_meta( $this->user_id, 'ennu_centralized_symptoms', true );
 
 		if ( ! is_array( $centralized_symptoms ) ) {
 			return array();
@@ -442,7 +451,7 @@ class ENNU_Smart_Recommendation_Engine {
 	 *
 	 * @return array Correlations
 	 */
-	private function get_symptom_biomarker_correlations() {
+	private function get_symptom_biomarker_map() {
 		// Load from configuration file
 		$correlations_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/symptom-biomarker-correlations.php';
 
@@ -469,13 +478,12 @@ class ENNU_Smart_Recommendation_Engine {
 	/**
 	 * Get biomarker trends for a user
 	 *
-	 * @param int $user_id User ID
 	 * @param string $biomarker Biomarker name
 	 * @param int $months Number of months to analyze
 	 * @return array Trend data
 	 */
-	public function get_biomarker_trends( $user_id, $biomarker, $months = 12 ) {
-		$biomarker_data = $this->biomarker_manager->get_user_biomarkers( $user_id, $biomarker );
+	public function get_biomarker_trends( $biomarker, $months = 12 ) {
+		$biomarker_data = $this->user_biomarkers;
 
 		if ( empty( $biomarker_data ) ) {
 			return array();
@@ -558,5 +566,18 @@ class ENNU_Smart_Recommendation_Engine {
 		}
 
 		return ( ( $last_value - $first_value ) / $first_value ) * 100;
+	}
+
+	/**
+	 * Load biomarker configuration
+	 */
+	private function load_biomarker_config() {
+		$config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/biomarker-config.php';
+
+		if ( file_exists( $config_file ) ) {
+			$this->biomarker_config = include $config_file;
+		} else {
+			$this->biomarker_config = array();
+		}
 	}
 }

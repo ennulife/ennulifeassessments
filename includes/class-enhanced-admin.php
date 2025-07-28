@@ -14,9 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Enhanced_Admin {
 
 	public function __construct() {
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_menu', array( $this, 'add_biomarker_admin_pages' ) );
 		add_action( 'admin_init', array( $this, 'initialize_csrf_protection' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_action( 'wp_ajax_get_biomarker_range_data', array( $this, 'ajax_get_biomarker_range_data' ) );
+		// Register AJAX handlers for symptom management
+		add_action( 'wp_ajax_ennu_update_centralized_symptoms', array( $this, 'handle_update_centralized_symptoms' ) );
+		add_action( 'wp_ajax_ennu_clear_symptom_history', array( $this, 'handle_clear_symptom_history' ) );
+		add_action( 'wp_ajax_ennu_get_centralized_symptoms', array( $this, 'handle_get_centralized_symptoms' ) );
 		
 		// Removed conflicting biomarker management tab hooks - using show_user_assessment_fields instead
 	}
@@ -64,12 +70,12 @@ class ENNU_Enhanced_Admin {
 			wp_enqueue_style( 'ennu-light-mode-only', ENNU_LIFE_PLUGIN_URL . 'assets/css/light-mode-only.css', array(), ENNU_LIFE_VERSION );
 		}
 		
-		wp_enqueue_script( 'ennu-admin-scripts', ENNU_LIFE_PLUGIN_URL . 'assets/js/admin-scores-enhanced.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
+		//wp_enqueue_script( 'ennu-admin-scripts', ENNU_LIFE_PLUGIN_URL . 'assets/js/admin-scores-enhanced.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
 		wp_enqueue_script( 'ennu-admin-enhanced', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-admin-enhanced.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
 
 		// Localize script with AJAX data
 		wp_localize_script(
-			'ennu-admin-scripts',
+			'ennu-admin-enhanced',
 			'ennu_admin_ajax',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -911,17 +917,78 @@ class ENNU_Enhanced_Admin {
 		wp_nonce_field( 'ennu_hubspot_update', 'ennu_hubspot_nonce' );
 
 		echo '<h2>' . esc_html__( 'HubSpot Configuration', 'ennulifeassessments' ) . '</h2>';
+		
+		// Check OAuth status
+		$access_token = get_option( 'ennu_hubspot_access_token' );
+		$oauth_status = $access_token ? 'connected' : 'disconnected';
+		
+		echo '<div class="notice notice-' . ( $oauth_status === 'connected' ? 'success' : 'warning' ) . ' is-dismissible">';
+		echo '<p><strong>OAuth Status:</strong> ' . ( $oauth_status === 'connected' ? '✅ Connected' : '⚠️ Not Connected' ) . '</p>';
+		if ( $oauth_status === 'connected' ) {
+			echo '<p>HubSpot is authenticated using OAuth 2.0. Your API calls will now work properly.</p>';
+		} else {
+			echo '<p>HubSpot requires OAuth 2.0 authentication. Please connect using the button below.</p>';
+		}
+		echo '</div>';
+		
 		echo '<table class="form-table" role="presentation">';
 
-		echo '<tr><th scope="row"><label for="hubspot_portal_id">' . esc_html__( 'HubSpot Portal ID', 'ennulifeassessments' ) . '</label></th>';
-		echo '<td><input type="text" id="hubspot_portal_id" name="hubspot_portal_id" value="' . esc_attr( $settings['portal_id'] ?? '' ) . '" class="regular-text" placeholder="12345678">';
-		echo '<p class="description">' . esc_html__( 'Your HubSpot portal ID (found in your HubSpot account settings)', 'ennulifeassessments' ) . '</p></td></tr>';
+		echo '<tr><th scope="row"><label for="hubspot_oauth">' . esc_html__( 'HubSpot Authentication', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td>';
+		if ( $oauth_status === 'connected' ) {
+			echo '<span style="color: green;">✅ Authenticated via OAuth 2.0</span><br>';
+			echo '<a href="' . admin_url( 'admin.php?page=ennu-hubspot-oauth' ) . '" class="button button-secondary">Re-authenticate</a>';
+		} else {
+			echo '<span style="color: red;">❌ Not authenticated</span><br>';
+			echo '<a href="' . admin_url( 'admin.php?page=ennu-hubspot-oauth' ) . '" class="button button-primary">Connect to HubSpot</a>';
+		}
+		echo '<p class="description">' . esc_html__( 'HubSpot now requires OAuth 2.0 authentication. API keys are deprecated.', 'ennulifeassessments' ) . '</p></td></tr>';
 
-		echo '<tr><th scope="row"><label for="hubspot_api_key">' . esc_html__( 'HubSpot API Key (Optional)', 'ennulifeassessments' ) . '</label></th>';
-		echo '<td><input type="password" id="hubspot_api_key" name="hubspot_api_key" value="' . esc_attr( $settings['api_key'] ?? '' ) . '" class="regular-text">';
-		echo '<p class="description">' . esc_html__( 'Required for advanced integrations with WP Fusion', 'ennulifeassessments' ) . '</p></td></tr>';
+		echo '<tr><th scope="row"><label for="hubspot_portal_id">' . esc_html__( 'HubSpot Portal ID', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><input type="text" id="hubspot_portal_id" name="hubspot_portal_id" value="48195592" class="regular-text" readonly style="background-color: #f0f0f0;">';
+		echo '<p class="description">' . esc_html__( 'Portal ID: 48195592', 'ennulifeassessments' ) . '</p></td></tr>';
+
+		echo '<tr><th scope="row"><label for="test_connection">' . esc_html__( 'Test Connection', 'ennulifeassessments' ) . '</label></th>';
+		echo '<td><button type="button" id="test_hubspot_connection" class="button button-secondary">Test HubSpot Connection</button>';
+		echo '<span id="connection_status" style="margin-left: 10px;"></span>';
+		echo '<p class="description">' . esc_html__( 'Test the HubSpot API connection to verify authentication is working.', 'ennulifeassessments' ) . '</p></td></tr>';
 
 		echo '</table>';
+		
+		// Add JavaScript for connection testing
+		echo '<script>
+		jQuery(document).ready(function($) {
+			$("#test_hubspot_connection").on("click", function() {
+				var button = $(this);
+				var status = $("#connection_status");
+				
+				button.prop("disabled", true).text("Testing...");
+				status.html("");
+				
+				$.ajax({
+					url: ajaxurl,
+					type: "POST",
+					data: {
+						action: "ennu_test_hubspot_connection",
+						nonce: "' . wp_create_nonce( 'ennu_hubspot_nonce' ) . '"
+					},
+					success: function(response) {
+						if (response.success) {
+							status.html("<span style=\"color: green;\">✅ " + response.data + "</span>");
+						} else {
+							status.html("<span style=\"color: red;\">❌ " + response.data + "</span>");
+						}
+					},
+					error: function() {
+						status.html("<span style=\"color: red;\">❌ Connection test failed</span>");
+					},
+					complete: function() {
+						button.prop("disabled", false).text("Test HubSpot Connection");
+					}
+				});
+			});
+		});
+		</script>';
 
 		echo '<h2>' . esc_html__( 'Consultation Booking Embeds', 'ennulifeassessments' ) . '</h2>';
 		echo '<p>' . esc_html__( 'Paste your HubSpot calendar embed codes for each consultation type. These will be used in the consultation shortcodes.', 'ennulifeassessments' ) . '</p>';
@@ -931,7 +998,7 @@ class ENNU_Enhanced_Admin {
 			echo '<table class="form-table" role="presentation">';
 
 			echo '<tr><th scope="row"><label for="embed_' . esc_attr( $type ) . '">' . esc_html__( 'Calendar Embed Code', 'ennulifeassessments' ) . '</label></th>';
-			echo '<td><textarea id="embed_' . esc_attr( $type ) . '" name="embeds[' . esc_attr( $type ) . '][embed_code]" rows="6" cols="80" class="large-text code">' . esc_textarea( $settings['embeds'][ $type ]['embed_code'] ?? '' ) . '</textarea>';
+			echo '<td><textarea id="embed_' . esc_attr( $type ) . '" name="embeds[' . esc_attr( $type ) . '][embed_code]" rows="6" cols="80" class="large-text code">' . ( $settings['embeds'][ $type ]['embed_code'] ?? '' ) . '</textarea>';
 			echo '<p class="description">' . esc_html__( 'Paste the complete HubSpot calendar embed code here', 'ennulifeassessments' ) . '</p></td></tr>';
 
 			echo '<tr><th scope="row"><label for="meeting_type_' . esc_attr( $type ) . '">' . esc_html__( 'Meeting Type ID', 'ennulifeassessments' ) . '</label></th>';
@@ -1062,16 +1129,19 @@ class ENNU_Enhanced_Admin {
 	 * Get HubSpot settings
 	 */
 	private function get_hubspot_settings() {
-		return get_option(
-			'ennu_hubspot_settings',
-			array(
-				'portal_id'           => '',
-				'api_key'             => '',
-				'embeds'              => array(),
-				'wpfusion_enabled'    => false,
-				'auto_create_contact' => false,
-			)
+		$saved_settings = get_option( 'ennu_hubspot_settings', array() );
+		
+		// Use hardcoded values as defaults (from hubspot-integration-setup.php)
+		$defaults = array(
+			'portal_id'           => '48195592', // Hardcoded from integration setup
+			'api_key'             => 'pat-na1-f96eb6e1-fd77-45a7-9f7b-7a30bffa2726', // Hardcoded from integration setup
+			'embeds'              => array(),
+			'wpfusion_enabled'    => false,
+			'auto_create_contact' => false,
 		);
+		
+		// Merge saved settings with defaults
+		return array_merge( $defaults, $saved_settings );
 	}
 
 	/**
@@ -1103,7 +1173,17 @@ class ENNU_Enhanced_Admin {
 		if ( isset( $_POST['embeds'] ) && is_array( $_POST['embeds'] ) ) {
 			foreach ( $_POST['embeds'] as $type => $embed_data ) {
 				$settings['embeds'][ $type ] = array(
-					'embed_code'          => wp_kses_post( $embed_data['embed_code'] ?? '' ),
+					'embed_code'          => wp_kses( $embed_data['embed_code'] ?? '', array(
+						'div' => array(
+							'class' => array(),
+							'data-src' => array(),
+						),
+						'script' => array(
+							'type' => array(),
+							'src' => array(),
+						),
+						'!--' => array(),
+					), array( 'http', 'https' ) ),
 					'meeting_type'        => sanitize_text_field( $embed_data['meeting_type'] ?? '' ),
 					'pre_populate_fields' => isset( $embed_data['pre_populate_fields'] ) ? array_map( 'sanitize_text_field', $embed_data['pre_populate_fields'] ) : array(),
 				);
@@ -1777,13 +1857,16 @@ class ENNU_Enhanced_Admin {
 	/**
 	 * Display centralized symptoms section for admin
 	 */
+	/**
+	 * Display centralized symptoms section for admin
+	 */
 	private function display_centralized_symptoms_section( $user_id ) {
 		echo '<table class="form-table">';
 
 		// Get centralized symptoms using the SAME data source as user dashboard
 		$centralized_symptoms_data = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms( $user_id );
-		$current_symptoms = $centralized_symptoms_data['symptoms'] ?? array();
-		$symptoms_by_assessment = $centralized_symptoms_data['by_assessment'] ?? array();
+		$current_symptoms          = $centralized_symptoms_data['symptoms'] ?? array();
+		$symptoms_by_assessment    = $centralized_symptoms_data['by_assessment'] ?? array();
 
 		// Get symptom history
 		$symptom_history = get_user_meta( $user_id, 'ennu_symptom_history', true );
@@ -1796,9 +1879,9 @@ class ENNU_Enhanced_Admin {
 				// Handle the new centralized symptoms structure
 				if ( is_array( $symptom_data ) && isset( $symptom_data['name'] ) ) {
 					$symptom_text = $symptom_data['name'];
-					$severity = isset( $symptom_data['severity'] ) ? $symptom_data['severity'] : 'moderate';
-					$frequency = isset( $symptom_data['frequency'] ) ? $symptom_data['frequency'] : 'daily';
-					
+					$severity     = isset( $symptom_data['severity'] ) ? $symptom_data['severity'] : 'moderate';
+					$frequency    = isset( $symptom_data['frequency'] ) ? $symptom_data['frequency'] : 'daily';
+
 					// Ensure we have strings, not arrays
 					if ( is_array( $severity ) ) {
 						$severity = 'moderate';
@@ -1806,11 +1889,11 @@ class ENNU_Enhanced_Admin {
 					if ( is_array( $frequency ) ) {
 						$frequency = 'daily';
 					}
-					
+
 					echo '<li>• <strong>' . esc_html( $symptom_text ) . '</strong> (' . esc_html( ucfirst( $severity ) ) . ', ' . esc_html( ucfirst( $frequency ) ) . ')</li>';
 				} else {
 					// Fallback for old format
-					$symptom_text = is_array( $symptom_data ) ? json_encode( $symptom_data ) : $symptom_data;
+					$symptom_text = is_array( $symptom_data ) ? wp_json_encode( $symptom_data ) : $symptom_data;
 					echo '<li>• ' . esc_html( $symptom_text ) . '</li>';
 				}
 			}
@@ -1827,7 +1910,7 @@ class ENNU_Enhanced_Admin {
 			foreach ( $symptoms_by_assessment as $assessment_type => $assessment_symptoms ) {
 				if ( ! empty( $assessment_symptoms ) ) {
 					$assessment_name = ucwords( str_replace( '_', ' ', $assessment_type ) );
-					
+
 					// Handle nested array structure
 					$symptoms_display = array();
 					foreach ( $assessment_symptoms as $symptom ) {
@@ -1847,7 +1930,7 @@ class ENNU_Enhanced_Admin {
 							$symptoms_display[] = $symptom;
 						}
 					}
-					
+
 					echo '<li><strong>' . esc_html( $assessment_name ) . ':</strong> ' . esc_html( implode( ', ', $symptoms_display ) ) . '</li>';
 				}
 			}
@@ -1873,8 +1956,8 @@ class ENNU_Enhanced_Admin {
 					} elseif ( is_string( $entry['symptoms'] ) ) {
 						$symptoms_display = explode( ',', $entry['symptoms'] );
 					}
-					
-					echo '<li><strong>' . esc_html( date( 'M j, Y @ g:i a', strtotime( $entry['date'] ) ) ) . '</strong>: ' . esc_html( implode( ', ', $symptoms_display ) ) . '</li>';
+
+					echo '<li><strong>' . esc_html( date( 'M j, Y @ g:i a', strtotime( $entry['date'] ) ) ) . '</strong>: ' . esc_html( implode( ', ', array_unique( $symptoms_display ) ) ) . '</li>';
 				}
 			}
 			echo '</ul>';
@@ -1887,636 +1970,9 @@ class ENNU_Enhanced_Admin {
 
 		// Action buttons for centralized symptoms
 		echo '<p>';
-		echo '<button type="button" class="button button-secondary" id="ennu-update-centralized-symptoms" data-user-id="' . esc_attr( $user_id ) . '">' . esc_html__( 'Update Centralized Symptoms', 'ennulifeassessments' ) . '</button>';
-		echo '<button type="button" class="button button-secondary" id="ennu-populate-centralized-symptoms" data-user-id="' . esc_attr( $user_id ) . '">' . esc_html__( 'Populate from Assessments', 'ennulifeassessments' ) . '</button>';
+		echo '<button type="button" class="button button-secondary" id="ennu-update-centralized-symptoms" data-user-id="' . esc_attr( $user_id ) . '">' . esc_html__( 'Manually Recalculate Symptoms', 'ennulifeassessments' ) . '</button>';
 		echo '<button type="button" class="button button-secondary" id="ennu-clear-symptom-history" data-user-id="' . esc_attr( $user_id ) . '">' . esc_html__( 'Clear Symptom History', 'ennulifeassessments' ) . '</button>';
 		echo '</p>';
-	}
-
-	/**
-	 * Display biomarkers section in admin user profile
-	 */
-	private function display_biomarkers_section( $user_id ) {
-		error_log( "ENNU Enhanced Admin: display_biomarkers_section called for user ID: {$user_id}" );
-		
-		// Get user's current biomarker data
-		$biomarker_data = get_user_meta( $user_id, 'ennu_biomarker_data', true );
-		$biomarker_data = is_array( $biomarker_data ) ? $biomarker_data : array();
-		
-		// Get flagged biomarkers using the flag manager
-		$flag_manager = new ENNU_Biomarker_Flag_Manager();
-		$flagged_biomarkers = $flag_manager->get_flagged_biomarkers( $user_id, 'active' );
-		
-		// Load all available biomarkers from AI medical specialist sources
-		$range_manager = new ENNU_Recommended_Range_Manager();
-		$ai_biomarker_config = $range_manager->get_biomarker_configuration();
-		$all_biomarkers = array();
-		
-		// Build the all_biomarkers array from the AI config
-		if ( ! empty( $ai_biomarker_config ) && is_array( $ai_biomarker_config ) ) {
-			foreach ( $ai_biomarker_config as $biomarker_key => $config ) {
-				$all_biomarkers[ $biomarker_key ] = $config;
-			}
-		}
-		
-		// Render Biomarker Summary at the top of the biomarkers tab
-		echo '<div class="ennu-biomarker-summary">';
-		echo '<h3>' . esc_html__( 'Biomarker Summary', 'ennulifeassessments' ) . '</h3>';
-		echo '<div class="ennu-summary-stats">';
-		echo '<div class="ennu-stat"><strong>' . esc_html__( 'Total Biomarkers:', 'ennulifeassessments' ) . '</strong> <span id="total-biomarkers">' . count( $all_biomarkers ) . '</span></div>';
-		echo '<div class="ennu-stat"><strong>' . esc_html__( 'With Data:', 'ennulifeassessments' ) . '</strong> <span id="biomarkers-with-data">' . count( $biomarker_data ) . '</span></div>';
-		echo '<div class="ennu-stat"><strong>' . esc_html__( 'Flagged:', 'ennulifeassessments' ) . '</strong> <span id="flagged-biomarkers">' . count( $flagged_biomarkers ) . '</span></div>';
-		echo '</div>';
-		echo '</div>';
-		
-		// Start the main biomarker content table
-		echo '<table class="form-table">';
-		
-		error_log( "ENNU Enhanced Admin: Loaded biomarker data for user {$user_id}: " . count( $biomarker_data ) . " biomarkers" );
-
-		// Get user demographics for range determination
-		$user = get_userdata( $user_id );
-		$user_age = get_user_meta( $user_id, 'ennu_global_exact_age', true );
-		$user_gender = get_user_meta( $user_id, 'ennu_global_gender', true );
-		
-		error_log( "ENNU Enhanced Admin: User {$user_id} demographics - Age: " . ( $user_age ?: 'NOT SET' ) . ", Gender: " . ( $user_gender ?: 'NOT SET' ) );
-		
-		// Determine age group for range selection
-		$age_group = 'default';
-		if ( ! empty( $user_age ) ) {
-			if ( $user_age >= 18 && $user_age <= 30 ) {
-				$age_group = '18-30';
-			} elseif ( $user_age >= 31 && $user_age <= 50 ) {
-				$age_group = '31-50';
-			} elseif ( $user_age >= 51 ) {
-				$age_group = '51+';
-			}
-		}
-		
-		error_log( "ENNU Enhanced Admin: User {$user_id} age group determined: {$age_group}" );
-
-		// Get doctor targets
-		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true );
-		$doctor_targets = is_array( $doctor_targets ) ? $doctor_targets : array();
-
-		// Get flagged biomarkers using the flag manager
-		$flag_manager = new ENNU_Biomarker_Flag_Manager();
-		$flagged_biomarkers = $flag_manager->get_flagged_biomarkers( $user_id, 'active' );
-
-		// Get provider recommendations
-		$provider_recommendations = get_user_meta( $user_id, 'ennu_provider_recommendations', true );
-		$provider_recommendations = is_array( $provider_recommendations ) ? $provider_recommendations : array();
-
-		// Get provider notes
-		$provider_notes = get_user_meta( $user_id, 'ennu_provider_notes', true );
-		$provider_notes = is_array( $provider_notes ) ? $provider_notes : array();
-
-		// Load all available biomarkers from AI medical specialist sources
-		$range_manager = new ENNU_Recommended_Range_Manager();
-		$ai_biomarker_config = $range_manager->get_biomarker_configuration();
-		error_log( "ENNU Enhanced Admin: AI biomarker config structure: " . print_r( $ai_biomarker_config, true ) );
-		$all_biomarkers = array();
-
-		// Load panel configuration
-		$panels_manager = ENNU_Biomarker_Panels::get_instance();
-		$all_panels = $panels_manager->get_all_panels();
-		$pricing_summary = $panels_manager->get_pricing_summary();
-		
-		// Define category mappings directly since AI medical team class doesn't expose specialists
-		$category_mappings = array(
-			// Hormone biomarkers
-			'testosterone_total' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'testosterone_free' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'estradiol' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'progesterone' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'cortisol' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'dhea_s' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'insulin' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'glucose' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'hba1c' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'shbg' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'fsh' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'lh' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'tsh' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			't3' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			't4' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			'vitamin_d' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'specialist_id' => 'dr_elena_harmonix', 'expertise' => 'Endocrinology', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Cardiovascular biomarkers
-			'total_cholesterol' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'hdl' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'ldl' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'triglycerides' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'apob' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'homocysteine' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'crp' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'blood_pressure_systolic' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'blood_pressure_diastolic' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'heart_rate' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			'nt_probnp' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'specialist_id' => 'dr_victor_pulse', 'expertise' => 'Cardiology', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Blood health biomarkers
-			'hemoglobin' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'hematocrit' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'rbc' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'wbc' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'platelets' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'ferritin' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'iron' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'b12' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			'folate' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'specialist_id' => 'dr_harlan_vitalis', 'expertise' => 'Hematology', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Organ function biomarkers
-			'creatinine' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'bun' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'gfr' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'alt' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'ast' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'ggt' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'albumin' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'bilirubin' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			'alkaline_phosphatase' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'specialist_id' => 'dr_renata_flux', 'expertise' => 'Nephrology/Hepatology', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Performance biomarkers
-			'creatine_kinase' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'lactate_dehydrogenase' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'uric_acid' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'calcium' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'magnesium' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'phosphorus' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'sodium' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			'potassium' => array( 'category' => 'performance', 'specialist' => 'Dr. Silas Apex', 'specialist_id' => 'dr_silas_apex', 'expertise' => 'Sports Medicine', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Mental health biomarkers
-			'serotonin' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			'dopamine' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			'norepinephrine' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			'gaba' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			'melatonin' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			'omega_3' => array( 'category' => 'mental_health', 'specialist' => 'Dr. Mira Insight', 'specialist_id' => 'dr_mira_insight', 'expertise' => 'Psychiatry/Psychology', 'panel' => 'ai_medical_specialist_panel' ),
-			
-			// Brain health biomarkers
-			'apoe_genotype' => array( 'category' => 'brain_health', 'specialist' => 'Dr. Nora Cognita', 'specialist_id' => 'dr_nora_cognita', 'expertise' => 'Neurology', 'panel' => 'ai_medical_specialist_panel' ),
-			'bdnf' => array( 'category' => 'brain_health', 'specialist' => 'Dr. Nora Cognita', 'specialist_id' => 'dr_nora_cognita', 'expertise' => 'Neurology', 'panel' => 'ai_medical_specialist_panel' ),
-			'acetylcholine' => array( 'category' => 'brain_health', 'specialist' => 'Dr. Nora Cognita', 'specialist_id' => 'dr_nora_cognita', 'expertise' => 'Neurology', 'panel' => 'ai_medical_specialist_panel' ),
-		);
-
-		foreach ( $ai_biomarker_config as $biomarker_key => $biomarker_config ) {
-			// Enhanced safety check for biomarker config structure
-			if ( ! is_array( $biomarker_config ) ) {
-				error_log( "ENNU Enhanced Admin: Invalid biomarker config for {$biomarker_key}: not an array" );
-				continue;
-			}
-			
-			$all_biomarkers[ $biomarker_key ] = array(
-				'category' => array_key_exists( $biomarker_key, $category_mappings ) && array_key_exists( 'category', $category_mappings[ $biomarker_key ] ) ? $category_mappings[ $biomarker_key ]['category'] : 'Other',
-				'config'   => $biomarker_config,
-				'data'     => array_key_exists( $biomarker_key, $biomarker_data ) ? $biomarker_data[ $biomarker_key ] : null,
-			);
-		}
-
-		echo '<div class="ennu-biomarker-management-interface">';
-		echo '<style>
-		.ennu-range-determination-info {
-			background: #f8f9fa;
-			border: 1px solid #e9ecef;
-			border-radius: 4px;
-			padding: 10px;
-			margin-top: 10px;
-			font-size: 12px;
-		}
-		.ennu-range-determination-info h4 {
-			margin: 0 0 8px 0;
-			color: #495057;
-			font-size: 13px;
-			font-weight: 600;
-		}
-		.ennu-evidence-sources, .ennu-validation-status, .ennu-confidence-score, 
-		.ennu-research-specialist, .ennu-research-date, .ennu-range-categories {
-			margin-bottom: 4px;
-			line-height: 1.3;
-		}
-		.ennu-evidence-sources strong, .ennu-validation-status strong, 
-		.ennu-confidence-score strong, .ennu-research-specialist strong, 
-		.ennu-research-date strong, .ennu-range-categories strong {
-			color: #6c757d;
-			font-weight: 600;
-		}
-		.ennu-validation-status[style*="green"] {
-			color: #28a745 !important;
-		}
-		.ennu-validation-status[style*="orange"] {
-			color: #fd7e14 !important;
-		}
-		.ennu-confidence-score {
-			color: #007bff;
-		}
-		.ennu-active-range-category {
-			margin-top: 8px;
-			padding: 6px 8px;
-			background: #e3f2fd;
-			border-radius: 4px;
-			border-left: 3px solid #2196f3;
-		}
-		.ennu-range-badge {
-			display: inline-block;
-			padding: 2px 6px;
-			border-radius: 3px;
-			font-size: 11px;
-			font-weight: 600;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-		}
-		.ennu-range-user-override {
-			background: #ffebee;
-			color: #c62828;
-			border: 1px solid #ef5350;
-		}
-		.ennu-range-age-gender-specific {
-			background: #fce4ec;
-			color: #c2185b;
-			border: 1px solid #f48fb1;
-		}
-		.ennu-range-age-specific {
-			background: #e8f5e8;
-			color: #2e7d32;
-			border: 1px solid #66bb6a;
-		}
-		.ennu-range-gender-specific {
-			background: #fff3e0;
-			color: #ef6c00;
-			border: 1px solid #ffb74d;
-		}
-		.ennu-range-default {
-			background: #f3e5f5;
-			color: #7b1fa2;
-			border: 1px solid #ba68c8;
-		}
-		
-		/* Remove Flag Checkbox Styles */
-		.ennu-remove-flag-section {
-			margin-top: 10px;
-			padding: 8px;
-			background: #fff3cd;
-			border: 1px solid #ffeaa7;
-			border-radius: 4px;
-		}
-		
-		.ennu-remove-flag-checkbox {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			margin-bottom: 5px;
-			cursor: pointer;
-		}
-		
-		.ennu-remove-flag-input {
-			margin: 0;
-		}
-		
-		.ennu-remove-flag-text {
-			font-weight: 500;
-			color: #856404;
-		}
-		
-		.ennu-remove-flag-note {
-			display: block;
-			color: #856404;
-			font-style: italic;
-			font-size: 11px;
-		}
-		</style>';
-		// Removed non-functional buttons: Save All Changes, Import Lab Data, Export Data
-
-		echo '<div class="ennu-biomarker-table-container">';
-		echo '<table class="ennu-biomarker-management-table">';
-		echo '<thead>';
-		echo '<tr>';
-		echo '<th>' . esc_html__( 'Biomarker', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Lab Results', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Medical AI Reference Ranges', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Provider Recommended Targets', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Provider Notes', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Symptom Flagged', 'ennulifeassessments' ) . '</th>';
-		echo '<th>' . esc_html__( 'Metadata', 'ennulifeassessments' ) . '</th>';
-		echo '</tr>';
-		echo '</thead>';
-		echo '<tbody>';
-
-		// Group biomarkers by category
-		$grouped_biomarkers = array();
-		foreach ( $all_biomarkers as $biomarker_key => $biomarker_info ) {
-			// Enhanced safety check for biomarker info structure - PHP 8.1+ compatible
-			if ( ! is_array( $biomarker_info ) ) {
-				error_log( "ENNU Enhanced Admin: Invalid biomarker info for {$biomarker_key}: not an array" );
-				continue;
-			}
-			
-			// Check if category exists and is a string - PHP 8.1+ compatible
-			if ( ! isset( $biomarker_info['category'] ) || ! is_string( $biomarker_info['category'] ) ) {
-				error_log( "ENNU Enhanced Admin: Invalid or missing category for {$biomarker_key}: " . print_r( $biomarker_info, true ) );
-				$category = 'Other'; // Default fallback
-			} else {
-				$category = $biomarker_info['category'];
-			}
-			
-			if ( ! array_key_exists( $category, $grouped_biomarkers ) ) {
-				$grouped_biomarkers[ $category ] = array();
-			}
-			$grouped_biomarkers[ $category ][ $biomarker_key ] = $biomarker_info;
-		}
-
-		// Display all biomarkers organized by category
-		foreach ( $grouped_biomarkers as $category => $biomarkers ) {
-			echo '<tr class="ennu-category-header">';
-			echo '<td colspan="7"><h3>' . esc_html( $category ) . '</h3></td>';
-			echo '</tr>';
-
-			foreach ( $biomarkers as $biomarker_key => $biomarker_info ) {
-				// Debug the structure
-				error_log( "ENNU Enhanced Admin: Processing biomarker {$biomarker_key} with structure: " . print_r( $biomarker_info, true ) );
-				
-				// Enhanced safety check for biomarker info structure - PHP 8.1+ compatible
-				if ( ! is_array( $biomarker_info ) ) {
-					error_log( "ENNU Enhanced Admin: Invalid biomarker structure for {$biomarker_key}: not an array" );
-					continue;
-				}
-				
-				if ( ! array_key_exists( 'config', $biomarker_info ) || ! is_array( $biomarker_info['config'] ) ) {
-					error_log( "ENNU Enhanced Admin: Invalid or missing config for {$biomarker_key}" );
-					continue;
-				}
-				
-				$config = $biomarker_info['config'];
-				$data   = array_key_exists( 'data', $biomarker_info ) ? $biomarker_info['data'] : null;
-				$display_name = ucwords( str_replace( '_', ' ', $biomarker_key ) );
-				$unit = array_key_exists( 'unit', $config ) ? $config['unit'] : '';
-				
-				// Calculate optimal range from the new orchestrator structure
-				$optimal_range = '';
-				if ( array_key_exists( 'ranges', $config ) && 
-					 is_array( $config['ranges'] ) && 
-					 array_key_exists( 'default', $config['ranges'] ) && 
-					 is_array( $config['ranges']['default'] ) &&
-					 array_key_exists( 'optimal_min', $config['ranges']['default'] ) && 
-					 array_key_exists( 'optimal_max', $config['ranges']['default'] ) ) {
-					$optimal_range = $config['ranges']['default']['optimal_min'] . ' - ' . $config['ranges']['default']['optimal_max'] . ' ' . $unit;
-				}
-
-				// Get current data with granular fields - Enhanced safety checks
-				$current_value = ( $data && is_array( $data ) && array_key_exists( 'value', $data ) ) ? $data['value'] : '';
-				$test_date = ( $data && is_array( $data ) && array_key_exists( 'test_date', $data ) ) ? $data['test_date'] : '';
-				$target_value = array_key_exists( $biomarker_key, $doctor_targets ) ? $doctor_targets[ $biomarker_key ] : '';
-				$recommendation = array_key_exists( $biomarker_key, $provider_recommendations ) ? $provider_recommendations[ $biomarker_key ] : '';
-				$notes = array_key_exists( $biomarker_key, $provider_notes ) ? $provider_notes[ $biomarker_key ] : '';
-				
-
-				
-				// Load saved granular fields - Enhanced safety checks
-				$saved_unit = ( $data && is_array( $data ) && array_key_exists( 'unit', $data ) ) ? $data['unit'] : '';
-				$saved_reference_min = ( $data && is_array( $data ) && array_key_exists( 'reference_range_min', $data ) ) ? $data['reference_range_min'] : '';
-				$saved_reference_max = ( $data && is_array( $data ) && array_key_exists( 'reference_range_max', $data ) ) ? $data['reference_range_max'] : '';
-				$saved_optimal_min = ( $data && is_array( $data ) && array_key_exists( 'optimal_range_min', $data ) ) ? $data['optimal_range_min'] : '';
-				$saved_optimal_max = ( $data && is_array( $data ) && array_key_exists( 'optimal_range_max', $data ) ) ? $data['optimal_range_max'] : '';
-				$saved_target_min = ( $data && is_array( $data ) && array_key_exists( 'provider_target_min', $data ) ) ? $data['provider_target_min'] : '';
-				$saved_target_max = ( $data && is_array( $data ) && array_key_exists( 'provider_target_max', $data ) ) ? $data['provider_target_max'] : '';
-				$saved_target_priority = ( $data && is_array( $data ) && array_key_exists( 'provider_target_priority', $data ) ) ? $data['provider_target_priority'] : '';
-				$saved_target_value = ( $data && is_array( $data ) && array_key_exists( 'provider_target_value', $data ) ) ? $data['provider_target_value'] : '';
-				// Check if biomarker is flagged
-				$is_flagged = false;
-				$flag_reason = '';
-				
-				// Ensure flagged_biomarkers is defined
-				if ( ! isset( $flagged_biomarkers ) || ! is_array( $flagged_biomarkers ) ) {
-					$flagged_biomarkers = array();
-				}
-				
-				foreach ( $flagged_biomarkers as $flag_id => $flag_data ) {
-					// Enhanced safety check for flag_data - PHP 8.1+ compatible
-					if ( ! is_array( $flag_data ) ) {
-						error_log( "ENNU Enhanced Admin: Invalid flag_data for flag_id {$flag_id}: not an array" );
-						continue;
-					}
-					
-					if ( array_key_exists( 'biomarker_name', $flag_data ) && 
-						 array_key_exists( 'status', $flag_data ) &&
-						 $flag_data['biomarker_name'] === $biomarker_key && 
-						 $flag_data['status'] === 'active' ) {
-						$is_flagged = true;
-						$flag_reason = array_key_exists( 'reason', $flag_data ) ? $flag_data['reason'] : '';
-						break;
-					}
-				}
-
-				echo '<tr class="ennu-biomarker-row ' . ( $data ? 'has-data' : 'no-data' ) . '" data-biomarker="' . esc_attr( $biomarker_key ) . '">';
-				
-				// Biomarker Name with Specialist Information
-				echo '<td class="ennu-biomarker-name">';
-				echo '<strong>' . esc_html( $display_name ) . '</strong>';
-				echo '<br><small>' . esc_html( $unit ) . '</small>';
-				
-				// Add specialist information if available
-				if ( array_key_exists( $biomarker_key, $category_mappings ) && 
-					 array_key_exists( 'specialist', $category_mappings[ $biomarker_key ] ) ) {
-					$specialist_name = $category_mappings[ $biomarker_key ]['specialist'];
-					$specialist_domain = array_key_exists( 'category', $category_mappings[ $biomarker_key ] ) ? $category_mappings[ $biomarker_key ]['category'] : '';
-					echo '<br><small style="color: #0073aa; font-style: italic;">👨‍⚕️ ' . esc_html( $specialist_name ) . ' (' . esc_html( $specialist_domain ) . ')</small>';
-				}
-				echo '</td>';
-
-				// Lab Results Data Fields - Individual Granular Fields for User Dashboard Sync
-				echo '<td class="ennu-lab-results">';
-				echo '<div class="ennu-lab-inputs">';
-				
-				// Current Lab Value
-				echo '<div class="ennu-input-group">';
-				echo '<label>Current Value:</label>';
-				echo '<input type="number" step="0.01" class="ennu-lab-value" name="biomarker_value[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $current_value ) . '" placeholder="Enter lab result">';
-				echo '</div>';
-				
-				// Test Date
-				echo '<div class="ennu-input-group">';
-				echo '<label>Test Date:</label>';
-				echo '<input type="date" class="ennu-test-date" name="test_date[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $test_date ) . '" placeholder="Test Date">';
-				echo '</div>';
-				
-				// Unit of Measurement
-				echo '<div class="ennu-input-group">';
-				echo '<label>Unit:</label>';
-				echo '<input type="text" class="ennu-unit" name="biomarker_unit[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_unit ? $saved_unit : $unit ) . '" placeholder="e.g., mg/dL, ng/mL">';
-				echo '</div>';
-				
-				echo '</div>';
-				echo '</td>';
-
-				// Get AI medical specialist range values
-				$ranges = isset( $config['ranges'] ) ? $config['ranges'] : array();
-				$age_adjustments = isset( $config['age_adjustments'] ) ? $config['age_adjustments'] : array();
-				$gender_adjustments = isset( $config['gender_adjustments'] ) ? $config['gender_adjustments'] : array();
-				
-				// Get base ranges from AI medical specialist data
-				$range_min = isset( $ranges['normal_min'] ) ? $ranges['normal_min'] : '';
-				$range_max = isset( $ranges['normal_max'] ) ? $ranges['normal_max'] : '';
-				$optimal_min = isset( $ranges['optimal_min'] ) ? $ranges['optimal_min'] : '';
-				$optimal_max = isset( $ranges['optimal_max'] ) ? $ranges['optimal_max'] : '';
-				
-				// Apply age adjustments if available
-				$age_group_key = $this->get_age_group_key( $user_age );
-				if ( isset( $age_adjustments[ $age_group_key ] ) ) {
-					$age_adj = $age_adjustments[ $age_group_key ];
-					if ( isset( $age_adj['optimal_min'] ) ) $optimal_min = $age_adj['optimal_min'];
-					if ( isset( $age_adj['optimal_max'] ) ) $optimal_max = $age_adj['optimal_max'];
-				}
-				
-				// Apply gender adjustments if available
-				if ( isset( $gender_adjustments[ $user_gender ] ) ) {
-					$gender_adj = $gender_adjustments[ $user_gender ];
-					if ( isset( $gender_adj['optimal_min'] ) ) $optimal_min = $gender_adj['optimal_min'];
-					if ( isset( $gender_adj['optimal_max'] ) ) $optimal_max = $gender_adj['optimal_max'];
-				}
-				
-				// Calculate AI-powered target values based on Bryan Johnson longevity standards
-				$ai_target_value = $this->calculate_ai_target_value( $biomarker_key, $current_value, $optimal_min, $optimal_max, $user_age, $user_gender );
-				$ai_target_min = $this->calculate_ai_target_min( $biomarker_key, $optimal_min );
-				$ai_target_max = $this->calculate_ai_target_max( $biomarker_key, $optimal_max );
-				$ai_target_priority = $this->determine_biomarker_priority( $biomarker_key );
-				
-				// Log the placeholder values being set
-				error_log( "ENNU Enhanced Admin: Biomarker {$biomarker_key} placeholder values - Range: {$range_min}-{$range_max}, Optimal: {$optimal_min}-{$optimal_max}, AI Target: {$ai_target_value}, Source: AI Medical Specialist" );
-				
-				// Reference Range Fields - Individual Granular Fields for User Dashboard Sync
-				echo '<td class="ennu-reference-ranges">';
-				echo '<div class="ennu-reference-range-display">';
-				
-				// Reference Range - Individual Fields
-				echo '<div class="ennu-range-section">';
-				echo '<h4>Reference Range</h4>';
-				echo '<div class="ennu-range-inputs">';
-				echo '<div class="ennu-input-group">';
-				echo '<label>Low/Min:</label>';
-				echo '<input type="number" step="0.01" class="ennu-range-min" name="reference_range_min[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_reference_min ? $saved_reference_min : $range_min ) . '" placeholder="Min value">';
-				echo '</div>';
-				echo '<div class="ennu-input-group">';
-				echo '<label>High/Max:</label>';
-				echo '<input type="number" step="0.01" class="ennu-range-max" name="reference_range_max[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_reference_max ? $saved_reference_max : $range_max ) . '" placeholder="Max value">';
-				echo '</div>';
-				echo '</div>';
-				echo '</div>';
-				
-				// Optimal Range - Individual Fields
-				echo '<div class="ennu-range-section">';
-				echo '<h4>Optimal Range</h4>';
-				echo '<div class="ennu-range-inputs">';
-				echo '<div class="ennu-input-group">';
-				echo '<label>Low/Min:</label>';
-				echo '<input type="number" step="0.01" class="ennu-optimal-min" name="optimal_range_min[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_optimal_min ? $saved_optimal_min : $optimal_min ) . '" placeholder="Optimal min">';
-				echo '</div>';
-				echo '<div class="ennu-input-group">';
-				echo '<label>High/Max:</label>';
-				echo '<input type="number" step="0.01" class="ennu-optimal-max" name="optimal_range_max[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_optimal_max ? $saved_optimal_max : $optimal_max ) . '" placeholder="Optimal max">';
-				echo '</div>';
-				echo '</div>';
-				echo '</div>';
-				
-				echo '<div class="ennu-range-source">';
-				echo '<small>Source: Medical AI Research</small>';
-				echo '</div>';
-				echo '</div>';
-				echo '</td>';
-
-				// Provider Recommended Targets - Individual Granular Fields for User Dashboard Sync
-				echo '<td class="ennu-provider-targets">';
-				echo '<div class="ennu-target-inputs">';
-				
-				// Target Value
-				echo '<div class="ennu-target-group">';
-				echo '<label>Target Value:</label>';
-				echo '<input type="number" step="0.01" name="provider_target_value[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_target_value ? $saved_target_value : $ai_target_value ) . '" placeholder="Enter target value">';
-				echo '</div>';
-				
-				// Target Range - Individual Fields
-				echo '<div class="ennu-target-group">';
-				echo '<label>Target Range:</label>';
-				echo '<div class="ennu-target-range-inputs">';
-				echo '<div class="ennu-input-group">';
-				echo '<label>Min:</label>';
-				echo '<input type="number" step="0.01" name="provider_target_min[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_target_min ? $saved_target_min : $ai_target_min ) . '" placeholder="Target min">';
-				echo '</div>';
-				echo '<div class="ennu-input-group">';
-				echo '<label>Max:</label>';
-				echo '<input type="number" step="0.01" name="provider_target_max[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $saved_target_max ? $saved_target_max : $ai_target_max ) . '" placeholder="Target max">';
-				echo '</div>';
-				echo '</div>';
-				echo '</div>';
-				
-				// Priority
-				echo '<div class="ennu-target-group">';
-				echo '<label>Priority:</label>';
-				echo '<select name="provider_target_priority[' . esc_attr( $biomarker_key ) . ']">';
-				echo '<option value="">Select priority</option>';
-				echo '<option value="critical"' . selected( $saved_target_priority ? $saved_target_priority : $ai_target_priority, 'critical', false ) . '>Critical</option>';
-				echo '<option value="high"' . selected( $saved_target_priority ? $saved_target_priority : $ai_target_priority, 'high', false ) . '>High</option>';
-				echo '<option value="medium"' . selected( $saved_target_priority ? $saved_target_priority : $ai_target_priority, 'medium', false ) . '>Medium</option>';
-				echo '<option value="low"' . selected( $saved_target_priority ? $saved_target_priority : $ai_target_priority, 'low', false ) . '>Low</option>';
-				echo '</select>';
-				echo '</div>';
-				
-				echo '</div>';
-				echo '</td>';
-
-				// Provider Notes
-				echo '<td class="ennu-provider-notes">';
-				echo '<textarea name="provider_notes[' . esc_attr( $biomarker_key ) . ']" placeholder="Enter detailed clinical notes">' . esc_textarea( $notes ) . '</textarea>';
-				echo '</td>';
-
-				// Symptom Flagged Status
-				echo '<td class="ennu-symptom-flagged">';
-				if ( ! empty( $flag_reason ) ) {
-					echo '<div class="ennu-symptom-flag-indicator flagged">';
-					echo '<span class="dashicons dashicons-warning"></span>';
-					echo '<div class="symptom-flag-details">';
-					echo '<span class="flag-reason">' . esc_html( $flag_reason ) . '</span>';
-					echo '<span class="flag-action">Lab testing recommended</span>';
-					echo '</div>';
-					echo '</div>';
-					
-					// Add checkbox to remove flag
-					echo '<div class="ennu-remove-flag-section">';
-					echo '<label class="ennu-remove-flag-checkbox">';
-					echo '<input type="checkbox" name="remove_flag[' . esc_attr( $biomarker_key ) . ']" value="1" class="ennu-remove-flag-input">';
-					echo '<span class="ennu-remove-flag-text">Remove symptom flag</span>';
-					echo '</label>';
-					echo '<small class="ennu-remove-flag-note">Unchecking this will remove the symptom flag for this biomarker</small>';
-					echo '</div>';
-				} else {
-					echo '<div class="ennu-symptom-flag-indicator not-flagged">';
-					echo '<span class="dashicons dashicons-yes-alt"></span>';
-					echo '<span>No symptom correlation</span>';
-					echo '</div>';
-				}
-				echo '</td>';
-
-				// Metadata Container
-				echo '<td class="ennu-metadata">';
-				echo '<div class="ennu-metadata-content">';
-				if ( $test_date ) {
-					echo '<div><strong>Test Date:</strong> ' . esc_html( $test_date ) . '</div>';
-				}
-				if ( $target_value ) {
-					echo '<div><strong>Target:</strong> ' . esc_html( $target_value ) . '</div>';
-				}
-				echo '<div><strong>Last Updated:</strong> ' . esc_html( current_time( 'Y-m-d H:i:s' ) ) . '</div>';
-				echo '<div><strong>ID:</strong> ' . esc_html( $biomarker_key ) . '</div>';
-				echo '</div>';
-				echo '</td>';
-
-				echo '</tr>';
-			}
-		}
-
-		echo '</tbody>';
-		echo '</table>';
-		echo '</table>'; // Close the form-table
 	}
 
 	/**
@@ -4176,7 +3632,7 @@ class ENNU_Enhanced_Admin {
 	// ========================================
 
 	/**
-	 * Handle saving biomarker range with enhanced functionality
+	 * Handle saving biomarker range data - processes arrays of biomarker data
 	 */
 	private function handle_save_biomarker_range() {
 		
@@ -4189,96 +3645,161 @@ class ENNU_Enhanced_Admin {
 			wp_die( 'Insufficient permissions' );
 		}
 
-		$biomarker = sanitize_text_field( $_POST['biomarker'] );
+		// The form sends arrays of data for multiple biomarkers
+		// We need to process each biomarker individually
+		$processed_count = 0;
+		$errors = array();
 		
-		// Build comprehensive range data from form
-		$range_data = array(
-			'unit' => sanitize_text_field( $_POST['unit'] ),
-			'ranges' => array(
-					'optimal_min' => floatval( $_POST['optimal_min'] ),
-					'optimal_max' => floatval( $_POST['optimal_max'] ),
-				'normal_min' => floatval( $_POST['normal_min'] ),
-				'normal_max' => floatval( $_POST['normal_max'] ),
-				'critical_min' => floatval( $_POST['critical_min'] ),
-				'critical_max' => floatval( $_POST['critical_max'] )
-			),
-			'age_adjustments' => array(
-				'young' => array(
-					'optimal_min' => floatval( $_POST['age_young_optimal_min'] ),
-					'optimal_max' => floatval( $_POST['age_young_optimal_max'] )
-				),
-				'adult' => array(
-					'optimal_min' => floatval( $_POST['age_adult_optimal_min'] ),
-					'optimal_max' => floatval( $_POST['age_adult_optimal_max'] )
-				),
-				'senior' => array(
-					'optimal_min' => floatval( $_POST['age_senior_optimal_min'] ),
-					'optimal_max' => floatval( $_POST['age_senior_optimal_max'] )
-				)
-			),
-			'gender_adjustments' => array(
-				'male' => array(
-					'optimal_min' => floatval( $_POST['gender_male_optimal_min'] ),
-					'optimal_max' => floatval( $_POST['gender_male_optimal_max'] )
-				),
-				'female' => array(
-					'optimal_min' => floatval( $_POST['gender_female_optimal_min'] ),
-					'optimal_max' => floatval( $_POST['gender_female_optimal_max'] )
-				)
-			),
-			'clinical_significance' => sanitize_textarea_field( $_POST['clinical_significance'] ),
-			'risk_factors' => array_map( 'sanitize_text_field', explode( ',', $_POST['risk_factors'] ) ),
-			'optimization_recommendations' => array_map( 'sanitize_text_field', explode( ',', $_POST['optimization_recommendations'] ) ),
-			'scoring_algorithm' => array(
-				'optimal_score' => intval( $_POST['scoring_optimal_score'] ),
-				'suboptimal_score' => intval( $_POST['scoring_suboptimal_score'] ),
-				'poor_score' => intval( $_POST['scoring_poor_score'] ),
-				'critical_score' => intval( $_POST['scoring_critical_score'] )
-			),
-			'target_setting' => array(
-				'improvement_targets' => array_map( 'sanitize_text_field', explode( ',', $_POST['target_improvement_targets'] ) ),
-				'timeframes' => array(
-					'immediate' => sanitize_text_field( $_POST['target_immediate'] ),
-					'short_term' => sanitize_text_field( $_POST['target_short_term'] ),
-					'long_term' => sanitize_text_field( $_POST['target_long_term'] )
-				)
-			),
-			'sources' => array(
-				'primary' => sanitize_text_field( $_POST['sources_primary'] ),
-				'secondary' => array_map( 'sanitize_text_field', explode( ',', $_POST['sources_secondary'] ) ),
-				'evidence_level' => sanitize_text_field( $_POST['sources_evidence_level'] )
-			),
-			'last_updated' => current_time( 'mysql' ),
-			'updated_by' => wp_get_current_user()->display_name,
-			'version' => '2.0'
-		);
+		// Get all the array fields from the form
+		$ranges_optimal_min = isset( $_POST['ranges_optimal_min'] ) && is_array( $_POST['ranges_optimal_min'] ) ? $_POST['ranges_optimal_min'] : array();
+		$ranges_optimal_max = isset( $_POST['ranges_optimal_max'] ) && is_array( $_POST['ranges_optimal_max'] ) ? $_POST['ranges_optimal_max'] : array();
+		$ranges_normal_min = isset( $_POST['ranges_normal_min'] ) && is_array( $_POST['ranges_normal_min'] ) ? $_POST['ranges_normal_min'] : array();
+		$ranges_normal_max = isset( $_POST['ranges_normal_max'] ) && is_array( $_POST['ranges_normal_max'] ) ? $_POST['ranges_normal_max'] : array();
+		$ranges_critical_min = isset( $_POST['ranges_critical_min'] ) && is_array( $_POST['ranges_critical_min'] ) ? $_POST['ranges_critical_min'] : array();
+		$ranges_critical_max = isset( $_POST['ranges_critical_max'] ) && is_array( $_POST['ranges_critical_max'] ) ? $_POST['ranges_critical_max'] : array();
 
-		// Save to database
-		$save_result = update_option( "ennu_biomarker_range_{$biomarker}", $range_data );
+		// Age group arrays
+		$age_young_min = isset( $_POST['age_young_min'] ) && is_array( $_POST['age_young_min'] ) ? $_POST['age_young_min'] : array();
+		$age_young_max = isset( $_POST['age_young_max'] ) && is_array( $_POST['age_young_max'] ) ? $_POST['age_young_max'] : array();
+		$age_adult_min = isset( $_POST['age_adult_min'] ) && is_array( $_POST['age_adult_min'] ) ? $_POST['age_adult_min'] : array();
+		$age_adult_max = isset( $_POST['age_adult_max'] ) && is_array( $_POST['age_adult_max'] ) ? $_POST['age_adult_max'] : array();
+		$age_senior_min = isset( $_POST['age_senior_min'] ) && is_array( $_POST['age_senior_min'] ) ? $_POST['age_senior_min'] : array();
+		$age_senior_max = isset( $_POST['age_senior_max'] ) && is_array( $_POST['age_senior_max'] ) ? $_POST['age_senior_max'] : array();
+
+		// Gender group arrays
+		$gender_male_min = isset( $_POST['gender_male_min'] ) && is_array( $_POST['gender_male_min'] ) ? $_POST['gender_male_min'] : array();
+		$gender_male_max = isset( $_POST['gender_male_max'] ) && is_array( $_POST['gender_male_max'] ) ? $_POST['gender_male_max'] : array();
+		$gender_female_min = isset( $_POST['gender_female_min'] ) && is_array( $_POST['gender_female_min'] ) ? $_POST['gender_female_min'] : array();
+		$gender_female_max = isset( $_POST['gender_female_max'] ) && is_array( $_POST['gender_female_max'] ) ? $_POST['gender_female_max'] : array();
+
+		// Additional data arrays
+		$clinical_significance = isset( $_POST['clinical_significance'] ) && is_array( $_POST['clinical_significance'] ) ? $_POST['clinical_significance'] : array();
+		$risk_factors = isset( $_POST['risk_factors'] ) && is_array( $_POST['risk_factors'] ) ? $_POST['risk_factors'] : array();
+		$optimization_recommendations = isset( $_POST['optimization_recommendations'] ) && is_array( $_POST['optimization_recommendations'] ) ? $_POST['optimization_recommendations'] : array();
+		$flag_criteria = isset( $_POST['flag_criteria'] ) && is_array( $_POST['flag_criteria'] ) ? $_POST['flag_criteria'] : array();
+
+		// Scoring arrays
+		$scoring_optimal_score = isset( $_POST['scoring_optimal_score'] ) && is_array( $_POST['scoring_optimal_score'] ) ? $_POST['scoring_optimal_score'] : array();
+		$scoring_suboptimal_score = isset( $_POST['scoring_suboptimal_score'] ) && is_array( $_POST['scoring_suboptimal_score'] ) ? $_POST['scoring_suboptimal_score'] : array();
+		$scoring_poor_score = isset( $_POST['scoring_poor_score'] ) && is_array( $_POST['scoring_poor_score'] ) ? $_POST['scoring_poor_score'] : array();
+		$scoring_critical_score = isset( $_POST['scoring_critical_score'] ) && is_array( $_POST['scoring_critical_score'] ) ? $_POST['scoring_critical_score'] : array();
+
+		// Target arrays
+		$target_improvement_targets = isset( $_POST['target_improvement_targets'] ) && is_array( $_POST['target_improvement_targets'] ) ? $_POST['target_improvement_targets'] : array();
+		$target_immediate = isset( $_POST['target_immediate'] ) && is_array( $_POST['target_immediate'] ) ? $_POST['target_immediate'] : array();
+		$target_short_term = isset( $_POST['target_short_term'] ) && is_array( $_POST['target_short_term'] ) ? $_POST['target_short_term'] : array();
+		$target_long_term = isset( $_POST['target_long_term'] ) && is_array( $_POST['target_long_term'] ) ? $_POST['target_long_term'] : array();
+
+		// Get all biomarker keys from the optimal_min array (as it should contain all biomarkers)
+		$biomarker_keys = array_keys( $ranges_optimal_min );
 		
-		if ( $save_result ) {
-			// Check if user wants to update profile defaults
-			if ( isset( $_POST['update_profile_defaults'] ) && $_POST['update_profile_defaults'] === '1' ) {
-				$update_result = $this->update_all_user_profile_defaults( $biomarker, $range_data );
-				
-				if ( $update_result['success'] ) {
-					echo '<div class="notice notice-success is-dismissible"><p>' . 
-						sprintf( 
-							esc_html__( 'Biomarker range saved successfully! Updated target values for %d users.', 'ennulifeassessments' ), 
-							$update_result['updated_count'] 
-						) . '</p></div>';
-				} else {
-					echo '<div class="notice notice-warning is-dismissible"><p>' . 
-						esc_html__( 'Biomarker range saved successfully! Profile updates failed: ', 'ennulifeassessments' ) . 
-						esc_html( $update_result['error'] ) . '</p></div>';
-				}
-			} else {
-				echo '<div class="notice notice-success is-dismissible"><p>' . 
-					esc_html__( 'Biomarker range saved successfully!', 'ennulifeassessments' ) . '</p></div>';
-			}
-		} else {
+		if ( empty( $biomarker_keys ) ) {
 			echo '<div class="notice notice-error is-dismissible"><p>' . 
-				esc_html__( 'Failed to save biomarker range. Please try again.', 'ennulifeassessments' ) . '</p></div>';
+				esc_html__( 'Error: No biomarker data found to save.', 'ennulifeassessments' ) . '</p></div>';
+			return;
+		}
+
+		// Process each biomarker
+		foreach ( $biomarker_keys as $biomarker_key ) {
+			
+			// Skip empty biomarker keys
+			if ( empty( $biomarker_key ) ) {
+				continue;
+			}
+
+			// Build comprehensive range data for this biomarker
+			$range_data = array(
+				'unit' => '', // This would need to be determined from the biomarker definition
+				'ranges' => array(
+					'optimal_min' => isset( $ranges_optimal_min[$biomarker_key] ) ? floatval( $ranges_optimal_min[$biomarker_key] ) : 0,
+					'optimal_max' => isset( $ranges_optimal_max[$biomarker_key] ) ? floatval( $ranges_optimal_max[$biomarker_key] ) : 0,
+					'normal_min' => isset( $ranges_normal_min[$biomarker_key] ) ? floatval( $ranges_normal_min[$biomarker_key] ) : 0,
+					'normal_max' => isset( $ranges_normal_max[$biomarker_key] ) ? floatval( $ranges_normal_max[$biomarker_key] ) : 0,
+					'critical_min' => isset( $ranges_critical_min[$biomarker_key] ) ? floatval( $ranges_critical_min[$biomarker_key] ) : 0,
+					'critical_max' => isset( $ranges_critical_max[$biomarker_key] ) ? floatval( $ranges_critical_max[$biomarker_key] ) : 0
+				),
+				'age_adjustments' => array(
+					'young' => array(
+						'optimal_min' => isset( $age_young_min[$biomarker_key] ) ? floatval( $age_young_min[$biomarker_key] ) : 0,
+						'optimal_max' => isset( $age_young_max[$biomarker_key] ) ? floatval( $age_young_max[$biomarker_key] ) : 0
+					),
+					'adult' => array(
+						'optimal_min' => isset( $age_adult_min[$biomarker_key] ) ? floatval( $age_adult_min[$biomarker_key] ) : 0,
+						'optimal_max' => isset( $age_adult_max[$biomarker_key] ) ? floatval( $age_adult_max[$biomarker_key] ) : 0
+					),
+					'senior' => array(
+						'optimal_min' => isset( $age_senior_min[$biomarker_key] ) ? floatval( $age_senior_min[$biomarker_key] ) : 0,
+						'optimal_max' => isset( $age_senior_max[$biomarker_key] ) ? floatval( $age_senior_max[$biomarker_key] ) : 0
+					)
+				),
+				'gender_adjustments' => array(
+					'male' => array(
+						'optimal_min' => isset( $gender_male_min[$biomarker_key] ) ? floatval( $gender_male_min[$biomarker_key] ) : 0,
+						'optimal_max' => isset( $gender_male_max[$biomarker_key] ) ? floatval( $gender_male_max[$biomarker_key] ) : 0
+					),
+					'female' => array(
+						'optimal_min' => isset( $gender_female_min[$biomarker_key] ) ? floatval( $gender_female_min[$biomarker_key] ) : 0,
+						'optimal_max' => isset( $gender_female_max[$biomarker_key] ) ? floatval( $gender_female_max[$biomarker_key] ) : 0
+					)
+				),
+				'clinical_significance' => isset( $clinical_significance[$biomarker_key] ) ? sanitize_textarea_field( $clinical_significance[$biomarker_key] ) : '',
+				'risk_factors' => isset( $risk_factors[$biomarker_key] ) ? sanitize_textarea_field( $risk_factors[$biomarker_key] ) : '',
+				'optimization_recommendations' => isset( $optimization_recommendations[$biomarker_key] ) ? sanitize_textarea_field( $optimization_recommendations[$biomarker_key] ) : '',
+				'flag_criteria' => isset( $flag_criteria[$biomarker_key] ) ? sanitize_textarea_field( $flag_criteria[$biomarker_key] ) : '',
+				'scoring_algorithm' => array(
+					'optimal_score' => isset( $scoring_optimal_score[$biomarker_key] ) ? intval( $scoring_optimal_score[$biomarker_key] ) : 10,
+					'suboptimal_score' => isset( $scoring_suboptimal_score[$biomarker_key] ) ? intval( $scoring_suboptimal_score[$biomarker_key] ) : 7,
+					'poor_score' => isset( $scoring_poor_score[$biomarker_key] ) ? intval( $scoring_poor_score[$biomarker_key] ) : 4,
+					'critical_score' => isset( $scoring_critical_score[$biomarker_key] ) ? intval( $scoring_critical_score[$biomarker_key] ) : 1
+				),
+				'target_setting' => array(
+					'improvement_targets' => isset( $target_improvement_targets[$biomarker_key] ) ? sanitize_textarea_field( $target_improvement_targets[$biomarker_key] ) : '',
+					'timeframes' => array(
+						'immediate' => isset( $target_immediate[$biomarker_key] ) ? sanitize_text_field( $target_immediate[$biomarker_key] ) : '1 week',
+						'short_term' => isset( $target_short_term[$biomarker_key] ) ? sanitize_text_field( $target_short_term[$biomarker_key] ) : '1 month',
+						'long_term' => isset( $target_long_term[$biomarker_key] ) ? sanitize_text_field( $target_long_term[$biomarker_key] ) : '3-6 months'
+					)
+				),
+				'last_updated' => current_time( 'mysql' ),
+				'updated_by' => wp_get_current_user()->display_name,
+				'version' => '2.0'
+			);
+
+			// Save to database using the same format as the original method
+			$save_result = update_option( "ennu_biomarker_range_{$biomarker_key}", $range_data );
+			
+			if ( $save_result ) {
+				$processed_count++;
+			} else {
+				$errors[] = sprintf( esc_html__( 'Failed to save range data for %s', 'ennulifeassessments' ), esc_html( $biomarker_key ) );
+			}
+		}
+
+		// Display results
+		if ( $processed_count > 0 ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . 
+				sprintf( esc_html__( 'Successfully saved range data for %d biomarkers.', 'ennulifeassessments' ), $processed_count ) . 
+				'</p></div>';
+		}
+
+		if ( ! empty( $errors ) ) {
+			echo '<div class="notice notice-error is-dismissible"><p>' . 
+				esc_html__( 'Errors encountered:', 'ennulifeassessments' ) . '<br>' .
+				implode( '<br>', array_map( 'esc_html', $errors ) ) .
+				'</p></div>';
+		}
+
+		// Handle the optional profile update checkbox
+		if ( isset( $_POST['update_profile_defaults'] ) && $_POST['update_profile_defaults'] === '1' && $processed_count > 0 ) {
+			// Update profile defaults for each processed biomarker
+			foreach ( $biomarker_keys as $biomarker_key ) {
+				if ( ! empty( $biomarker_key ) ) {
+					$range_data = get_option( "ennu_biomarker_range_{$biomarker_key}", array() );
+					if ( ! empty( $range_data ) && method_exists( $this, 'update_all_user_profile_defaults' ) ) {
+						$this->update_all_user_profile_defaults( $biomarker_key, $range_data );
+					}
+				}
+			}
 		}
 	}
 
@@ -6908,6 +6429,474 @@ class ENNU_Enhanced_Admin {
 			}
 		}
 		
-		return array_unique( $symptoms );
+			return array_unique( $symptoms );
+}
+
+	/**
+	 * Display biomarkers section in user admin
+	 *
+	 * @param int $user_id User ID
+	 */
+	private function display_biomarkers_section( $user_id ) {
+		error_log( "ENNU Enhanced Admin: display_biomarkers_section called for user ID: {$user_id}" );
+		
+		// Get user's current biomarker data
+		$biomarker_data = get_user_meta( $user_id, 'ennu_biomarker_data', true );
+		$biomarker_data = is_array( $biomarker_data ) ? $biomarker_data : array();
+		
+		// Get flagged biomarkers using the flag manager
+		$flag_manager = new ENNU_Biomarker_Flag_Manager();
+		$flagged_biomarkers = $flag_manager->get_flagged_biomarkers( $user_id, 'active' );
+		
+		// Load all available biomarkers from AI medical specialist sources
+		$range_manager = new ENNU_Recommended_Range_Manager();
+		$ai_biomarker_config = $range_manager->get_biomarker_configuration();
+		$all_biomarkers = array();
+		
+		// Get user demographics for range determination
+		$user = get_userdata( $user_id );
+		$user_age = get_user_meta( $user_id, 'ennu_global_exact_age', true );
+		$user_gender = get_user_meta( $user_id, 'ennu_global_gender', true );
+		
+		// Get doctor targets
+		$doctor_targets = get_user_meta( $user_id, 'ennu_doctor_targets', true );
+		$doctor_targets = is_array( $doctor_targets ) ? $doctor_targets : array();
+
+		// Get provider recommendations
+		$provider_recommendations = get_user_meta( $user_id, 'ennu_provider_recommendations', true );
+		$provider_recommendations = is_array( $provider_recommendations ) ? $provider_recommendations : array();
+
+		// Get provider notes
+		$provider_notes = get_user_meta( $user_id, 'ennu_provider_notes', true );
+		$provider_notes = is_array( $provider_notes ) ? $provider_notes : array();
+		
+		// Define category mappings
+		$category_mappings = array(
+			// Hormone biomarkers
+			'testosterone_total' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'testosterone_free' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'estradiol' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'cortisol' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'insulin' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'glucose' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'hba1c' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'tsh' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			'vitamin_d' => array( 'category' => 'hormones', 'specialist' => 'Dr. Elena Harmonix', 'expertise' => 'Endocrinology' ),
+			
+			// Cardiovascular biomarkers
+			'total_cholesterol' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'hdl' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'ldl' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'triglycerides' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'apob' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'crp' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			'hs_crp' => array( 'category' => 'cardiovascular', 'specialist' => 'Dr. Victor Pulse', 'expertise' => 'Cardiology' ),
+			
+			// Blood health biomarkers
+			'hemoglobin' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'hematocrit' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'rbc' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'wbc' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'platelets' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'ferritin' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'iron' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'b12' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			'folate' => array( 'category' => 'blood_health', 'specialist' => 'Dr. Harlan Vitalis', 'expertise' => 'Hematology' ),
+			
+			// Organ function biomarkers
+			'creatinine' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'expertise' => 'Nephrology/Hepatology' ),
+			'bun' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'expertise' => 'Nephrology/Hepatology' ),
+			'gfr' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'expertise' => 'Nephrology/Hepatology' ),
+			'alt' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'expertise' => 'Nephrology/Hepatology' ),
+			'ast' => array( 'category' => 'organ_function', 'specialist' => 'Dr. Renata Flux', 'expertise' => 'Nephrology/Hepatology' ),
+		);
+
+		// Build the all_biomarkers array from the AI config
+		if ( ! empty( $ai_biomarker_config ) && is_array( $ai_biomarker_config ) ) {
+			foreach ( $ai_biomarker_config as $biomarker_key => $config ) {
+				$all_biomarkers[ $biomarker_key ] = array(
+					'category' => array_key_exists( $biomarker_key, $category_mappings ) && array_key_exists( 'category', $category_mappings[ $biomarker_key ] ) ? $category_mappings[ $biomarker_key ]['category'] : 'Other',
+					'config'   => $config,
+					'data'     => array_key_exists( $biomarker_key, $biomarker_data ) ? $biomarker_data[ $biomarker_key ] : null,
+				);
+			}
+		}
+		
+		// Render Biomarker Summary at the top of the biomarkers tab
+		echo '<div class="ennu-biomarker-summary">';
+		echo '<h3>' . esc_html__( 'Biomarker Summary', 'ennulifeassessments' ) . '</h3>';
+		echo '<div class="ennu-summary-stats">';
+		echo '<div class="ennu-stat"><strong>' . esc_html__( 'Total Biomarkers:', 'ennulifeassessments' ) . '</strong> <span id="total-biomarkers">' . count( $all_biomarkers ) . '</span></div>';
+		echo '<div class="ennu-stat"><strong>' . esc_html__( 'With Data:', 'ennulifeassessments' ) . '</strong> <span id="biomarkers-with-data">' . count( $biomarker_data ) . '</span></div>';
+		echo '<div class="ennu-stat"><strong>' . esc_html__( 'Flagged:', 'ennulifeassessments' ) . '</strong> <span id="flagged-biomarkers">' . count( $flagged_biomarkers ) . '</span></div>';
+		echo '</div>';
+		echo '</div>';
+		
+		echo '<style>
+		.ennu-biomarker-summary {
+			background: #f9f9f9;
+			padding: 15px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			margin-bottom: 20px;
+		}
+		.ennu-summary-stats {
+			display: flex;
+			gap: 20px;
+		}
+		.ennu-stat {
+			background: white;
+			padding: 10px;
+			border-radius: 4px;
+			border: 1px solid #ccc;
+		}
+		.ennu-biomarker-management-table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 20px;
+		}
+		.ennu-biomarker-management-table th,
+		.ennu-biomarker-management-table td {
+			padding: 12px;
+			border: 1px solid #ddd;
+			vertical-align: top;
+		}
+		.ennu-biomarker-management-table th {
+			background: #f8f9fa;
+			font-weight: 600;
+		}
+		.ennu-category-header td {
+			background: #e9ecef;
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+		.ennu-biomarker-row.has-data {
+			background: #f8fff8;
+		}
+		.ennu-biomarker-row.no-data {
+			background: #fff8f8;
+		}
+		.ennu-lab-inputs,
+		.ennu-target-inputs,
+		.ennu-reference-range-display {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		.ennu-input-group {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.ennu-input-group label {
+			font-size: 11px;
+			font-weight: 600;
+			color: #666;
+		}
+		.ennu-input-group input,
+		.ennu-input-group select {
+			padding: 4px 8px;
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			font-size: 12px;
+		}
+		.ennu-range-section {
+			margin-bottom: 10px;
+			padding: 8px;
+			background: #f8f9fa;
+			border-radius: 4px;
+		}
+		.ennu-range-section h4 {
+			margin: 0 0 6px 0;
+			font-size: 12px;
+			color: #495057;
+		}
+		.ennu-range-inputs {
+			display: flex;
+			gap: 8px;
+		}
+		.ennu-target-range-inputs {
+			display: flex;
+			gap: 8px;
+		}
+		.ennu-provider-notes textarea {
+			width: 100%;
+			min-height: 80px;
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-size: 12px;
+		}
+		.ennu-symptom-flag-indicator {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px;
+			border-radius: 4px;
+		}
+		.ennu-symptom-flag-indicator.flagged {
+			background: #ffeaa7;
+			color: #d63031;
+		}
+		.ennu-symptom-flag-indicator.not-flagged {
+			background: #dff0d8;
+			color: #3c763d;
+		}
+		.ennu-remove-flag-section {
+			margin-top: 8px;
+			padding: 6px;
+			background: #fff3cd;
+			border: 1px solid #ffeaa7;
+			border-radius: 4px;
+		}
+		.ennu-remove-flag-checkbox {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+		}
+		.ennu-metadata-content {
+			font-size: 11px;
+			color: #666;
+		}
+		.ennu-metadata-content div {
+			margin-bottom: 4px;
+		}
+		</style>';
+
+		echo '<div class="ennu-biomarker-table-container">';
+		echo '<table class="ennu-biomarker-management-table">';
+		echo '<thead>';
+		echo '<tr>';
+		echo '<th>' . esc_html__( 'Biomarker', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Lab Results', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Medical AI Reference Ranges', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Provider Recommended Targets', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Provider Notes', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Symptom Flagged', 'ennulifeassessments' ) . '</th>';
+		echo '<th>' . esc_html__( 'Metadata', 'ennulifeassessments' ) . '</th>';
+		echo '</tr>';
+		echo '</thead>';
+		echo '<tbody>';
+
+		// Group biomarkers by category
+		$grouped_biomarkers = array();
+		foreach ( $all_biomarkers as $biomarker_key => $biomarker_info ) {
+			if ( ! is_array( $biomarker_info ) ) {
+				continue;
+			}
+			
+			$category = isset( $biomarker_info['category'] ) ? $biomarker_info['category'] : 'Other';
+			
+			if ( ! array_key_exists( $category, $grouped_biomarkers ) ) {
+				$grouped_biomarkers[ $category ] = array();
+			}
+			$grouped_biomarkers[ $category ][ $biomarker_key ] = $biomarker_info;
+		}
+
+		// Display all biomarkers organized by category
+		foreach ( $grouped_biomarkers as $category => $biomarkers ) {
+			echo '<tr class="ennu-category-header">';
+			echo '<td colspan="7"><h3>' . esc_html( ucwords( str_replace( '_', ' ', $category ) ) ) . '</h3></td>';
+			echo '</tr>';
+
+			foreach ( $biomarkers as $biomarker_key => $biomarker_info ) {
+				if ( ! is_array( $biomarker_info ) || ! isset( $biomarker_info['config'] ) ) {
+					continue;
+				}
+				
+				$config = $biomarker_info['config'];
+				$data = isset( $biomarker_info['data'] ) ? $biomarker_info['data'] : null;
+				$display_name = ucwords( str_replace( '_', ' ', $biomarker_key ) );
+				$unit = isset( $config['unit'] ) ? $config['unit'] : '';
+				
+				// Get current data
+				$current_value = ( $data && is_array( $data ) && isset( $data['value'] ) ) ? $data['value'] : '';
+				$test_date = ( $data && is_array( $data ) && isset( $data['test_date'] ) ) ? $data['test_date'] : '';
+				$notes = isset( $provider_notes[ $biomarker_key ] ) ? $provider_notes[ $biomarker_key ] : '';
+				
+				// Check if biomarker is flagged
+				$is_flagged = false;
+				$flag_reason = '';
+				
+				foreach ( $flagged_biomarkers as $flag_id => $flag_data ) {
+					if ( ! is_array( $flag_data ) ) {
+						continue;
+					}
+					
+					if ( isset( $flag_data['biomarker_name'] ) && 
+						 isset( $flag_data['status'] ) &&
+						 $flag_data['biomarker_name'] === $biomarker_key && 
+						 $flag_data['status'] === 'active' ) {
+						$is_flagged = true;
+						$flag_reason = isset( $flag_data['reason'] ) ? $flag_data['reason'] : '';
+						break;
+					}
+				}
+
+				echo '<tr class="ennu-biomarker-row ' . ( $data ? 'has-data' : 'no-data' ) . '" data-biomarker="' . esc_attr( $biomarker_key ) . '">';
+				
+				// Biomarker Name with Specialist Information
+				echo '<td class="ennu-biomarker-name">';
+				echo '<strong>' . esc_html( $display_name ) . '</strong>';
+				echo '<br><small>' . esc_html( $unit ) . '</small>';
+				
+				// Add specialist information if available
+				if ( isset( $category_mappings[ $biomarker_key ] ) && 
+					 isset( $category_mappings[ $biomarker_key ]['specialist'] ) ) {
+					$specialist_name = $category_mappings[ $biomarker_key ]['specialist'];
+					$specialist_domain = isset( $category_mappings[ $biomarker_key ]['expertise'] ) ? $category_mappings[ $biomarker_key ]['expertise'] : '';
+					echo '<br><small style="color: #0073aa; font-style: italic;">👨‍⚕️ ' . esc_html( $specialist_name ) . ' (' . esc_html( $specialist_domain ) . ')</small>';
+				}
+				echo '</td>';
+
+				// Lab Results Data Fields
+				echo '<td class="ennu-lab-results">';
+				echo '<div class="ennu-lab-inputs">';
+				
+				echo '<div class="ennu-input-group">';
+				echo '<label>Current Value:</label>';
+				echo '<input type="number" step="0.01" class="ennu-lab-value" name="biomarker_value[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $current_value ) . '" placeholder="Enter lab result">';
+				echo '</div>';
+				
+				echo '<div class="ennu-input-group">';
+				echo '<label>Test Date:</label>';
+				echo '<input type="date" class="ennu-test-date" name="test_date[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $test_date ) . '" placeholder="Test Date">';
+				echo '</div>';
+				
+				echo '<div class="ennu-input-group">';
+				echo '<label>Unit:</label>';
+				echo '<input type="text" class="ennu-unit" name="biomarker_unit[' . esc_attr( $biomarker_key ) . ']" value="' . esc_attr( $unit ) . '" placeholder="e.g., mg/dL, ng/mL">';
+				echo '</div>';
+				
+				echo '</div>';
+				echo '</td>';
+
+				// Reference Range Fields
+				echo '<td class="ennu-reference-ranges">';
+				echo '<div class="ennu-reference-range-display">';
+				
+				echo '<div class="ennu-range-section">';
+				echo '<h4>Reference Range</h4>';
+				echo '<div class="ennu-range-inputs">';
+				echo '<div class="ennu-input-group">';
+				echo '<label>Low/Min:</label>';
+				echo '<input type="number" step="0.01" class="ennu-range-min" name="reference_range_min[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Min value">';
+				echo '</div>';
+				echo '<div class="ennu-input-group">';
+				echo '<label>High/Max:</label>';
+				echo '<input type="number" step="0.01" class="ennu-range-max" name="reference_range_max[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Max value">';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="ennu-range-section">';
+				echo '<h4>Optimal Range</h4>';
+				echo '<div class="ennu-range-inputs">';
+				echo '<div class="ennu-input-group">';
+				echo '<label>Low/Min:</label>';
+				echo '<input type="number" step="0.01" class="ennu-optimal-min" name="optimal_range_min[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Optimal min">';
+				echo '</div>';
+				echo '<div class="ennu-input-group">';
+				echo '<label>High/Max:</label>';
+				echo '<input type="number" step="0.01" class="ennu-optimal-max" name="optimal_range_max[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Optimal max">';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="ennu-range-source">';
+				echo '<small>Source: Medical AI Research</small>';
+				echo '</div>';
+				echo '</div>';
+				echo '</td>';
+
+				// Provider Recommended Targets
+				echo '<td class="ennu-provider-targets">';
+				echo '<div class="ennu-target-inputs">';
+				
+				echo '<div class="ennu-target-group">';
+				echo '<label>Target Value:</label>';
+				echo '<input type="number" step="0.01" name="provider_target_value[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Enter target value">';
+				echo '</div>';
+				
+				echo '<div class="ennu-target-group">';
+				echo '<label>Target Range:</label>';
+				echo '<div class="ennu-target-range-inputs">';
+				echo '<div class="ennu-input-group">';
+				echo '<label>Min:</label>';
+				echo '<input type="number" step="0.01" name="provider_target_min[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Target min">';
+				echo '</div>';
+				echo '<div class="ennu-input-group">';
+				echo '<label>Max:</label>';
+				echo '<input type="number" step="0.01" name="provider_target_max[' . esc_attr( $biomarker_key ) . ']" value="" placeholder="Target max">';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+				
+				echo '<div class="ennu-target-group">';
+				echo '<label>Priority:</label>';
+				echo '<select name="provider_target_priority[' . esc_attr( $biomarker_key ) . ']">';
+				echo '<option value="">Select priority</option>';
+				echo '<option value="critical">Critical</option>';
+				echo '<option value="high">High</option>';
+				echo '<option value="medium">Medium</option>';
+				echo '<option value="low">Low</option>';
+				echo '</select>';
+				echo '</div>';
+				
+				echo '</div>';
+				echo '</td>';
+
+				// Provider Notes
+				echo '<td class="ennu-provider-notes">';
+				echo '<textarea name="provider_notes[' . esc_attr( $biomarker_key ) . ']" placeholder="Enter detailed clinical notes">' . esc_textarea( $notes ) . '</textarea>';
+				echo '</td>';
+
+				// Symptom Flagged Status
+				echo '<td class="ennu-symptom-flagged">';
+				if ( $is_flagged ) {
+					echo '<div class="ennu-symptom-flag-indicator flagged">';
+					echo '<span class="dashicons dashicons-warning"></span>';
+					echo '<div class="symptom-flag-details">';
+					echo '<span class="flag-reason">' . esc_html( $flag_reason ) . '</span>';
+					echo '<span class="flag-action">Lab testing recommended</span>';
+					echo '</div>';
+					echo '</div>';
+					
+					echo '<div class="ennu-remove-flag-section">';
+					echo '<label class="ennu-remove-flag-checkbox">';
+					echo '<input type="checkbox" name="remove_flag[' . esc_attr( $biomarker_key ) . ']" value="1" class="ennu-remove-flag-input">';
+					echo '<span class="ennu-remove-flag-text">Remove symptom flag</span>';
+					echo '</label>';
+					echo '<small class="ennu-remove-flag-note">Check this to remove the symptom flag</small>';
+					echo '</div>';
+				} else {
+					echo '<div class="ennu-symptom-flag-indicator not-flagged">';
+					echo '<span class="dashicons dashicons-yes-alt"></span>';
+					echo '<span>No symptom correlation</span>';
+					echo '</div>';
+				}
+				echo '</td>';
+
+				// Metadata Container
+				echo '<td class="ennu-metadata">';
+				echo '<div class="ennu-metadata-content">';
+				if ( $test_date ) {
+					echo '<div><strong>Test Date:</strong> ' . esc_html( $test_date ) . '</div>';
+				}
+				echo '<div><strong>Last Updated:</strong> ' . esc_html( current_time( 'Y-m-d H:i:s' ) ) . '</div>';
+				echo '<div><strong>ID:</strong> ' . esc_html( $biomarker_key ) . '</div>';
+				echo '</div>';
+				echo '</td>';
+
+				echo '</tr>';
+			}
+		}
+
+		echo '</tbody>';
+		echo '</table>';
+		echo '</div>';
+		
+		error_log( "ENNU Enhanced Admin: Biomarkers section displayed for user {$user_id}" );
 	}
 }

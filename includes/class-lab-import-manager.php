@@ -126,19 +126,15 @@ class ENNU_Lab_Import_Manager {
 		// Map columns using provider mapping
 		$column_mapping = $this->map_csv_columns( $header, $mapping );
 
-		$biomarker_manager = new ENNU_Biomarker_Manager();
-
 		while ( ( $row = fgetcsv( $handle ) ) !== false ) {
 			try {
 				$biomarker_data = $this->parse_csv_row( $row, $column_mapping, $mapping );
 
-				if ( $biomarker_data && ! empty( $biomarker_data['biomarker_name'] ) ) {
-					if ( $biomarker_manager->save_biomarker_data( $user_id, $biomarker_data['biomarker_name'], $biomarker_data['data'] ) ) {
-						$results['imported']++;
-					} else {
-						$results['errors'][] = 'Failed to save biomarker: ' . $biomarker_data['biomarker_name'];
-					}
+				// Data Persistence
+				if ( ! empty( $biomarker_data ) ) {
+					ENNU_Biomarker_Manager::save_user_biomarkers( $user_id, $biomarker_data, 'lab_import' );
 				}
+
 			} catch ( Exception $e ) {
 				$results['errors'][] = $e->getMessage();
 			}

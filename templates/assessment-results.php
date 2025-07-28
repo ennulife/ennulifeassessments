@@ -54,7 +54,7 @@ if ( empty( $assessment_type ) ) {
 		'page_title' => $assessment_title,
 		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your personalized assessment results are ready.',
 		'show_logo' => true,
-		'logo_color' => 'white',
+		'logo_color' => 'black',
 		'logo_size' => 'medium'
 	);
 	
@@ -63,6 +63,14 @@ if ( empty( $assessment_type ) ) {
 	?>
 
 	<div class="ennu-single-column">
+		<!-- HubSpot Booking Calendar Embed -->
+		<div class="ennu-hubspot-embed" style="margin-bottom: 2rem; text-align: center;">
+			<!-- Start of Meetings Embed Script -->
+			<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/lescobar2/ennulife?embed=true"></div>
+			<script type="text/javascript" src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
+			<!-- End of Meetings Embed Script -->
+		</div>
+
 		<!-- Action Buttons -->
 		<div class="ennu-btn-group" style="text-align: center; margin-bottom: 2rem;">
 			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">

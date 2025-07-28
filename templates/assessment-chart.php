@@ -15,6 +15,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Get the shortcode instance for proper URL generation
+$shortcode_instance = ennu_life()->get_shortcodes();
+$home_page_url = $shortcode_instance->get_page_id_url('dashboard');
 ?>
 
 <div class="ennu-chart-container">
@@ -25,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			array(
 				'color' => 'white',
 				'size'  => 'medium',
-				'link'  => home_url( '/' ),
+				'link'  => $home_page_url,
 				'alt'   => 'ENNU Life',
 				'class' => '',
 			)

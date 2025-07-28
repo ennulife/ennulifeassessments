@@ -19,8 +19,10 @@ $assessment_type = $assessment_type ?? '';
 $user_id = $user_id ?? get_current_user_id();
 
 // Get URLs
-$dashboard_url = ennu_life()->get_shortcodes()->get_dashboard_url();
-$retake_url = $assessment_type ? ennu_life()->get_shortcodes()->get_assessment_page_url( $assessment_type ) : $dashboard_url;
+$shortcode_instance = ennu_life()->get_shortcodes();
+$dashboard_url = $shortcode_instance->get_page_id_url('dashboard');
+$retake_url = $assessment_type ? $shortcode_instance->get_page_id_url( $shortcode_instance->get_assessment_page_slug( $assessment_type ) ) : $dashboard_url;
+$home_url = $shortcode_instance->get_page_id_url('dashboard');
 
 // Set up status messages based on type
 $status_messages = array(
@@ -85,7 +87,7 @@ $current_status = $status_messages[ $transient_type ] ?? $status_messages['loadi
 						array(
 							'color' => 'white',
 							'size'  => 'medium',
-							'link'  => home_url( '/' ),
+							'link'  => $home_url,
 							'alt'   => 'ENNU Life',
 							'class' => '',
 						)

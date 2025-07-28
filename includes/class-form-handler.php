@@ -32,6 +32,7 @@ class ENNU_Form_Handler {
 
 	/**
 	 * Process assessment form submission with full error handling
+	 * Enhanced with legacy scoring and assessment engine logic
 	 *
 	 * @param array $form_data Raw form data
 	 * @return ENNU_Form_Result Result object with success/error status
@@ -55,29 +56,144 @@ class ENNU_Form_Handler {
 				return $user_result;
 			}
 
-			// 4. Save data
-			$save_result = $this->persistence->save_assessment_data( 
-				$user_result->get_user_id(), 
+			$user_id = $user_result->get_user_id();
+
+			// 4. Save data using modern Data Manager
+			$data_manager = new ENNU_Data_Manager();
+			$save_result = $data_manager->save_assessment_data( 
+				$user_id, 
+				$sanitized_data['assessment_type'],
 				$sanitized_data 
 			);
 			if ( ! $save_result->is_success() ) {
 				return $save_result;
 			}
 
-			// 5. Send notifications
+			// 5. Route to assessment engine (quantitative vs qualitative)
+			$engine_result = $this->route_to_assessment_engine( $user_id, $sanitized_data );
+			if ( ! $engine_result->is_success() ) {
+				return $engine_result;
+			}
+
+			// 6. Send notifications
 			$this->notifications->send_assessment_notification( $sanitized_data );
 
-			// 6. Return success
-			return ENNU_Form_Result::success( array(
-				'user_id' => $user_result->get_user_id(),
-				'assessment_type' => $sanitized_data['assessment_type'],
-				'saved_fields' => $save_result->get_saved_fields()
+			// 7. Return success with engine-specific data
+			return ENNU_Form_Result::success( array_merge(
+				array(
+					'user_id' => $user_id,
+					'assessment_type' => $sanitized_data['assessment_type'],
+					'saved_fields' => $save_result->get_saved_fields()
+				),
+				$engine_result->get_data()
 			) );
 
 		} catch ( Exception $e ) {
 			$this->logger->log_error( 'Form processing failed', $e->getMessage() );
 			return ENNU_Form_Result::error( 'processing_failed', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Route to appropriate assessment engine (quantitative vs qualitative)
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function route_to_assessment_engine( $user_id, $form_data ) {
+		// Convert assessment type to match config file naming convention
+		$config_assessment_type = $form_data['assessment_type'];
+		if ( $form_data['assessment_type'] === 'health_optimization_assessment' ) {
+			$config_assessment_type = 'health-optimization';
+		}
+
+		// Get assessment config from scoring system
+		$all_definitions = array();
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
+			$all_definitions = ENNU_Scoring_System::get_all_definitions();
+		}
+		
+		$assessment_config = $all_definitions[ $config_assessment_type ] ?? array();
+		$assessment_engine = $assessment_config['assessment_engine'] ?? 'quantitative';
+
+		if ( $assessment_engine === 'qualitative' ) {
+			return $this->process_qualitative_assessment( $user_id, $form_data );
+		} else {
+			return $this->process_quantitative_assessment( $user_id, $form_data );
+		}
+	}
+
+	/**
+	 * Process quantitative assessment with scoring
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function process_quantitative_assessment( $user_id, $form_data ) {
+		// Calculate scores using scoring system
+		$scores = array();
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
+			$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $form_data['assessment_type'], $form_data );
+		}
+
+		if ( $scores ) {
+			$completion_time = date( 'Y-m-d H:i:s.u' );
+
+			// Save the scores for this specific assessment
+			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_calculated_at', $completion_time );
+			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_calculated_score', $scores['overall_score'] );
+			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', ENNU_Scoring_System::get_score_interpretation( $scores['overall_score'] ) );
+			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
+			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_pillar_scores', $scores['pillar_scores'] );
+
+			// Save score history for progress tracking
+			$score_history_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
+			$score_history = get_user_meta( $user_id, $score_history_key, true );
+			if ( ! is_array( $score_history ) ) {
+				$score_history = array();
+			}
+			$score_history[] = array(
+				'date'  => $completion_time,
+				'score' => $scores['overall_score'],
+				'level' => ENNU_Scoring_System::get_score_interpretation( $scores['overall_score'] ),
+			);
+			update_user_meta( $user_id, $score_history_key, $score_history );
+
+			// Update centralized symptoms
+			if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+				ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
+			}
+
+			// Trigger assessment completion hook
+			do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
+
+			return ENNU_Form_Result::success( array(
+				'engine_type' => 'quantitative',
+				'scores' => $scores,
+				'completion_time' => $completion_time
+			) );
+		}
+
+		return ENNU_Form_Result::error( 'scoring_failed', 'Failed to calculate assessment scores' );
+	}
+
+	/**
+	 * Process qualitative assessment (no scoring)
+	 * Migrated from legacy ENNU_Assessment_Shortcodes class
+	 */
+	private function process_qualitative_assessment( $user_id, $form_data ) {
+		// For qualitative assessments, store the raw form data
+		$results_token = wp_generate_password( 32, false );
+		set_transient( 'ennu_results_' . $results_token, $form_data, HOUR_IN_SECONDS );
+
+		// Update centralized symptoms for qualitative assessments too
+		if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+			ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
+		}
+
+		// Trigger assessment completion hook
+		do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
+
+		return ENNU_Form_Result::success( array(
+			'engine_type' => 'qualitative',
+			'results_token' => $results_token
+		) );
 	}
 
 	/**
@@ -220,7 +336,7 @@ class ENNU_Form_Validator {
 
 		// Assessment type validation
 		if ( ! empty( $form_data['assessment_type'] ) ) {
-			$valid_types = array( 'health', 'weight_loss', 'hormone', 'sleep', 'skin', 'hair' );
+			$valid_types = array( 'health', 'weight_loss', 'weight-loss', 'hormone', 'sleep', 'skin', 'hair', 'ed-treatment', 'menopause', 'testosterone', 'health-optimization', 'welcome' );
 			if ( ! in_array( $form_data['assessment_type'], $valid_types ) ) {
 				$errors[] = 'Invalid assessment type.';
 			}

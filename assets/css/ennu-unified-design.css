@@ -5,6 +5,14 @@ Version: 1.0.0
 Description: Unified luxury design system for all ENNU Life assessment templates
 */
 
+.consultation-hero-card {
+    background: #212121 !important;
+}
+
+.consultation-hero-card * {
+    color: #fff !important;
+}
+
 /* ===== CSS VARIABLES ===== */
 :root {
 	/* Dark Mode (Default) */
@@ -68,6 +76,49 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	overflow-x: hidden;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 	color: var(--text-dark);
+}
+
+/* ===== CONSULTATION DASHBOARD CONTAINMENT ===== */
+.ennu-consultation-dashboard {
+	contain: layout style paint;
+	position: relative;
+	width: 100%;
+	min-height: 100vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	background: none !important;
+}
+
+.ennu-consultation-dashboard * {
+	contain: layout style paint;
+}
+
+.consultation-main-content {
+	contain: layout style paint;
+	flex: 1;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	padding: 0px !important;
+}
+
+.consultation-embed-container {
+	contain: layout style paint;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	background: none !important;
+	border: none !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+.consultation-placeholder {
+	contain: layout style paint;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
 }
 
 
@@ -847,6 +898,26 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	overflow: hidden;
 	background: var(--card-bg);
 	border: 1px solid var(--border-color);
+	contain: layout style paint;
+	position: relative;
+	width: 100%;
+}
+
+/* HubSpot Meetings Embed Containment */
+.meetings-iframe-container {
+	contain: layout style paint;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.meetings-iframe-container iframe {
+	contain: layout style paint;
+	width: 100%;
+	height: 100%;
+	border: none;
+	overflow: hidden;
 }
 
 .ennu-booking-placeholder {
@@ -1272,9 +1343,9 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	width: 100%;
 	background: var(--glass-bg);
 	backdrop-filter: blur(10px);
-	border-bottom: 1px solid var(--glass-border);
-	padding: var(--spacing-6) 0;
-	margin-bottom: var(--spacing-6);
+	border-bottom: none;
+	padding: 50px 0 0;
+	margin-bottom: 0;
 	z-index: 10;
 }
 
@@ -1287,6 +1358,9 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 
 .ennu-header-logo {
 	margin-bottom: var(--spacing-4);
+	text-align: center;
+	display: flex;
+	justify-content: center;
 }
 
 .ennu-header-logo-img {
@@ -1295,15 +1369,30 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 }
 
 .ennu-header-welcome {
-	margin-bottom: var(--spacing-5);
+	margin-bottom: 0;
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+	align-items: center;
 }
 
 .ennu-header-title {
-	font-size: 2.5rem;
-	font-weight: 700;
-	color: var(--text-dark);
-	margin-bottom: var(--spacing-3);
-	line-height: 1.2;
+	font-size: 2.1rem;
+	font-weight: 200;
+	color: #212121;
+	text-transform: capitalize;
+	letter-spacing: 1.5px;
+	margin: 0 0 8px 0;
+	opacity: 1;
+	position: relative;
+	display: inline-block;
+	line-height: 1;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: var(--accent-primary);
+	background-clip: text;
+	transition: all 0.3s ease;
 }
 
 .ennu-header-subtitle {
@@ -1313,6 +1402,25 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 	margin: 0;
 	max-width: 600px;
 	margin: 0 auto;
+}
+
+
+.ennu-header-title::after {
+	content: '';
+	position: absolute;
+	bottom: -8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 40px;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+}
+
+.ennu-header-subtitle {
+	color: var(--text-light);
+	font-size: 1.1rem;
+	margin: 0 0 11px 0;
+	opacity: 0.8;
 }
 
 .ennu-header-vital-stats {
@@ -1503,3 +1611,102 @@ Description: Unified luxury design system for all ENNU Life assessment templates
 }
 
 /* ===== END RESULTS PAGE PILLAR ORBS FIX ===== */ 
+
+/* Fallback Success Message Styling */
+.ennu-fallback-success {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.ennu-fallback-success .success-icon {
+    font-size: 48px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.ennu-fallback-success h2 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.ennu-fallback-success p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.ennu-fallback-success .next-steps {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.ennu-fallback-success .next-steps h3 {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.ennu-fallback-success .next-steps ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ennu-fallback-success .next-steps li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    padding-left: 25px;
+}
+
+.ennu-fallback-success .next-steps li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.ennu-fallback-success .next-steps li:last-child {
+    border-bottom: none;
+}
+
+.ennu-fallback-success .ennu-dashboard-link {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.ennu-fallback-success .ennu-dashboard-link:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.ennu-fallback-success small {
+    display: block;
+    margin-top: 15px;
+    opacity: 0.7;
+    font-size: 12px;
+} 

@@ -596,32 +596,16 @@ class ENNU_Lab_Data_Landing_System {
 			);
 		}
 
-		if ( class_exists( 'ENNU_Enhanced_Lab_Data_Manager' ) ) {
-			$lab_manager    = new ENNU_Enhanced_Lab_Data_Manager();
-			$import_success = $lab_manager->import_single_biomarker(
-				$user->ID,
-				$biomarker_name,
-				$test_value,
-				$test_date,
-				$reference_range
-			);
-		} else {
-			$biomarker_data = array(
-				'biomarker_name'  => $biomarker_name,
+		$biomarker_data = array(
+			$biomarker_name => array(
 				'value'           => $test_value,
 				'date_tested'     => $test_date,
 				'reference_range' => $reference_range,
-				'imported_at'     => current_time( 'mysql' ),
-			);
+			)
+		);
 
-			$existing_biomarkers = get_user_meta( $user->ID, 'ennu_user_biomarkers', true );
-			if ( ! is_array( $existing_biomarkers ) ) {
-				$existing_biomarkers = array();
-			}
-
-			$existing_biomarkers[ $biomarker_name ] = $biomarker_data;
-			$import_success                         = update_user_meta( $user->ID, 'ennu_user_biomarkers', $existing_biomarkers );
-		}
+		// Use the new centralized saving method
+		$import_success = ENNU_Biomarker_Manager::save_user_biomarkers( $user->ID, $biomarker_data, 'lab_import' );
 
 		$flagged = false;
 		if ( class_exists( 'ENNU_Biomarker_Flag_Manager' ) ) {

@@ -441,12 +441,17 @@ class ENNU_Redis_Cache_Manager {
 		$cache_key = 'biomarker_profiles';
 
 		if ( ! $this->get( $cache_key, 'biomarker_data' ) ) {
-			// Use the new orchestrator instead of old config file
-			$manager = new ENNU_Recommended_Range_Manager();
-			$biomarker_data = $manager->get_biomarker_configuration();
-			if ( is_array( $biomarker_data ) ) {
-				$this->set( $cache_key, $biomarker_data, 'biomarker_data' );
+			// Get biomarker ranges from the new adapter
+			$biomarkers = ENNU_Biomarker_Manager::get_all_available_biomarkers();
+			$user_data = array( 'age' => 35, 'gender' => 'male', 'user_id' => 0 ); // Use defaults for caching
+			$ranges = array();
+			foreach ( $biomarkers as $biomarker ) {
+				$ranges[$biomarker] = ENNU_Range_Adapter::get_recommended_range( $biomarker, $user_data );
 			}
+			
+			$this->set( 'biomarker_ranges', $ranges, 3600 );
+
+			return $ranges;
 		}
 	}
 

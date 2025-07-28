@@ -144,8 +144,7 @@ class ENNU_Life_Enhanced_Database {
 			// Map form data to scoring system format
 			$mapped_data = ENNU_Question_Mapper::map_form_data_to_scoring( $assessment_type, $form_data );
 
-			$scoring_system    = new ENNU_Scoring_System();
-			$calculated_scores = $scoring_system->calculate_assessment_score( $assessment_type, $mapped_data );
+			$calculated_scores = ENNU_Scoring_System::calculate_scores_for_assessment( $assessment_type, $mapped_data );
 
 			if ( ! $calculated_scores ) {
 				throw new Exception( "Failed to calculate scores for {$assessment_type}" );

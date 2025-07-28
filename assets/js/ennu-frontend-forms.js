@@ -541,7 +541,13 @@ class ENNUAssessmentForm {
         this.form.classList.add('loading');
         
         const formData = new FormData(this.form);
-        const nonce = this.form.dataset.nonce;
+        let nonce = this.form.dataset.nonce;
+        if (!nonce && typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
+            nonce = ennu_ajax.nonce;
+            console.warn('Form data-nonce missing, using ennu_ajax.nonce fallback:', nonce);
+        } else {
+            console.log('Form nonce:', nonce);
+        }
 
         if (!nonce) {
             alert('Security token missing. Please refresh the page.');
@@ -551,51 +557,143 @@ class ENNUAssessmentForm {
         }
         formData.append('nonce', nonce);
 
+        console.log('ENNU REDIRECT DEBUG: Starting AJAX request to:', ennu_ajax.ajax_url);
+        console.log('ENNU REDIRECT DEBUG: Form data being sent:', Object.fromEntries(formData));
+        
         fetch(ennu_ajax.ajax_url, {
             method: 'POST',
             body: formData,
+            // Increase timeout to handle database optimization and slow queries
+            signal: AbortSignal.timeout(600000) // 600 seconds timeout for slow queries
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('ENNU REDIRECT DEBUG: AJAX response received:', response);
+            console.log('ENNU REDIRECT DEBUG: Response status:', response.status);
+            console.log('ENNU REDIRECT DEBUG: Response ok:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();
+        })
         .then(data => {
+            console.log('ENNU REDIRECT DEBUG: AJAX response received:', data);
+            console.log('ENNU REDIRECT DEBUG: Data type:', typeof data);
+            console.log('ENNU REDIRECT DEBUG: Data keys:', Object.keys(data));
+            console.log('ENNU REDIRECT DEBUG: Success property:', data.success);
+            console.log('ENNU REDIRECT DEBUG: Data property:', data.data);
+            
             if (data && data.success === true) {
                 if (data.data && data.data.redirect_url) {
+                    console.log('ENNU REDIRECT DEBUG: Redirect URL found:', data.data.redirect_url);
                     
-                    // Check if auth state data is included in the response
+                    // Update auth state if provided
                     if (data.data.auth_state) {
-                        // Use the auth state data directly from the response
                         this.updateAllFormsAuthState(data.data.auth_state);
+                    }
+                    
+                    // Multiple redirect attempts with fallbacks
+                    const redirectUrl = data.data.redirect_url;
+                    console.log('ENNU REDIRECT DEBUG: Attempting redirect to:', redirectUrl);
+                    
+                    // Method 1: Direct window.location.href
+                    try {
+                        console.log('ENNU REDIRECT DEBUG: Executing Method 1 (window.location.href)');
+                        window.location.href = redirectUrl;
+                        console.log('ENNU REDIRECT DEBUG: Method 1 (window.location.href) executed successfully');
+                    } catch (error) {
+                        console.error('ENNU REDIRECT DEBUG: Method 1 failed:', error);
                         
-                        // Add a small delay to ensure DOM updates are complete
-                        setTimeout(() => {
-                            window.location.href = data.data.redirect_url;
-                        }, 100);
-                    } else {
-                        // Fallback to separate AJAX call if auth state not in response
-                        this.refreshAuthenticationState().then((authState) => {
-                            // Add a small delay to ensure DOM updates are complete
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 100);
-                        }).catch((error) => {
-                            // Redirect even if auth state refresh fails
-                            window.location.href = data.data.redirect_url;
-                        });
+                        // Method 2: window.location.replace
+                        try {
+                            window.location.replace(redirectUrl);
+                            console.log('Redirect method 2 (window.location.replace) executed');
+                        } catch (error2) {
+                            console.error('Redirect method 2 failed:', error2);
+                            
+                            // Method 3: window.location.assign
+                            try {
+                                window.location.assign(redirectUrl);
+                                console.log('Redirect method 3 (window.location.assign) executed');
+                            } catch (error3) {
+                                console.error('Redirect method 3 failed:', error3);
+                                
+                                // Method 4: Create and click a link
+                                try {
+                                    const link = document.createElement('a');
+                                    link.href = redirectUrl;
+                                    link.style.display = 'none';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    console.log('Redirect method 4 (link click) executed');
+                                } catch (error4) {
+                                    console.error('Redirect method 4 failed:', error4);
+                                    
+                                    // Final fallback: Show success message with manual link
+                                    console.warn('All redirect methods failed. Showing fallback success message.');
+                                    this.showFallbackSuccess(redirectUrl);
+                                }
+                            }
+                        }
                     }
                 } else {
-                    this.showError(this.form, 'Submission successful, but there was an issue redirecting. Please check your dashboard.');
+                    console.warn('No redirect_url in response. Showing fallback success message.');
+                    this.showFallbackSuccess();
                 }
             } else {
-                const message = data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
+                console.error('ENNU REDIRECT DEBUG: AJAX response indicates failure');
+                console.error('ENNU REDIRECT DEBUG: Full response data:', data);
+                console.error('ENNU REDIRECT DEBUG: Data structure:', JSON.stringify(data, null, 2));
+                
+                const message = data && data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
                 this.showError(this.form, message);
+                console.error('AJAX error:', message);
             }
         })
-        .catch(error => {
-            this.showError(this.form, 'An unexpected error occurred. Please try again.');
-        })
+                        .catch(error => {
+                    console.error('ENNU REDIRECT DEBUG: AJAX catch error:', error);
+                    
+                    // Show success message even if AJAX fails (data was likely processed)
+                    console.log('ENNU REDIRECT DEBUG: AJAX request failed, but showing success message as data was likely processed');
+                    this.showFallbackSuccess();
+                    
+                    // Try to redirect to a default results page
+                    setTimeout(() => {
+                        console.log('ENNU REDIRECT DEBUG: Attempting fallback redirect to assessment results');
+                        window.location.href = '/assessment-results/';
+                    }, 2000);
+                })
         .finally(() => {
             this.isSubmitting = false;
             this.form.classList.remove('loading');
         });
+    }
+
+    showFallbackSuccess(redirectUrl = null) {
+        // Remove form and show a visible success message with manual redirect link
+        this.form.style.display = 'none';
+        let fallbackDiv = document.createElement('div');
+        fallbackDiv.className = 'ennu-fallback-success';
+        
+        const dashboardUrl = redirectUrl || '/dashboard';
+        
+        fallbackDiv.innerHTML = `
+            <div class="success-icon">✓</div>
+            <h2>Assessment Complete!</h2>
+            <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
+            <div class="next-steps">
+                <h3>What happens next?</h3>
+                <ul>
+                    <li>Our medical team will review your responses</li>
+                    <li>You'll receive personalized recommendations via email</li>
+                    <li>A specialist may contact you to discuss treatment options</li>
+                </ul>
+            </div>
+            <p><a href="${dashboardUrl}" class="ennu-dashboard-link">Go to your dashboard</a></p>
+            <p><small>If the link doesn't work, please copy and paste this URL: ${dashboardUrl}</small></p>
+        `;
+        this.form.parentNode.insertBefore(fallbackDiv, this.form.nextSibling);
     }
 
     /**

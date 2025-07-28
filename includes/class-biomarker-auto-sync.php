@@ -48,8 +48,11 @@ class ENNU_Biomarker_Auto_Sync {
 				$existing_biomarkers = array();
 			}
 
+			// Initialize array to collect all updated biomarkers
+			$updated_biomarkers = array();
+
 			// Sync height and weight from global fields
-			$height_weight_sync = $this->sync_height_weight_biomarkers( $user_id, $existing_biomarkers );
+			$height_weight_sync = $this->sync_height_weight_biomarkers( $user_id, $updated_biomarkers );
 			if ( $height_weight_sync['success'] ) {
 				$sync_results['updated_fields'] = array_merge( $sync_results['updated_fields'], $height_weight_sync['updated_fields'] );
 			} else {
@@ -57,7 +60,7 @@ class ENNU_Biomarker_Auto_Sync {
 			}
 
 			// Sync age and gender from global fields
-			$demographics_sync = $this->sync_demographics_biomarkers( $user_id, $existing_biomarkers );
+			$demographics_sync = $this->sync_demographics_biomarkers( $user_id, $updated_biomarkers );
 			if ( $demographics_sync['success'] ) {
 				$sync_results['updated_fields'] = array_merge( $sync_results['updated_fields'], $demographics_sync['updated_fields'] );
 			} else {
@@ -65,18 +68,18 @@ class ENNU_Biomarker_Auto_Sync {
 			}
 
 			// Sync health goals to biomarker targets
-			$goals_sync = $this->sync_health_goals_biomarkers( $user_id, $existing_biomarkers );
+			$goals_sync = $this->sync_health_goals_biomarkers( $user_id, $updated_biomarkers );
 			if ( $goals_sync['success'] ) {
 				$sync_results['updated_fields'] = array_merge( $sync_results['updated_fields'], $goals_sync['updated_fields'] );
 			} else {
 				$sync_results['errors'] = array_merge( $sync_results['errors'], $goals_sync['errors'] );
 			}
 
-			// Update the biomarker data
-			if ( ! empty( $sync_results['updated_fields'] ) ) {
-				$update_success = update_user_meta( $user_id, 'ennu_user_biomarkers', $existing_biomarkers );
+			// Update the biomarker data using the centralized manager
+			if ( ! empty( $updated_biomarkers ) ) {
+				$update_success = ENNU_Biomarker_Manager::save_user_biomarkers( $user_id, $updated_biomarkers, 'auto_sync' );
 				if ( ! $update_success ) {
-					$sync_results['errors'][] = 'Failed to update biomarker data in database';
+					$sync_results['errors'][] = 'Failed to save auto-synced biomarker data via manager';
 					$sync_results['success'] = false;
 				}
 			}
@@ -97,10 +100,10 @@ class ENNU_Biomarker_Auto_Sync {
 	 * Sync height and weight data to biomarker fields
 	 *
 	 * @param int $user_id User ID
-	 * @param array &$biomarkers Biomarker data (passed by reference)
+	 * @param array &$updated_biomarkers Array to be populated with new data
 	 * @return array Sync results
 	 */
-	private function sync_height_weight_biomarkers( $user_id, &$biomarkers ) {
+	private function sync_height_weight_biomarkers( $user_id, &$updated_biomarkers ) {
 		$results = array(
 			'success' => true,
 			'updated_fields' => array(),
@@ -131,12 +134,9 @@ class ENNU_Biomarker_Auto_Sync {
 
 			// Height biomarker
 			if ( $height_cm > 0 ) {
-				$biomarkers['height'] = array(
+				$updated_biomarkers['height'] = array(
 					'value' => round( $height_cm, 1 ),
 					'unit' => 'cm',
-					'date' => current_time( 'mysql' ),
-					'source' => 'global_fields_auto_sync',
-					'notes' => 'Auto-synced from global height/weight data',
 				);
 				$results['updated_fields'][] = 'height';
 				$updated = true;
@@ -144,12 +144,9 @@ class ENNU_Biomarker_Auto_Sync {
 
 			// Weight biomarker
 			if ( $weight_lbs > 0 ) {
-				$biomarkers['weight'] = array(
+				$updated_biomarkers['weight'] = array(
 					'value' => round( $weight_lbs, 1 ),
 					'unit' => 'lbs',
-					'date' => current_time( 'mysql' ),
-					'source' => 'global_fields_auto_sync',
-					'notes' => 'Auto-synced from global height/weight data',
 				);
 				$results['updated_fields'][] = 'weight';
 				$updated = true;
@@ -157,12 +154,9 @@ class ENNU_Biomarker_Auto_Sync {
 
 			// BMI biomarker (BMI calculation works with lbs and inches)
 			if ( $bmi > 0 ) {
-				$biomarkers['bmi'] = array(
+				$updated_biomarkers['bmi'] = array(
 					'value' => round( $bmi, 1 ),
 					                'unit' => '',
-					'date' => current_time( 'mysql' ),
-					'source' => 'global_fields_auto_sync',
-					'notes' => 'Auto-calculated from height and weight',
 				);
 				$results['updated_fields'][] = 'bmi';
 				$updated = true;
@@ -183,10 +177,10 @@ class ENNU_Biomarker_Auto_Sync {
 	 * Sync demographics data to biomarker fields
 	 *
 	 * @param int $user_id User ID
-	 * @param array &$biomarkers Biomarker data (passed by reference)
+	 * @param array &$updated_biomarkers Array to be populated with new data
 	 * @return array Sync results
 	 */
-	private function sync_demographics_biomarkers( $user_id, &$biomarkers ) {
+	private function sync_demographics_biomarkers( $user_id, &$updated_biomarkers ) {
 		$results = array(
 			'success' => true,
 			'updated_fields' => array(),
@@ -196,12 +190,9 @@ class ENNU_Biomarker_Auto_Sync {
 		// Get age data
 		$age = get_user_meta( $user_id, 'ennu_age', true );
 		if ( ! empty( $age ) && is_numeric( $age ) ) {
-			$biomarkers['age'] = array(
+			$updated_biomarkers['age'] = array(
 				'value' => intval( $age ),
 				'unit' => 'years',
-				'date' => current_time( 'mysql' ),
-				'source' => 'global_fields_auto_sync',
-				'notes' => 'Auto-synced from global age data',
 			);
 			$results['updated_fields'][] = 'age';
 		}
@@ -209,12 +200,9 @@ class ENNU_Biomarker_Auto_Sync {
 		// Get gender data
 		$gender = get_user_meta( $user_id, 'ennu_gender', true );
 		if ( ! empty( $gender ) ) {
-			$biomarkers['gender'] = array(
+			$updated_biomarkers['gender'] = array(
 				'value' => $gender,
 				'unit' => 'categorical',
-				'date' => current_time( 'mysql' ),
-				'source' => 'global_fields_auto_sync',
-				'notes' => 'Auto-synced from global gender data',
 			);
 			$results['updated_fields'][] = 'gender';
 		}
@@ -226,10 +214,10 @@ class ENNU_Biomarker_Auto_Sync {
 	 * Sync health goals to biomarker targets
 	 *
 	 * @param int $user_id User ID
-	 * @param array &$biomarkers Biomarker data (passed by reference)
+	 * @param array &$updated_biomarkers Array to be populated with new data
 	 * @return array Sync results
 	 */
-	private function sync_health_goals_biomarkers( $user_id, &$biomarkers ) {
+	private function sync_health_goals_biomarkers( $user_id, &$updated_biomarkers ) {
 		$results = array(
 			'success' => true,
 			'updated_fields' => array(),
@@ -274,17 +262,15 @@ class ENNU_Biomarker_Auto_Sync {
 					$biomarker_key = $mapping['biomarker'];
 
 					// Create or update biomarker target
-					if ( ! isset( $biomarkers['targets'] ) ) {
-						$biomarkers['targets'] = array();
+					if ( ! isset( $updated_biomarkers['targets'] ) ) {
+						$updated_biomarkers['targets'] = array();
 					}
 
-					$biomarkers['targets'][ $biomarker_key ] = array(
+					$updated_biomarkers['targets'][ $biomarker_key ] = array(
 						'goal' => $goal,
 						'target_type' => $mapping['target_type'],
 						'target_value' => $mapping['target_value'],
 						'unit' => $this->get_biomarker_unit( $biomarker_key ),
-						'date' => current_time( 'mysql' ),
-						'source' => 'global_fields_auto_sync',
 						'notes' => $mapping['notes'],
 					);
 

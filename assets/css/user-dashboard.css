@@ -4,6 +4,9 @@ Author: The World's Greatest Developer
 Version: 2.0.0
 */
 
+.empty-state-message {
+    color: #ffc12b !important;
+}
 .goal-pill.selected {
     border-color: #138d66;
 }
@@ -1460,7 +1463,7 @@ html[data-theme="dark"] .toggle-thumb {
 /* --- v57.0.1: Styles for Empty/Error States --- */
 .ennu-error,
 .ennu-results-empty-state {
-	background-color: var(--card-bg);
+	background-color: #373737 !important;
 	border: none;
 	border-radius: var(--rounded-lg);
 	padding: var(--spacing-6);
@@ -1747,6 +1750,8 @@ li.pulsate {
 	text-align: center;
 	padding: 20px 0 0;
 	border-bottom: none;
+	display: flex;
+	flex-direction: column;
 }
 
 [data-theme="light"] .dashboard-title {
@@ -4535,14 +4540,7 @@ a:hover {
 	position: absolute !important;
 }
 
-/* Debug styles - add outline to see logo containers */
-.dashboard-logo-container {
-	outline: 1px solid rgba(255, 0, 0, 0.2);
-}
 
-.dashboard-logo {
-	outline: 1px solid rgba(0, 255, 0, 0.2);
-}
 
 /* Ensure logos are properly sized and positioned */
 .dashboard-logo-container {
@@ -13341,7 +13339,7 @@ a:hover {
 }
 
 .biomarker-current-dot {
-	background: linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #d1d5db 100%);
+	background: linear-gradient(135deg, #4b5563 0%, #6b7280 50%, #9ca3af 100%);
 	position: relative;
 }
 
@@ -13354,49 +13352,51 @@ a:hover {
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.9);
-	box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+	background: rgba(107, 114, 128, 0.8);
+	box-shadow: 0 0 8px rgba(107, 114, 128, 0.4);
 }
 
 .biomarker-target-dot {
-	background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%);
+	background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
 	position: relative;
-	border: 4px solid #fbbf24;
+	border: 4px solid #3b82f6;
 	animation: targetDotGlow 2s ease-in-out infinite;
 }
 
 .biomarker-target-dot::before {
 	content: '';
 	position: absolute;
-	top: 50%;
+	top: 40%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
-	background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
-	box-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
+	background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+	box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+	vertical-align: middle;
+	line-height: 1;
 }
 
 /* Special glow animation for target dots */
 @keyframes targetDotGlow {
 	0%, 100% {
-		border-color: #fbbf24;
+		border-color: #3b82f6;
 		box-shadow: 
 			0 8px 25px rgba(0, 0, 0, 0.2),
 			0 4px 12px rgba(0, 0, 0, 0.15),
 			0 0 0 2px rgba(255, 255, 255, 0.9),
 			inset 0 2px 4px rgba(255, 255, 255, 0.8),
-			0 0 0 4px rgba(251, 191, 36, 0.3);
+			0 0 0 4px rgba(59, 130, 246, 0.3);
 	}
 	50% {
-		border-color: #f59e0b;
+		border-color: #1d4ed8;
 		box-shadow: 
 			0 12px 35px rgba(0, 0, 0, 0.25),
 			0 6px 18px rgba(0, 0, 0, 0.2),
 			0 0 0 2px rgba(255, 255, 255, 0.9),
 			inset 0 2px 4px rgba(255, 255, 255, 0.8),
-			0 0 0 8px rgba(251, 191, 36, 0.5);
+			0 0 0 8px rgba(59, 130, 246, 0.5);
 	}
 }
 
@@ -14083,6 +14083,10 @@ a:hover {
 		transition: all 0.3s ease;
 		border-radius: var(--rounded-md);
 		margin-bottom: 0;
+		align-content: center;
+		align-items: center;
+		justify-content: center;
+		flex-direction: row;
 	}
 
 	.biomarker-list-item:hover {
@@ -14596,15 +14600,15 @@ a:hover {
 .biomarker-range-ruler-container {
 	cursor: crosshair;
 	position: relative;
-	padding: 15px 80px 5px;
+	padding: 15px px 5px;
 }
 
 /* Biomarker Range Ruler - Enhanced 3D Effect */
 .biomarker-range-ruler {
 	position: relative;
-	height: 12px;
+	height: 40px;
 	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
-	border-radius: 6px;
+	border-radius: 60px;
 	box-shadow: 
 		inset 0 2px 4px rgba(0, 0, 0, 0.5),
 		inset 0 -1px 2px rgba(255, 255, 255, 0.1),
@@ -14616,7 +14620,7 @@ a:hover {
 .biomarker-range-segment {
 	position: absolute;
 	height: 100%;
-	border-radius: 6px;
+	border-radius: 60px;
 	transition: all 0.3s ease;
 }
 
@@ -14669,12 +14673,12 @@ a:hover {
 .biomarker-target-dot {
 	width: 0;
 	height: 0;
-	border-left: 12px solid transparent;
-	border-right: 12px solid transparent;
-	border-bottom: 20px solid #10b981;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-bottom: 11px solid #10b981;
 	filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.6));
 	position: absolute;
-	top: -10px;
+	top: 5px;
 }
 
 .biomarker-current-dot:hover {
@@ -15162,14 +15166,15 @@ html {
 	}
 	
 	.biomarker-range-ruler-container {
-		height: 40px;
+		height: 100px;
 		margin: 15px 0 30px;
 		position: relative;
+		padding: 3rem 25px 6rem;
 	}
 	
 	.biomarker-range-ruler {
-		height: 12px;
-		border-radius: 6px;
+		height: 27px;
+		border-radius: 60px;
 		margin-top: 10px;
 	}
 	
@@ -17055,11 +17060,12 @@ html {
 .biomarker-list-item {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: center;
 	padding: 12px 16px;
 	border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
 	cursor: pointer;
 	transition: background-color 0.2s ease;
+	flex-direction: row;
 }
 
 .biomarker-list-item:hover {

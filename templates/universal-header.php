@@ -16,20 +16,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Variables are already extracted by ennu_load_template function
 // No need to extract again
 
-// Default values for header elements
-$display_name = $display_name ?? '';
-$age = $age ?? '';
-$gender = $gender ?? '';
-$height = $height ?? '';
-$weight = $weight ?? '';
-$bmi = $bmi ?? '';
-$show_vital_stats = $show_vital_stats ?? true;
-$show_theme_toggle = $show_theme_toggle ?? true;
-$page_title = $page_title ?? '';
-$page_subtitle = $page_subtitle ?? '';
-$show_logo = $show_logo ?? true;
-$logo_color = $logo_color ?? 'white';
-$logo_size = $logo_size ?? 'medium';
+// Get the shortcode instance for proper URL generation
+$shortcode_instance = ennu_life()->get_shortcodes();
+$home_page_url = $shortcode_instance->get_page_id_url('dashboard');
+
+// Prepare header data
+$header_data = array(
+	'display_name' => $display_name ?? '',
+	'age' => $age ?? '',
+	'gender' => $gender ?? '',
+	'height' => $height ?? '',
+	'weight' => $weight ?? '',
+	'bmi' => $bmi ?? '',
+	'show_vital_stats' => $show_vital_stats ?? true,
+	'show_theme_toggle' => $show_theme_toggle ?? true,
+	'page_title' => $page_title ?? '',
+	'page_subtitle' => $page_subtitle ?? '',
+	'show_logo' => $show_logo ?? true,
+	'logo_color' => $logo_color ?? 'white',
+	'logo_size' => $logo_size ?? 'medium',
+	'link'  => $home_page_url,
+);
 
 // Get current user if not provided
 if ( empty( $display_name ) && is_user_logged_in() ) {
@@ -120,7 +127,7 @@ if ( is_user_logged_in() && $show_vital_stats ) {
 					array(
 						'color' => $logo_color,
 						'size'  => $logo_size,
-						'link'  => home_url( '/' ),
+						'link'  => $home_page_url,
 						'alt'   => 'ENNU Life',
 						'class' => 'ennu-header-logo-img',
 					)
@@ -128,7 +135,7 @@ if ( is_user_logged_in() && $show_vital_stats ) {
 				?>
 			<?php else : ?>
 				<!-- Fallback logo if function not available -->
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="ennu-header-logo-link">
+				<a href="<?php echo esc_url( $home_page_url ); ?>" class="ennu-header-logo-link">
 					<img src="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/img/ennu-logo-' . $logo_color . '.png' ); ?>" 
 						 alt="ENNU Life" 
 						 class="ennu-header-logo-img ennu-logo--<?php echo esc_attr( $logo_size ); ?>" />

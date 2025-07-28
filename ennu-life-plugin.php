@@ -1,19 +1,19 @@
 <?php
 /**
  * Plugin Name: ENNU Life Assessments
- * Plugin URI: https://ennulife.com
- * Description: Comprehensive health assessment and biomarker tracking system with AI-powered medical insights and personalized recommendations.
- * Version: 64.5.23
- * Author: ENNU Life Team
- * Author URI: https://ennulife.com
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Plugin URI: https://verygoodplugins.com
+ * Description: Comprehensive health assessment and biomarker management system
+ * Version: 64.6.60
+ * Author: Very Good Plugins
+ * Author URI: https://verygoodplugins.com
+ * License: GPL v3
  * Text Domain: ennulifeassessments
  * Domain Path: /languages
- * Requires at least: 5.0
- * Tested up to: 6.4
- * Requires PHP: 7.4
- * Network: false
+ *
+ * @package ENNU_Life
+ * @copyright Copyright (c) 2024, Very Good Plugins, https://verygoodplugins.com
+ * @license GPL-3.0+
+ * @since 1.0.0
  */
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'ENNU_LIFE_VERSION', '64.5.20' );
+define( 'ENNU_LIFE_VERSION', '64.6.60' );
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -55,6 +55,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		private $form_handler      = null;
 		private $shortcodes        = null;
 		private $health_goals_ajax = null;
+		private $ajax_handler      = null;
+		private $monitoring        = null;
+		private $hubspot_oauth     = null;
 
 		/**
 		 * Initialization flag to prevent multiple initializations
@@ -80,6 +83,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Constructor
 		 */
 		private function __construct() {
+			error_log( 'ENNU Life Plugin: Constructor called' );
 			// Register activation/deactivation hooks
 			register_activation_hook( __FILE__, array( $this, 'activate' ) );
 			register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -114,126 +118,59 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		}
 
 		/**
-		 * Load all dependencies
+		 * Load plugin dependencies
 		 */
 		private function load_dependencies() {
-			$includes = array(
-				// PHP Configuration Override (load first)
-				'php-config-override.php',
-				
-				// Core Infrastructure
-				'class-enhanced-database.php',
-				'class-enhanced-admin.php',
-				'class-ajax-security.php',
-				'class-compatibility-manager.php',
-				'class-security-validator.php',
-				'class-data-access-control.php',
-				'class-template-security.php',
-				'class-input-sanitizer.php',
-				'class-csrf-protection.php',
-				'class-template-loader.php',
-
-				// Biomarker Management System
-				'class-biomarker-manager.php',
-				'class-lab-import-manager.php',
-				'class-smart-recommendation-engine.php',
-				'class-csv-biomarker-importer.php',
-				'class-user-csv-import-shortcode.php',
-
-				// New Scoring Engine Architecture
-				'class-assessment-calculator.php',
-				'class-category-score-calculator.php',
-				'class-pillar-score-calculator.php',
-				'class-health-optimization-calculator.php',
-				'class-potential-score-calculator.php',
-				'class-new-life-score-calculator.php',
-				'class-recommendation-engine.php',
-				'class-score-completeness-calculator.php',
-				'class-ennu-life-score-calculator.php',
-				'class-biomarker-admin.php',
-				'class-wp-fusion-integration.php',
-				'class-user-manager.php',
-				'class-analytics-service.php',
-				'class-data-export-service.php',
-				'class-performance-monitor.php',
-				'class-database-optimizer.php',
-				'class-assessment-ajax-handler.php',
-
-				// Four-Engine Scoring Symphony Implementation
-				'class-intentionality-engine.php',
-				'class-qualitative-engine.php',
-				'class-objective-engine.php',
-				'class-biomarker-ajax.php',
-				'class-health-goals-ajax.php',
-				'migrations/health-goals-migration.php',
-				// Main Orchestrator and Frontend Classes
-				'class-scoring-system.php',
-				'class-assessment-shortcodes.php',
-				'class-form-handler.php',
-				'class-ajax-handler.php',
-				'class-shortcode-manager.php',
-				'class-comprehensive-assessment-display.php',
-				'class-score-cache.php',
-				'class-centralized-symptoms-manager.php',
-
-				'class-progressive-data-collector.php',
-				'class-smart-question-display.php',
-				'class-biomarker-flag-manager.php',
-				'class-goal-progression-tracker.php',
-				'class-lab-data-landing-system.php',
-				'class-trends-visualization-system.php',
-				'class-medical-role-manager.php',
-				'class-ennu-rest-api.php',
-
-				'class-recommended-range-manager.php',
-
-				'class-role-based-access-control.php',
-
-				'class-enhanced-dashboard-manager.php',
-				'class-profile-completeness-tracker.php',
-				'class-biomarker-auto-sync.php',
-
-				// Age Management System
-				'class-age-management-system.php',
-				
-						// Memory Optimization System
-		'class-memory-optimizer.php',
-		
-		// Global Fields Processor
-		'class-global-fields-processor.php',
-		
-						// AI Medical Team Reference Ranges System
-				'class-ai-medical-team-reference-ranges.php',
-				
-				// PHASE 1: ENNU Biomarker Range Orchestrator
-				'class-biomarker-range-orchestrator.php',
-				
-				// Biomarker Panel Management System
-				'class-biomarker-panels.php',
-				
-				// AI Target Value Calculator
-				'class-biomarker-target-calculator.php',
-				
-				// Target Weight Calculator
-				'class-target-weight-calculator.php',
-				
-				// HubSpot Integration
-				'class-hubspot-bulk-field-creator.php',
-				'class-hubspot-cli-commands.php',
-				
-				// Score Presentation System
-				'shortcodes/class-score-presentation-shortcode.php',
-			);
-
-			foreach ( $includes as $file ) {
-				$file_path = ENNU_LIFE_PLUGIN_PATH . 'includes/' . $file;
-				if ( file_exists( $file_path ) ) {
-					require_once $file_path;
-					error_log( 'ENNU Life Plugin: Loaded dependency: ' . $file );
-				} else {
-					error_log( 'ENNU Life Plugin: FAILED to load dependency: ' . $file );
-				}
+			// Load core classes
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-assessment-shortcodes.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-monitoring.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-scoring-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-flag-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-recommended-range-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-age-management-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-health-optimization-calculator.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-centralized-symptoms-manager.php';
+			
+			// Load missing classes that are causing warnings
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-health-goals-ajax.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-medical-role-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-role-based-access-control.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-lab-data-landing-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-trends-visualization-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-dashboard-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-global-fields-processor.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ai-medical-team-reference-ranges.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-csv-biomarker-importer.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-user-csv-import-shortcode.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ajax-handler.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-shortcode-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-data-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-bulk-field-creator.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-cli-commands.php';
+			error_log( 'ENNU Life Plugin: Including HubSpot OAuth handler' );
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-oauth-handler.php';
+			error_log( 'ENNU Life Plugin: HubSpot OAuth handler included successfully' );
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-goal-progression-tracker.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-csrf-protection.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-target-weight-calculator.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-rest-api.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-form-handler.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-database.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-database-optimizer.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-admin.php';
+			
+			// Initialize components
+			$this->shortcodes = new ENNU_Assessment_Shortcodes();
+			$this->monitoring = ENNU_Monitoring::get_instance();
+			
+			// Initialize HubSpot OAuth Handler
+			if ( class_exists( 'ENNU_HubSpot_OAuth_Handler' ) ) {
+				$this->hubspot_oauth = new ENNU_HubSpot_OAuth_Handler();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_OAuth_Handler' );
 			}
+
+			// HubSpot OAuth Handler is already initialized above
 		}
 
 		/**
@@ -246,8 +183,13 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		}
 
 			// Initialize admin - with class existence check
+			error_log( 'ENNU Life Plugin: Checking for ENNU_Enhanced_Admin class...' );
 			if ( class_exists( 'ENNU_Enhanced_Admin' ) ) {
+				error_log( 'ENNU Life Plugin: ENNU_Enhanced_Admin class found, initializing...' );
 				$this->admin = new ENNU_Enhanced_Admin();
+				error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Admin' );
+			} else {
+				error_log( 'ENNU Life Plugin: ERROR - ENNU_Enhanced_Admin class not found' );
 			}
 
 			// Initialize Health Goals AJAX handlers - NEW
@@ -256,6 +198,14 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				error_log( 'ENNU Life Plugin: Initialized Health Goals AJAX handlers' );
 			} else {
 				error_log( 'ENNU Life Plugin: WARNING - ENNU_Health_Goals_Ajax class not found' );
+			}
+
+			// Initialize modern ENNU_AJAX_Handler - CRITICAL FIX
+			if ( class_exists( 'ENNU_AJAX_Handler' ) ) {
+				$this->ajax_handler = new ENNU_AJAX_Handler();
+				error_log( 'ENNU Life Plugin: Initialized modern ENNU_AJAX_Handler.' );
+			} else {
+				error_log( 'ENNU Life Plugin: ERROR - ENNU_AJAX_Handler class not found!' );
 			}
 
 			// Initialize Medical Role Manager - PHASE 10
@@ -298,14 +248,6 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				error_log( 'ENNU Life Plugin: WARNING - ENNU_Trends_Visualization_System class not found' );
 			}
 
-			// Initialize Recommended Range Manager - PHASE 9
-			if ( class_exists( 'ENNU_Recommended_Range_Manager' ) ) {
-				new ENNU_Recommended_Range_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Recommended_Range_Manager' );
-			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Recommended_Range_Manager class not found' );
-			}
-
 			// Initialize Enhanced Dashboard Manager - PHASE 13
 			if ( class_exists( 'ENNU_Enhanced_Dashboard_Manager' ) ) {
 				new ENNU_Enhanced_Dashboard_Manager();
@@ -345,6 +287,33 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		} else {
 			error_log( 'ENNU Life Plugin: WARNING - ENNU_User_CSV_Import_Shortcode class not found' );
 		}
+
+		// --- REFACTORING STEP: Activate the modern AJAX Handler ---
+		if ( class_exists( 'ENNU_AJAX_Handler' ) ) {
+			new ENNU_AJAX_Handler();
+			error_log( 'ENNU Life Plugin: Initialized modern ENNU_AJAX_Handler.' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_AJAX_Handler class not found.' );
+		}
+		// --- END REFACTORING STEP ---
+
+		// --- REFACTORING STEP: Activate the modern Shortcode Manager ---
+		if ( class_exists( 'ENNU_Shortcode_Manager' ) ) {
+			new ENNU_Shortcode_Manager();
+			error_log( 'ENNU Life Plugin: Initialized modern ENNU_Shortcode_Manager.' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Shortcode_Manager class not found.' );
+		}
+		// --- END REFACTORING STEP ---
+
+		// --- REFACTORING STEP: Activate the modern Data Manager ---
+		if ( class_exists( 'ENNU_Data_Manager' ) ) {
+			new ENNU_Data_Manager();
+			error_log( 'ENNU Life Plugin: Initialized modern ENNU_Data_Manager.' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Data_Manager class not found.' );
+		}
+		// --- END REFACTORING STEP ---
 
 		// Initialize HubSpot Bulk Field Creator
 		if ( class_exists( 'ENNU_HubSpot_Bulk_Field_Creator' ) ) {
@@ -388,11 +357,13 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Initialize shortcodes after WordPress functions are loaded
 		 */
 		public function init_shortcodes() {
+			// Initialize the SINGLE SOURCE OF TRUTH for shortcodes
 			if ( class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
 				$this->shortcodes = new ENNU_Assessment_Shortcodes();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Shortcodes on plugins_loaded hook.' );
+				$this->shortcodes->init(); // Manually initialize it
+				error_log( 'ENNU Life Plugin: Initialized the one true shortcode handler: ENNU_Assessment_Shortcodes' );
 			} else {
-				error_log( 'ENNU Life Plugin: ERROR - ENNU_Assessment_Shortcodes class not found!' );
+				error_log( 'ENNU Life Plugin: FATAL - The active shortcode handler ENNU_Assessment_Shortcodes is missing.' );
 			}
 
 			// Initialize REST API
@@ -408,19 +379,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Setup shortcode hooks after shortcodes are initialized
 		 */
 		public function setup_shortcode_hooks() {
-			if ( $this->shortcodes ) {
-				error_log( 'ENNU Life Plugin: Setting up shortcode AJAX and frontend hooks.' );
-				add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-				add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-				add_action( 'wp_ajax_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
-				add_action( 'wp_ajax_nopriv_ennu_check_email', array( $this->shortcodes, 'ajax_check_email_exists' ) );
-				add_action( 'wp_ajax_ennu_check_auth_state', array( $this->shortcodes, 'ajax_check_auth_state' ) );
-				add_action( 'wp_ajax_nopriv_ennu_check_auth_state', array( $this->shortcodes, 'ajax_check_auth_state' ) );
-				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_chart_scripts' ) );
-				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_results_styles' ) );
-			} else {
-				error_log( 'ENNU Life Plugin: ERROR - shortcodes object is still null during setup_shortcode_hooks!' );
-			}
+			// This method is now deprecated as the new Shortcode Manager and AJAX Handler
+			// register their own hooks internally.
+			error_log( 'ENNU Life Plugin: setup_shortcode_hooks() is deprecated and no longer registers hooks.' );
 		}
 
 		/**
@@ -439,6 +400,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			// Frontend Asset Hooks
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
+			
+			// Assessment Results Styles Hook
+			if ( $this->shortcodes ) {
+				add_action( 'wp_enqueue_scripts', array( $this->shortcodes, 'enqueue_results_styles' ) );
+			}
 
 			// Admin Hooks - ALWAYS register these hooks
 			if ( $this->admin ) {
@@ -478,15 +444,42 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			}
 
 			// Shortcode and AJAX Hooks will be set up after shortcodes are initialized
-			add_action( 'init', array( $this, 'setup_shortcode_hooks' ), 10 ); // Priority 10 to run after shortcode init (priority 5)
+			// add_action( 'init', array( $this, 'setup_shortcode_hooks' ), 10 ); // This is now deprecated
 			
-			// Target Weight Calculator Hook
-			if ( class_exists( 'ENNU_Target_Weight_Calculator' ) ) {
-				add_action( 'ennu_assessment_completed', array( 'ENNU_Target_Weight_Calculator', 'trigger_calculation_on_assessment_completion' ), 20, 2 );
-				error_log( 'ENNU Life Plugin: Target Weight Calculator hook registered' );
-			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Target_Weight_Calculator class not found' );
-			}
+			// Assessment Submission AJAX Handler - DISABLED due to conflict with modern ENNU_AJAX_Handler
+			// The modern AJAX handler is now responsible for all assessment submissions
+			// if ( isset( $this->shortcodes ) ) {
+			// 	add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+			// 	add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+			// 	error_log( 'ENNU Life Plugin: Assessment submission AJAX handlers registered' );
+			// } else {
+			// 	error_log( 'ENNU Life Plugin: ERROR - Shortcodes instance is null, cannot register AJAX handlers!' );
+			// }
+
+					// Target Weight Calculator Hook
+		if ( class_exists( 'ENNU_Target_Weight_Calculator' ) ) {
+			add_action( 'ennu_assessment_completed', array( 'ENNU_Target_Weight_Calculator', 'trigger_calculation_on_assessment_completion' ), 20, 2 );
+			error_log( 'ENNU Life Plugin: Target Weight Calculator hook registered' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - ENNU_Target_Weight_Calculator class not found' );
+		}
+
+		// Database Optimizer Initialization
+		if ( class_exists( 'ENNU_Database_Optimizer' ) ) {
+			$db_optimizer = ENNU_Database_Optimizer::get_instance();
+			$db_optimizer->initialize_optimizations();
+			error_log( 'ENNU Life Plugin: Database optimizer initialized' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - ENNU_Database_Optimizer class not found' );
+		}
+
+		// Database Cleanup Schedule
+		add_action( 'ennu_database_cleanup', array( $this, 'run_database_cleanup' ) );
+
+			// Custom Login Page Logo
+			add_action( 'login_enqueue_scripts', array( $this, 'customize_login_logo' ) );
+			add_filter( 'login_headerurl', array( $this, 'customize_login_logo_url' ) );
+			add_filter( 'login_headertext', array( $this, 'customize_login_logo_title' ) );
 		}
 
 		/**
@@ -575,6 +568,18 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				
 				// Enqueue user dashboard script
 				wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns', 'ennu-theme-manager' ), ENNU_LIFE_VERSION . '.' . time(), true );
+
+				// --- FIX: Add nonce localization for user dashboard ---
+				if ( $has_dashboard_shortcode ) {
+					wp_localize_script(
+						'ennu-user-dashboard',
+						'ennu_ajax',
+						array(
+							'ajax_url' => admin_url( 'admin-ajax.php' ),
+							'nonce'    => wp_create_nonce( 'ennu_ajax_nonce' ),
+						)
+					);
+				}
 			}
 
 			// --- AMELIA BOOKING LIGHT MODE ---
@@ -682,10 +687,46 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Getter for the shortcode handler instance.
 		 * This is the definitive fix for the admin panel fatal errors.
 		 *
-		 * @return ENNU_Assessment_Shortcodes
+		 * @return ENNU_Assessment_Shortcodes The one true shortcode handler instance.
 		 */
 		public function get_shortcode_handler() {
 			return $this->shortcodes;
+		}
+
+		/**
+		 * Customize the WordPress login page logo
+		 */
+		public function customize_login_logo() {
+			?>
+			<style type="text/css">
+				#login h1 a {
+					background-image: url(<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/img/ennu-logo-black.png' ); ?>) !important;
+					background-size: contain !important;
+					background-repeat: no-repeat !important;
+					background-position: center !important;
+					height: 80px !important;
+					width: 320px !important;
+					text-indent: -9999px !important;
+					overflow: hidden !important;
+					display: block !important;
+					margin: 0 auto 25px !important;
+				}
+			</style>
+			<?php
+		}
+
+		/**
+		 * Customize the login logo URL to point to the site home
+		 */
+		public function customize_login_logo_url() {
+			return home_url();
+		}
+
+		/**
+		 * Customize the login logo title text
+		 */
+		public function customize_login_logo_title() {
+			return get_bloginfo( 'name' ) . ' - ' . get_bloginfo( 'description' );
 		}
 
 		/**
@@ -706,6 +747,18 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			}
 
 			return true;
+		}
+
+		/**
+		 * Run database cleanup tasks
+		 */
+		public function run_database_cleanup() {
+			if ( class_exists( 'ENNU_Database_Optimizer' ) ) {
+				$db_optimizer = ENNU_Database_Optimizer::get_instance();
+				$db_optimizer->cleanup_expired_transients();
+				$db_optimizer->optimize_database_tables();
+				error_log( 'ENNU Life Plugin: Scheduled database cleanup completed' );
+			}
 		}
 	}
 

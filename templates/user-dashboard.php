@@ -457,15 +457,22 @@ function get_assessment_display_info($assessment_name) {
  */
 if (!function_exists('render_biomarker_measurement')) {
 function render_biomarker_measurement($measurement_data) {
-    // Debug: Function is being called
-    error_log("ENNU DEBUG: render_biomarker_measurement called for biomarker: " . ($measurement_data['biomarker_id'] ?? 'unknown'));
+    // Validate input data before processing
+    if (!is_array($measurement_data) || empty($measurement_data)) {
+        return '<div class="biomarker-error">Invalid measurement data provided</div>';
+    }
+    
+    // Skip processing if biomarker_id is empty, null, or "unknown"
+    $biomarker_id = $measurement_data['biomarker_id'] ?? '';
+    if (empty($biomarker_id) || $biomarker_id === 'unknown' || trim($biomarker_id) === '') {
+        return '<div class="biomarker-error">Invalid biomarker identifier</div>';
+    }
     
     if (isset($measurement_data['error'])) {
         return '<div class="biomarker-error">' . esc_html($measurement_data['error']) . '</div>';
     }
     
     // Use null coalescing operator to handle missing array keys with defaults
-    $biomarker_id = $measurement_data['biomarker_id'] ?? '';
     $current_value = $measurement_data['current_value'] ?? 0;
     $target_value = $measurement_data['target_value'] ?? null;
     $unit = $measurement_data['unit'] ?? '';
@@ -473,10 +480,36 @@ function render_biomarker_measurement($measurement_data) {
     $optimal_max = $measurement_data['optimal_max'] ?? 100;
     $percentage_position = $measurement_data['percentage_position'] ?? 50;
     $target_position = $measurement_data['target_position'] ?? null;
-    $status = $measurement_data['status'] ?? array('status' => 'normal', 'status_text' => 'Normal', 'status_class' => 'normal');
+    
+    // Handle status - can be string or array, ensure it's always an array
+    $raw_status = $measurement_data['status'] ?? 'normal';
+    if (is_string($raw_status)) {
+        // Convert string status to array format
+        $status = array(
+            'status' => $raw_status,
+            'status_text' => ucfirst($raw_status),
+            'status_class' => $raw_status
+        );
+    } else {
+        // Already an array, use as-is with defaults
+        $status = $raw_status + array('status' => 'normal', 'status_text' => 'Normal', 'status_class' => 'normal');
+    }
+    
     $has_flags = $measurement_data['has_flags'] ?? false;
     $flags = $measurement_data['flags'] ?? array();
-    $achievement_status = $measurement_data['achievement_status'] ?? array('status' => 'normal', 'text' => 'Normal', 'icon_class' => 'normal');
+    
+    // Handle achievement_status - similar fix
+    $raw_achievement_status = $measurement_data['achievement_status'] ?? 'normal';
+    if (is_string($raw_achievement_status)) {
+        $achievement_status = array(
+            'status' => $raw_achievement_status,
+            'text' => ucfirst($raw_achievement_status),
+            'icon_class' => $raw_achievement_status
+        );
+    } else {
+        $achievement_status = $raw_achievement_status + array('status' => 'normal', 'text' => 'Normal', 'icon_class' => 'normal');
+    }
+    
     $health_vector = $measurement_data['health_vector'] ?? '';
     $has_admin_override = $measurement_data['has_admin_override'] ?? false;
     $display_name = $measurement_data['display_name'] ?? ($measurement_data['biomarker_name'] ?? '');
@@ -1951,33 +1984,41 @@ if ( empty( $display_name ) ) {
 								</div>
 								
 								<?php
-								// Get flagged biomarkers from the manager
+								// Get flagged biomarkers with deduplication and explanatory text
 								$flag_manager = new ENNU_Biomarker_Flag_Manager();
-								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active', true); // Enable deduplication
 								
-								// Convert flag data to display format
-								$display_flagged_biomarkers = array();
-								foreach ($flagged_biomarkers as $flag_id => $flag_data) {
-									$biomarker_name = $flag_data['biomarker_name'];
-									$category = get_biomarker_category($biomarker_name);
+								// Assessment display names mapping
+								$assessment_names = array(
+									'health_optimization_assessment' => 'Health Optimization Assessment',
+									'testosterone_assessment' => 'Testosterone Assessment',
+									'hormone_assessment' => 'Hormone Assessment',
+									'menopause_assessment' => 'Menopause Assessment',
+									'ed_treatment_assessment' => 'ED Treatment Assessment',
+									'skin_assessment' => 'Skin Assessment',
+									'hair_assessment' => 'Hair Assessment',
+									'sleep_assessment' => 'Sleep Assessment',
+									'weight_loss_assessment' => 'Weight Loss Assessment',
+									'welcome_assessment' => 'Welcome Assessment',
+									'auto_flagged' => 'Lab Results Analysis',
+									'manual' => 'Manual Flag',
+									'critical' => 'Critical Alert',
+									'' => 'Unknown Assessment',
+								);
+								
+								// Group by assessment source for better organization
+								$grouped_flagged = array();
+								foreach ($flagged_biomarkers as $biomarker_name => $flag_data) {
+									$assessment_source = $flag_data['assessment_source'] ?? 'Unknown';
+									$assessment_display_name = $assessment_names[$assessment_source] ?? ucwords(str_replace('_', ' ', $assessment_source));
 									
-									// Debug output
-									error_log("Biomarker: $biomarker_name, Category: $category");
-									
-									$display_flagged_biomarkers[$flag_id] = array(
-										'biomarker_name' => $biomarker_name,
-										'name' => ucwords(str_replace('_', ' ', $biomarker_name)),
-										'category' => $category,
-										'reason' => $flag_data['reason'] ?: 'Flagged for medical attention',
-										'severity' => $flag_data['flag_type'] === 'critical' ? 'high' : 'moderate',
-										'current_value' => 'N/A',
-										'unit' => '',
-										'normal_range' => '',
-										'status' => 'flagged',
-										'flagged_at' => $flag_data['flagged_at'],
-										'flag_type' => $flag_data['flag_type']
-									);
+									if (!isset($grouped_flagged[$assessment_display_name])) {
+										$grouped_flagged[$assessment_display_name] = array();
+									}
+									$grouped_flagged[$assessment_display_name][$biomarker_name] = $flag_data;
 								}
+								
+								$display_flagged_biomarkers = $flagged_biomarkers;
 								
 								if (!empty($display_flagged_biomarkers)) :
 									// Health vector category mapping - must match categories from get_biomarker_category()
@@ -2180,74 +2221,34 @@ if ( empty( $display_name ) ) {
 														?>
 															<div class="biomarker-list-item" data-biomarker="<?php echo esc_attr($biomarker_name); ?>" onclick="toggleBiomarkerMeasurements('flagged-biomarkers', '<?php echo esc_attr($assessment_name); ?>', '<?php echo esc_attr($biomarker_name); ?>')">
 																<div class="biomarker-list-name">
-																	<?php echo esc_html($biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? 'Unknown Biomarker'); ?>
+																	<?php 
+																	$biomarker_display_name = $biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? ENNU_Biomarker_Manager::get_fallback_display_name($biomarker_data['biomarker_name']) ?? ucwords(str_replace('_', ' ', $biomarker_data['biomarker_name'])); 
+																	echo esc_html($biomarker_display_name); 
+																	?>
 																	<span class="flagged-badge">⚠️ Flagged</span>
+																	
+																	<?php if (isset($biomarker_data['multiple_assessments']) && $biomarker_data['multiple_assessments']) : ?>
+																		<span class="multiple-assessments-badge" title="<?php echo esc_attr($biomarker_data['explanation']); ?>">
+																			📝 Multiple Assessments (<?php echo esc_html($biomarker_data['assessment_count']); ?>)
+																		</span>
+																	<?php endif; ?>
+																	
 																	<?php if (!empty($biomarker_data['symptom_trigger'])) : ?>
 																		<span class="symptom-trigger-badge"><?php echo esc_html($biomarker_data['symptom_trigger']); ?></span>
 																	<?php endif; ?>
+																	
 																	<?php if (!empty($biomarker_data['reason'])) : ?>
 																		<span class="flag-reason-badge"><?php echo esc_html($biomarker_data['reason']); ?></span>
 																	<?php endif; ?>
 																</div>
-																<div class="biomarker-list-meta">
-																	<div class="biomarker-list-unit"><?php echo esc_html($biomarker_data['unit'] ?? ''); ?></div>
-																	<div class="biomarker-list-flag-type" data-type="<?php 
-																		$flag_type = $biomarker_data['flag_type'] ?? '';
-																		$flag_type_display = '';
-																		switch ($flag_type) {
-																			case 'symptom_triggered':
-																				$flag_type_display = 'symptom';
-																				break;
-																			case 'auto_flagged':
-																				$flag_type_display = 'lab';
-																				break;
-																			case 'manual':
-																				$flag_type_display = 'manual';
-																				break;
-																			case 'critical':
-																				$flag_type_display = 'critical';
-																				break;
-																			default:
-																				$flag_type_display = strtolower($flag_type);
-																		}
-																		echo esc_attr($flag_type_display);
-																	?>">
-																		<?php 
-																		$flag_type = $biomarker_data['flag_type'] ?? '';
-																		$flag_type_display = '';
-																		switch ($flag_type) {
-																			case 'symptom_triggered':
-																				$flag_type_display = 'Symptom';
-																				break;
-																			case 'auto_flagged':
-																				$flag_type_display = 'Lab';
-																				break;
-																			case 'manual':
-																				$flag_type_display = 'Manual';
-																				break;
-																			case 'critical':
-																				$flag_type_display = 'Critical';
-																				break;
-																			default:
-																				$flag_type_display = ucfirst($flag_type);
-																		}
-																		echo esc_html($flag_type_display);
-																		?>
+																
+																<!-- Show explanation for multiple assessments -->
+																<?php if (isset($biomarker_data['multiple_assessments']) && $biomarker_data['multiple_assessments']) : ?>
+																	<div class="biomarker-explanation">
+																		<i class="explanation-icon">ℹ️</i>
+																		<span class="explanation-text"><?php echo esc_html($biomarker_data['explanation']); ?></span>
 																	</div>
-																</div>
-																<div class="biomarker-list-expand">▼</div>
-															</div>
-															
-															<div id="biomarker-measurement-flagged-biomarkers-<?php echo esc_attr($assessment_name); ?>-<?php echo esc_attr($biomarker_name); ?>" class="biomarker-measurement-container" style="display: none;">
-																<div class="biomarker-measurement-content">
-																	<?php
-																	// Get measurement data using the same method as regular biomarkers
-																	$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_name, $user_id);
-																	
-																	// Render the measurement component
-																	echo render_biomarker_measurement($measurement_data);
-																	?>
-																</div>
+																<?php endif; ?>
 															</div>
 														<?php endforeach; ?>
 													</div>
@@ -2440,10 +2441,15 @@ if ( empty( $display_name ) ) {
 									echo '<div class="biomarker-vector-list">';
 									
 									foreach ($biomarker_keys as $biomarker_key) {
+										// Skip empty biomarker keys
+										if (empty($biomarker_key) || !is_string($biomarker_key) || trim($biomarker_key) === '') {
+											continue;
+										}
+										
 										$biomarker_name = str_replace('_', ' ', $biomarker_key);
 										$biomarker_name = ucwords($biomarker_name);
 									
-										echo '<div class="biomarker-list-item" onclick="toggleBiomarkerMeasurements(\'' . esc_attr($panel_key) . '\', \'' . esc_attr($vector_category) . '\', \'' . esc_attr($biomarker_key) . '\')">';
+										echo '<div class="biomarker-list-item" onclick="toggleBiomarkerMeasurements(\'' . esc_attr($panel_key) . '\', \'' . esc_attr($vector_category) . '\', \'' . esc_attr($biomarker_key) . '\')">'; 
 										echo '<span class="biomarker-list-name">' . esc_html($biomarker_name) . '</span>';
 										
 										// Get biomarker data
@@ -2460,7 +2466,7 @@ if ( empty( $display_name ) ) {
 									echo '<div class="biomarker-measurement-content">';
 									
 									// Get measurement data for this specific biomarker
-									$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_key, $user_id);
+									$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($user_id, $biomarker_key);
 										
 											// Render the measurement component
 											echo render_biomarker_measurement($measurement_data);
