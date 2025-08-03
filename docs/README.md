@@ -2,6 +2,28 @@
 
 Welcome to the comprehensive documentation for the ENNU Life Assessments WordPress Plugin. This documentation is organized to provide easy navigation and quick access to all aspects of the plugin.
 
+## 🆕 Latest Features
+
+### LabCorp PDF Upload Integration (v64.52.0)
+- **Complete PDF Processing**: Upload and parse LabCorp PDF results automatically
+- **Biomarker Extraction**: Extract 103+ medical-grade biomarkers from PDF documents
+- **HIPAA Compliance**: Secure file handling with encryption and audit logging
+- **System Integration**: Seamless integration with existing scoring and flagging systems
+- **User Dashboard**: Integrated upload interface in user dashboard
+- **Fallback Processing**: Works without external dependencies (Smalot/PdfParser optional)
+
+**Quick Start:**
+1. Navigate to User Dashboard → "LabCorp Upload" tab
+2. Select your LabCorp PDF file
+3. Click "Upload and Process"
+4. View extracted biomarkers in your profile
+
+**Installation Notes:**
+- No external dependencies required (basic PDF processing included)
+- For enhanced PDF parsing, install Smalot/PdfParser: `composer require smalot/pdfparser`
+- File size limit: 10MB
+- Supported formats: PDF only
+
 ## 📚 Documentation Structure
 
 ### 01. Getting Started

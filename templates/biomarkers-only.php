@@ -26,7 +26,7 @@ if ( ! isset( $user_id ) ) {
 
 // Debug: Check if biomarkers manager is available
 if ( ! class_exists( 'ENNU_Biomarker_Manager' ) ) {
-	error_log( 'ENNU Biomarkers Template: ENNU_Biomarker_Manager class not found' );
+	error_log( 'ENNU Biomarkers Template: ENNU_Biomarker_Manager lookclass not found' );
 } else {
 	error_log( 'ENNU Biomarkers Template: ENNU_Biomarker_Manager class found' );
 }
@@ -200,6 +200,7 @@ if ( ! function_exists( 'get_biomarker_category' ) ) {
 	function get_biomarker_category($biomarker_key) {
 		$categories = array(
 			// Physical Measurements
+			'height' => 'Physical Measurements',
 			'weight' => 'Physical Measurements',
 			'bmi' => 'Physical Measurements',
 			'body_fat_percent' => 'Physical Measurements',
@@ -472,7 +473,14 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 		
 		// Get biomarker data for ruler calculation
 		$biomarker_id = $measurement_data['biomarker_id'] ?? '';
-		$display_name = $measurement_data['display_name'] ?? $biomarker_id ?? 'Unknown Biomarker';
+		
+		// Skip processing if biomarker_id is empty, null, or "unknown"
+		if (empty($biomarker_id) || $biomarker_id === 'unknown' || trim($biomarker_id) === '') {
+			return '<div class="biomarker-error">Invalid biomarker identifier</div>';
+		}
+		
+		// Get proper display name using fallback system
+		$display_name = $measurement_data['display_name'] ?? ENNU_Biomarker_Manager::get_fallback_display_name($biomarker_id) ?? ucwords(str_replace('_', ' ', $biomarker_id));
 		$current_value = $measurement_data['current_value'] ?? null;
 		$target_value = $measurement_data['target_value'] ?? null;
 		$unit = $measurement_data['unit'] ?? '';
@@ -482,7 +490,7 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 		
 		// First, try to get data from the biomarker manager (primary source)
 		if (class_exists('ENNU_Biomarker_Manager')) {
-			$biomarker_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_id, $user_id);
+			$biomarker_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($user_id, $biomarker_id);
 			if ($biomarker_data && !isset($biomarker_data['error'])) {
 				// Use data from biomarker manager if available
 				$current_value = $biomarker_data['current_value'] ?? $current_value;
@@ -756,7 +764,7 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 		$output = '<div class="biomarker-measurement">';
 		$output .= '<div class="measurement-header">';
 		
-		$display_name = $measurement_data['display_name'] ?? $measurement_data['biomarker_id'] ?? 'Unknown Biomarker';
+		$display_name = $measurement_data['display_name'] ?? ENNU_Biomarker_Manager::get_fallback_display_name($measurement_data['biomarker_id']) ?? ucwords(str_replace('_', ' ', $measurement_data['biomarker_id']));
 		$output .= '<h4>' . esc_html($display_name) . '</h4>';
 		$output .= '</div>';
 		
@@ -770,7 +778,7 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 			$output .= '</div>';
 		} else {
 			$output .= '<div class="measurement-value">';
-			$output .= '<span class="value no-data">No Data Available</span>';
+			$output .= '<span class="value no-data">Awaiting Lab Results</span>';
 			$output .= '</div>';
 		}
 		
@@ -1010,7 +1018,10 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 								?>
 									<div class="biomarker-list-item" data-biomarker="<?php echo esc_attr($biomarker_name); ?>" onclick="toggleBiomarkerMeasurements('flagged-biomarkers', '<?php echo esc_attr($assessment_name); ?>', '<?php echo esc_attr($biomarker_name); ?>')">
 										<div class="biomarker-list-name">
-											<?php echo esc_html($biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? 'Unknown Biomarker'); ?>
+											<?php 
+											$biomarker_display_name = $biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? ENNU_Biomarker_Manager::get_fallback_display_name($biomarker_data['biomarker_name']) ?? ucwords(str_replace('_', ' ', $biomarker_data['biomarker_name'])); 
+											echo esc_html($biomarker_display_name); 
+											?>
 											<span class="flagged-badge">⚠️ Flagged</span>
 											<?php if (!empty($biomarker_data['symptom_trigger'])) : ?>
 												<span class="symptom-trigger-badge"><?php echo esc_html($biomarker_data['symptom_trigger']); ?></span>
@@ -1071,11 +1082,11 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 									<div id="biomarker-measurement-flagged-biomarkers-<?php echo esc_attr($assessment_name); ?>-<?php echo esc_attr($biomarker_name); ?>" class="biomarker-measurement-container" style="display: none;">
 										<div class="biomarker-measurement-content">
 											<?php
-											// Get measurement data using the same method as regular biomarkers
-											$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_name, $user_id);
+											// Get biomarker measurement data for display
+											$biomarker_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($user_id, $biomarker_name);
 											
 											// Render the measurement component
-											echo render_biomarker_measurement($measurement_data);
+											echo render_biomarker_measurement($biomarker_data);
 											?>
 										</div>
 									</div>
@@ -1122,15 +1133,28 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 		} else {
 			error_log( 'ENNU Biomarkers Template: ENNU_Recommended_Range_Manager class found' );
 			
-			// Load core biomarkers from the Recommended Range Manager (AI Medical Team source)
-			if (!isset($core_biomarkers) || empty($core_biomarkers)) {
-				$range_manager = new ENNU_Recommended_Range_Manager();
+			// Get user demographic data to personalize ranges
+			$user_biomarkers = ENNU_Biomarker_Manager::get_user_biomarkers( $user_id );
+			$user_gender     = get_user_meta( $user_id, 'ennu_global_gender', true );
+			$age_data        = ENNU_Age_Management_System::get_user_age_data( $user_id );
+			$user_age        = isset( $age_data['exact_age'] ) ? $age_data['exact_age'] : null;
+
+			// Check if we have the necessary data to proceed
+			if ( empty( $user_biomarkers ) || empty( $user_gender ) || empty( $user_age ) ) {
+				// You can add a fallback message here if needed, e.g.:
+				// echo '<p>Essential user data is missing to display biomarker panels.</p>';
+			}
+			
+			// Re-define user_data with the correct age
 			$user_data = array(
-				'age' => $user_age ?? 35,
-				'gender' => $user_gender ?? 'male'
+				'age'    => $user_age,
+				'gender' => $user_gender,
 			);
 			
-			// Get all biomarker configurations from AI Medical Team
+			$range_manager   = new ENNU_Recommended_Range_Manager();
+			$core_biomarkers = array();
+
+			// Get the full biomarker configuration
 			$biomarker_config = $range_manager->get_biomarker_configuration();
 			
 			// Convert to dashboard format
@@ -1166,7 +1190,7 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 				);
 			}
 		}
-		}
+		
 				
 		// Enhanced Panel Organization
 		echo '<div class="biomarker-panels-container">';
@@ -1287,7 +1311,7 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 					echo '<div class="biomarker-measurement-content">';
 					
 					// Get measurement data for this specific biomarker
-					$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_key, $user_id);
+					$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($user_id, $biomarker_key);
 						
 					// Render the measurement component
 					echo render_biomarker_measurement($measurement_data);
@@ -1311,7 +1335,8 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 
 <script>
 // Biomarkers shortcode specific JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize immediately or on DOMContentLoaded, whichever is appropriate
+function initializeBiomarkerFeatures() {
 	// Panel toggle functionality
 	window.togglePanel = function(panelId) {
 		const panelContent = document.getElementById('panel-content-' + panelId);
@@ -1375,7 +1400,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	initializeToggleAnimations();
 	initializeSmartLabelClustering();
 	initializeRangeSegmentAnimations();
-});
+}
+
+// Initialize features immediately if DOM is ready, otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initializeBiomarkerFeatures);
+} else {
+	// DOM is already ready, initialize immediately
+	initializeBiomarkerFeatures();
+}
 
 // Dynamic tooltip functionality for biomarker rulers
 function initializeBiomarkerRulerTooltips() {

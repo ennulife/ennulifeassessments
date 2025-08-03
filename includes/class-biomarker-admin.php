@@ -556,6 +556,14 @@ class ENNU_Biomarker_Admin {
 			)
 		);
 	}
-}
 
-new ENNU_Biomarker_Admin();
+	private function get_biomarker_ranges_for_admin() {
+		$all_biomarkers = ENNU_Biomarker_Manager::get_all_available_biomarkers();
+		$user_data = array('age' => 35, 'gender' => 'male', 'user_id' => 0); // Use defaults for admin display
+		$ranges = array();
+		foreach($all_biomarkers as $biomarker){
+			$ranges[$biomarker] = ENNU_Range_Adapter::get_recommended_range($biomarker, $user_data);
+		}
+		return $ranges;
+	}
+}

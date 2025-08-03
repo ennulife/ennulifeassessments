@@ -12,8 +12,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // All data is passed in via the $data variable, extracted by ennu_load_template().
-$dashboard_url = ennu_life()->get_shortcodes()->get_dashboard_url();
-$retake_url    = isset( $assessment_type ) ? ennu_life()->get_shortcodes()->get_assessment_page_url( $assessment_type ) : $dashboard_url;
+// Use the shortcode instance passed in the data array
+if ( ! isset( $shortcode_instance ) ) {
+	// Fallback to getting the assessment shortcodes instance from the shortcode manager
+	$shortcode_manager = ennu_life()->get_shortcodes();
+	if ( $shortcode_manager && method_exists( $shortcode_manager, 'get_renderer' ) ) {
+		$shortcode_instance = $shortcode_manager->get_renderer();
+	}
+	
+	// If still not available, create a new instance
+	if ( ! $shortcode_instance && class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
+		$shortcode_instance = new ENNU_Assessment_Shortcodes();
+	}
+}
+
+// Generate URLs using the shortcode instance
+$dashboard_url = '#';
+$retake_url = '#';
+$home_url = '#';
+
+if ( class_exists( 'ENNU_UI_Constants' ) ) {
+	$dashboard_url = '?' . ENNU_UI_Constants::get_page_type('DASHBOARD');
+	$retake_url    = isset( $assessment_type ) 
+		? '?' . ENNU_UI_Constants::get_page_type('ASSESSMENTS')
+		: $dashboard_url;
+	$home_url = '?' . ENNU_UI_Constants::get_page_type('DASHBOARD');
+}
 ?>
 
 <div class="ennu-user-dashboard"> <!-- Use the main dashboard class for consistent styling -->
@@ -27,7 +51,7 @@ $retake_url    = isset( $assessment_type ) ? ennu_life()->get_shortcodes()->get_
 					array(
 						'color' => 'white',
 						'size'  => 'medium',
-						'link'  => home_url( '/' ),
+						'link'  => $home_url,
 						'alt'   => 'ENNU Life',
 						'class' => '',
 					)

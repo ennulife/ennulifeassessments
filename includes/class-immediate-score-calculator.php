@@ -183,9 +183,8 @@ class ENNU_Immediate_Score_Calculator {
 
 			if ( $pillar_count > 0 ) {
 				$pillar_scores[ $pillar ] = intval( round( $pillar_total / $pillar_count ) );
-			} else {
-				$pillar_scores[ $pillar ] = 65; // Reasonable default
 			}
+			// If no valid data, don't include this pillar in scores
 		}
 
 		return $pillar_scores;
@@ -199,7 +198,7 @@ class ENNU_Immediate_Score_Calculator {
 	 */
 	private static function calculate_overall_life_score( $pillar_scores ) {
 		if ( empty( $pillar_scores ) ) {
-			return 65; // Default score
+			return null; // No valid data
 		}
 
 		$weights = array(
@@ -223,7 +222,7 @@ class ENNU_Immediate_Score_Calculator {
 			return intval( round( $weighted_total / $total_weight ) );
 		}
 
-		return 65; // Fallback default
+		return null; // No valid data
 	}
 
 	/**

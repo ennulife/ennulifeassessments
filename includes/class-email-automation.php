@@ -35,22 +35,22 @@ class ENNU_Email_Automation {
 	public function init_templates() {
 		$this->templates = array(
 			'assessment_completion' => array(
-				'subject'   => __( 'Your ENNU Life Assessment Results Are Ready', 'ennu-life-assessments' ),
+				'subject'   => __( 'Your ENNU Life Assessment Results Are Ready', 'ennulifeassessments' ),
 				'template'  => 'assessment-completion',
 				'variables' => array( 'user_name', 'assessment_type', 'score', 'results_url' ),
 			),
 			'welcome_series_1'      => array(
-				'subject'   => __( 'Welcome to Your Health Journey', 'ennu-life-assessments' ),
+				'subject'   => __( 'Welcome to Your Health Journey', 'ennulifeassessments' ),
 				'template'  => 'welcome-series-1',
 				'variables' => array( 'user_name', 'dashboard_url' ),
 			),
 			'biomarker_reminder'    => array(
-				'subject'   => __( 'Time for Your Biomarker Testing', 'ennu-life-assessments' ),
+				'subject'   => __( 'Time for Your Biomarker Testing', 'ennulifeassessments' ),
 				'template'  => 'biomarker-reminder',
 				'variables' => array( 'user_name', 'recommended_biomarkers', 'booking_url' ),
 			),
 			'consultation_followup' => array(
-				'subject'   => __( 'Your Consultation Follow-up', 'ennu-life-assessments' ),
+				'subject'   => __( 'Your Consultation Follow-up', 'ennulifeassessments' ),
 				'template'  => 'consultation-followup',
 				'variables' => array( 'user_name', 'specialist_name', 'next_steps' ),
 			),
@@ -119,17 +119,17 @@ class ENNU_Email_Automation {
 	 * Get default email template
 	 */
 	private function get_default_template( $variables = array() ) {
-		$user_name = $variables['user_name'] ?? __( 'Valued Member', 'ennu-life-assessments' );
+		$user_name = $variables['user_name'] ?? __( 'Valued Member', 'ennulifeassessments' );
 
 		return '
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h1 style="color: #2c3e50;">ENNU Life</h1>
-                <p>' . sprintf( __( 'Hello %s,', 'ennu-life-assessments' ), esc_html( $user_name ) ) . '</p>
-                <p>' . __( 'Thank you for using ENNU Life Assessments. Your personalized health insights are ready.', 'ennu-life-assessments' ) . '</p>
-                <p>' . __( 'Visit your dashboard to view your results and recommendations.', 'ennu-life-assessments' ) . '</p>
-                <p>' . __( 'Best regards,<br>The ENNU Life Team', 'ennu-life-assessments' ) . '</p>
+                		<p>' . sprintf( __( 'Hello %s,', 'ennulifeassessments' ), esc_html( $user_name ) ) . '</p>
+		<p>' . __( 'Thank you for using ENNU Life Assessments. Your personalized health insights are ready.', 'ennulifeassessments' ) . '</p>
+		<p>' . __( 'Visit your dashboard to view your results and recommendations.', 'ennulifeassessments' ) . '</p>
+		<p>' . __( 'Best regards,<br>The ENNU Life Team', 'ennulifeassessments' ) . '</p>
             </div>
         </body>
         </html>';

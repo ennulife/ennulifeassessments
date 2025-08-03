@@ -11,18 +11,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class ENNU_Assessment_AJAX_Handler {
+class ENNU_Assessment_AJAX_Handler_DISABLED {
 
 	private $security;
 	private $performance_monitor;
 	private $form_handler;
 
 	public function __construct() {
-		$this->security            = new ENNU_AJAX_Security();
-		$this->performance_monitor = ENNU_Performance_Monitor::get_instance();
+		$this->security = new ENNU_AJAX_Security();
+		// Initialize performance monitor if available
+		if ( class_exists( 'ENNU_Performance_Monitor' ) ) {
+			$this->performance_monitor = ENNU_Performance_Monitor::get_instance();
+		} else {
+			$this->performance_monitor = null;
+		}
 
-		add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
-		add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+			// DISABLED: Old AJAX handler - conflicts with new ENNU_AJAX_Service_Handler
+	// add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+	// add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
 		add_action( 'wp_ajax_ennu_retake_assessment', array( $this, 'handle_assessment_retake' ) );
 		add_action( 'wp_ajax_ennu_get_assessment_progress', array( $this, 'handle_get_progress' ) );
 	}
@@ -38,7 +44,9 @@ class ENNU_Assessment_AJAX_Handler {
 		}
 
 		// Fallback to basic logic if shortcodes class not available
-		$this->performance_monitor->start_timer( 'assessment_submission' );
+		if ( $this->performance_monitor ) {
+			$this->performance_monitor->start_timer( 'assessment_submission' );
+		}
 
 		$security_result = $this->security->validate_ajax_request(
 			array(
@@ -102,7 +110,9 @@ class ENNU_Assessment_AJAX_Handler {
 
 		$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 
-		$this->performance_monitor->end_timer( 'assessment_submission' );
+		if ( $this->performance_monitor ) {
+			$this->performance_monitor->end_timer( 'assessment_submission' );
+		}
 
 		wp_send_json_success(
 			array(

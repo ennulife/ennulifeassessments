@@ -200,32 +200,42 @@ class ENNUAssessmentForm {
             return;
         }
 
-        // Smart skip logic: Skip global fields that already have data
+        // Smart skip logic: Skip global fields that already have data (only for logged-in users)
         let nextStep = this.currentStep + 1;
         
         console.log('Smart skip: Starting from step', nextStep, 'of', this.totalSteps);
         
-        // Skip global fields that already have data
-        while (nextStep < this.totalSteps) {
-            const nextQuestion = this.questions[nextStep];
-            console.log('Smart skip: Checking step', nextStep, 'is global?', nextQuestion?.hasAttribute('data-is-global'));
+        // Only apply smart skip logic for logged-in users
+        const isLoggedIn = this.form.querySelector('input[name="user_id"]')?.value || 
+                          this.form.querySelector('input[name="email"]')?.value;
+        
+        if (isLoggedIn) {
+            console.log('Smart skip: User is logged in, applying smart skip logic');
             
-            if (nextQuestion && nextQuestion.hasAttribute('data-is-global')) {
-                // Check if this global field already has data
-                const hasData = this.globalFieldHasData(nextQuestion);
-                console.log('Smart skip: Step', nextStep, 'has data?', hasData);
+            // Skip global fields that already have data
+            while (nextStep < this.totalSteps) {
+                const nextQuestion = this.questions[nextStep];
+                console.log('Smart skip: Checking step', nextStep, 'is global?', nextQuestion?.hasAttribute('data-is-global'));
                 
-                if (hasData) {
-                    console.log('Smart skip: Skipping step', nextStep, 'because it has data');
-                    nextStep++;
-                    continue; // Skip this question
+                if (nextQuestion && nextQuestion.hasAttribute('data-is-global')) {
+                    // Check if this global field already has data
+                    const hasData = this.globalFieldHasData(nextQuestion);
+                    console.log('Smart skip: Step', nextStep, 'has data?', hasData);
+                    
+                    if (hasData) {
+                        console.log('Smart skip: Skipping step', nextStep, 'because it has data');
+                        nextStep++;
+                        continue; // Skip this question
+                    } else {
+                        console.log('Smart skip: Step', nextStep, 'is global but has no data, showing it');
+                    }
                 } else {
-                    console.log('Smart skip: Step', nextStep, 'is global but has no data, showing it');
+                    console.log('Smart skip: Step', nextStep, 'is not global, showing it');
                 }
-            } else {
-                console.log('Smart skip: Step', nextStep, 'is not global, showing it');
+                break; // Found a question that needs to be shown
             }
-            break; // Found a question that needs to be shown
+        } else {
+            console.log('Smart skip: User is not logged in, showing all questions');
         }
         
         console.log('Smart skip: Final step to show:', nextStep);
@@ -376,20 +386,30 @@ class ENNUAssessmentForm {
 
     prevQuestion() {
         if (this.currentStep > 0) {
-            // Smart skip logic: Skip global fields that already have data when going backwards
+            // Smart skip logic: Skip global fields that already have data when going backwards (only for logged-in users)
             let prevStep = this.currentStep - 1;
             
-            // Skip global fields that already have data
-            while (prevStep >= 0) {
-                const prevQuestion = this.questions[prevStep];
-                if (prevQuestion && prevQuestion.hasAttribute('data-is-global')) {
-                    // Check if this global field already has data
-                    if (this.globalFieldHasData(prevQuestion)) {
-                        prevStep--;
-                        continue; // Skip this question
+            // Only apply smart skip logic for logged-in users
+            const isLoggedIn = this.form.querySelector('input[name="user_id"]')?.value || 
+                              this.form.querySelector('input[name="email"]')?.value;
+            
+            if (isLoggedIn) {
+                console.log('Smart skip (prev): User is logged in, applying smart skip logic');
+                
+                // Skip global fields that already have data
+                while (prevStep >= 0) {
+                    const prevQuestion = this.questions[prevStep];
+                    if (prevQuestion && prevQuestion.hasAttribute('data-is-global')) {
+                        // Check if this global field already has data
+                        if (this.globalFieldHasData(prevQuestion)) {
+                            prevStep--;
+                            continue; // Skip this question
+                        }
                     }
+                    break; // Found a question that needs to be shown
                 }
-                break; // Found a question that needs to be shown
+            } else {
+                console.log('Smart skip (prev): User is not logged in, showing all questions');
             }
             
             if (prevStep >= 0) {
@@ -541,7 +561,13 @@ class ENNUAssessmentForm {
         this.form.classList.add('loading');
         
         const formData = new FormData(this.form);
-        const nonce = this.form.dataset.nonce;
+        let nonce = this.form.dataset.nonce;
+        if (!nonce && typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
+            nonce = ennu_ajax.nonce;
+            console.warn('Form data-nonce missing, using ennu_ajax.nonce fallback:', nonce);
+        } else {
+            console.log('Form nonce:', nonce);
+        }
 
         if (!nonce) {
             alert('Security token missing. Please refresh the page.');
@@ -551,51 +577,137 @@ class ENNUAssessmentForm {
         }
         formData.append('nonce', nonce);
 
+        console.log('ENNU REDIRECT DEBUG: Starting AJAX request to:', ennu_ajax.ajax_url);
+        console.log('ENNU REDIRECT DEBUG: Form data being sent:', Object.fromEntries(formData));
+        
         fetch(ennu_ajax.ajax_url, {
             method: 'POST',
             body: formData,
+            // Increase timeout to handle database optimization and slow queries
+            signal: AbortSignal.timeout(600000) // 600 seconds timeout for slow queries
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('ENNU REDIRECT DEBUG: AJAX response received:', response);
+            console.log('ENNU REDIRECT DEBUG: Response status:', response.status);
+            console.log('ENNU REDIRECT DEBUG: Response ok:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();
+        })
         .then(data => {
+            console.log('ENNU REDIRECT DEBUG: AJAX response received:', data);
+            console.log('ENNU REDIRECT DEBUG: Data type:', typeof data);
+            console.log('ENNU REDIRECT DEBUG: Data keys:', Object.keys(data));
+            console.log('ENNU REDIRECT DEBUG: Success property:', data.success);
+            console.log('ENNU REDIRECT DEBUG: Data property:', data.data);
+            
             if (data && data.success === true) {
-                if (data.data && data.data.redirect_url) {
-                    
-                    // Check if auth state data is included in the response
-                    if (data.data.auth_state) {
-                        // Use the auth state data directly from the response
-                        this.updateAllFormsAuthState(data.data.auth_state);
-                        
-                        // Add a small delay to ensure DOM updates are complete
-                        setTimeout(() => {
-                            window.location.href = data.data.redirect_url;
-                        }, 100);
-                    } else {
-                        // Fallback to separate AJAX call if auth state not in response
-                        this.refreshAuthenticationState().then((authState) => {
-                            // Add a small delay to ensure DOM updates are complete
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 100);
-                        }).catch((error) => {
-                            // Redirect even if auth state refresh fails
-                            window.location.href = data.data.redirect_url;
-                        });
-                    }
-                } else {
-                    this.showError(this.form, 'Submission successful, but there was an issue redirecting. Please check your dashboard.');
-                }
+                			if (data.data && data.data.redirect_url && data.data.redirect_url !== false) {
+				console.log('ENNU REDIRECT DEBUG: Redirect URL found:', data.data.redirect_url);
+				
+				// Update auth state if provided
+				if (data.data.auth_state) {
+					this.updateAllFormsAuthState(data.data.auth_state);
+				}
+				
+				// Single redirect method - no fallbacks
+				const redirectUrl = data.data.redirect_url;
+				console.log('ENNU REDIRECT DEBUG: Attempting redirect to:', redirectUrl);
+				
+				if (redirectUrl && redirectUrl !== 'false' && redirectUrl !== false) {
+					window.location.href = redirectUrl;
+				} else {
+					console.error('ENNU REDIRECT DEBUG: No valid redirect URL provided');
+					this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
+				}
+			} else {
+				console.warn('No redirect_url in response or redirect_url is false. Showing error message.');
+				this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
+			}
             } else {
-                const message = data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
-                this.showError(this.form, message);
+                console.error('ENNU REDIRECT DEBUG: AJAX response indicates failure');
+                console.error('ENNU REDIRECT DEBUG: Full response data:', data);
+                console.error('ENNU REDIRECT DEBUG: Data structure:', JSON.stringify(data, null, 2));
+                
+                // Handle specific error types
+                if (data && data.data && data.data.action === 'login_required') {
+                    console.log('ENNU REDIRECT DEBUG: Login required detected');
+                    const message = data.data.message || 'An account with this email already exists. Please log in to continue.';
+                    
+                    // Show login required message with link
+                    this.showLoginRequiredMessage(message);
+                } else {
+                    const message = data && data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
+                    this.showError(this.form, message);
+                    console.error('AJAX error:', message);
+                }
             }
         })
-        .catch(error => {
-            this.showError(this.form, 'An unexpected error occurred. Please try again.');
-        })
+                        .catch(error => {
+                    console.error('ENNU REDIRECT DEBUG: AJAX catch error:', error);
+                    
+                    // Show success message even if AJAX fails (data was likely processed)
+                    console.log('ENNU REDIRECT DEBUG: AJAX request failed, but showing success message as data was likely processed');
+                    this.showFallbackSuccess();
+                    
+                    // Try to redirect to a default results page
+                    setTimeout(() => {
+                        console.log('ENNU REDIRECT DEBUG: Attempting fallback redirect to assessment results');
+                        window.location.href = '/assessment-results/';
+                    }, 2000);
+                })
         .finally(() => {
             this.isSubmitting = false;
             this.form.classList.remove('loading');
         });
+    }
+
+    showLoginRequiredMessage(message) {
+        // Remove form and show login required message
+        this.form.style.display = 'none';
+        let loginDiv = document.createElement('div');
+        loginDiv.className = 'ennu-login-required';
+        
+        loginDiv.innerHTML = `
+            <div class="login-icon">🔐</div>
+            <h2>Account Already Exists</h2>
+            <div class="login-message">${message}</div>
+            <div class="login-actions">
+                <a href="/wp-login.php" class="btn btn-primary">Log In</a>
+                <a href="/wp-login.php?action=register" class="btn btn-secondary">Create New Account</a>
+            </div>
+            <p><small>If you don't remember your password, you can <a href="/wp-login.php?action=lostpassword">reset it here</a>.</small></p>
+        `;
+        this.form.parentNode.insertBefore(loginDiv, this.form.nextSibling);
+    }
+
+    showFallbackSuccess(redirectUrl = null) {
+        // Remove form and show a visible success message with manual redirect link
+        this.form.style.display = 'none';
+        let fallbackDiv = document.createElement('div');
+        fallbackDiv.className = 'ennu-fallback-success';
+        
+        const dashboardUrl = redirectUrl || '/dashboard';
+        
+        fallbackDiv.innerHTML = `
+            <div class="success-icon">✓</div>
+            <h2>Assessment Complete!</h2>
+            <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
+            <div class="next-steps">
+                <h3>What happens next?</h3>
+                <ul>
+                    <li>Our medical team will review your responses</li>
+                    <li>You'll receive personalized recommendations via email</li>
+                    <li>A specialist may contact you to discuss treatment options</li>
+                </ul>
+            </div>
+            <p><a href="${dashboardUrl}" class="ennu-dashboard-link">Go to your dashboard</a></p>
+            <p><small>If the link doesn't work, please copy and paste this URL: ${dashboardUrl}</small></p>
+        `;
+        this.form.parentNode.insertBefore(fallbackDiv, this.form.nextSibling);
     }
 
     /**

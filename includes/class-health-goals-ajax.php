@@ -68,8 +68,13 @@ class ENNU_Health_Goals_Ajax {
 	 * Handle bulk health goals update
 	 */
 	public function handle_update_health_goals() {
+		// Enhanced logging for debugging
+		error_log( 'ENNU Health Goals AJAX: handle_update_health_goals called' );
+		error_log( 'ENNU Health Goals AJAX: POST data: ' . print_r( $_POST, true ) );
+		
 		// Security checks
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_health_goals_nonce' ) ) {
+			error_log( 'ENNU Health Goals AJAX: Nonce verification failed' );
 			wp_send_json_error(
 				array(
 					'message' => 'Security check failed',
@@ -79,6 +84,7 @@ class ENNU_Health_Goals_Ajax {
 		}
 
 		if ( ! is_user_logged_in() ) {
+			error_log( 'ENNU Health Goals AJAX: User not logged in' );
 			wp_send_json_error(
 				array(
 					'message' => 'User not logged in',
@@ -90,19 +96,28 @@ class ENNU_Health_Goals_Ajax {
 		$user_id   = get_current_user_id();
 		$new_goals = isset( $_POST['health_goals'] ) ? array_map( 'sanitize_text_field', $_POST['health_goals'] ) : array();
 
+		error_log( 'ENNU Health Goals AJAX: User ID: ' . $user_id );
+		error_log( 'ENNU Health Goals AJAX: New goals: ' . print_r( $new_goals, true ) );
+
 		// Get current goals for comparison
 		$current_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
 		$current_goals = is_array( $current_goals ) ? $current_goals : array();
 
+		error_log( 'ENNU Health Goals AJAX: Current goals: ' . print_r( $current_goals, true ) );
+
 		// Validate goals against allowed options
 		$allowed_goals   = $this->get_allowed_health_goals();
 		$validated_goals = array_intersect( $new_goals, array_keys( $allowed_goals ) );
+
+		error_log( 'ENNU Health Goals AJAX: Validated goals: ' . print_r( $validated_goals, true ) );
 
 		// Log the update attempt
 		error_log( "ENNU Health Goals AJAX: User {$user_id} updating goals from [" . implode( ', ', $current_goals ) . '] to [' . implode( ', ', $validated_goals ) . ']' );
 
 		// Save to user meta
 		$save_result = update_user_meta( $user_id, 'ennu_global_health_goals', $validated_goals );
+
+		error_log( 'ENNU Health Goals AJAX: Save result: ' . ( $save_result !== false ? 'SUCCESS' : 'FAILED' ) );
 
 		if ( $save_result !== false ) {
 			// Trigger score recalculation
@@ -111,6 +126,8 @@ class ENNU_Health_Goals_Ajax {
 			// Calculate changes for user feedback
 			$added_goals   = array_diff( $validated_goals, $current_goals );
 			$removed_goals = array_diff( $current_goals, $validated_goals );
+
+			error_log( 'ENNU Health Goals AJAX: Success - Added: ' . implode( ', ', $added_goals ) . ', Removed: ' . implode( ', ', $removed_goals ) );
 
 			wp_send_json_success(
 				array(

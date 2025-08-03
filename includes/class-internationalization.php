@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Internationalization {
 
 	private static $instance = null;
-	private $text_domain     = 'ennu-life-assessments';
+	private $text_domain     = 'ennulifeassessments';
 
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -24,8 +24,9 @@ class ENNU_Internationalization {
 	}
 
 	private function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
-		add_action( 'init', array( $this, 'register_strings' ) );
+		// Temporarily disable to fix translation loading issue
+		// add_action( 'init', array( $this, 'load_textdomain' ) );
+		// add_action( 'init', array( $this, 'register_strings' ) );
 	}
 
 	/**

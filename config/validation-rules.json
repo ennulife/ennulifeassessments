@@ -1,0 +1,16 @@
+{
+    "rules": {
+        "biomarker_name": "required|string",
+        "biomarker_value": "required|numeric",
+        "biomarker_unit": "required|string",
+        "biomarker_date": "required|date"
+    },
+    "messages": {
+        "biomarker_name.required": "Biomarker name is required",
+        "biomarker_value.required": "Biomarker value is required",
+        "biomarker_value.numeric": "Biomarker value must be numeric",
+        "biomarker_unit.required": "Biomarker unit is required",
+        "biomarker_date.required": "Biomarker date is required",
+        "biomarker_date.date": "Biomarker date must be a valid date"
+    }
+}

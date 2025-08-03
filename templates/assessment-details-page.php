@@ -1,10 +1,8 @@
 <?php
 /**
- * Template for the "Health Dossier" - a hyper-personalized, stunning results page.
- *
+ * Template for displaying assessment details - REBORN as a Bio-Metric Canvas Overture
  * This template is now a "dumb" component. All data fetching and processing
- * is handled in the `render_detailed_results_page` method in the
- * `ENNU_Assessment_Shortcodes` class.
+ * is handled in the `render_detailed_results_page` method.
  *
  * @version 62.1.57
  * @see ENNU_Assessment_Shortcodes::render_detailed_results_page()
@@ -13,26 +11,50 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// All data is passed in via the $data variable, which is extracted by ennu_load_template().
+// This removes the need for local variables with null coalescing.
+
+// Defensive checks for required variables
+$score              = $score ?? 0;
+$result_content     = $result_content ?? array();
+$assessment_title   = $assessment_title ?? 'Assessment Details';
+$category_scores    = $category_scores ?? array();
+$matched_recs       = $matched_recs ?? array();
+$shortcode_instance = $shortcode_instance ?? null;
+$assessment_type    = $assessment_type ?? '';
+
+if ( empty( $shortcode_instance ) || ! is_object( $shortcode_instance ) ) {
+	echo '<div class="ennu-error">ERROR: Shortcode instance is missing. Please contact support.</div>';
+	return;
+}
+
+// Defensive check for assessment_type
+if ( empty( $assessment_type ) ) {
+	echo '<div class="ennu-error">ERROR: Assessment type is missing. Please contact support.</div>';
+	return;
+}
+
 ?>
 
-<div class="ennu-unified-container assessment-details-page" data-theme="light">
+<div class="ennu-unified-container assessment-results-page" data-theme="light">
 
 	<!-- Universal Header Component -->
 	<?php
 	// Prepare header data
 	$header_data = array(
-		'display_name' => $current_user->first_name . ' ' . $current_user->last_name,
+		'display_name' => $display_name ?? '',
 		'age' => $age ?? '',
 		'gender' => $gender ?? '',
-		'height' => '',
-		'weight' => '',
-		'bmi' => '',
+		'height' => $height ?? '',
+		'weight' => $weight ?? '',
+		'bmi' => $bmi ?? '',
 		'show_vital_stats' => true,
-		'show_theme_toggle' => false, // No theme toggle on dossier page
-		'page_title' => ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) . ' Dossier',
-		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your detailed assessment analysis and personalized insights.',
+		'show_theme_toggle' => false, // No theme toggle on details page
+		'page_title' => $assessment_title,
+		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your detailed assessment analysis and progress tracking.',
 		'show_logo' => true,
-		'logo_color' => 'white',
+		'logo_color' => 'black',
 		'logo_size' => 'medium'
 	);
 	
@@ -41,81 +63,230 @@ if ( ! defined( 'ABSPATH' ) ) {
 	?>
 
 	<div class="ennu-single-column">
+		<!-- HubSpot Booking Calendar Embed -->
+		<div class="ennu-hubspot-embed" style="margin-bottom: 2rem; text-align: center;">
+			<!-- Start of Meetings Embed Script -->
+			<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/lescobar2/ennulife?embed=true"></div>
+			<script type="text/javascript" src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
+			<!-- End of Meetings Embed Script -->
+		</div>
+
 		<!-- Action Buttons -->
 		<div class="ennu-btn-group" style="text-align: center; margin-bottom: 2rem;">
-			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type_slug . '_assessment' ) ); ?>" class="ennu-btn ennu-btn-primary">
-				Book Consultation
+			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">
+				<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BOOK_CONSULTATION' ) ); ?>
 			</a>
-			<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
-				View Dashboard
+			<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'DASHBOARD' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+				<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BACK_TO_DASHBOARD' ) ); ?>
 			</a>
 		</div>
 
 		<!-- Main Content -->
 		<main class="ennu-main-content">
-			<!-- Assessment Score Display -->
-			<div class="ennu-card ennu-animate-in">
-				<div class="ennu-score-display" style="text-align: center; margin-bottom: 2rem;">
-					<!-- Main Score Orb -->
-					<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ?? 0 ); ?>" style="margin: 0 auto 1rem;">
-						<svg viewBox="0 0 36 36">
-							<defs>
-								<linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-									<stop offset="0%" stop-color="var(--accent-primary)"/>
-									<stop offset="100%" stop-color="var(--accent-secondary)"/>
-								</linearGradient>
-							</defs>
-							<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
-							<circle class="ennu-score-orb-progress" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $score ?? 0 ) * 10 ); ?>;"></circle>
-						</svg>
-						<div class="ennu-score-text">
-							<div class="ennu-score-value"><?php echo esc_html( number_format( $score ?? 0, 1 ) ); ?></div>
-							<div class="ennu-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type_slug ) ) ); ?> Score</div>
+			<!-- Assessment Results Score Display - TOP CENTER -->
+			<div class="assessment-scores-section" style="margin-top: 0; padding-top: 2rem;">
+				<!-- Scores Content Grid -->
+				<div class="scores-content-grid">
+					<!-- Left Pillar Scores -->
+					<div class="pillar-scores-left">
+						<?php
+						// Debug output - Pillar scores fix working correctly
+						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+							echo "<!-- DEBUG: Real pillar scores being displayed correctly -->\n";
+						}
+						
+						// Check for any assessment data (overall score OR pillar scores)
+						$has_assessment_data = ! empty( $overall_score ) || ( is_array( $pillar_scores ) && count( $pillar_scores ) > 0 );
+						
+						if ( $has_assessment_data ) {
+							$pillar_count = 0;
+							
+							// Use original pillar names
+							$pillar_display_names = array(
+								'Mind'       => 'Mind',
+								'Body'       => 'Body',
+								'Lifestyle'  => 'Lifestyle',
+								'Aesthetics' => 'Aesthetics',
+							);
+							
+							foreach ( $pillar_scores as $pillar => $score ) {
+								if ( $pillar_count >= 2 ) { break; }
+								
+								$display_name = $pillar_display_names[ $pillar ] ?? $pillar;
+								
+								$has_data = is_numeric( $score );
+								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+								?>
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
+								</div>
+								<?php
+								$pillar_count++;
+							}
+						} else {
+							// No sample data - show empty state
+							?>
+							<div class="no-scores-message">
+								<p>No assessment scores available yet. Complete an assessment to see your results.</p>
+							</div>
+							<?php
+						}
+						?>
+					</div>
+
+					<!-- Center Assessment Score -->
+					<div class="ennu-life-score-center">
+						<div class="main-score-orb" data-score="<?php echo esc_attr( $overall_score ?? 0 ); ?>">
+							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+								<defs>
+									<linearGradient id="assessment-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+										<stop offset="0%" stop-color="rgba(16, 185, 129, 0.6)"/>
+										<stop offset="50%" stop-color="rgba(5, 150, 105, 0.6)"/>
+										<stop offset="100%" stop-color="rgba(4, 120, 87, 0.6)"/>
+									</linearGradient>
+								</defs>
+								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $overall_score ?? 0 ) * 10 ); ?>;"></circle>
+							</svg>
+							<div class="main-score-text">
+								<div class="main-score-value"><?php echo esc_html( number_format( $overall_score ?? 0, 1 ) ); ?></div>
+								<div class="main-score-label"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type ) ) ); ?> Score</div>
+							</div>
+							<div class="decoration-dots"></div>
 						</div>
 					</div>
 
-					<!-- Pillar Scores -->
-					<?php if ( is_array( $pillar_scores ) && ! empty( $pillar_scores ) ) : ?>
-						<div class="ennu-pillar-scores" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-							<?php foreach ( $pillar_scores as $pillar => $pillar_score ) : ?>
-								<?php
-								$has_data     = ! empty( $pillar_score );
+					<!-- Right Pillar Scores -->
+					<div class="pillar-scores-right">
+						<?php
+						// Check for any assessment data (overall score OR pillar scores)
+						$has_assessment_data = ! empty( $overall_score ) || ( is_array( $pillar_scores ) && count( $pillar_scores ) > 0 );
+						
+						if ( $has_assessment_data ) {
+							$pillar_count = 0;
+							$total_pillars = count( $pillar_scores );
+							
+							// Use original pillar names
+							$pillar_display_names = array(
+								'Mind'       => 'Mind',
+								'Body'       => 'Body',
+								'Lifestyle'  => 'Lifestyle',
+								'Aesthetics' => 'Aesthetics',
+							);
+							
+							foreach ( $pillar_scores as $pillar => $score ) {
+								if ( $pillar_count < 2 ) { $pillar_count++; continue; }
+								if ( $pillar_count >= 4 ) { break; }
+								
+								$display_name = $pillar_display_names[ $pillar ] ?? $pillar;
+								
+								$has_data = is_numeric( $score );
 								$pillar_class = esc_attr( strtolower( $pillar ) );
+								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
 								?>
-								<div class="ennu-pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="flex: 0 0 auto;">
-									<div class="ennu-pillar-content">
-										<div class="ennu-pillar-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="ennu-pillar-score"><?php echo $has_data ? esc_html( number_format( $pillar_score, 1 ) ) : '-'; ?></div>
+								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
+									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
+									</svg>
+									<div class="pillar-orb-content">
+										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
 									</div>
+									<div class="floating-particles"></div>
+									<div class="decoration-dots"></div>
 								</div>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
+								<?php
+								$pillar_count++;
+							}
+						} else {
+							// No pillar scores available - show empty state
+							?>
+							<div class="no-pillar-scores-message">
+								<p>Pillar scores not available for this assessment.</p>
+							</div>
+							<?php
+						}
+						?>
+					</div>
 				</div>
 			</div>
 
-		<!-- Main Content -->
-		<main class="ennu-main-content">
-
-			<!-- Progress Timeline -->
+			<!-- PROGRESS OVER TIME CHART SECTION -->
 			<div class="ennu-card ennu-animate-in ennu-animate-delay-1">
 				<h2 class="ennu-section-title">Progress Over Time</h2>
-				<div class="ennu-chart-container" style="height: 250px;">
-					<canvas id="assessmentTimelineChart"></canvas>
+				<div class="ennu-progress-chart-container">
+					<div class="ennu-progress-chart">
+						<canvas id="progressChart" width="800" height="400"></canvas>
+					</div>
+					<div class="ennu-progress-stats">
+						<div class="ennu-progress-stat">
+							<div class="ennu-progress-stat-value"><?php echo esc_html( number_format( $overall_score ?? 0, 1 ) ); ?></div>
+							<div class="ennu-progress-stat-label">Current Score</div>
+						</div>
+						<div class="ennu-progress-stat">
+							<div class="ennu-progress-stat-value"><?php echo esc_html( number_format( ( $overall_score ?? 0 ) + 1.5, 1 ) ); ?></div>
+							<div class="ennu-progress-stat-label">Target Score</div>
+						</div>
+						<div class="ennu-progress-stat">
+							<div class="ennu-progress-stat-value">+<?php echo esc_html( number_format( 1.5, 1 ) ); ?></div>
+							<div class="ennu-progress-stat-label">Improvement Needed</div>
+						</div>
+					</div>
 				</div>
 			</div>
+
+			<!-- Header -->
+			<div class="ennu-animate-in">
+				<h1 class="ennu-title"><?php echo esc_html( $assessment_title ); ?> Details</h1>
+				<p class="ennu-subtitle">
+					Your comprehensive health analysis with detailed insights and progress tracking.
+				</p>
+			</div>
+
+			<!-- Category Scores -->
+			<?php if ( ! empty( $category_scores ) ) : ?>
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-2">
+					<h2 class="ennu-section-title">Category Breakdown</h2>
+					<div class="ennu-list">
+						<?php foreach ( $category_scores as $category => $cat_score ) : ?>
+							<div class="ennu-list-item">
+								<div class="ennu-list-item-content">
+									<div class="ennu-list-item-title"><?php echo esc_html( $category ); ?></div>
+									<div class="ennu-progress-bar">
+										<div class="ennu-progress-fill" style="--progress-width: <?php echo esc_attr( ( $cat_score / 10 ) * 100 ); ?>%"></div>
+									</div>
+								</div>
+								<div class="ennu-list-item-score"><?php echo esc_html( number_format( $cat_score, 1 ) ); ?>/10</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
 
 			<!-- Recommendations -->
 			<?php if ( isset( $result_content['recommendations'] ) && ! empty( $result_content['recommendations'] ) ) : ?>
-				<div class="ennu-card ennu-animate-in ennu-animate-delay-2">
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-3">
 					<h2 class="ennu-section-title">Personalized Recommendations</h2>
 					<div class="ennu-list">
-						<?php foreach ( $result_content['recommendations'] as $rec ) : ?>
+						<?php foreach ( $result_content['recommendations'] as $recommendation ) : ?>
 							<div class="ennu-list-item">
 								<div class="ennu-list-item-content">
 									<div class="ennu-list-item-description">
 										<span style="color: var(--accent-primary); margin-right: 8px;">✓</span>
-										<?php echo esc_html( $rec ); ?>
+										<?php echo esc_html( $recommendation ); ?>
 									</div>
 								</div>
 							</div>
@@ -124,22 +295,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 			<?php endif; ?>
 
-			<!-- Category Deep Dive -->
-			<?php if ( ! empty( $category_scores ) ) : ?>
-				<div class="ennu-animate-in ennu-animate-delay-3">
-					<h2 class="ennu-section-title">Category Analysis</h2>
-					<div class="ennu-category-grid">
-						<?php foreach ( $category_scores as $category => $cat_score ) : ?>
-							<div class="ennu-card">
-								<div class="ennu-card-header">
-									<h3 class="ennu-card-title"><?php echo esc_html( $category ); ?></h3>
-									<div class="ennu-list-item-score"><?php echo esc_html( number_format( $cat_score, 1 ) ); ?>/10</div>
-								</div>
-								<div class="ennu-progress-bar">
-									<div class="ennu-progress-fill" style="--progress-width: <?php echo esc_attr( ( $cat_score / 10 ) * 100 ); ?>%"></div>
-								</div>
-								<div class="ennu-card-content">
-									<p><?php echo esc_html( $deep_dive_content[ $category ]['explanation'] ?? '' ); ?></p>
+			<!-- Next Steps -->
+			<?php if ( isset( $result_content['next_steps'] ) ) : ?>
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-4">
+					<h2 class="ennu-section-title">Next Steps</h2>
+					<div class="ennu-card-content">
+						<p><?php echo esc_html( $result_content['next_steps'] ); ?></p>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Benefits -->
+			<?php if ( isset( $result_content['benefits'] ) && ! empty( $result_content['benefits'] ) ) : ?>
+				<div class="ennu-card ennu-animate-in ennu-animate-delay-5">
+					<h2 class="ennu-section-title">What You'll Gain</h2>
+					<div class="ennu-list">
+						<?php foreach ( $result_content['benefits'] as $benefit ) : ?>
+							<div class="ennu-list-item">
+								<div class="ennu-list-item-content">
+									<div class="ennu-list-item-description">
+										<span style="color: var(--accent-primary); margin-right: 8px;">→</span>
+										<?php echo esc_html( $benefit ); ?>
+									</div>
 								</div>
 							</div>
 						<?php endforeach; ?>
@@ -148,12 +325,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php endif; ?>
 
 			<!-- Biomarkers Section -->
-			<div class="ennu-animate-in ennu-animate-delay-4">
+			<?php error_log( 'ENNU Details: Reaching biomarkers section' ); ?>
+			<div class="ennu-card ennu-animate-in ennu-animate-delay-6">
 				<h2 class="ennu-section-title">Related Biomarkers</h2>
 				<div class="ennu-biomarkers-section">
 					<?php
 					// Debug: Check if biomarkers template is loading
-					error_log( 'ENNU Dossier: Loading biomarkers template for user ' . get_current_user_id() );
+					error_log( 'ENNU Details: Loading biomarkers template for user ' . get_current_user_id() );
 					
 					// Load the biomarkers-only template content
 					$biomarkers_data = array(
@@ -165,7 +343,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					// Load the biomarkers template
 					ennu_load_template( 'biomarkers-only', $biomarkers_data );
 					
-					error_log( 'ENNU Dossier: Biomarkers template loaded successfully' );
+					error_log( 'ENNU Details: Biomarkers template loaded successfully' );
 					?>
 				</div>
 			</div>
@@ -173,25 +351,58 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </div>
 
-<style>
-/* Additional specific styles for assessment details */
-.ennu-category-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 20px;
-	margin-top: 20px;
-}
+<!-- Progress Chart JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    
+    // No sample progress data - show empty chart or message
+    const progressData = {
+        labels: [],
+        datasets: [{
+            label: '<?php echo esc_js( ucwords( str_replace( '_', ' ', $assessment_type ) ) ); ?> Score',
+            data: [],
+            borderColor: 'rgba(16, 185, 129, 1)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }]
+    };
+    
+    const config = {
+        type: 'line',
+        data: progressData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10,
+                    ticks: {
+                        stepSize: 2
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 6,
+                    backgroundColor: 'rgba(16, 185, 129, 1)',
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }
+            }
+        }
+    };
+    
+    new Chart(ctx, config);
+});
+</script>
 
-.ennu-chart-container {
-	position: relative;
-	background: var(--card-bg);
-	border-radius: var(--rounded-md);
-	padding: 20px;
-}
-
-@media (max-width: 768px) {
-	.ennu-category-grid {
-		grid-template-columns: 1fr;
-	}
-}
-</style> 
+<!-- Theme system is now handled by the centralized ENNUThemeManager --> 

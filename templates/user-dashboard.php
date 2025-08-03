@@ -1,6 +1,13 @@
 <?php
 /**
  * Template for the user assessment dashboard - "The Bio-Metric Canvas"
+ * 
+ * Enhanced with Phase 5 UX Improvements:
+ * - Clear visual hierarchy with consistent design patterns
+ * - Visual cues and indicators for better user guidance
+ * - Improved navigation and user flows
+ * - Comprehensive feedback system
+ * - Accessibility enhancements
  */
 
 // Ensure biomarker auto-sync is triggered for weight and BMI
@@ -9,10 +16,17 @@ if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
 	$auto_sync->ensure_biomarker_sync();
 }
 
-// Add inline JavaScript for toggle functions to ensure they're available immediately
+// Initialize UX systems - temporarily disabled for performance
+// $onboarding_system = class_exists( 'ENNU_Onboarding_System' ) ? new ENNU_Onboarding_System() : null;
+// $help_system = class_exists( 'ENNU_Help_System' ) ? new ENNU_Help_System() : null;
+// $smart_defaults = class_exists( 'ENNU_Smart_Defaults' ) ? new ENNU_Smart_Defaults() : null;
+// $keyboard_shortcuts = class_exists( 'ENNU_Keyboard_Shortcuts' ) ? new ENNU_Keyboard_Shortcuts() : null;
+// $auto_save = class_exists( 'ENNU_Auto_Save' ) ? new ENNU_Auto_Save() : null;
+
+// Add enhanced inline JavaScript with UX improvements
 ?>
 <script type="text/javascript">
-// Inline toggle functions - available immediately
+// Enhanced toggle functions with visual feedback and accessibility
 window.togglePanel = function(panelKey) {
     console.log('togglePanel called with:', panelKey);
     const panelContent = document.getElementById('panel-content-' + panelKey);
@@ -31,16 +45,128 @@ window.togglePanel = function(panelKey) {
         return;
     }
     
+    // Add visual feedback
+    panelHeader.classList.add('interacting');
+    
     if (panelContent.style.display === 'none' || panelContent.style.display === '') {
         panelContent.style.display = 'block';
         expandIcon.textContent = '▼';
         panelHeader.classList.add('expanded');
+        
+        // Add success feedback
+        showFeedback('Panel expanded successfully', 'success');
+        
+        // Announce to screen readers
+        announceToScreenReader('Panel expanded');
     } else {
         panelContent.style.display = 'none';
         expandIcon.textContent = '▶';
         panelHeader.classList.remove('expanded');
+        
+        // Add success feedback
+        showFeedback('Panel collapsed successfully', 'success');
+        
+        // Announce to screen readers
+        announceToScreenReader('Panel collapsed');
     }
+    
+    // Remove interaction class after animation
+    setTimeout(() => {
+        panelHeader.classList.remove('interacting');
+    }, 300);
 };
+
+// UX Enhancement: Feedback System
+window.showFeedback = function(message, type = 'info') {
+    const feedbackContainer = document.getElementById('ennu-feedback-container');
+    if (!feedbackContainer) {
+        // Create feedback container if it doesn't exist
+        const container = document.createElement('div');
+        container.id = 'ennu-feedback-container';
+        container.className = 'ennu-feedback-container';
+        document.body.appendChild(container);
+    }
+    
+    const feedback = document.createElement('div');
+    feedback.className = `ennu-feedback ennu-feedback-${type}`;
+    feedback.innerHTML = `
+        <div class="ennu-feedback-content">
+            <span class="ennu-feedback-icon">${getFeedbackIcon(type)}</span>
+            <span class="ennu-feedback-message">${message}</span>
+            <button class="ennu-feedback-close" onclick="this.parentElement.parentElement.remove()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('ennu-feedback-container').appendChild(feedback);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (feedback.parentElement) {
+            feedback.remove();
+        }
+    }, 5000);
+};
+
+// UX Enhancement: Screen Reader Support
+window.announceToScreenReader = function(message) {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    
+    document.body.appendChild(announcement);
+    
+    // Remove after announcement
+    setTimeout(() => {
+        announcement.remove();
+    }, 1000);
+};
+
+// UX Enhancement: Get Feedback Icon
+function getFeedbackIcon(type) {
+    const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    return icons[type] || icons.info;
+};
+
+// UX Enhancement: Keyboard Navigation Support
+document.addEventListener('keydown', function(e) {
+    // Escape key to close modals/panels
+    if (e.key === 'Escape') {
+        const openModals = document.querySelectorAll('.ennu-modal[style*="display: block"]');
+        openModals.forEach(modal => {
+            const closeBtn = modal.querySelector('.ennu-modal-close');
+            if (closeBtn) closeBtn.click();
+        });
+    }
+    
+    // Tab key navigation enhancement
+    if (e.key === 'Tab') {
+        const focusableElements = document.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+        }
+    }
+});
 
 window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarkerKey) {
     console.log('toggleBiomarkerMeasurements called with:', panelKey, vectorCategory, biomarkerKey);
@@ -48,28 +174,47 @@ window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarke
     const container = document.getElementById(containerId);
     if (!container) {
         console.error('Biomarker container not found for:', containerId);
+        showFeedback('Biomarker data not found', 'error');
         return;
     }
     const listItem = container.previousElementSibling;
     if (!listItem) {
         console.error('Biomarker list item not found for:', containerId);
+        showFeedback('Biomarker item not found', 'error');
         return;
     }
     const expandIcon = listItem.querySelector('.biomarker-list-expand');
     if (!expandIcon) {
         console.error('Biomarker expand icon not found for:', containerId);
+        showFeedback('Biomarker controls not found', 'error');
         return;
     }
+    
+    // Add visual feedback
+    listItem.classList.add('interacting');
     
     if (container.style.display === 'none' || container.style.display === '') {
         container.style.display = 'block';
         listItem.classList.add('expanded');
         expandIcon.textContent = '▼';
+        
+        // Add success feedback
+        showFeedback('Biomarker measurements expanded', 'success');
+        announceToScreenReader('Biomarker measurements expanded');
     } else {
         container.style.display = 'none';
         listItem.classList.remove('expanded');
         expandIcon.textContent = '▶';
+        
+        // Add success feedback
+        showFeedback('Biomarker measurements collapsed', 'success');
+        announceToScreenReader('Biomarker measurements collapsed');
     }
+    
+    // Remove interaction class after animation
+    setTimeout(() => {
+        listItem.classList.remove('interacting');
+    }, 300);
 };
 
 window.toggleVectorCategory = function(panelKey, vectorCategory) {
@@ -77,11 +222,16 @@ window.toggleVectorCategory = function(panelKey, vectorCategory) {
     const vectorContainer = document.querySelector('[data-panel="' + panelKey + '"][data-vector="' + vectorCategory + '"]');
     if (!vectorContainer) {
         console.error('Vector container not found for:', panelKey, vectorCategory);
+        showFeedback('Vector category not found', 'error');
         return;
     }
     const biomarkerItems = vectorContainer.querySelectorAll('.biomarker-list-item');
     const isExpanded = biomarkerItems[0] && biomarkerItems[0].classList.contains('expanded');
     
+    // Add visual feedback
+    vectorContainer.classList.add('interacting');
+    
+    let expandedCount = 0;
     biomarkerItems.forEach(function(item) {
         const biomarkerKey = item.getAttribute('data-biomarker');
         const container = document.getElementById('biomarker-measurement-' + panelKey + '-' + vectorCategory + '-' + biomarkerKey);
@@ -97,8 +247,23 @@ window.toggleVectorCategory = function(panelKey, vectorCategory) {
             container.style.display = 'block';
             item.classList.add('expanded');
             expandIcon.textContent = '▼';
+            expandedCount++;
         }
     });
+    
+    // Add success feedback
+    if (isExpanded) {
+        showFeedback('All biomarker measurements collapsed', 'success');
+        announceToScreenReader('All biomarker measurements collapsed');
+    } else {
+        showFeedback(`${expandedCount} biomarker measurements expanded`, 'success');
+        announceToScreenReader(`${expandedCount} biomarker measurements expanded`);
+    }
+    
+    // Remove interaction class after animation
+    setTimeout(() => {
+        vectorContainer.classList.remove('interacting');
+    }, 300);
 };
 
 console.log('Inline toggle functions loaded successfully');
@@ -457,15 +622,22 @@ function get_assessment_display_info($assessment_name) {
  */
 if (!function_exists('render_biomarker_measurement')) {
 function render_biomarker_measurement($measurement_data) {
-    // Debug: Function is being called
-    error_log("ENNU DEBUG: render_biomarker_measurement called for biomarker: " . ($measurement_data['biomarker_id'] ?? 'unknown'));
+    // Validate input data before processing
+    if (!is_array($measurement_data) || empty($measurement_data)) {
+        return '<div class="biomarker-error">Invalid measurement data provided</div>';
+    }
+    
+    // Skip processing if biomarker_id is empty, null, or "unknown"
+    $biomarker_id = $measurement_data['biomarker_id'] ?? '';
+    if (empty($biomarker_id) || $biomarker_id === 'unknown' || trim($biomarker_id) === '') {
+        return '<div class="biomarker-error">Invalid biomarker identifier</div>';
+    }
     
     if (isset($measurement_data['error'])) {
         return '<div class="biomarker-error">' . esc_html($measurement_data['error']) . '</div>';
     }
     
     // Use null coalescing operator to handle missing array keys with defaults
-    $biomarker_id = $measurement_data['biomarker_id'] ?? '';
     $current_value = $measurement_data['current_value'] ?? 0;
     $target_value = $measurement_data['target_value'] ?? null;
     $unit = $measurement_data['unit'] ?? '';
@@ -473,10 +645,36 @@ function render_biomarker_measurement($measurement_data) {
     $optimal_max = $measurement_data['optimal_max'] ?? 100;
     $percentage_position = $measurement_data['percentage_position'] ?? 50;
     $target_position = $measurement_data['target_position'] ?? null;
-    $status = $measurement_data['status'] ?? array('status' => 'normal', 'status_text' => 'Normal', 'status_class' => 'normal');
+    
+    // Handle status - can be string or array, ensure it's always an array
+    $raw_status = $measurement_data['status'] ?? 'normal';
+    if (is_string($raw_status)) {
+        // Convert string status to array format
+        $status = array(
+            'status' => $raw_status,
+            'status_text' => ucfirst($raw_status),
+            'status_class' => $raw_status
+        );
+    } else {
+        // Already an array, use as-is with defaults
+        $status = $raw_status + array('status' => 'normal', 'status_text' => 'Normal', 'status_class' => 'normal');
+    }
+    
     $has_flags = $measurement_data['has_flags'] ?? false;
     $flags = $measurement_data['flags'] ?? array();
-    $achievement_status = $measurement_data['achievement_status'] ?? array('status' => 'normal', 'text' => 'Normal', 'icon_class' => 'normal');
+    
+    // Handle achievement_status - similar fix
+    $raw_achievement_status = $measurement_data['achievement_status'] ?? 'normal';
+    if (is_string($raw_achievement_status)) {
+        $achievement_status = array(
+            'status' => $raw_achievement_status,
+            'text' => ucfirst($raw_achievement_status),
+            'icon_class' => $raw_achievement_status
+        );
+    } else {
+        $achievement_status = $raw_achievement_status + array('status' => 'normal', 'text' => 'Normal', 'icon_class' => 'normal');
+    }
+    
     $health_vector = $measurement_data['health_vector'] ?? '';
     $has_admin_override = $measurement_data['has_admin_override'] ?? false;
     $display_name = $measurement_data['display_name'] ?? ($measurement_data['biomarker_name'] ?? '');
@@ -706,7 +904,7 @@ function render_biomarker_measurement($measurement_data) {
                     <div style="position: absolute; left: 50%;">50%</div>
                     <div style="position: absolute; left: 75%;">75%</div>
                     <div style="position: absolute; left: 100%;">100%</div>
-                    <div style="position: absolute; left: <?php echo esc_attr($target_ruler_position); ?>%; color: purple; font-weight: bold;">T:<?php echo round($target_ruler_position, 1); ?>%</div>
+                    <div style="position: absolute; left: <?php echo esc_attr($target_ruler_position); ?>%; color: purple; font-weight: bold;">T:<?php echo round($target_ruler_position ?? 0, 1); ?>%</div>
                 </div>
                 <?php endif; ?>
                 
@@ -883,6 +1081,46 @@ $insights                   = $insights ?? array();
 $health_optimization_report = $health_optimization_report ?? array();
 $shortcode_instance         = $shortcode_instance ?? null;
 
+// Extract dashboard data if available
+$dashboard_data = $dashboard_data ?? array();
+$ennu_life_score = $ennu_life_score ?? ( $dashboard_data['scores']['ennu_life_score'] ?? 0 );
+$average_pillar_scores = $average_pillar_scores ?? ( $dashboard_data['scores']['pillar_scores'] ?? array() );
+$user_assessments = $user_assessments ?? ( $dashboard_data['assessments'] ?? array() );
+
+// Ensure average_pillar_scores is always an array with all pillars
+if ( ! is_array( $average_pillar_scores ) ) {
+	$average_pillar_scores = array();
+}
+
+// Define user ID first to prevent undefined variable errors
+$user_id = $current_user->ID ?? 0;
+
+// Define all expected pillars with default values
+$all_expected_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
+$pillar_data_status = array(); // Track which pillars have actual data
+
+// Try to recalculate missing pillar scores from existing assessment data
+if ( class_exists( 'ENNU_Scoring_System' ) && $user_id > 0 ) {
+	$recalculated_scores = ENNU_Scoring_System::calculate_average_pillar_scores( $user_id );
+	if ( $recalculated_scores && is_array( $recalculated_scores ) ) {
+		// Merge recalculated scores with existing ones
+		foreach ( $recalculated_scores as $pillar => $score ) {
+			if ( ! isset( $average_pillar_scores[ $pillar ] ) || $average_pillar_scores[ $pillar ] == 0 ) {
+				$average_pillar_scores[ $pillar ] = $score;
+			}
+		}
+	}
+}
+
+foreach ( $all_expected_pillars as $pillar ) {
+	if ( ! isset( $average_pillar_scores[ $pillar ] ) ) {
+		$average_pillar_scores[ $pillar ] = 0; // Default to 0 for missing pillars
+		$pillar_data_status[ $pillar ] = false; // No data available
+	} else {
+		$pillar_data_status[ $pillar ] = true; // Data exists (even if 0)
+	}
+}
+
 // Define missing variables to prevent warnings
 $is_female = ( strtolower( trim( $gender ?? '' ) ) === 'female' );
 $is_completed = ! empty( $user_assessments );
@@ -892,8 +1130,7 @@ if ( ! $shortcode_instance ) {
 	return;
 }
 
-// Define user ID and display name
-$user_id      = $current_user->ID ?? 0;
+// Define display name
 $first_name   = isset( $current_user->first_name ) ? $current_user->first_name : '';
 $last_name    = isset( $current_user->last_name ) ? $current_user->last_name : '';
 $display_name = trim( $first_name . ' ' . $last_name );
@@ -934,7 +1171,6 @@ if ( empty( $display_name ) ) {
 
 
 		<main class="dashboard-main-content">
-
 
 			<!-- Welcome Section -->
 			<div class="dashboard-welcome-section">
@@ -1092,6 +1328,8 @@ if ( empty( $display_name ) ) {
 				<?php endif; ?>
 			</div>
 
+
+
 			<!-- My Scores Section -->
 			<details class="health-scores-accordion">
 				<summary class="scores-title-container">
@@ -1103,33 +1341,37 @@ if ( empty( $display_name ) ) {
 					<!-- Left Pillar Scores -->
 					<div class="pillar-scores-left">
 						<?php
-						if ( is_array( $average_pillar_scores ) ) {
-							$pillar_count = 0;
-							foreach ( $average_pillar_scores as $pillar => $score ) {
-								if ( $pillar_count >= 2 ) {
-									break; // Only show first 2 pillars
-								}
-								$has_data      = ! empty( $score );
-								$pillar_class  = esc_attr( strtolower( $pillar ) );
-								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
-								$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
-								$insight_text  = $insights['pillars'][ $pillar ] ?? '';
-								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
-									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
-									</svg>
-									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
-								</div>
-								<?php
-								$pillar_count++;
+						$all_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
+						$pillar_count = 0;
+						
+						foreach ( $all_pillars as $pillar ) {
+							if ( $pillar_count >= 2 ) {
+								break; // Only show first 2 pillars
 							}
+							
+  							$has_data = isset( $average_pillar_scores[ $pillar ] ) && $average_pillar_scores[ $pillar ] > 0;
+							$score = $has_data ? $average_pillar_scores[ $pillar ] : 0;
+							$pillar_class = esc_attr( strtolower( $pillar ) );
+							$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
+							$style_attr = '--spin-duration: ' . $spin_duration . 's;';
+							$insight_text = $insights['pillars'][ $pillar ] ?? '';
+							
+							// Always show the same visual structure, only change the score text
+							?>
+							<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>" data-pillar="<?php echo esc_attr( $pillar ); ?>" data-has-score="<?php echo $has_data ? 'true' : 'false'; ?>">
+								<svg class="pillar-orb-progress" viewBox="0 0 36 36">
+									<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
+									<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
+								</svg>
+								<div class="pillar-orb-content">
+									<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
+									<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
+								</div>
+								<div class="floating-particles"></div>
+								<div class="decoration-dots"></div>
+							</div>
+							<?php
+							$pillar_count++;
 						}
 						?>
 					</div>
@@ -1159,38 +1401,41 @@ if ( empty( $display_name ) ) {
 					<!-- Right Pillar Scores -->
 					<div class="pillar-scores-right">
 						<?php
-						if ( is_array( $average_pillar_scores ) ) {
-							$pillar_count  = 0;
-							$total_pillars = count( $average_pillar_scores );
-							foreach ( $average_pillar_scores as $pillar => $score ) {
-								if ( $pillar_count < 2 ) { // Skip first 2 pillars
-									$pillar_count++;
-									continue;
-								}
-								if ( $pillar_count >= 4 ) {
-									break; // Only show next 2 pillars
-								}
-								$has_data      = ! empty( $score );
+						$all_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
+						$pillar_count = 0;
+						
+						foreach ( $all_pillars as $pillar ) {
+							if ( $pillar_count < 2 ) { // Skip first 2 pillars (Mind, Body)
+								$pillar_count++;
+								continue;
+							}
+							if ( $pillar_count >= 4 ) { // Only show next 2 pillars (Lifestyle, Aesthetics)
+								break;
+							}
+							
+							$has_data = isset( $average_pillar_scores[ $pillar ] ) && $average_pillar_scores[ $pillar ] > 0;
+							$score = $has_data ? $average_pillar_scores[ $pillar ] : 0;
 								$pillar_class  = esc_attr( strtolower( $pillar ) );
 								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
 								$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
 								$insight_text  = $insights['pillars'][ $pillar ] ?? '';
+								
+								// Always show the same visual structure, only change the score text
 								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?> <?php echo $has_data ? '' : 'no-data'; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>">
+								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>" data-pillar="<?php echo esc_attr( $pillar ); ?>" data-has-score="<?php echo $has_data ? 'true' : 'false'; ?>">
 									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
 										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $has_data ? $score * 10 : 0 ); ?>;"></circle>
+										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
 									</svg>
 									<div class="pillar-orb-content">
 										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
 									</div>
 									<div class="floating-particles"></div>
 									<div class="decoration-dots"></div>
 								</div>
 								<?php
 								$pillar_count++;
-							}
 						}
 						?>
 					</div>
@@ -1204,6 +1449,8 @@ if ( empty( $display_name ) ) {
 				</div>
 			</div>
 			</details>
+
+
 
 			<!-- My Health Goals Section -->
 			<details class="health-goals-accordion">
@@ -1258,6 +1505,18 @@ if ( empty( $display_name ) ) {
 									<span>Boost applied to matching assessments</span>
 								</div>
 							<?php endif; ?>
+							<!-- Update Health Goals Button -->
+							<div class="health-goals-actions">
+								<button type="button" class="btn btn-primary update-health-goals-btn" style="display: none;">
+									<span class="btn-text">Update My Health Goals</span>
+									<span class="btn-loading" style="display: none;">
+										<div class="loading-spinner"></div>
+										<span>Updating...</span>
+									</span>
+								</button>
+							</div>
+							
+
 						</div>
 					<?php else : ?>
 						<div class="no-goals-message">
@@ -1270,8 +1529,8 @@ if ( empty( $display_name ) ) {
 							</div>
 							<h3>No Health Goals Available</h3>
 							<p>Complete your first assessment to unlock personalized health goals that will boost your scoring in relevant areas.</p>
-							<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'assessments' ) ); ?>" class="btn btn-primary">
-								Start an Assessment
+							<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>" class="btn btn-primary">
+								<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?>
 							</a>
 						</div>
 						<?php
@@ -1279,6 +1538,8 @@ if ( empty( $display_name ) ) {
 					?>
 				</div>
 			</details>
+
+
 
 			<!-- My Story Tabbed Section -->
 			<div class="my-story-section">
@@ -1289,9 +1550,12 @@ if ( empty( $display_name ) ) {
 				<div class="my-story-tabs">
 					<nav class="my-story-tab-nav">
 						<ul>
-							<li><a href="#tab-my-assessments">My Assessments</a></li>
-							<li><a href="#tab-my-biomarkers" class="my-story-tab-active">My Biomarkers</a></li>
-							<li><a href="#tab-my-symptoms">My Symptoms</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'MY_ASSESSMENTS' ) ); ?>">My Assessments</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'MY_BIOMARKERS' ) ); ?>" class="my-story-tab-active">My Biomarkers</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'MY_SYMPTOMS' ) ); ?>">My Symptoms</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'MY_INSIGHTS' ) ); ?>">My Insights</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'MY_STORY' ) ); ?>">My Story</a></li>
+							<li><a href="#<?php echo esc_attr( ENNU_UI_Constants::get_tab_id( 'PDF_UPLOAD' ) ); ?>">LabCorp Upload</a></li>
 						</ul>
 					</nav>
 					
@@ -1561,14 +1825,14 @@ if ( empty( $display_name ) ) {
 											<?php if ( $assessment['completed'] ) : ?>
 												<!-- Speak With Expert Link - moved to top of completed section -->
 												<div class="expert-consultation-link">
-													<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="speak-expert-link">
+													<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'CALL' ) ); ?>" class="speak-expert-link">
 														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
 															<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
 															<circle cx="9" cy="7" r="4"/>
 															<path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
 															<path d="M16 3.13a4 4 0 0 1 0 7.75"/>
 														</svg>
-														Speak With Expert
+														<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'SPEAK_WITH_EXPERT' ) ); ?>
 													</a>
 												</div>
 												
@@ -1604,11 +1868,25 @@ if ( empty( $display_name ) ) {
 												<?php if ( $assessment['completed'] ) : ?>
 													<button type="button" class="btn btn-recommendations" data-assessment="<?php echo esc_attr( $assessment['key'] ); ?>">Recommendations</button>
 													<button type="button" class="btn btn-breakdown" data-assessment="<?php echo esc_attr( $assessment['key'] ); ?>">Breakdown</button>
-													<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( $shortcode_instance->get_assessment_page_slug( $assessment['key'] ) . '-assessment-details' ) ); ?>" class="btn btn-history">History</a>
+													<a href="<?php 
+														$details_page_id = $shortcode_instance->get_assessment_details_page_id( $assessment['key'] );
+														if ( $details_page_id ) {
+															echo esc_url( home_url( "/?page_id={$details_page_id}" ) );
+														} else {
+															echo esc_url( '?' . ENNU_UI_Constants::get_assessment_page_url( $assessment['key'], 'DETAILS' ) );
+														}
+													?>" class="btn btn-history">History</a>
 												<?php else : ?>
 													<!-- Expert consultation and Start Assessment for incomplete assessments -->
 													<div class="incomplete-actions-row">
-														<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'call' ) ); ?>" class="btn btn-expert-incomplete">
+														<a href="<?php 
+															$consultation_page_id = $shortcode_instance->get_assessment_consultation_page_id( $assessment['key'] );
+															if ( $consultation_page_id ) {
+																echo esc_url( home_url( "/?page_id={$consultation_page_id}" ) );
+															} else {
+																echo esc_url( '?' . ENNU_UI_Constants::get_assessment_page_url( $assessment['key'], 'CONSULTATION' ) );
+															}
+														?>" class="btn btn-expert-incomplete">
 															<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
 																<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
 																<circle cx="9" cy="7" r="4"/>
@@ -1617,19 +1895,66 @@ if ( empty( $display_name ) ) {
 															</svg>
 															Speak With Expert
 														</a>
-														<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( $shortcode_instance->get_assessment_page_slug( $assessment['key'] ) ) ); ?>" class="btn btn-primary btn-pill">Start Assessment</a>
+														<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
 													</div>
 												<?php endif; ?>
 											</div>
 											
 											<?php if ( $assessment['completed'] ) : ?>
 												<div class="assessment-retake-link">
-													<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( $shortcode_instance->get_assessment_page_slug( $assessment['key'] ) ) ); ?>">Retake Assessment</a>
+													<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'RETAKE_ASSESSMENT' ) ); ?></a>
 												</div>
 											<?php endif; ?>
 										</div>
 									</div>
 								<?php endforeach; ?>
+							</div>
+							
+							<!-- Recommended Assessments Section -->
+							<div class="recommended-assessments-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">RECOMMENDED ASSESSMENTS</h2>
+								</div>
+								
+								<?php
+								// Get recommended assessments from Next Steps Widget
+								if ( class_exists( 'ENNU_Next_Steps_Widget' ) ) {
+									$next_steps_widget = new ENNU_Next_Steps_Widget();
+									$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
+									
+									if ( ! empty( $next_steps_data['assessment_recommendations'] ) ) {
+										echo '<div class="recommended-assessments-grid">';
+										foreach ( $next_steps_data['assessment_recommendations'] as $recommendation ) {
+											?>
+											<div class="recommended-assessment-card ennu-priority-<?php echo esc_attr( $recommendation['priority'] ); ?>">
+												<div class="recommended-assessment-content">
+													<h5><?php echo esc_html( ucfirst( $recommendation['assessment'] ) ); ?> Assessment</h5>
+													<p><?php echo esc_html( $recommendation['reason'] ); ?></p>
+													<div class="recommended-assessment-meta">
+														<span class="ennu-estimated-time">⏱️ <?php echo esc_html( $recommendation['estimated_time'] ); ?></span>
+														<span class="ennu-priority-badge ennu-priority-<?php echo esc_attr( $recommendation['priority'] ); ?>">
+															<?php echo esc_html( ucfirst( $recommendation['priority'] ) ); ?> Priority
+														</span>
+													</div>
+													<div class="recommended-assessment-actions">
+														<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
+													</div>
+												</div>
+											</div>
+											<?php
+										}
+										echo '</div>';
+									} else {
+										echo '<div class="no-recommendations-message">';
+										echo '<div class="empty-state">';
+										echo '<div class="empty-icon">🎯</div>';
+										echo '<h5>No Recommended Assessments</h5>';
+										echo '<p>Complete your current assessments to receive personalized recommendations.</p>';
+										echo '</div>';
+										echo '</div>';
+									}
+								}
+								?>
 							</div>
 						</div>
 					</div>
@@ -1879,18 +2204,7 @@ if ( empty( $display_name ) ) {
 									<?php endif; ?>
 								</div>
 								
-								<!-- Action Buttons -->
-								<div class="symptoms-actions">
-									<button type="button" class="btn-secondary" id="update-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
-										Update Symptoms
-									</button>
-									<button type="button" class="btn-secondary" id="populate-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
-										Extract from Assessments
-									</button>
-									<button type="button" class="btn-secondary" id="clear-symptoms" data-user-id="<?php echo esc_attr($user_id); ?>">
-										Clear Symptom History
-									</button>
-								</div>
+
 							</div>
 						</div>
 					</div>
@@ -1951,33 +2265,41 @@ if ( empty( $display_name ) ) {
 								</div>
 								
 								<?php
-								// Get flagged biomarkers from the manager
+								// Get flagged biomarkers with deduplication and explanatory text
 								$flag_manager = new ENNU_Biomarker_Flag_Manager();
-								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active', true); // Enable deduplication
 								
-								// Convert flag data to display format
-								$display_flagged_biomarkers = array();
-								foreach ($flagged_biomarkers as $flag_id => $flag_data) {
-									$biomarker_name = $flag_data['biomarker_name'];
-									$category = get_biomarker_category($biomarker_name);
+								// Assessment display names mapping
+								$assessment_names = array(
+									'health_optimization_assessment' => 'Health Optimization Assessment',
+									'testosterone_assessment' => 'Testosterone Assessment',
+									'hormone_assessment' => 'Hormone Assessment',
+									'menopause_assessment' => 'Menopause Assessment',
+									'ed_treatment_assessment' => 'ED Treatment Assessment',
+									'skin_assessment' => 'Skin Assessment',
+									'hair_assessment' => 'Hair Assessment',
+									'sleep_assessment' => 'Sleep Assessment',
+									'weight_loss_assessment' => 'Weight Loss Assessment',
+									'welcome_assessment' => 'Welcome Assessment',
+									'auto_flagged' => 'Lab Results Analysis',
+									'manual' => 'Manual Flag',
+									'critical' => 'Critical Alert',
+									'' => 'Unknown Assessment',
+								);
+								
+								// Group by assessment source for better organization
+								$grouped_flagged = array();
+								foreach ($flagged_biomarkers as $biomarker_name => $flag_data) {
+									$assessment_source = $flag_data['assessment_source'] ?? 'Unknown';
+									$assessment_display_name = $assessment_names[$assessment_source] ?? ucwords(str_replace('_', ' ', $assessment_source));
 									
-									// Debug output
-									error_log("Biomarker: $biomarker_name, Category: $category");
-									
-									$display_flagged_biomarkers[$flag_id] = array(
-										'biomarker_name' => $biomarker_name,
-										'name' => ucwords(str_replace('_', ' ', $biomarker_name)),
-										'category' => $category,
-										'reason' => $flag_data['reason'] ?: 'Flagged for medical attention',
-										'severity' => $flag_data['flag_type'] === 'critical' ? 'high' : 'moderate',
-										'current_value' => 'N/A',
-										'unit' => '',
-										'normal_range' => '',
-										'status' => 'flagged',
-										'flagged_at' => $flag_data['flagged_at'],
-										'flag_type' => $flag_data['flag_type']
-									);
+									if (!isset($grouped_flagged[$assessment_display_name])) {
+										$grouped_flagged[$assessment_display_name] = array();
+									}
+									$grouped_flagged[$assessment_display_name][$biomarker_name] = $flag_data;
 								}
+								
+								$display_flagged_biomarkers = $flagged_biomarkers;
 								
 								if (!empty($display_flagged_biomarkers)) :
 									// Health vector category mapping - must match categories from get_biomarker_category()
@@ -2180,74 +2502,34 @@ if ( empty( $display_name ) ) {
 														?>
 															<div class="biomarker-list-item" data-biomarker="<?php echo esc_attr($biomarker_name); ?>" onclick="toggleBiomarkerMeasurements('flagged-biomarkers', '<?php echo esc_attr($assessment_name); ?>', '<?php echo esc_attr($biomarker_name); ?>')">
 																<div class="biomarker-list-name">
-																	<?php echo esc_html($biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? 'Unknown Biomarker'); ?>
+																	<?php 
+																	$biomarker_display_name = $biomarker_data['name'] ?? $biomarker_data['biomarker_name'] ?? ENNU_Biomarker_Manager::get_fallback_display_name($biomarker_data['biomarker_name']) ?? ucwords(str_replace('_', ' ', $biomarker_data['biomarker_name'])); 
+																	echo esc_html($biomarker_display_name); 
+																	?>
 																	<span class="flagged-badge">⚠️ Flagged</span>
+																	
+																	<?php if (isset($biomarker_data['multiple_assessments']) && $biomarker_data['multiple_assessments']) : ?>
+																		<span class="multiple-assessments-badge" title="<?php echo esc_attr($biomarker_data['explanation']); ?>">
+																			📝 Multiple Assessments (<?php echo esc_html($biomarker_data['assessment_count']); ?>)
+																		</span>
+																	<?php endif; ?>
+																	
 																	<?php if (!empty($biomarker_data['symptom_trigger'])) : ?>
 																		<span class="symptom-trigger-badge"><?php echo esc_html($biomarker_data['symptom_trigger']); ?></span>
 																	<?php endif; ?>
+																	
 																	<?php if (!empty($biomarker_data['reason'])) : ?>
 																		<span class="flag-reason-badge"><?php echo esc_html($biomarker_data['reason']); ?></span>
 																	<?php endif; ?>
 																</div>
-																<div class="biomarker-list-meta">
-																	<div class="biomarker-list-unit"><?php echo esc_html($biomarker_data['unit'] ?? ''); ?></div>
-																	<div class="biomarker-list-flag-type" data-type="<?php 
-																		$flag_type = $biomarker_data['flag_type'] ?? '';
-																		$flag_type_display = '';
-																		switch ($flag_type) {
-																			case 'symptom_triggered':
-																				$flag_type_display = 'symptom';
-																				break;
-																			case 'auto_flagged':
-																				$flag_type_display = 'lab';
-																				break;
-																			case 'manual':
-																				$flag_type_display = 'manual';
-																				break;
-																			case 'critical':
-																				$flag_type_display = 'critical';
-																				break;
-																			default:
-																				$flag_type_display = strtolower($flag_type);
-																		}
-																		echo esc_attr($flag_type_display);
-																	?>">
-																		<?php 
-																		$flag_type = $biomarker_data['flag_type'] ?? '';
-																		$flag_type_display = '';
-																		switch ($flag_type) {
-																			case 'symptom_triggered':
-																				$flag_type_display = 'Symptom';
-																				break;
-																			case 'auto_flagged':
-																				$flag_type_display = 'Lab';
-																				break;
-																			case 'manual':
-																				$flag_type_display = 'Manual';
-																				break;
-																			case 'critical':
-																				$flag_type_display = 'Critical';
-																				break;
-																			default:
-																				$flag_type_display = ucfirst($flag_type);
-																		}
-																		echo esc_html($flag_type_display);
-																		?>
+																
+																<!-- Show explanation for multiple assessments -->
+																<?php if (isset($biomarker_data['multiple_assessments']) && $biomarker_data['multiple_assessments']) : ?>
+																	<div class="biomarker-explanation">
+																		<i class="explanation-icon">ℹ️</i>
+																		<span class="explanation-text"><?php echo esc_html($biomarker_data['explanation']); ?></span>
 																	</div>
-																</div>
-																<div class="biomarker-list-expand">▼</div>
-															</div>
-															
-															<div id="biomarker-measurement-flagged-biomarkers-<?php echo esc_attr($assessment_name); ?>-<?php echo esc_attr($biomarker_name); ?>" class="biomarker-measurement-container" style="display: none;">
-																<div class="biomarker-measurement-content">
-																	<?php
-																	// Get measurement data using the same method as regular biomarkers
-																	$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_name, $user_id);
-																	
-																	// Render the measurement component
-																	echo render_biomarker_measurement($measurement_data);
-																	?>
-																</div>
+																<?php endif; ?>
 															</div>
 														<?php endforeach; ?>
 													</div>
@@ -2440,10 +2722,15 @@ if ( empty( $display_name ) ) {
 									echo '<div class="biomarker-vector-list">';
 									
 									foreach ($biomarker_keys as $biomarker_key) {
+										// Skip empty biomarker keys
+										if (empty($biomarker_key) || !is_string($biomarker_key) || trim($biomarker_key) === '') {
+											continue;
+										}
+										
 										$biomarker_name = str_replace('_', ' ', $biomarker_key);
 										$biomarker_name = ucwords($biomarker_name);
 									
-										echo '<div class="biomarker-list-item" onclick="toggleBiomarkerMeasurements(\'' . esc_attr($panel_key) . '\', \'' . esc_attr($vector_category) . '\', \'' . esc_attr($biomarker_key) . '\')">';
+										echo '<div class="biomarker-list-item" onclick="toggleBiomarkerMeasurements(\'' . esc_attr($panel_key) . '\', \'' . esc_attr($vector_category) . '\', \'' . esc_attr($biomarker_key) . '\')">'; 
 										echo '<span class="biomarker-list-name">' . esc_html($biomarker_name) . '</span>';
 										
 										// Get biomarker data
@@ -2460,7 +2747,7 @@ if ( empty( $display_name ) ) {
 									echo '<div class="biomarker-measurement-content">';
 									
 									// Get measurement data for this specific biomarker
-									$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($biomarker_key, $user_id);
+									$measurement_data = ENNU_Biomarker_Manager::get_biomarker_measurement_data($user_id, $biomarker_key);
 										
 											// Render the measurement component
 											echo render_biomarker_measurement($measurement_data);
@@ -2606,6 +2893,498 @@ if ( empty( $display_name ) ) {
 						</div>
 					</div>
 					
+					<!-- Tab 4: My Insights -->
+					<div id="tab-my-insights" class="my-story-tab-content">
+						<div class="insights-container">
+							<!-- Header Section -->
+							<div class="scores-title-container">
+								<h2 class="scores-title">MY INSIGHTS</h2>
+							</div>
+
+							<div class="insights-overview">
+								<?php
+								// Get actionable feedback insights using proper error handling
+								$actionable_insights = array();
+								if ( class_exists( 'ENNU_Actionable_Feedback' ) ) {
+									try {
+										$actionable_feedback = new ENNU_Actionable_Feedback();
+										$actionable_insights = $actionable_feedback->get_actionable_feedback( $user_id );
+									} catch ( Exception $e ) {
+										error_log( 'ENNU Actionable Feedback Error: ' . $e->getMessage() );
+										$actionable_insights = array();
+									}
+								}
+								
+								// Display insights if available with proper validation
+								if ( ! empty( $actionable_insights ) && is_array( $actionable_insights ) ) {
+									echo '<div class="insights-grid">';
+									
+									// Score Insights Section
+									if ( ! empty( $actionable_insights['score_insights'] ) && is_array( $actionable_insights['score_insights'] ) ) {
+										echo '<div class="insights-section">';
+										echo '<h3 class="insights-section-title">Score Insights</h3>';
+										echo '<div class="score-insights-grid">';
+										
+										foreach ( $actionable_insights['score_insights'] as $pillar => $insight ) {
+											if ( ! is_array( $insight ) || ! isset( $insight['score'] ) ) {
+												continue; // Skip invalid data
+											}
+											?>
+											<div class="score-insight-card">
+												<div class="insight-header">
+													<h4><?php echo esc_html( $pillar ); ?> Score</h4>
+													<div class="insight-score"><?php echo esc_html( number_format( $insight['score'], 1 ) ); ?></div>
+												</div>
+												<div class="insight-content">
+													<?php if ( ! empty( $insight['interpretation'] ) ) : ?>
+														<div class="insight-interpretation">
+															<h5>Interpretation</h5>
+															<p><?php echo esc_html( $insight['interpretation'] ); ?></p>
+														</div>
+													<?php endif; ?>
+													
+													<?php if ( ! empty( $insight['strengths'] ) && is_array( $insight['strengths'] ) ) : ?>
+														<div class="insight-strengths">
+															<h5>Strengths</h5>
+															<ul>
+																<?php foreach ( $insight['strengths'] as $strength ) : ?>
+																	<li><?php echo esc_html( $strength ); ?></li>
+																<?php endforeach; ?>
+															</ul>
+														</div>
+													<?php endif; ?>
+													
+													<?php if ( ! empty( $insight['improvement_areas'] ) && is_array( $insight['improvement_areas'] ) ) : ?>
+														<div class="insight-improvement">
+															<h5>Areas for Improvement</h5>
+															<ul>
+																<?php foreach ( $insight['improvement_areas'] as $area ) : ?>
+																	<li><?php echo esc_html( $area ); ?></li>
+																<?php endforeach; ?>
+															</ul>
+														</div>
+													<?php endif; ?>
+													
+													<?php if ( ! empty( $insight['actionable_steps'] ) && is_array( $insight['actionable_steps'] ) ) : ?>
+														<div class="insight-actions">
+															<h5>Actionable Steps</h5>
+															<ul>
+																<?php foreach ( $insight['actionable_steps'] as $step ) : ?>
+																	<li><?php echo esc_html( $step ); ?></li>
+																<?php endforeach; ?>
+															</ul>
+														</div>
+													<?php endif; ?>
+													
+													<?php if ( ! empty( $insight['timeframe'] ) ) : ?>
+														<div class="insight-timeframe">
+															<small>Expected improvement timeframe: <?php echo esc_html( $insight['timeframe'] ); ?></small>
+														</div>
+													<?php endif; ?>
+												</div>
+											</div>
+											<?php
+										}
+										
+										echo '</div>';
+										echo '</div>';
+									}
+									
+									// Improvement Tips Section
+									if ( ! empty( $actionable_insights['improvement_tips'] ) && is_array( $actionable_insights['improvement_tips'] ) ) {
+										echo '<div class="insights-section">';
+										echo '<h3 class="insights-section-title">Improvement Tips</h3>';
+										echo '<div class="improvement-tips-grid">';
+										
+										foreach ( $actionable_insights['improvement_tips'] as $tip ) {
+											if ( ! is_array( $tip ) || ! isset( $tip['title'] ) || ! isset( $tip['description'] ) ) {
+												continue; // Skip invalid data
+											}
+											?>
+											<div class="improvement-tip-card ennu-priority-<?php echo esc_attr( $tip['priority'] ?? 'medium' ); ?>">
+												<div class="tip-header">
+													<h4><?php echo esc_html( $tip['title'] ); ?></h4>
+													<span class="tip-priority"><?php echo esc_html( ucfirst( $tip['priority'] ?? 'medium' ) ); ?> Priority</span>
+												</div>
+												<div class="tip-content">
+													<p><?php echo esc_html( $tip['description'] ); ?></p>
+													<?php if ( ! empty( $tip['tips'] ) && is_array( $tip['tips'] ) ) : ?>
+														<ul class="tip-list">
+															<?php foreach ( $tip['tips'] as $tip_item ) : ?>
+																<li><?php echo esc_html( $tip_item ); ?></li>
+															<?php endforeach; ?>
+														</ul>
+													<?php endif; ?>
+												</div>
+											</div>
+											<?php
+										}
+										
+										echo '</div>';
+										echo '</div>';
+									}
+									
+									// Goal Suggestions Section
+									if ( ! empty( $actionable_insights['goal_suggestions'] ) && is_array( $actionable_insights['goal_suggestions'] ) ) {
+										echo '<div class="insights-section">';
+										echo '<h3 class="insights-section-title">Goal Suggestions</h3>';
+										echo '<div class="goal-suggestions-grid">';
+										
+										foreach ( $actionable_insights['goal_suggestions'] as $goal ) {
+											if ( ! is_array( $goal ) || ! isset( $goal['pillar'] ) || ! isset( $goal['goal_description'] ) ) {
+												continue; // Skip invalid data
+											}
+											?>
+											<div class="goal-suggestion-card">
+												<div class="goal-header">
+													<h4><?php echo esc_html( $goal['pillar'] ); ?> Improvement</h4>
+													<?php if ( isset( $goal['current_score'] ) && isset( $goal['target_score'] ) ) : ?>
+														<div class="goal-progress">
+															<span class="current-score"><?php echo esc_html( $goal['current_score'] ); ?></span>
+															<span class="progress-arrow">→</span>
+															<span class="target-score"><?php echo esc_html( $goal['target_score'] ); ?></span>
+														</div>
+													<?php endif; ?>
+												</div>
+												<div class="goal-content">
+													<p><?php echo esc_html( $goal['goal_description'] ); ?></p>
+													<?php if ( ! empty( $goal['timeline'] ) ) : ?>
+														<div class="goal-timeline">
+															<small>Timeline: <?php echo esc_html( $goal['timeline'] ); ?></small>
+														</div>
+													<?php endif; ?>
+													<?php if ( ! empty( $goal['specific_actions'] ) && is_array( $goal['specific_actions'] ) ) : ?>
+														<div class="goal-actions">
+															<h5>Specific Actions</h5>
+															<ul>
+																<?php foreach ( $goal['specific_actions'] as $action ) : ?>
+																	<li><?php echo esc_html( $action ); ?></li>
+																<?php endforeach; ?>
+															</ul>
+														</div>
+													<?php endif; ?>
+												</div>
+											</div>
+											<?php
+										}
+										
+										echo '</div>';
+										echo '</div>';
+									}
+									
+									// Personalized Recommendations Section
+									if ( ! empty( $actionable_insights['personalized_recommendations'] ) && is_array( $actionable_insights['personalized_recommendations'] ) ) {
+										echo '<div class="insights-section">';
+										echo '<h3 class="insights-section-title">Personalized Recommendations</h3>';
+										echo '<div class="recommendations-grid">';
+										
+										foreach ( $actionable_insights['personalized_recommendations'] as $recommendation ) {
+											if ( ! is_array( $recommendation ) || ! isset( $recommendation['title'] ) || ! isset( $recommendation['description'] ) ) {
+												continue; // Skip invalid data
+											}
+											?>
+											<div class="recommendation-card ennu-priority-<?php echo esc_attr( $recommendation['priority'] ?? 'medium' ); ?>">
+												<div class="recommendation-header">
+													<h4><?php echo esc_html( $recommendation['title'] ); ?></h4>
+													<span class="recommendation-priority"><?php echo esc_html( ucfirst( $recommendation['priority'] ?? 'medium' ) ); ?> Priority</span>
+												</div>
+												<div class="recommendation-content">
+													<p><?php echo esc_html( $recommendation['description'] ); ?></p>
+													<?php if ( ! empty( $recommendation['items'] ) && is_array( $recommendation['items'] ) ) : ?>
+														<ul class="recommendation-items">
+															<?php foreach ( $recommendation['items'] as $item ) : ?>
+																<li><?php echo esc_html( $item ); ?></li>
+															<?php endforeach; ?>
+														</ul>
+													<?php endif; ?>
+												</div>
+											</div>
+											<?php
+										}
+										
+										echo '</div>';
+										echo '</div>';
+									}
+									
+									echo '</div>';
+								} else {
+									// Show empty state with proper messaging
+									echo '<div class="empty-state">';
+									echo '<div class="empty-icon">💡</div>';
+									echo '<h5>No Insights Available</h5>';
+									echo '<p>Complete your assessments to receive personalized insights and recommendations.</p>';
+									echo '<div class="empty-state-actions">';
+									echo '<a href="' . esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ) . '" class="btn btn-primary">Take Assessments</a>';
+									echo '</div>';
+									echo '</div>';
+								}
+								?>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Tab 5: My Story -->
+					<div id="tab-my-story" class="my-story-tab-content">
+						<div class="story-container">
+							<!-- Header Section -->
+							<div class="scores-title-container">
+								<h2 class="scores-title">MY STORY</h2>
+							</div>
+							
+							<!-- Your Next Steps Section -->
+							<div class="story-next-steps-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">YOUR NEXT STEPS</h2>
+								</div>
+								
+								<?php
+								// Get next steps from Next Steps Widget with proper error handling
+								$next_steps_data = array();
+								if ( class_exists( 'ENNU_Next_Steps_Widget' ) ) {
+									try {
+										$next_steps_widget = new ENNU_Next_Steps_Widget();
+										$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
+									} catch ( Exception $e ) {
+										error_log( 'ENNU Next Steps Widget Error: ' . $e->getMessage() );
+										$next_steps_data = array();
+									}
+								}
+								
+								if ( ! empty( $next_steps_data['priority_actions'] ) && is_array( $next_steps_data['priority_actions'] ) ) {
+									echo '<div class="story-priority-actions">';
+									foreach ( $next_steps_data['priority_actions'] as $action ) {
+										if ( ! is_array( $action ) || ! isset( $action['title'] ) || ! isset( $action['description'] ) ) {
+											continue; // Skip invalid data
+										}
+										?>
+										<div class="story-action-item ennu-priority-<?php echo esc_attr( $action['priority'] ?? 'medium' ); ?>">
+											<div class="story-action-icon"><?php echo esc_html( $action['icon'] ?? '📋' ); ?></div>
+											<div class="story-action-content">
+												<h5><?php echo esc_html( $action['title'] ); ?></h5>
+												<p><?php echo esc_html( $action['description'] ); ?></p>
+												<?php if ( ! empty( $action['items'] ) && is_array( $action['items'] ) ) : ?>
+													<ul class="story-action-items">
+														<?php foreach ( $action['items'] as $item ) : ?>
+															<li>
+																<?php if ( isset( $item['url'] ) && ! empty( $item['url'] ) ) : ?>
+																	<a href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['name'] ?? 'Action' ); ?></a>
+																<?php else : ?>
+																	<?php echo esc_html( $item['name'] ?? 'Action' ); ?>
+																<?php endif; ?>
+															</li>
+														<?php endforeach; ?>
+													</ul>
+												<?php endif; ?>
+											</div>
+										</div>
+										<?php
+									}
+									echo '</div>';
+								} else {
+									echo '<div class="no-next-steps-message">';
+									echo '<div class="empty-state">';
+									echo '<div class="empty-icon">🎯</div>';
+									echo '<h5>No Next Steps Available</h5>';
+									echo '<p>Complete your assessments to receive personalized next steps and recommendations.</p>';
+									echo '<div class="empty-state-actions">';
+									echo '<a href="' . esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ) . '" class="btn btn-primary">Take Assessments</a>';
+									echo '</div>';
+									echo '</div>';
+									echo '</div>';
+								}
+								?>
+							</div>
+							
+							<!-- Your Progress Section -->
+							<div class="story-progress-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">YOUR PROGRESS</h2>
+								</div>
+								
+								<?php
+								// Get progress from Progress Tracker with proper error handling
+								$progress_data = array();
+								if ( class_exists( 'ENNU_Progress_Tracker' ) ) {
+									try {
+										$progress_tracker = new ENNU_Progress_Tracker();
+										$progress_data = $progress_tracker->get_user_progress( $user_id );
+									} catch ( Exception $e ) {
+										error_log( 'ENNU Progress Tracker Error: ' . $e->getMessage() );
+										$progress_data = array();
+									}
+								}
+								
+								if ( ! empty( $progress_data['profile_completion'] ) && is_array( $progress_data['profile_completion'] ) ) {
+									$completion = $progress_data['profile_completion'];
+									if ( isset( $completion['percentage'] ) && isset( $completion['completed_count'] ) && isset( $completion['total_count'] ) ) {
+										echo '<div class="story-profile-completion">';
+										echo '<div class="story-completion-progress">';
+										echo '<div class="story-progress-bar">';
+										echo '<div class="story-progress-fill" style="width: ' . esc_attr( $completion['percentage'] ) . '%;"></div>';
+										echo '</div>';
+										echo '<div class="story-progress-text">';
+										echo esc_html( $completion['completed_count'] ) . ' of ' . esc_html( $completion['total_count'] ) . ' assessments completed';
+										echo ' (' . esc_html( $completion['percentage'] ) . '%)';
+										echo '</div>';
+										echo '</div>';
+										if ( ! empty( $completion['status'] ) ) {
+											echo '<p class="story-completion-status-text">' . esc_html( $completion['status'] ) . '</p>';
+										}
+										echo '</div>';
+									}
+								}
+								
+								if ( ! empty( $progress_data['milestones'] ) && is_array( $progress_data['milestones'] ) ) {
+									echo '<div class="story-milestones">';
+									echo '<h4>Milestones</h4>';
+									echo '<div class="story-milestones-grid">';
+									foreach ( $progress_data['milestones'] as $milestone ) {
+										if ( ! is_array( $milestone ) || ! isset( $milestone['name'] ) || ! isset( $milestone['description'] ) ) {
+											continue; // Skip invalid data
+										}
+										?>
+										<div class="story-milestone-item <?php echo ( $milestone['achieved'] ?? false ) ? 'achieved' : 'pending'; ?>">
+											<div class="story-milestone-icon"><?php echo esc_html( $milestone['icon'] ?? '🏆' ); ?></div>
+											<div class="story-milestone-content">
+												<h5><?php echo esc_html( $milestone['name'] ); ?></h5>
+												<p><?php echo esc_html( $milestone['description'] ); ?></p>
+												<?php if ( isset( $milestone['current_count'] ) && isset( $milestone['required_count'] ) ) : ?>
+													<div class="story-milestone-progress">
+														<?php echo esc_html( $milestone['current_count'] ); ?> / <?php echo esc_html( $milestone['required_count'] ); ?>
+													</div>
+												<?php endif; ?>
+											</div>
+										</div>
+										<?php
+									}
+									echo '</div>';
+									echo '</div>';
+								}
+								
+								// Show empty state if no progress data
+								if ( empty( $progress_data ) || ( empty( $progress_data['profile_completion'] ) && empty( $progress_data['milestones'] ) ) ) {
+									echo '<div class="empty-state">';
+									echo '<div class="empty-icon">📊</div>';
+									echo '<h5>No Progress Data Available</h5>';
+									echo '<p>Complete your assessments to track your progress and milestones.</p>';
+									echo '<div class="empty-state-actions">';
+									echo '<a href="' . esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ) . '" class="btn btn-primary">Take Assessments</a>';
+									echo '</div>';
+									echo '</div>';
+								}
+								?>
+							</div>
+							
+							<!-- Suggested Goals Section -->
+							<div class="story-suggested-goals-section">
+								<div class="scores-title-container">
+									<h2 class="scores-title">SUGGESTED GOALS</h2>
+								</div>
+								
+								<?php
+								// Get suggested goals from Next Steps Widget with proper error handling
+								$next_steps_data = array();
+								if ( class_exists( 'ENNU_Next_Steps_Widget' ) ) {
+									try {
+										$next_steps_widget = new ENNU_Next_Steps_Widget();
+										$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
+									} catch ( Exception $e ) {
+										error_log( 'ENNU Next Steps Widget Error: ' . $e->getMessage() );
+										$next_steps_data = array();
+									}
+								}
+								
+								if ( ! empty( $next_steps_data['goal_suggestions'] ) && is_array( $next_steps_data['goal_suggestions'] ) ) {
+									echo '<div class="story-suggested-goals-grid">';
+									foreach ( $next_steps_data['goal_suggestions'] as $goal ) {
+										if ( ! is_array( $goal ) || ! isset( $goal['title'] ) || ! isset( $goal['description'] ) ) {
+											continue; // Skip invalid data
+										}
+										?>
+										<div class="story-suggested-goal-card">
+											<div class="story-suggested-goal-content">
+												<h5><?php echo esc_html( $goal['title'] ); ?></h5>
+												<p><?php echo esc_html( $goal['description'] ); ?></p>
+												<?php if ( isset( $goal['current_score'] ) && isset( $goal['target_score'] ) ) : ?>
+													<div class="story-score-progress">
+														<span class="story-current-score"><?php echo esc_html( $goal['current_score'] ); ?></span>
+														<span class="story-progress-arrow">→</span>
+														<span class="story-target-score"><?php echo esc_html( $goal['target_score'] ); ?></span>
+													</div>
+												<?php endif; ?>
+												<?php if ( ! empty( $goal['actions'] ) && is_array( $goal['actions'] ) ) : ?>
+													<ul class="story-goal-actions">
+														<?php foreach ( $goal['actions'] as $action ) : ?>
+															<li><?php echo esc_html( $action ); ?></li>
+														<?php endforeach; ?>
+													</ul>
+												<?php endif; ?>
+											</div>
+										</div>
+										<?php
+									}
+									echo '</div>';
+								} else {
+									echo '<div class="story-no-suggested-goals-message">';
+									echo '<div class="empty-state">';
+									echo '<div class="empty-icon">🎯</div>';
+									echo '<h5>No Suggested Goals</h5>';
+									echo '<p>Complete more assessments to receive personalized goal suggestions.</p>';
+									echo '<div class="empty-state-actions">';
+									echo '<a href="' . esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ) . '" class="btn btn-primary">Take Assessments</a>';
+									echo '</div>';
+									echo '</div>';
+									echo '</div>';
+								}
+								?>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Tab 6: LabCorp PDF Upload -->
+					<div id="tab-pdf-upload" class="my-story-tab-content">
+						<div class="pdf-upload-container">
+							<!-- Header Section -->
+							<div class="scores-title-container">
+								<h2 class="scores-title">LABCORP PDF UPLOAD</h2>
+							</div>
+							
+							<div class="pdf-upload-section">
+								<div class="pdf-upload-description">
+									<p>Upload your official LabCorp PDF results to automatically extract and import your biomarker data into your ENNU Life profile.</p>
+								</div>
+								
+								<div class="pdf-upload-form-container">
+									<form id="ennu-pdf-upload-form" enctype="multipart/form-data" method="post">
+										<?php wp_nonce_field( 'ennu_biomarker_admin_nonce', 'nonce' ); ?>
+										<div class="ennu-form-group">
+											<label for="labcorp_pdf">Select LabCorp PDF File:</label>
+											<input type="file" name="labcorp_pdf" id="labcorp_pdf" accept=".pdf" required>
+											<small>Maximum file size: 10MB. Only LabCorp PDF files are supported.</small>
+										</div>
+										<button type="submit" class="ennu-button ennu-button-primary">Upload and Process</button>
+									</form>
+									
+									<div id="ennu-pdf-feedback" class="ennu-feedback" style="display:none;"></div>
+									<div id="ennu-pdf-progress" class="ennu-progress" style="display:none;">
+										<div class="ennu-spinner"></div>
+										<p>Processing PDF...</p>
+									</div>
+								</div>
+								
+								<div class="pdf-upload-instructions">
+									<h4>Instructions:</h4>
+									<ul>
+										<li>Ensure your PDF is from LabCorp and contains biomarker test results</li>
+										<li>File must be in PDF format and under 10MB</li>
+										<li>Processing may take up to 30 seconds</li>
+										<li>Your data will be automatically integrated with your ENNU Life profile</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					
 					</div>
 
 
@@ -2724,16 +3503,382 @@ if ( empty( $display_name ) ) {
 		document.querySelectorAll('.biomarker-stat-card').forEach(card => {
 			card.addEventListener('mouseenter', function() {
 				this.style.transform = 'translateY(-2px)';
-				this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-				this.querySelector('div[style*="opacity: 0"]').style.opacity = '1';
 			});
 			
 			card.addEventListener('mouseleave', function() {
 				this.style.transform = 'translateY(0)';
-				this.style.boxShadow = 'none';
-				this.querySelector('div[style*="opacity: 0"]').style.opacity = '0';
 			});
 		});
+		
+		// Enhanced PDF Upload Form Handler with Detailed Notifications
+		const pdfUploadForm = document.getElementById('ennu-pdf-upload-form');
+		if (pdfUploadForm) {
+			pdfUploadForm.addEventListener('submit', function(e) {
+				e.preventDefault();
+				
+				const formData = new FormData(this);
+				formData.append('action', 'ennu_upload_pdf');
+				formData.append('nonce', ennu_ajax.nonce);
+				
+				const progressDiv = document.getElementById('ennu-pdf-progress');
+				const feedbackDiv = document.getElementById('ennu-pdf-feedback');
+				
+				// Show progress
+				progressDiv.style.display = 'block';
+				feedbackDiv.style.display = 'none';
+				
+				// Simulate progress animation
+				let progress = 0;
+				const progressInterval = setInterval(() => {
+					progress += Math.random() * 15;
+					if (progress > 90) progress = 90;
+					const progressBar = progressDiv.querySelector('.ennu-spinner');
+					if (progressBar) {
+						progressBar.style.width = progress + '%';
+					}
+				}, 200);
+				
+				// Use a more reliable AJAX approach with better error handling
+				const uploadURL = window.location.origin + '/wp-content/plugins/ennulifeassessments/direct-ajax-handler.php';
+				
+				fetch(uploadURL, {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => {
+					console.log('Response status:', response.status);
+					console.log('Response headers:', response.headers);
+					
+					if (!response.ok) {
+						throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+					}
+					
+					return response.text();
+				})
+				.then(data => {
+					console.log('Raw response:', data);
+					
+					clearInterval(progressInterval);
+					progressDiv.style.display = 'none';
+					feedbackDiv.style.display = 'block';
+					
+					try {
+						const result = JSON.parse(data);
+						console.log('Parsed result:', result);
+						
+						// Display detailed notification
+						showDetailedNotification(result);
+						
+						if (result.success) {
+							feedbackDiv.innerHTML = `
+								<div class="ennu-feedback-success">
+									<strong>✅ Success!</strong> ${result.message}
+									<br><small>Biomarkers imported: ${result.biomarkers_imported || 0}</small>
+								</div>
+							`;
+							feedbackDiv.className = 'ennu-feedback ennu-feedback-success';
+							
+							// Refresh dashboard after successful upload
+							setTimeout(() => {
+								location.reload();
+							}, 3000);
+						} else {
+							feedbackDiv.innerHTML = `
+								<div class="ennu-feedback-error">
+									<strong>❌ Error:</strong> ${result.message}
+								</div>
+							`;
+							feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
+						}
+					} catch (parseError) {
+						console.error('JSON parse error:', parseError);
+						console.error('Raw data:', data);
+						
+						feedbackDiv.innerHTML = `
+							<div class="ennu-feedback-error">
+								<strong>❌ Server Error:</strong> Invalid response from server
+							</div>
+						`;
+						feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
+						
+						showDetailedNotification({
+							success: false,
+							notification: {
+								type: 'error',
+								title: 'Server Error',
+								message: 'The server returned an invalid response. Please try again.'
+							}
+						});
+					}
+				})
+				.catch(error => {
+					console.error('Fetch error:', error);
+					
+					clearInterval(progressInterval);
+					progressDiv.style.display = 'none';
+					feedbackDiv.style.display = 'block';
+					feedbackDiv.innerHTML = `
+						<div class="ennu-feedback-error">
+							<strong>❌ Network Error:</strong> Failed to process PDF. Please try again.
+						</div>
+					`;
+					feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
+					
+					showDetailedNotification({
+						success: false,
+						notification: {
+							type: 'error',
+							title: 'Network Error',
+							message: 'Failed to connect to server. Please check your internet connection and try again.'
+						}
+					});
+				});
+			});
+		}
+		
+		// Enhanced notification system with detailed biomarker information
+		function showDetailedNotification(data) {
+			// Remove existing notifications
+			const existingNotifications = document.querySelectorAll('.ennu-notification');
+			existingNotifications.forEach(notification => notification.remove());
+			
+			// Create notification container
+			const notificationContainer = document.createElement('div');
+			notificationContainer.className = 'ennu-notification-container';
+			notificationContainer.style.cssText = `
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				z-index: 9999;
+				max-width: 500px;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			`;
+			
+			// Create notification
+			const notification = document.createElement('div');
+			notification.className = `ennu-notification ennu-notification-${data.notification?.type || 'info'}`;
+			
+			// Set notification styles based on type
+			const styles = {
+				success: {
+					background: 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
+					border: '2px solid #28a745',
+					color: '#155724'
+				},
+				error: {
+					background: 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)',
+					border: '2px solid #dc3545',
+					color: '#721c24'
+				},
+				warning: {
+					background: 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
+					border: '2px solid #ffc107',
+					color: '#856404'
+				},
+				info: {
+					background: 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
+					border: '2px solid #17a2b8',
+					color: '#0c5460'
+				}
+			};
+			
+			const notificationType = data.notification?.type || 'info';
+			const style = styles[notificationType];
+			
+			notification.style.cssText = `
+				padding: 20px;
+				border-radius: 10px;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				margin-bottom: 15px;
+				background: ${style.background};
+				border: ${style.border};
+				color: ${style.color};
+				transform: translateX(100%);
+				transition: transform 0.3s ease;
+				max-height: 80vh;
+				overflow-y: auto;
+			`;
+			
+			// Create notification content
+			let notificationContent = '';
+			
+			if (data.notification) {
+				notificationContent += `
+					<div style="display: flex; align-items: flex-start; gap: 15px;">
+						<div style="flex-shrink: 0; font-size: 24px;">
+							${getNotificationIcon(data.notification.type)}
+						</div>
+						<div style="flex-grow: 1;">
+							<h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">
+								${data.notification.title || 'Notification'}
+							</h3>
+							<p style="margin: 0 0 15px 0; line-height: 1.5;">
+								${data.notification.message || data.message || 'Operation completed.'}
+							</p>
+				`;
+				
+				// Add biomarker details if available
+				if (data.notification.biomarker_details && Object.keys(data.notification.biomarker_details).length > 0) {
+					notificationContent += `
+						<div style="background: rgba(255,255,255,0.3); padding: 15px; border-radius: 8px; margin-top: 15px;">
+							<h4 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">
+								📊 Imported Biomarkers (${data.notification.biomarker_count})
+							</h4>
+							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+					`;
+					
+					Object.entries(data.notification.biomarker_details).forEach(([key, details]) => {
+						notificationContent += `
+							<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 6px; border-left: 3px solid #28a745;">
+								<div style="font-weight: 600; font-size: 14px;">${getBiomarkerDisplayName(key)}</div>
+								<div style="font-size: 16px; font-weight: 700; color: #28a745;">${details.display}</div>
+							</div>
+						`;
+					});
+					
+					notificationContent += `
+							</div>
+						</div>
+					`;
+				}
+				
+				// Add timestamp
+				if (data.notification.timestamp) {
+					notificationContent += `
+						<div style="margin-top: 15px; font-size: 12px; opacity: 0.7;">
+							🕒 ${new Date(data.notification.timestamp).toLocaleString()}
+						</div>
+					`;
+				}
+				
+				notificationContent += `
+						</div>
+						<button onclick="this.parentElement.parentElement.remove()" style="
+							background: none;
+							border: none;
+							font-size: 20px;
+							cursor: pointer;
+							color: inherit;
+							opacity: 0.7;
+							padding: 0;
+							width: 24px;
+							height: 24px;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+						" title="Close">×</button>
+					</div>
+				`;
+			} else {
+				// Fallback for simple messages
+				notificationContent = `
+					<div style="display: flex; align-items: center; gap: 15px;">
+						<div style="flex-grow: 1;">
+							<h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">
+								${data.success ? 'Success' : 'Error'}
+							</h3>
+							<p style="margin: 0; line-height: 1.5;">
+								${data.message || 'Operation completed.'}
+							</p>
+						</div>
+						<button onclick="this.parentElement.parentElement.remove()" style="
+							background: none;
+							border: none;
+							font-size: 20px;
+							cursor: pointer;
+							color: inherit;
+							opacity: 0.7;
+							padding: 0;
+							width: 24px;
+							height: 24px;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+						" title="Close">×</button>
+					</div>
+				`;
+			}
+			
+			notification.innerHTML = notificationContent;
+			notificationContainer.appendChild(notification);
+			document.body.appendChild(notificationContainer);
+			
+			// Animate in
+			setTimeout(() => {
+				notification.style.transform = 'translateX(0)';
+			}, 100);
+			
+			// Auto-remove after 10 seconds for success, 15 seconds for errors
+			const autoRemoveTime = data.notification?.type === 'success' ? 10000 : 15000;
+			setTimeout(() => {
+				if (notificationContainer.parentElement) {
+					notification.style.transform = 'translateX(100%)';
+					setTimeout(() => {
+						if (notificationContainer.parentElement) {
+							notificationContainer.remove();
+						}
+					}, 300);
+				}
+			}, autoRemoveTime);
+		}
+		
+		// Helper function to get notification icon
+		function getNotificationIcon(type) {
+			const icons = {
+				success: '✅',
+				error: '❌',
+				warning: '⚠️',
+				info: 'ℹ️'
+			};
+			return icons[type] || icons.info;
+		}
+		
+		// Helper function to get biomarker display name
+		function getBiomarkerDisplayName(key) {
+			const names = {
+				'total_cholesterol': 'Total Cholesterol',
+				'ldl_cholesterol': 'LDL Cholesterol',
+				'hdl_cholesterol': 'HDL Cholesterol',
+				'triglycerides': 'Triglycerides',
+				'glucose': 'Glucose',
+				'hba1c': 'HbA1c',
+				'testosterone': 'Testosterone',
+				'tsh': 'TSH',
+				'vitamin_d': 'Vitamin D',
+				'apob': 'ApoB',
+				'lp_a': 'Lp(a)',
+				'insulin': 'Insulin',
+				'c_peptide': 'C-Peptide',
+				'estradiol': 'Estradiol',
+				'progesterone': 'Progesterone',
+				'dhea_s': 'DHEA-S',
+				'cortisol': 'Cortisol',
+				'free_t4': 'Free T4',
+				'free_t3': 'Free T3',
+				'vitamin_b12': 'Vitamin B12',
+				'folate': 'Folate',
+				'iron': 'Iron',
+				'ferritin': 'Ferritin',
+				'zinc': 'Zinc',
+				'magnesium': 'Magnesium',
+				'crp': 'CRP',
+				'hs_crp': 'hs-CRP',
+				'esr': 'ESR',
+				'creatinine': 'Creatinine',
+				'bun': 'BUN',
+				'egfr': 'eGFR',
+				'alt': 'ALT',
+				'ast': 'AST',
+				'alkaline_phosphatase': 'Alkaline Phosphatase',
+				'bilirubin': 'Bilirubin',
+				'hemoglobin': 'Hemoglobin',
+				'hematocrit': 'Hematocrit',
+				'wbc': 'WBC',
+				'rbc': 'RBC',
+				'platelets': 'Platelets'
+			};
+			return names[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+		}
 		
 		// Modern biomarker item hover effects
 		document.querySelectorAll('.biomarker-item').forEach(item => {
@@ -3238,151 +4383,68 @@ if ( empty( $display_name ) ) {
 			observer.observe(el);
 		});
 	}
-</script>
-
-
-<script>
-// Symptoms Tab JavaScript
-jQuery(document).ready(function($) {
 	
-	// Update symptoms button
-	$('#update-symptoms').on('click', function() {
-		const userId = $(this).data('user-id');
-		const button = $(this);
-		const originalText = button.text();
+	// Pillar hover functionality with contextual text
+	function updateContextualText(pillar, hasScore) {
+		const contextualText = document.getElementById('contextual-text');
+		if (!contextualText) return;
 		
-		button.text('Updating...').prop('disabled', true);
+		let message = '';
+		let assessmentLink = '';
 		
-		$.ajax({
-			url: ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'ennu_update_symptoms',
-				user_id: userId,
-				nonce: ennu_ajax.nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					location.reload();
-				} else {
-					alert('Error updating symptoms: ' + (response.data || 'Unknown error'));
-				}
-			},
-			error: function() {
-				alert('Error updating symptoms. Please try again.');
-			},
-			complete: function() {
-				button.text(originalText).prop('disabled', false);
-			}
-		});
-	});
-	
-	// Populate symptoms from assessments
-	$('#populate-symptoms').on('click', function() {
-		const userId = $(this).data('user-id');
-		const button = $(this);
-		const originalText = button.text();
+		// Define assessment links for each pillar
+		const assessmentLinks = {
+			'Mind': 'Take Mental Health Assessment',
+			'Body': 'Take Physical Assessment', 
+			'Lifestyle': 'Take Lifestyle Assessment',
+			'Aesthetics': 'Take Aesthetics Assessment'
+		};
 		
-		button.text('Extracting...').prop('disabled', true);
-		
-		$.ajax({
-			url: ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'ennu_populate_symptoms',
-				user_id: userId,
-				nonce: ennu_ajax.nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					location.reload();
-				} else {
-					alert('Error extracting symptoms: ' + (response.data || 'Unknown error'));
-				}
-			},
-			error: function() {
-				alert('Error extracting symptoms. Please try again.');
-			},
-			complete: function() {
-				button.text(originalText).prop('disabled', false);
-			}
-		});
-	});
-	
-	// Clear symptom history
-	$('#clear-symptoms').on('click', function() {
-		if (!confirm('Are you sure you want to clear all symptom history? This action cannot be undone.')) {
-			return;
+		if (hasScore === 'true') {
+			// User has a score - show insights and improvement options
+			message = `Your ${pillar} pillar has been assessed. `;
+			message += assessmentLinks[pillar] ? `<a href="#" onclick="takeAssessment('${pillar.toLowerCase()}')">${assessmentLinks[pillar]}</a> to improve your score.` : '';
+		} else {
+			// No score yet - encourage assessment
+			message = `Your ${pillar} pillar hasn't been assessed yet. `;
+			message += assessmentLinks[pillar] ? `<a href="#" onclick="takeAssessment('${pillar.toLowerCase()}')">${assessmentLinks[pillar]}</a> to get your score.` : '';
 		}
 		
-		const userId = $(this).data('user-id');
-		const button = $(this);
-		const originalText = button.text();
+		contextualText.innerHTML = message;
+	}
+	
+	// Function to handle assessment navigation
+	function takeAssessment(pillarType) {
+		// Map pillar types to assessment URLs
+		const assessmentUrls = {
+			'mind': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['mental-health-assessment'] ?? 1 ) ) ); ?>',
+			'body': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['physical-assessment'] ?? 1 ) ) ); ?>',
+			'lifestyle': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['lifestyle-assessment'] ?? 1 ) ) ); ?>',
+			'aesthetics': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['aesthetics-assessment'] ?? 1 ) ) ); ?>'
+		};
 		
-		button.text('Clearing...').prop('disabled', true);
-		
-		$.ajax({
-			url: ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'ennu_clear_symptom_history',
-				user_id: userId,
-				nonce: ennu_ajax.nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					location.reload();
-				} else {
-					alert('Error clearing symptoms: ' + (response.data || 'Unknown error'));
+		const url = assessmentUrls[pillarType];
+		if (url) {
+			window.location.href = url;
+		}
+	}
+	
+	// Initialize pillar hover event listeners
+	document.addEventListener('DOMContentLoaded', function() {
+		document.querySelectorAll('.pillar-orb').forEach(orb => {
+			orb.addEventListener('mouseenter', function() {
+				const pillar = this.getAttribute('data-pillar');
+				const hasScore = this.getAttribute('data-has-score');
+				updateContextualText(pillar, hasScore);
+			});
+			
+			orb.addEventListener('mouseleave', function() {
+				const contextualText = document.getElementById('contextual-text');
+				if (contextualText) {
+					contextualText.innerHTML = 'Hover over a pillar to see details and take assessments.';
 				}
-			},
-			error: function() {
-				alert('Error clearing symptoms. Please try again.');
-			},
-			complete: function() {
-				button.text(originalText).prop('disabled', false);
-			}
+			});
 		});
 	});
-	
-			// Auto-refresh symptoms when tab is shown
-		$('a[href="#tab-my-symptoms"]').on('click', function() {
-			// Refresh symptoms data every 30 seconds when tab is active
-			setInterval(function() {
-				if ($('#tab-my-symptoms').is(':visible')) {
-					refreshSymptomsData();
-				}
-			}, 30000);
-		});
-		
-
-	
-	function refreshSymptomsData() {
-		const userId = $('.symptoms-actions button').first().data('user-id');
-		
-		$.ajax({
-			url: ajaxurl,
-			type: 'POST',
-			data: {
-				action: 'ennu_get_symptoms_data',
-				user_id: userId,
-				nonce: ennu_ajax.nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					updateSymptomsDisplay(response.data);
-				}
-			}
-		});
-	}
-	
-	function updateSymptomsDisplay(data) {
-		// Update statistics
-		$('#total-symptoms-count').text(data.total_symptoms || 0);
-		$('#active-symptoms-count').text(data.active_symptoms || 0);
-		$('#biomarker-correlations').text(data.biomarker_correlations || 0);
-		$('#trending-symptoms').text(data.trending_symptoms || 0);
-	}
-	
-});
 </script>
+

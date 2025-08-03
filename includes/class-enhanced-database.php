@@ -144,8 +144,7 @@ class ENNU_Life_Enhanced_Database {
 			// Map form data to scoring system format
 			$mapped_data = ENNU_Question_Mapper::map_form_data_to_scoring( $assessment_type, $form_data );
 
-			$scoring_system    = new ENNU_Scoring_System();
-			$calculated_scores = $scoring_system->calculate_assessment_score( $assessment_type, $mapped_data );
+			$calculated_scores = ENNU_Scoring_System::calculate_scores_for_assessment( $assessment_type, $mapped_data );
 
 			if ( ! $calculated_scores ) {
 				throw new Exception( "Failed to calculate scores for {$assessment_type}" );
@@ -160,11 +159,11 @@ class ENNU_Life_Enhanced_Database {
 				'assessment_type' => $assessment_type,
 			);
 
-			// Save to user meta
-			update_user_meta( $user_id, $assessment_type . '_calculated_score', $score_data['overall_score'] );
-			update_user_meta( $user_id, $assessment_type . '_category_scores', $score_data['category_scores'] );
-			update_user_meta( $user_id, $assessment_type . '_score_interpretation', $score_data['interpretation'] );
-			update_user_meta( $user_id, $assessment_type . '_score_calculated_at', $score_data['calculated_at'] );
+			// Save to user meta with correct ennu_ prefix for dashboard compatibility
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', $score_data['overall_score'] );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', $score_data['category_scores'] );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_interpretation', $score_data['interpretation'] );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_calculated_at', $score_data['calculated_at'] );
 
 			// Cache the results
 			ENNU_Score_Cache::cache_score( $user_id, $assessment_type, $score_data );
@@ -420,9 +419,9 @@ class ENNU_Life_Enhanced_Database {
 	private function update_user_journey_timestamps( $user_id, $assessment_type ) {
 		$timestamp = current_time( 'mysql' );
 
-		// Update assessment-specific timestamp
-		update_user_meta( $user_id, $assessment_type . '_completed_at', $timestamp );
-		update_user_meta( $user_id, $assessment_type . '_last_updated', $timestamp );
+		// Update assessment-specific timestamp with correct ennu_ prefix for dashboard compatibility
+		update_user_meta( $user_id, 'ennu_' . $assessment_type . '_completed', $timestamp );
+		update_user_meta( $user_id, 'ennu_' . $assessment_type . '_last_updated', $timestamp );
 
 		// Update overall journey timestamps
 		update_user_meta( $user_id, 'ennu_last_assessment_completed', $assessment_type );
@@ -442,7 +441,8 @@ class ENNU_Life_Enhanced_Database {
 		$completed   = 0;
 
 		foreach ( $assessments as $assessment ) {
-			if ( get_user_meta( $user_id, $assessment . '_q1', true ) ) {
+			// Check for calculated score with correct ennu_ prefix
+			if ( get_user_meta( $user_id, 'ennu_' . $assessment . '_calculated_score', true ) ) {
 				$completed++;
 			}
 		}
@@ -461,7 +461,8 @@ class ENNU_Life_Enhanced_Database {
 			$count       = 0;
 
 			foreach ( $assessments as $assessment ) {
-				$score = get_user_meta( $user_id, $assessment . '_calculated_score', true );
+				// Check for calculated score with correct ennu_ prefix
+				$score = get_user_meta( $user_id, 'ennu_' . $assessment . '_calculated_score', true );
 				if ( $score && is_numeric( $score ) ) {
 					$total_score += floatval( $score );
 					$count++;

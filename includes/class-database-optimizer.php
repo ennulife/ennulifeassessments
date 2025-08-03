@@ -53,6 +53,21 @@ class ENNU_Database_Optimizer {
 				'name'    => 'ennu_user_meta_key',
 				'columns' => 'user_id, meta_key',
 			),
+			array(
+				'table'   => $wpdb->usermeta,
+				'name'    => 'ennu_user_id_meta_key',
+				'columns' => 'user_id, meta_key(50)',
+			),
+			array(
+				'table'   => $wpdb->options,
+				'name'    => 'ennu_option_name_autoload',
+				'columns' => 'option_name, autoload',
+			),
+			array(
+				'table'   => $wpdb->options,
+				'name'    => 'ennu_transient_cleanup',
+				'columns' => 'option_name(50), autoload',
+			),
 		);
 
 		foreach ( $indexes as $index ) {
@@ -271,6 +286,109 @@ class ENNU_Database_Optimizer {
 		delete_transient( 'ennu_user_stats_*' );
 
 		wp_cache_flush();
+	}
+
+	/**
+	 * Clean up expired transients to optimize database performance
+	 * Based on WordPress database optimization best practices
+	 */
+	public function cleanup_expired_transients() {
+		global $wpdb;
+		
+		// Delete expired transients
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_%' AND option_value < UNIX_TIMESTAMP()" );
+		
+		// Delete orphaned transients (timeout exists but transient doesn't)
+		$wpdb->query( "
+			DELETE t1 FROM {$wpdb->options} t1
+			LEFT JOIN {$wpdb->options} t2 ON t1.option_name = REPLACE(t2.option_name, '_transient_timeout_', '_transient_')
+			WHERE t1.option_name LIKE '_transient_timeout_%'
+			AND t2.option_name IS NULL
+		" );
+		
+		// Clean up old usermeta entries
+		$wpdb->query( "
+			DELETE FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%' 
+			AND meta_value = '' 
+			AND meta_value IS NOT NULL
+		" );
+		
+		error_log( 'ENNU Database Optimizer: Cleaned up expired transients and empty usermeta entries' );
+	}
+
+	/**
+	 * Optimize database tables for better performance
+	 */
+	public function optimize_database_tables() {
+		global $wpdb;
+		
+		$tables_to_optimize = array(
+			$wpdb->options,
+			$wpdb->usermeta,
+			$wpdb->users
+		);
+		
+		foreach ( $tables_to_optimize as $table ) {
+			$wpdb->query( "OPTIMIZE TABLE {$table}" );
+		}
+		
+		error_log( 'ENNU Database Optimizer: Optimized database tables for better performance' );
+	}
+
+	/**
+	 * Add query monitoring for slow queries
+	 */
+	public function monitor_slow_queries() {
+		global $wpdb;
+		
+		// Only log slow queries without changing global settings
+		error_log( 'ENNU Database Optimizer: Slow query monitoring enabled (logging only)' );
+	}
+
+	/**
+	 * Initialize database optimizations
+	 * Based on WordPress database optimization best practices from wpspeedfix.com
+	 */
+	public function initialize_optimizations() {
+		// Add database indexes for better performance
+		$this->maybe_add_database_indexes();
+		
+		// Clean up expired transients
+		$this->cleanup_expired_transients();
+		
+		// Schedule regular cleanup
+		if ( ! wp_next_scheduled( 'ennu_database_cleanup' ) ) {
+			wp_schedule_event( time(), 'daily', 'ennu_database_cleanup' );
+		}
+		
+		error_log( 'ENNU Database Optimizer: Database optimizations initialized successfully' );
+	}
+
+	/**
+	 * Get database performance metrics
+	 */
+	public function get_performance_metrics() {
+		global $wpdb;
+		
+		$metrics = array();
+		
+		// Get table sizes
+		$tables = array( $wpdb->options, $wpdb->usermeta, $wpdb->users );
+		foreach ( $tables as $table ) {
+			$size = $wpdb->get_var( "SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'Size' FROM information_schema.TABLES WHERE table_schema = DATABASE() AND table_name = '{$table}'" );
+			$metrics['table_sizes'][ $table ] = $size . ' MB';
+		}
+		
+		// Get transient count
+		$transient_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '_transient_%'" );
+		$metrics['transient_count'] = $transient_count;
+		
+		// Get usermeta count
+		$usermeta_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key LIKE 'ennu_%'" );
+		$metrics['ennu_usermeta_count'] = $usermeta_count;
+		
+		return $metrics;
 	}
 
 	/**

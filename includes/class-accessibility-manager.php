@@ -52,11 +52,11 @@ class ENNU_Accessibility_Manager {
 			'ennu-accessibility',
 			'ennuA11y',
 			array(
-				'skipToContent'    => __( 'Skip to main content', 'ennu-life-assessments' ),
-				'skipToNavigation' => __( 'Skip to navigation', 'ennu-life-assessments' ),
-				'closeDialog'      => __( 'Close dialog', 'ennu-life-assessments' ),
-				'loading'          => __( 'Loading, please wait', 'ennu-life-assessments' ),
-				'error'            => __( 'An error occurred', 'ennu-life-assessments' ),
+				'skipToContent'    => __( 'Skip to main content', 'ennulifeassessments' ),
+				'skipToNavigation' => __( 'Skip to navigation', 'ennulifeassessments' ),
+				'closeDialog'      => __( 'Close dialog', 'ennulifeassessments' ),
+				'loading'          => __( 'Loading, please wait', 'ennulifeassessments' ),
+				'error'            => __( 'An error occurred', 'ennulifeassessments' ),
 			)
 		);
 	}
@@ -74,7 +74,7 @@ class ENNU_Accessibility_Manager {
 	 */
 	public function add_form_accessibility( $attributes ) {
 		$attributes['role']       = 'form';
-		$attributes['aria-label'] = __( 'Health Assessment Form', 'ennu-life-assessments' );
+		$attributes['aria-label'] = __( 'Health Assessment Form', 'ennulifeassessments' );
 
 		return $attributes;
 	}
@@ -83,9 +83,9 @@ class ENNU_Accessibility_Manager {
 	 * Add skip links
 	 */
 	public function add_skip_links() {
-		echo '<div class="ennu-skip-links" aria-label="' . esc_attr__( 'Skip links', 'ennu-life-assessments' ) . '">';
-		echo '<a href="#ennu-main-content" class="ennu-skip-link">' . esc_html__( 'Skip to main content', 'ennu-life-assessments' ) . '</a>';
-		echo '<a href="#ennu-navigation" class="ennu-skip-link">' . esc_html__( 'Skip to navigation', 'ennu-life-assessments' ) . '</a>';
+		echo '<div class="ennu-skip-links" aria-label="' . esc_attr__( 'Skip links', 'ennulifeassessments' ) . '">';
+		echo '<a href="#ennu-main-content" class="ennu-skip-link">' . esc_html__( 'Skip to main content', 'ennulifeassessments' ) . '</a>';
+		echo '<a href="#ennu-navigation" class="ennu-skip-link">' . esc_html__( 'Skip to navigation', 'ennulifeassessments' ) . '</a>';
 		echo '</div>';
 	}
 
@@ -148,7 +148,7 @@ class ENNU_Accessibility_Manager {
 	public function add_aria_labels( $content ) {
 		$content = preg_replace(
 			'/<button([^>]*?)>(\s*<[^>]*>\s*)<\/button>/',
-			'<button$1 aria-label="' . esc_attr__( 'Action button', 'ennu-life-assessments' ) . '">$2</button>',
+			'<button$1 aria-label="' . esc_attr__( 'Action button', 'ennulifeassessments' ) . '">$2</button>',
 			$content
 		);
 

@@ -15,6 +15,19 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Get the shortcode instance for proper URL generation
+// Get the shortcode instance
+if ( ! isset( $shortcode_instance ) ) {
+	$shortcode_manager = ennu_life()->get_shortcodes();
+	if ( $shortcode_manager && method_exists( $shortcode_manager, 'get_renderer' ) ) {
+		$shortcode_instance = $shortcode_manager->get_renderer();
+	}
+	if ( ! $shortcode_instance && class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
+		$shortcode_instance = new ENNU_Assessment_Shortcodes();
+	}
+}
+	$home_page_url = '?' . ENNU_UI_Constants::get_page_type('DASHBOARD');
 ?>
 
 <div class="ennu-chart-container">
@@ -25,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			array(
 				'color' => 'white',
 				'size'  => 'medium',
-				'link'  => home_url( '/' ),
+				'link'  => $home_page_url,
 				'alt'   => 'ENNU Life',
 				'class' => '',
 			)

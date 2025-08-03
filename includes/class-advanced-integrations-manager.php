@@ -176,12 +176,12 @@ private function load_integration_configs() {
 		'slack'            => array(
 			'name'      => 'Slack Team Communication',
 			'type'      => 'communication',
-			'enabled'   => get_option( 'ennu_slack_enabled', false ),
+			'enabled'   => true, // Always enabled
 			'config'    => array(
-				'bot_token'   => get_option( 'ennu_slack_bot_token', '' ),
-				'webhook_url' => get_option( 'ennu_slack_webhook_url', '' ),
-				'channel'     => get_option( 'ennu_slack_channel', '#general' ),
-				'username'    => get_option( 'ennu_slack_username', 'ENNU Life Bot' ),
+				'bot_token'   => '', // Not needed for webhook
+				'webhook_url' => 'https://hooks.slack.com/services/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',
+				'channel'     => '#basic-assessments',
+				'username'    => 'ENNU Life Bot',
 			),
 			'endpoints' => array(
 				'chat_post'     => '/api/chat.postMessage',
@@ -303,6 +303,374 @@ private function setup_integration_listeners() {
 
 private function setup_rate_limiting() {
 	add_filter( 'ennu_api_request_rate_limit', array( $this, 'apply_rate_limiting' ), 10, 3 );
+}
+
+/**
+ * Handle Slack webhook
+ *
+ * @param array $payload Webhook payload
+ * @return array Response data
+ */
+public function handle_slack_webhook( $payload ) {
+	// Verify webhook signature if configured
+	if ( ! $this->verify_webhook_signature( 'slack' ) ) {
+		return array(
+			'success' => false,
+			'message' => 'Invalid webhook signature',
+		);
+	}
+
+	// Process Slack webhook payload
+	$event_type = $payload['type'] ?? '';
+	$event_data = $payload['event'] ?? array();
+
+	switch ( $event_type ) {
+		case 'message':
+			// Handle incoming messages from Slack
+			$this->process_slack_message( $event_data );
+			break;
+		case 'reaction_added':
+			// Handle reactions to our messages
+			$this->process_slack_reaction( $event_data );
+			break;
+		default:
+			// Log unknown event type
+			error_log( 'ENNU Slack Webhook: Unknown event type: ' . $event_type );
+	}
+
+	return array(
+		'success' => true,
+		'message' => 'Webhook processed successfully',
+	);
+}
+
+/**
+ * Process incoming Slack message
+ *
+ * @param array $message_data Message data
+ */
+private function process_slack_message( $message_data ) {
+	$text = $message_data['text'] ?? '';
+	$user = $message_data['user'] ?? '';
+	$channel = $message_data['channel'] ?? '';
+
+	// Handle commands
+	if ( strpos( $text, '!ennu' ) === 0 ) {
+		$this->handle_slack_command( $text, $user, $channel );
+	}
+}
+
+/**
+ * Process Slack reaction
+ *
+ * @param array $reaction_data Reaction data
+ */
+private function process_slack_reaction( $reaction_data ) {
+	$reaction = $reaction_data['reaction'] ?? '';
+	$user = $reaction_data['user'] ?? '';
+	$item = $reaction_data['item'] ?? array();
+
+	// Handle specific reactions
+	switch ( $reaction ) {
+		case 'white_check_mark':
+			// Mark assessment as reviewed
+			$this->mark_assessment_reviewed( $item, $user );
+			break;
+		case 'x':
+			// Mark assessment as requiring attention
+			$this->mark_assessment_attention_needed( $item, $user );
+			break;
+	}
+}
+
+/**
+ * Handle Slack commands
+ *
+ * @param string $text Command text
+ * @param string $user User ID
+ * @param string $channel Channel ID
+ */
+private function handle_slack_command( $text, $user, $channel ) {
+	$parts = explode( ' ', $text );
+	$command = $parts[1] ?? '';
+
+	switch ( $command ) {
+		case 'status':
+			$this->send_slack_status( $channel );
+			break;
+		case 'stats':
+			$this->send_slack_stats( $channel );
+			break;
+		case 'help':
+			$this->send_slack_help( $channel );
+			break;
+		default:
+			$this->send_slack_unknown_command( $channel );
+	}
+}
+
+/**
+ * Send Slack status
+ *
+ * @param string $channel Channel ID
+ */
+private function send_slack_status( $channel ) {
+	$slack_manager = ENNU_Slack_Notifications_Manager::get_instance();
+	$status = $slack_manager->handle_notification_status();
+
+	$message = array(
+		'channel' => $channel,
+		'text' => 'ENNU Life Assessments Status',
+		'blocks' => array(
+			array(
+				'type' => 'section',
+				'text' => array(
+					'type' => 'mrkdwn',
+					'text' => sprintf(
+						"*ENNU Life Assessments Status*\n\n*Enabled:* %s\n*Webhook Configured:* %s\n*Channel:* %s\n*Queue Count:* %d",
+						$status['enabled'] ? 'Yes' : 'No',
+						$status['webhook_configured'] ? 'Yes' : 'No',
+						$status['channel'],
+						$status['queue_count']
+					)
+				)
+			)
+		)
+	);
+
+	$this->send_slack_message( $message );
+}
+
+/**
+ * Send Slack message
+ *
+ * @param array $message Message data
+ */
+private function send_slack_message( $message ) {
+	$webhook_url = get_option( 'ennu_slack_webhook_url', '' );
+	if ( empty( $webhook_url ) ) {
+		return;
+	}
+
+	wp_remote_post( $webhook_url, array(
+		'body' => json_encode( $message ),
+		'headers' => array(
+			'Content-Type' => 'application/json',
+		),
+		'timeout' => 10,
+	) );
+}
+
+/**
+ * Mark assessment as reviewed
+ *
+ * @param array  $item Item data
+ * @param string $user User ID
+ */
+private function mark_assessment_reviewed( $item, $user ) {
+	// Implementation for marking assessment as reviewed
+	error_log( 'ENNU Slack: Assessment marked as reviewed by user: ' . $user );
+}
+
+/**
+ * Mark assessment as requiring attention
+ *
+ * @param array  $item Item data
+ * @param string $user User ID
+ */
+private function mark_assessment_attention_needed( $item, $user ) {
+	// Implementation for marking assessment as requiring attention
+	error_log( 'ENNU Slack: Assessment marked as requiring attention by user: ' . $user );
+}
+
+/**
+ * Send Slack stats
+ *
+ * @param string $channel Channel ID
+ */
+private function send_slack_stats( $channel ) {
+	$slack_manager = ENNU_Slack_Notifications_Manager::get_instance();
+	$stats = $slack_manager->get_notification_statistics();
+
+	$message = array(
+		'channel' => $channel,
+		'text' => 'ENNU Life Assessments Statistics',
+		'blocks' => array(
+			array(
+				'type' => 'section',
+				'text' => array(
+					'type' => 'mrkdwn',
+					'text' => sprintf(
+						"*ENNU Life Assessments Statistics*\n\n*Total Notifications:* %d\n*Successful:* %d\n*Failed:* %d",
+						$stats['total_notifications'],
+						$stats['successful_notifications'],
+						$stats['failed_notifications']
+					)
+				)
+			)
+		)
+	);
+
+	$this->send_slack_message( $message );
+}
+
+/**
+ * Send Slack help
+ *
+ * @param string $channel Channel ID
+ */
+private function send_slack_help( $channel ) {
+	$message = array(
+		'channel' => $channel,
+		'text' => 'ENNU Life Assessments Help',
+		'blocks' => array(
+			array(
+				'type' => 'section',
+				'text' => array(
+					'type' => 'mrkdwn',
+					'text' => "*ENNU Life Assessments Commands*\n\n*!ennu status* - Show system status\n*!ennu stats* - Show notification statistics\n*!ennu help* - Show this help message"
+				)
+			)
+		)
+	);
+
+	$this->send_slack_message( $message );
+}
+
+/**
+ * Send Slack unknown command
+ *
+ * @param string $channel Channel ID
+ */
+private function send_slack_unknown_command( $channel ) {
+	$message = array(
+		'channel' => $channel,
+		'text' => 'Unknown command. Type `!ennu help` for available commands.',
+	);
+
+	$this->send_slack_message( $message );
+}
+
+/**
+ * Check if assessment should be synced
+ *
+ * @param string $integration_key Integration key
+ * @param int    $user_id User ID
+ * @param array  $assessment_data Assessment data
+ * @return bool Should sync
+ */
+private function should_sync_assessment( $integration_key, $user_id, $assessment_data ) {
+	// Default implementation - can be overridden by specific integrations
+	return true;
+}
+
+/**
+ * Check if biomarker should be synced
+ *
+ * @param string $integration_key Integration key
+ * @param int    $user_id User ID
+ * @param array  $biomarker_data Biomarker data
+ * @return bool Should sync
+ */
+private function should_sync_biomarker( $integration_key, $user_id, $biomarker_data ) {
+	// Default implementation - can be overridden by specific integrations
+	return true;
+}
+
+/**
+ * Check if health goal should be synced
+ *
+ * @param string $integration_key Integration key
+ * @param int    $user_id User ID
+ * @param array  $goal_data Goal data
+ * @return bool Should sync
+ */
+private function should_sync_health_goal( $integration_key, $user_id, $goal_data ) {
+	// Default implementation - can be overridden by specific integrations
+	return true;
+}
+
+/**
+ * Check if user should be synced
+ *
+ * @param string $integration_key Integration key
+ * @param int    $user_id User ID
+ * @param array  $user_data User data
+ * @return bool Should sync
+ */
+private function should_sync_user( $integration_key, $user_id, $user_data ) {
+	// Default implementation - can be overridden by specific integrations
+	return true;
+}
+
+/**
+ * Handle integration error
+ *
+ * @param string $integration_key Integration key
+ * @param string $error_message Error message
+ * @param array  $context Error context
+ */
+private function handle_integration_error( $integration_key, $error_message, $context = array() ) {
+	error_log( 'ENNU Integration Error [' . $integration_key . ']: ' . $error_message );
+	
+	// Store error in logs
+	$error_log = get_option( 'ennu_integration_errors', array() );
+	$error_log[] = array(
+		'timestamp' => current_time( 'mysql' ),
+		'integration' => $integration_key,
+		'message' => $error_message,
+		'context' => $context,
+	);
+	
+	// Keep only last 100 errors
+	if ( count( $error_log ) > 100 ) {
+		$error_log = array_slice( $error_log, -100 );
+	}
+	
+	update_option( 'ennu_integration_errors', $error_log );
+}
+
+/**
+ * Handle integration exception
+ *
+ * @param array $item Queue item
+ * @param Exception $exception Exception object
+ */
+private function handle_integration_exception( $item, $exception ) {
+	$integration_key = $item['integration_key'] ?? 'unknown';
+	$error_message = $exception->getMessage();
+	
+	$this->handle_integration_error( $integration_key, $error_message, array(
+		'item' => $item,
+		'file' => $exception->getFile(),
+		'line' => $exception->getLine(),
+	) );
+}
+
+/**
+ * Log webhook
+ *
+ * @param string $integration_key Integration key
+ * @param array  $data Webhook data
+ * @param array  $result Result data
+ */
+private function log_webhook( $integration_key, $data, $result ) {
+	$log_entry = array(
+		'timestamp' => current_time( 'mysql' ),
+		'integration' => $integration_key,
+		'data' => $data,
+		'result' => $result,
+	);
+	
+	$webhook_logs = get_option( 'ennu_webhook_logs', array() );
+	$webhook_logs[] = $log_entry;
+	
+	// Keep only last 50 webhook logs
+	if ( count( $webhook_logs ) > 50 ) {
+		$webhook_logs = array_slice( $webhook_logs, -50 );
+	}
+	
+	update_option( 'ennu_webhook_logs', $webhook_logs );
 }
 
 public function sync_assessment_data( $user_id, $assessment_data ) {

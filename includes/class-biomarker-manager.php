@@ -13,29 +13,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ENNU_Biomarker_Manager {
 
-	public static function import_lab_results( $user_id, $lab_data ) {
+	public static function import_lab_results( $user_id, $lab_data, $source = 'manual' ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'insufficient_permissions', 'Insufficient permissions to import lab data' );
+			return;
 		}
 
-		$validated_data = self::validate_lab_data( $lab_data );
-
-		if ( is_wp_error( $validated_data ) ) {
-			return $validated_data;
+		$sanitized_data = array();
+		foreach ( $lab_data as $biomarker => $data ) {
+			// Basic sanitization
+			$sanitized_data[ sanitize_key( $biomarker ) ] = array(
+				'value'     => sanitize_text_field( $data['value'] ),
+				'unit'      => sanitize_text_field( $data['unit'] ),
+				'test_date' => sanitize_text_field( $data['test_date'] ),
+			);
 		}
 
-		update_user_meta( $user_id, 'ennu_biomarker_data', $validated_data );
-		update_user_meta( $user_id, 'ennu_lab_import_date', current_time( 'mysql' ) );
+		update_user_meta( $user_id, 'ennu_biomarker_data', $sanitized_data );
 
-		ENNU_Assessment_Scoring::calculate_and_save_all_user_scores( $user_id, true );
+		// Trigger score recalculation after import
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
+			$scoring_system = new ENNU_Scoring_System();
+			$scoring_system->calculate_and_save_all_user_scores( $user_id );
+		}
 
-		error_log( 'ENNU Biomarker Manager: Imported lab results for user ' . $user_id );
-
-		return array(
-			'success'             => true,
-			'biomarkers_imported' => count( $validated_data ),
-			'import_date'         => current_time( 'mysql' ),
-		);
+		return true;
 	}
 
 	public static function add_doctor_recommendations( $user_id, $recommendations ) {
@@ -60,6 +61,11 @@ class ENNU_Biomarker_Manager {
 		$existing_recommendations[] = $new_recommendation;
 
 		update_user_meta( $user_id, 'ennu_doctor_recommendations', $existing_recommendations );
+
+		// Trigger score recalculation
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
+			ENNU_Scoring_System::calculate_and_save_all_user_scores( $user_id );
+		}
 
 		return array(
 			'success'           => true,
@@ -97,6 +103,43 @@ class ENNU_Biomarker_Manager {
 
 	public static function get_doctor_recommendations( $user_id ) {
 		return get_user_meta( $user_id, 'ennu_doctor_recommendations', true );
+	}
+
+	/**
+	 * Save user biomarker data from any source.
+	 * This is the new single source of truth for writing biomarker data.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param array  $biomarkers_to_save The new biomarker data to save.
+	 * @param string $source The source of the data (e.g., 'manual', 'lab_import', 'auto_sync').
+	 * @return bool True on success, false on failure.
+	 */
+	public static function save_user_biomarkers( $user_id, $biomarkers_to_save, $source = 'manual' ) {
+		if ( empty( $user_id ) || empty( $biomarkers_to_save ) || ! is_array( $biomarkers_to_save ) ) {
+			return false;
+		}
+
+		// Decide which meta key to write to based on the source.
+		// This maintains the separation of manual vs. automated data.
+		$meta_key = ( $source === 'manual' ) ? 'ennu_biomarker_data' : 'ennu_user_biomarkers';
+
+		$existing_biomarkers = get_user_meta( $user_id, $meta_key, true );
+		if ( ! is_array( $existing_biomarkers ) ) {
+			$existing_biomarkers = array();
+		}
+
+		// Add a source and timestamp to the data being saved
+		$timestamp = current_time( 'mysql' );
+		foreach ( $biomarkers_to_save as $key => &$data ) {
+			if ( is_array( $data ) ) {
+				$data['source'] = $source;
+				$data['date'] = $data['date'] ?? $timestamp;
+			}
+		}
+
+		$merged_biomarkers = array_merge( $existing_biomarkers, $biomarkers_to_save );
+
+		return update_user_meta( $user_id, $meta_key, $merged_biomarkers );
 	}
 
 	private static function validate_lab_data( $lab_data ) {
@@ -160,7 +203,14 @@ class ENNU_Biomarker_Manager {
 	}
 
 	public static function get_biomarker_recommendations( $user_id ) {
-		$user_symptoms      = ENNU_Assessment_Scoring::get_symptom_data_for_user( $user_id );
+		// Get user symptoms from centralized symptoms manager
+		if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+			$symptoms_data = ENNU_Centralized_Symptoms_Manager::get_centralized_symptoms( $user_id );
+			$user_symptoms = $symptoms_data['symptoms'] ?? array();
+		} else {
+			$user_symptoms = array();
+		}
+		
 		$biomarker_map_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/health-optimization/biomarker-map.php';
 
 		if ( ! file_exists( $biomarker_map_file ) ) {
@@ -223,154 +273,411 @@ class ENNU_Biomarker_Manager {
 	}
 
 	/**
-	 * Get comprehensive biomarker measurement data for display
-	 * Always returns data for all biomarkers, even when user data is missing
+	 * Get a lean, optimized list of user biomarkers for the admin display.
 	 *
-	 * @param string $biomarker_id Biomarker identifier
-	 * @param int $user_id User ID
-	 * @return array Complete measurement data or placeholder data
+	 * @param int $user_id The ID of the user.
+	 * @return array An array of biomarker data optimized for display.
 	 */
-	public static function get_biomarker_measurement_data($biomarker_id, $user_id) {
-		// Get user's biomarker data
-		$biomarker_data = self::get_user_biomarkers($user_id);
+	public static function get_user_biomarkers_for_admin_display( $user_id ) {
+		$user_biomarkers = get_user_meta( $user_id, 'ennu_biomarker_data', true );
+		if ( ! is_array( $user_biomarkers ) ) {
+			$user_biomarkers = array();
+		}
+		return $user_biomarkers;
+	}
+
+	/**
+	 * Get fallback display name for common biomarkers
+	 *
+	 * @param string $biomarker_key The biomarker key
+	 * @return string Human readable display name
+	 */
+	public static function get_fallback_display_name( $biomarker_key ) {
+		$fallback_names = array(
+			// Physical Measurements
+			'weight' => 'Weight',
+			'height' => 'Height', 
+			'bmi' => 'BMI',
+			'body_fat_percent' => 'Body Fat Percent',
+			'waist_measurement' => 'Waist Measurement',
+			'neck_measurement' => 'Neck Measurement',
+			'hip_measurement' => 'Hip Measurement',
+			'chest_measurement' => 'Chest Measurement',
+			'arm_measurement' => 'Arm Measurement',
+			'thigh_measurement' => 'Thigh Measurement',
+			'grip_strength' => 'Grip Strength',
+			
+			// Cardiovascular
+			'blood_pressure' => 'Blood Pressure',
+			'heart_rate' => 'Heart Rate',
+			'cholesterol' => 'Total Cholesterol',
+			'hdl' => 'HDL Cholesterol',
+			'ldl' => 'LDL Cholesterol',
+			'triglycerides' => 'Triglycerides',
+			'apob' => 'ApoB',
+			'hs_crp' => 'hs-CRP',
+			'homocysteine' => 'Homocysteine',
+			
+			// Hormones
+			'testosterone_total' => 'Total Testosterone',
+			'testosterone_free' => 'Free Testosterone',
+			'estradiol' => 'Estradiol',
+			'progesterone' => 'Progesterone',
+			'cortisol' => 'Cortisol',
+			'tsh' => 'TSH',
+			't3' => 'T3',
+			't4' => 'T4',
+			'free_t3' => 'Free T3',
+			'free_t4' => 'Free T4',
+			
+			// Metabolic
+			'glucose' => 'Glucose',
+			'hba1c' => 'HbA1c',
+			'insulin' => 'Insulin',
+			'fasting_insulin' => 'Fasting Insulin',
+			
+			// Blood Work
+			'hemoglobin' => 'Hemoglobin',
+			'hematocrit' => 'Hematocrit',
+			'rbc' => 'Red Blood Cells',
+			'wbc' => 'White Blood Cells',
+			'platelets' => 'Platelets',
+			'ferritin' => 'Ferritin',
+			
+			// Liver Function
+			'alt' => 'ALT',
+			'ast' => 'AST',
+			'alkaline_phosphatase' => 'Alkaline Phosphatase',
+			'bilirubin' => 'Bilirubin',
+			
+			// Kidney Function
+			'creatinine' => 'Creatinine',
+			'bun' => 'BUN',
+			'gfr' => 'eGFR',
+			
+			// Vitamins & Minerals
+			'vitamin_d' => 'Vitamin D',
+			'vitamin_b12' => 'Vitamin B12',
+			'folate' => 'Folate',
+			'calcium' => 'Calcium',
+			'magnesium' => 'Magnesium',
+			'potassium' => 'Potassium',
+			'sodium' => 'Sodium',
+			
+			// Other
+			'uric_acid' => 'Uric Acid',
+			'albumin' => 'Albumin',
+		);
 		
-		// Check if user has data for this biomarker
-		$has_user_data = isset($biomarker_data[$biomarker_id]);
-		
-		// Get recommended range (always available)
-		$range_manager = new ENNU_Recommended_Range_Manager();
-		$user_data = self::get_user_demographic_data($user_id);
-		$recommended_range = $range_manager->get_recommended_range($biomarker_id, $user_data);
-		
-		if (isset($recommended_range['error'])) {
+		return $fallback_names[ $biomarker_key ] ?? ucwords( str_replace( '_', ' ', $biomarker_key ) );
+	}
+
+	/**
+	 * Get biomarker measurement data for display with missing data handling
+	 *
+	 * @param int $user_id User ID
+	 * @param string $biomarker_key Biomarker key
+	 * @return array Formatted biomarker data for display
+	 */
+	public static function get_biomarker_measurement_data( $user_id, $biomarker_key ) {
+		// Validate inputs
+		if ( empty( $biomarker_key ) || ! is_string( $biomarker_key ) || trim( $biomarker_key ) === '' ) {
 			return array(
-				'error' => $recommended_range['error'],
-				'biomarker_id' => $biomarker_id
+				'biomarker_key' => '',
+				'biomarker_name' => '',
+				'display_name' => 'Pending Data Validation',
+				'has_user_data' => false,
+				'current_value' => '',
+				'unit' => '',
+				'status' => 'error',
+				'display_value' => 'Invalid biomarker key provided',
 			);
 		}
 		
-		// Set current value and unit based on user data availability
-		if ($has_user_data) {
-			$data = $biomarker_data[$biomarker_id];
-			$current_value = $data['value'];
-			$unit = $data['unit'] ?? '';
-			$percentage_position = self::calculate_percentage_position($current_value, $recommended_range['optimal_min'], $recommended_range['optimal_max']);
-			$status = self::get_enhanced_status($current_value, $recommended_range);
-		} else {
-			// No user data - use placeholder values
-			$current_value = null;
-			$unit = $recommended_range['unit'] ?? '';
-			$percentage_position = null;
-			$status = array(
-				'status' => 'no-data',
-				'status_text' => 'No Data Available',
-				'status_class' => 'no-data'
-			);
-		}
+		$biomarker_key = trim( $biomarker_key );
 		
-		// Get target value if exists
-		$doctor_targets = get_user_meta($user_id, 'ennu_doctor_targets', true);
-		$target_value = isset($doctor_targets[$biomarker_id]) ? $doctor_targets[$biomarker_id] : null;
+		// Get user biomarkers with fallback handling
+		$user_biomarkers = self::get_user_biomarkers( $user_id );
 		
-		// Calculate AI target if no doctor target exists
-		if (!$target_value && class_exists('ENNU_Biomarker_Target_Calculator')) {
-			// Ensure we have valid range data for the target calculator
-			if (isset($recommended_range['optimal_min']) && isset($recommended_range['optimal_max']) && 
-				$recommended_range['optimal_min'] !== null && $recommended_range['optimal_max'] !== null) {
-				
-				// Use current value if available, otherwise use midpoint of optimal range
-				$value_for_calculation = $current_value ?: ($recommended_range['optimal_min'] + (($recommended_range['optimal_max'] - $recommended_range['optimal_min']) / 2));
-				
-				$user_data = self::get_user_demographic_data($user_id);
-				$target_data = ENNU_Biomarker_Target_Calculator::calculate_personalized_target(
-					$biomarker_id,
-					$value_for_calculation,
-					$recommended_range,
-					$user_data['age'],
-					$user_data['gender']
-				);
-				if ($target_data && isset($target_data['target_value'])) {
-					$target_value = $target_data['target_value'];
+		// Check if biomarker exists in user data
+		if ( ! isset( $user_biomarkers[ $biomarker_key ] ) ) {
+			// Try alternative key formats
+			$alternative_keys = self::get_alternative_biomarker_keys( $biomarker_key );
+			foreach ( $alternative_keys as $alt_key ) {
+				if ( isset( $user_biomarkers[ $alt_key ] ) ) {
+					$biomarker_key = $alt_key;
+					break;
 				}
-			} else {
-				// Fallback to midpoint of optimal range if range data is invalid
-				$target_value = $recommended_range['optimal_min'] + (($recommended_range['optimal_max'] - $recommended_range['optimal_min']) / 2);
 			}
 		}
 		
-		// If still no target value, provide a default optimal target for educational purposes
-		if (!$target_value && isset($recommended_range['optimal_min']) && isset($recommended_range['optimal_max'])) {
-			$target_value = $recommended_range['optimal_min'] + (($recommended_range['optimal_max'] - $recommended_range['optimal_min']) / 2);
+		// Get biomarker data if available
+		$biomarker_data = $user_biomarkers[ $biomarker_key ] ?? null;
+		$has_user_data = ! empty( $biomarker_data ) && isset( $biomarker_data['value'] );
+		
+		// Get display name with multiple fallbacks
+		$display_name = '';
+		if ( $has_user_data && isset( $biomarker_data['display_name'] ) ) {
+			$display_name = $biomarker_data['display_name'];
 		}
 		
-		$target_position = $target_value ? self::calculate_percentage_position($target_value, $recommended_range['optimal_min'], $recommended_range['optimal_max']) : null;
+		// Try to get display name from range manager
+		if ( empty( $display_name ) && class_exists( 'ENNU_Recommended_Range_Manager' ) ) {
+			$range_manager = new ENNU_Recommended_Range_Manager();
+			$range_data = $range_manager->get_recommended_range( $biomarker_key );
+			if ( ! isset( $range_data['error'] ) && ! empty( $range_data['display_name'] ) ) {
+				$display_name = $range_data['display_name'];
+			}
+		}
 		
-		// Check for flags (may exist even without lab data)
-		$flag_manager = new ENNU_Biomarker_Flag_Manager();
-		$flags = $flag_manager->get_biomarker_flags($user_id, $biomarker_id);
-		$has_flags = !empty($flags);
+		// Use fallback display name mapping
+		if ( empty( $display_name ) ) {
+			$display_name = self::get_fallback_display_name( $biomarker_key );
+		}
 		
-		// Get achievement status
-		$achievement_status = self::get_achievement_status($current_value, $target_value, $recommended_range);
+		// Get optimal range from the recommended range manager
+		$optimal_range = null;
+		if ( class_exists( 'ENNU_Recommended_Range_Manager' ) ) {
+			$range_manager = new ENNU_Recommended_Range_Manager();
+			$optimal_range = $range_manager->get_recommended_range( $biomarker_key );
+			
+					// Keep original flat structure for template compatibility
+		$original_optimal_range = $optimal_range;
 		
-		// Get health vector
-		$health_vector = self::get_biomarker_health_vector($biomarker_id);
-		
-		// Check for admin overrides
-		$has_admin_override = self::check_admin_override($user_id, $biomarker_id);
-		
-		return array(
-			'biomarker_id' => $biomarker_id,
-			'current_value' => $current_value,
+		// Create nested structure for target calculator compatibility
+		$nested_optimal_range = null;
+		if ( $optimal_range && ! isset( $optimal_range['error'] ) ) {
+			$nested_optimal_range = array(
+				'ranges' => array(
+					'optimal_min' => $optimal_range['optimal_min'],
+					'optimal_max' => $optimal_range['optimal_max'],
+					'normal_min' => $optimal_range['normal_min'],
+					'normal_max' => $optimal_range['normal_max'],
+					'critical_min' => $optimal_range['critical_min'],
+					'critical_max' => $optimal_range['critical_max']
+				),
+				'unit' => $optimal_range['unit'],
+				'description' => $optimal_range['description']
+			);
+		}
+		}
+
+		// Get doctor target value
+		$doctor_recommendations = get_user_meta( $user_id, 'ennu_doctor_recommendations', true );
+		$doctor_target = isset( $doctor_recommendations['biomarker_targets'][ $biomarker_key ] ) 
+			? $doctor_recommendations['biomarker_targets'][ $biomarker_key ] 
+			: null;
+
+		// Get AI target if no doctor target exists
+		$target_value = $doctor_target;
+		if ( ! $target_value && class_exists( 'ENNU_Biomarker_Target_Calculator' ) && $has_user_data ) {
+			// Get user demographics for AI calculation
+			$user_age = get_user_meta( $user_id, 'ennu_global_exact_age', true );
+			$user_gender = get_user_meta( $user_id, 'ennu_global_gender', true );
+			$current_value = floatval( $biomarker_data['value'] );
+			
+			if ( $user_age && $user_gender && $nested_optimal_range ) {
+				$ai_target_data = ENNU_Biomarker_Target_Calculator::calculate_personalized_target( 
+					$biomarker_key, 
+					$current_value, 
+					$nested_optimal_range, 
+					$user_age, 
+					$user_gender 
+				);
+				if ( $ai_target_data && isset( $ai_target_data['target_value'] ) ) {
+					$target_value = $ai_target_data['target_value'];
+				}
+			}
+		}
+
+		// Create measurement data structure matching render_biomarker_measurement expectations
+		$measurement_data = array(
+			'biomarker_id' => $biomarker_key, // render function expects biomarker_id, not biomarker_key
+			'biomarker_key' => $biomarker_key, // Keep both for compatibility
+			'biomarker_name' => $biomarker_key,
+			'display_name' => $display_name,
+			'has_user_data' => $has_user_data,
+			'current_value' => $has_user_data ? $biomarker_data['value'] : 0,
 			'target_value' => $target_value,
-			'unit' => $unit,
-			'optimal_min' => $recommended_range['optimal_min'],
-			'optimal_max' => $recommended_range['optimal_max'],
-			'percentage_position' => $percentage_position,
-			'target_position' => $target_position,
-			'status' => $status,
-			'has_flags' => $has_flags,
-			'flags' => $flags,
-			'achievement_status' => $achievement_status,
-			'health_vector' => $health_vector,
-			'has_admin_override' => $has_admin_override,
-			'display_name' => $recommended_range['display_name'] ?? ucwords(str_replace('_', ' ', $biomarker_id)),
-			'has_user_data' => $has_user_data
+			'unit' => $has_user_data ? ( $biomarker_data['unit'] ?? '' ) : ( $original_optimal_range['unit'] ?? '' ),
+			'date' => $has_user_data ? ( $biomarker_data['date'] ?? '' ) : '',
+			'source' => $has_user_data ? ( $biomarker_data['source'] ?? '' ) : '',
+			'optimal_range' => $original_optimal_range,
+			'optimal_min' => isset( $original_optimal_range['optimal_min'] ) ? $original_optimal_range['optimal_min'] : 0,
+			'optimal_max' => isset( $original_optimal_range['optimal_max'] ) ? $original_optimal_range['optimal_max'] : 100,
+			'percentage_position' => 50, // Default to middle, will be calculated below
+			'target_position' => null,
+			'status' => $has_user_data ? 'normal' : 'missing',
+			'achievement_status' => 'normal',
+			'has_flags' => false,
+			'flags' => array(),
+			'health_vector' => '',
+			'has_admin_override' => false,
+		);
+
+		// Calculate status and percentage if we have data and ranges
+		if ( $has_user_data && $original_optimal_range && ! isset( $original_optimal_range['error'] ) ) {
+			$value = floatval( $biomarker_data['value'] );
+			$optimal_min = floatval( $original_optimal_range['optimal_min'] ?? 0 );
+			$optimal_max = floatval( $original_optimal_range['optimal_max'] ?? 100 );
+			
+			if ( $optimal_min > 0 || $optimal_max > 0 ) {
+				// Calculate percentage position in optimal range
+				if ( $value >= $optimal_min && $value <= $optimal_max ) {
+					$measurement_data['status'] = 'optimal';
+					$measurement_data['percentage_position'] = ( ( $value - $optimal_min ) / ( $optimal_max - $optimal_min ) ) * 100;
+				} elseif ( $value < $optimal_min ) {
+					$measurement_data['status'] = 'low';
+					$measurement_data['percentage_position'] = 0;
+				} else {
+					$measurement_data['status'] = 'high';
+					$measurement_data['percentage_position'] = 100;
+				}
+			}
+		} else if ( ! $has_user_data ) {
+			$measurement_data['display_value'] = 'Awaiting lab results';
+		}
+
+		return $measurement_data;
+	}
+
+	/**
+	 * Get missing biomarker data structure
+	 *
+	 * @param string $biomarker_key Biomarker key
+	 * @param array $partial_data Partial data if available
+	 * @return array Missing biomarker data structure
+	 */
+	private static function get_missing_biomarker_data( $biomarker_key, $partial_data = array() ) {
+		return array(
+			'biomarker_key' => $biomarker_key,
+			'current_value' => null,
+			'unit' => self::get_default_unit( $biomarker_key ),
+			'date' => null,
+			'source' => null,
+			'optimal_range' => null,
+			'doctor_target' => null,
+			'ai_target' => null,
+			'percentage_in_range' => 0,
+			'status' => 'missing',
+			'flags' => array(),
+			'achievement_status' => 'no_data',
+			'has_data' => false,
+			'display_value' => 'Awaiting lab results',
+			'missing_reason' => self::get_missing_data_reason( $biomarker_key ),
+			'recommendation' => self::get_missing_data_recommendation( $biomarker_key )
 		);
 	}
-	
+
 	/**
-	 * Calculate percentage position of value within range
+	 * Get alternative biomarker keys for fallback lookup
 	 *
-	 * @param float $value Current value
-	 * @param float $min_range Minimum range value
-	 * @param float $max_range Maximum range value
-	 * @return float Percentage position (0-100)
+	 * @param string $biomarker_key The primary biomarker key
+	 * @return array Array of alternative keys to try
 	 */
-	public static function calculate_percentage_position($value, $min_range, $max_range) {
-		// Validate inputs - ensure they are numeric and convert to float
-		if (!is_numeric($value) || !is_numeric($min_range) || !is_numeric($max_range)) {
-			return 50; // Default to middle if any value is not numeric
+	public static function get_alternative_biomarker_keys( $biomarker_key ) {
+		$alternative_mappings = array(
+			'weight' => array( 'body_weight', 'weight_lbs', 'weight_kg' ),
+			'height' => array( 'body_height', 'height_cm', 'height_in' ),
+			'bmi' => array( 'body_mass_index', 'calculated_bmi' ),
+			'body_fat_percent' => array( 'body_fat_percentage', 'fat_percent', 'bf_percent' ),
+			'waist_measurement' => array( 'waist_circumference', 'waist_cm', 'waist_in' ),
+			'neck_measurement' => array( 'neck_circumference', 'neck_cm', 'neck_in' ),
+			'hip_measurement' => array( 'hip_circumference', 'hip_cm', 'hip_in' ),
+			'blood_pressure' => array( 'bp', 'blood_pressure_systolic', 'systolic_bp' ),
+			'heart_rate' => array( 'hr', 'pulse', 'resting_heart_rate' ),
+			'testosterone_total' => array( 'total_testosterone', 'testosterone', 'test_total' ),
+			'testosterone_free' => array( 'free_testosterone', 'free_test', 'test_free' ),
+		);
+		
+		return $alternative_mappings[ $biomarker_key ] ?? array();
+	}
+
+	/**
+	 * Get default unit for a biomarker
+	 *
+	 * @param string $biomarker_key Biomarker key
+	 * @return string Default unit
+	 */
+	private static function get_default_unit( $biomarker_key ) {
+		$default_units = array(
+			'testosterone_total' => 'ng/dL',
+			'testosterone_free' => 'pg/mL',
+			'estradiol' => 'pg/mL',
+			'vitamin_d' => 'ng/mL',
+			'glucose' => 'mg/dL',
+			'cholesterol_total' => 'mg/dL',
+			'hdl' => 'mg/dL',
+			'ldl' => 'mg/dL',
+			'triglycerides' => 'mg/dL',
+			'weight' => 'lbs',
+			'bmi' => 'kg/m²',
+			'height' => 'inches',
+			'age' => 'years',
+		);
+
+		return isset( $default_units[ $biomarker_key ] ) ? $default_units[ $biomarker_key ] : '';
+	}
+
+	/**
+	 * Get missing data reason
+	 *
+	 * @param string $biomarker_key Biomarker key
+	 * @return string Reason for missing data
+	 */
+	private static function get_missing_data_reason( $biomarker_key ) {
+		$core_biomarkers = array( 'weight', 'height', 'age', 'bmi' );
+		
+		if ( in_array( $biomarker_key, $core_biomarkers ) ) {
+			return 'Complete your profile to get this measurement';
 		}
 		
-		// Convert to float to ensure proper numeric operations
-		$value = (float)$value;
-		$min_range = (float)$min_range;
-		$max_range = (float)$max_range;
+		return 'Lab test required to get this biomarker value';
+	}
+
+	/**
+	 * Get missing data recommendation
+	 *
+	 * @param string $biomarker_key Biomarker key
+	 * @return string Recommendation for missing data
+	 */
+	private static function get_missing_data_recommendation( $biomarker_key ) {
+		$core_biomarkers = array( 'weight', 'height', 'age', 'bmi' );
 		
-		// Additional safety check after conversion
-		if (!is_finite($value) || !is_finite($min_range) || !is_finite($max_range)) {
-			return 50; // Default to middle if any value is not finite
+		if ( in_array( $biomarker_key, $core_biomarkers ) ) {
+			return 'Update your profile information to see this value';
 		}
 		
-		if ($max_range <= $min_range) {
-			return 50; // Default to middle if range is invalid
+		return 'Schedule lab tests to get comprehensive biomarker analysis';
+	}
+
+	/**
+	 * Determine biomarker status based on value and range
+	 *
+	 * @param mixed $value Biomarker value
+	 * @param array $optimal_range Optimal range data
+	 * @return string Status (optimal, suboptimal, critical, missing)
+	 */
+	private static function determine_biomarker_status( $value, $optimal_range ) {
+		if ( empty( $value ) || $value === '' ) {
+			return 'missing';
 		}
-		
-		$position = (($value - $min_range) / ($max_range - $min_range)) * 100;
-		
-		// Clamp to 0-100 range
-		return max(0, min(100, $position));
+
+		if ( ! $optimal_range || ! isset( $optimal_range['min'] ) || ! isset( $optimal_range['max'] ) ) {
+			return 'normal'; // Default when no range available
+		}
+
+		$numeric_value = floatval( $value );
+		$min = floatval( $optimal_range['min'] );
+		$max = floatval( $optimal_range['max'] );
+
+		if ( $numeric_value >= $min && $numeric_value <= $max ) {
+			return 'optimal';
+		} elseif ( $numeric_value < $min * 0.8 || $numeric_value > $max * 1.2 ) {
+			return 'critical';
+		} else {
+			return 'suboptimal';
+		}
 	}
 	
 	/**

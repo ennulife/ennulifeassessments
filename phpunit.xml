@@ -1,33 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-    bootstrap="tests/bootstrap.php"
-    backupGlobals="false"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    processIsolation="false"
-    stopOnFailure="false"
-    verbose="true"
->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheDirectory=".phpunit.cache"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         beStrictAboutTestsThatDoNotTestAnything="false"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="false"
+         failOnWarning="false"
+         failOnRisky="false"
+         failOnEmptyTest="false"
+         verbose="true">
+    
     <testsuites>
-        <testsuite name="ENNU Life Tests">
-            <directory>./tests/</directory>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
     
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./includes/</directory>
-            <exclude>
-                <directory>./tests/</directory>
-                <directory>./vendor/</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+    <coverage>
+        <include>
+            <directory suffix=".php">includes</directory>
+            <file>ennu-life-plugin.php</file>
+        </include>
+        <exclude>
+            <directory>tests</directory>
+            <directory>vendor</directory>
+            <directory>node_modules</directory>
+            <directory>dist</directory>
+            <directory>assets</directory>
+            <directory>templates</directory>
+            <directory>languages</directory>
+            <directory>documentation</directory>
+            <directory>docs</directory>
+            <directory>ai-medical-research</directory>
+            <directory>monitoring</directory>
+        </exclude>
+    </coverage>
     
-    <logging>
-        <log type="coverage-html" target="./tests/coverage"/>
-        <log type="coverage-clover" target="./tests/coverage.xml"/>
-    </logging>
+    <php>
+        <env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+        <env name="WP_CORE_DIR" value="/tmp/wordpress/"/>
+        <env name="ENNU_TEST_MODE" value="true"/>
+        <env name="ENNU_DEBUG_MODE" value="true"/>
+    </php>
+    
+    <listeners>
+        <listener class="ENNU_Test_Listener">
+            <arguments>
+                <array>
+                    <element key="log_file">
+                        <string>tests/logs/test-results.log</string>
+                    </element>
+                </array>
+            </arguments>
+        </listener>
+    </listeners>
 </phpunit>

@@ -361,10 +361,16 @@ class ENNUAssessmentForm {
         
         const assessmentType = this.form.getAttribute('data-assessment-type');
         
+        // Include assessment_type in the responses
+        const submissionData = {
+            ...this.responses,
+            assessment_type: assessmentType
+        };
+        
         this.makeRequest('/wp-admin/admin-ajax.php', {
             action: 'ennu_submit_assessment',
             assessment_type: assessmentType,
-            responses: JSON.stringify(this.responses),
+            responses: JSON.stringify(submissionData),
             nonce: this.form.getAttribute('data-nonce') || window.ennuAssessmentAjax?.nonce || ''
         })
         .then(response => {

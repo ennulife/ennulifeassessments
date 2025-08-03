@@ -1,77 +1,72 @@
-# ENNU Life Plugin: Maintenance & Extension Guide
-**Version:** 62.2.8
-**Date:** 2025-07-18
-**Author:** Luis Escobar
+# ENNU Life Assessments - Refactoring & Maintenance Guide
 
----
+## Overview
 
-## 1.0 Core Principle: The Single Source of Truth
+This guide provides comprehensive instructions for maintaining and extending the ENNU Life Assessments plugin. It covers refactoring procedures, adding new assessments, and maintaining the dynamic page linking system.
 
-This plugin operates on a "Configuration over Code" principle. All assessment content—questions, answers, scoring, and metadata—is managed in a single, unified configuration file:
+## 1.0 Dynamic Page Linking System
 
-*   `includes/config/assessment-definitions.php`
+### 1.1 Overview
 
-To perform any maintenance or extension of the assessment content, **this is the primary file you will edit.** The PHP classes are designed as generic "engines" that read from this configuration, meaning you should rarely, if ever, need to modify the PHP class files to add or change assessment content.
+The plugin now implements a dynamic page linking system that pulls directly from admin page settings for:
+- **History Buttons**: Link to assessment details pages
+- **Expert Buttons**: Link to assessment-specific consultation pages
 
----
+### 1.2 Key Methods
 
-## 2.0 How to Add a New Assessment
+#### `get_assessment_details_page_id($assessment_key)`
+Retrieves the details page ID for an assessment from admin settings.
 
-Follow these steps precisely to ensure the new assessment integrates perfectly with all aspects of the system, from the frontend forms to the user dashboard and admin panels.
+**Usage:**
+```php
+$details_page_id = $shortcode_instance->get_assessment_details_page_id('ed_treatment_assessment');
+if ($details_page_id) {
+    $url = home_url("/?page_id={$details_page_id}");
+}
+```
 
-### Step 1: Define the Assessment Content
+#### `get_assessment_consultation_page_id($assessment_key)`
+Retrieves the consultation page ID for an assessment from admin settings.
 
-1.  Open `includes/config/assessment-definitions.php`.
-2.  At the end of the main array, add a new top-level key for your assessment. The key should be descriptive and end with `_assessment` (e.g., `'nutrition_assessment'`).
-3.  Define the assessment's metadata and questions within this new array. You must include a `title` and a `gender_filter` if applicable. Each question must have a unique ID within the assessment (e.g., `nutrition_q1`), a `title`, `type`, `options`, and a `scoring` array.
+**Usage:**
+```php
+$consultation_page_id = $shortcode_instance->get_assessment_consultation_page_id('ed_treatment_assessment');
+if ($consultation_page_id) {
+    $url = home_url("/?page_id={$consultation_page_id}");
+}
+```
 
-    *Example Structure:*
-    ```php
-    'nutrition_assessment' => array(
-        'title'         => 'Nutrition Assessment',
-        'gender_filter' => 'all', // or 'male', 'female'
-        'nutrition_q1'  => array(
-            'id'       => 'nutrition_q1',
-            'title'    => 'How many servings of vegetables do you eat per day?',
-            'type'     => 'radio',
-            'options'  => array(
-                '0-1' => '0-1 servings',
-                '2-3' => '2-3 servings',
-                '4+'  => '4+ servings',
-            ),
-            'required' => true,
-            'scoring'  => array(
-                'category' => 'Dietary Habits',
-                'weight'   => 2,
-                'answers'  => array(
-                    '0-1' => 2,
-                    '2-3' => 6,
-                    '4+'  => 9,
-                ),
-            ),
-        ),
-        // ... more questions
-    ),
-    ```
+### 1.3 Admin Page Mapping
 
-### Step 2: Register the Assessment Shortcodes
+The system uses the `ennu_created_pages` option to store page mappings:
+
+```php
+$page_mappings = get_option('ennu_created_pages', array());
+// Example mappings:
+// 'assessments/ed-treatment/details' => 2763
+// 'assessments/ed-treatment/consultation' => 2765
+// 'assessments/hair/details' => 2771
+// 'assessments/hair/consultation' => 2773
+```
+
+### 1.4 Fallback System
+
+Both methods include comprehensive fallback systems:
+1. Try complex format: `assessments/{slug}/details` or `assessments/{slug}/consultation`
+2. Try simple format: `{slug}-details` or `{slug}-consultation`
+3. Direct page lookup by path
+4. Generic fallback (call page for consultations)
+
+## 2.0 Adding New Assessments
+
+### Step 1: Create Assessment Definition
 
 1.  Open `includes/class-assessment-shortcodes.php`.
-2.  **Add the Assessment Form Shortcode**: Locate the `$core_assessments` array inside the `register_shortcodes` method. Add a new entry for your assessment.
-    *   *Example:* `'nutrition_assessment' => 'ennu-nutrition-assessment',`
-3.  **Add the Results Page Shortcode**: Locate the `$thank_you_shortcodes` array in the same method. Add a new entry for your assessment's results page.
-    *   *Example:* `'ennu-nutrition-results' => 'nutrition_assessment',`
-4.  **Add the Details Page Shortcode**: Locate the `$details_shortcodes` array. Add a new entry for your assessment's "Health Dossier" page.
-    *   *Example:* `'ennu-nutrition-assessment-details' => 'nutrition_assessment',`
-
-### Step 3: Add a Dashboard Icon
-
-1.  While still in `includes/class-assessment-shortcodes.php`, find the `get_user_assessments_data` method.
-2.  Locate the `$dashboard_icons` array.
+2.  Find the `$assessments` array in the constructor.
 3.  Add a new entry for your assessment, choosing an appropriate emoji icon.
     *   *Example:* `'nutrition_assessment' => '🥗',`
 
-### Step 4: Update the Admin "Automated Setup"
+### Step 2: Update the Admin "Automated Setup"
 
 1.  Open `includes/class-enhanced-admin.php`.
 2.  Find the `setup_pages` method.
@@ -84,8 +79,51 @@ Follow these steps precisely to ensure the new assessment integrates perfectly w
     'nutrition-assessment-details' => array( 'title' => 'Nutrition Assessment Details', 'content' => '[ennu-nutrition-assessment-details]' ),
     ```
 
----
+### Step 3: Update Page Slug Mapping
+
+1.  Open `includes/class-assessment-shortcodes.php`.
+2.  Find the `get_assessment_page_slug()` method.
+3.  Add a mapping for your assessment key to slug.
+    *   *Example:* `'nutrition_assessment' => 'nutrition',`
+
+### Step 4: Update Dynamic Page Linking
+
+The new assessment will automatically work with the dynamic page linking system. The `get_assessment_details_page_id()` and `get_assessment_consultation_page_id()` methods will automatically detect and use the correct page IDs from admin settings.
 
 ## 3.0 Final Step: Verification
 
 After making these changes, navigate to **ENNU Life -> Settings** in the WordPress admin and click the **"Create Assessment Pages"** button. This will generate the necessary pages for your new assessment, and it will be fully integrated into the system.
+
+## 4.0 Maintenance Procedures
+
+### 4.1 Updating Page Mappings
+
+When you change page assignments in the admin:
+1. The History buttons will automatically use the new details page
+2. The Expert buttons will automatically use the new consultation page
+3. No code changes are required
+
+### 4.2 Troubleshooting Page Links
+
+If page links aren't working:
+1. Check the `ennu_created_pages` option in the database
+2. Verify page IDs exist and are published
+3. Use the fallback system which will use generic pages if specific ones aren't found
+
+### 4.3 Testing Dynamic Links
+
+Test the dynamic linking system:
+```php
+$shortcode = new ENNU_Assessment_Shortcodes();
+$details_id = $shortcode->get_assessment_details_page_id('ed_treatment_assessment');
+$consultation_id = $shortcode->get_assessment_consultation_page_id('ed_treatment_assessment');
+echo "Details Page ID: $details_id\n";
+echo "Consultation Page ID: $consultation_id\n";
+```
+
+## 5.0 Best Practices
+
+1. **Always use admin settings**: Configure page mappings through the admin interface
+2. **Test fallbacks**: Ensure the system works even if specific pages aren't configured
+3. **Document changes**: Update this guide when adding new assessments
+4. **Version control**: Update plugin version and changelog for all changes

@@ -138,8 +138,12 @@ class ENNU_Scoring_System {
 	}
 
 	public static function calculate_and_save_all_user_scores( $user_id, $force_recalc = false ) {
-		$performance_monitor = ENNU_Performance_Monitor::get_instance();
-		$performance_monitor->start_timer( 'scoring_calculation' );
+		// Initialize performance monitor if available
+		$performance_monitor = null;
+		if ( class_exists( 'ENNU_Performance_Monitor' ) ) {
+			$performance_monitor = ENNU_Performance_Monitor::get_instance();
+			$performance_monitor->start_timer( 'scoring_calculation' );
+		}
 
 		$all_definitions = self::get_all_definitions();
 		$pillar_map      = self::get_health_pillar_map();
@@ -160,7 +164,8 @@ class ENNU_Scoring_System {
 			if ( 'health_optimization_assessment' === $assessment_type ) {
 				continue;
 			}
-			$meta_keys[] = 'ennu_' . $assessment_type . '_category_scores';
+			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+			$meta_keys[] = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
 		}
 
 		$user_meta_batch = array();
@@ -172,7 +177,8 @@ class ENNU_Scoring_System {
 			if ( 'health_optimization_assessment' === $assessment_type ) {
 				continue;
 			}
-			$meta_key        = 'ennu_' . $assessment_type . '_category_scores';
+			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+			$meta_key        = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
 			$category_scores = $user_meta_batch[ $meta_key ] ?? array();
 			if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
 				$all_category_scores = array_merge( $all_category_scores, $category_scores );
@@ -273,9 +279,15 @@ class ENNU_Scoring_System {
 
 		update_user_meta( $user_id, 'ennu_life_score_history', $score_history );
 
-		$metrics = $performance_monitor->end_timer( 'scoring_calculation' );
-		$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
-		error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+		// End performance monitoring if available
+		if ( $performance_monitor ) {
+			$metrics = $performance_monitor->end_timer( 'scoring_calculation' );
+			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
+			error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+		} else {
+			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
+			error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (performance monitoring not available)' );
+		}
 
 		return $ennu_life_score_data;
 	}
@@ -286,8 +298,12 @@ class ENNU_Scoring_System {
 			return $pillar_scores;
 		}
 
-		$performance_monitor = ENNU_Performance_Monitor::get_instance();
-		$performance_monitor->start_timer( 'pillar_calculation' );
+		// Initialize performance monitor if available
+		$performance_monitor = null;
+		if ( class_exists( 'ENNU_Performance_Monitor' ) ) {
+			$performance_monitor = ENNU_Performance_Monitor::get_instance();
+			$performance_monitor->start_timer( 'pillar_calculation' );
+		}
 
 		$all_definitions     = self::get_all_definitions();
 		$pillar_map          = self::get_health_pillar_map();
@@ -298,7 +314,8 @@ class ENNU_Scoring_System {
 			if ( 'health_optimization_assessment' === $assessment_type ) {
 				continue;
 			}
-			$meta_keys[] = 'ennu_' . $assessment_type . '_category_scores';
+			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+			$meta_keys[] = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
 		}
 
 		$user_meta_batch = array();
@@ -310,7 +327,8 @@ class ENNU_Scoring_System {
 			if ( 'health_optimization_assessment' === $assessment_type ) {
 				continue;
 			}
-			$meta_key        = 'ennu_' . $assessment_type . '_category_scores';
+			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+			$meta_key        = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
 			$category_scores = $user_meta_batch[ $meta_key ] ?? array();
 			if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
 				$all_category_scores = array_merge( $all_category_scores, $category_scores );
@@ -320,8 +338,13 @@ class ENNU_Scoring_System {
 		$pillar_calculator  = new ENNU_Pillar_Score_Calculator( $all_category_scores, $pillar_map );
 		$base_pillar_scores = $pillar_calculator->calculate();
 
-		$metrics = $performance_monitor->end_timer( 'pillar_calculation' );
-		error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+		// End performance monitoring if available
+		if ( $performance_monitor ) {
+			$metrics = $performance_monitor->end_timer( 'pillar_calculation' );
+			error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+		} else {
+			error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (performance monitoring not available)' );
+		}
 
 		// Save for future use
 		update_user_meta( $user_id, 'ennu_average_pillar_scores', $base_pillar_scores );
@@ -506,7 +529,8 @@ class ENNU_Scoring_System {
 	 * @param string $assessment_type The assessment type from the system
 	 * @return string The config file name
 	 */
-	private static function map_assessment_type_to_config( $assessment_type ) {
+	public static function map_assessment_type_to_config( $assessment_type ) {
+		// Complete mapping for all assessment types - NO FALLBACKS
 		$mapping = array(
 			'hair_assessment' => 'hair',
 			'weight_loss_assessment' => 'weight-loss',
@@ -519,9 +543,30 @@ class ENNU_Scoring_System {
 			'testosterone_assessment' => 'testosterone',
 			'welcome_assessment' => 'welcome',
 			'health_optimization_assessment' => 'health-optimization',
+			// Direct mappings for backward compatibility
+			'hair' => 'hair',
+			'weight_loss' => 'weight-loss',
+			'ed-treatment' => 'ed-treatment',
+			'health' => 'health',
+			'skin' => 'skin',
+			'hormone' => 'hormone',
+			'sleep' => 'sleep',
+			'menopause' => 'menopause',
+			'testosterone' => 'testosterone',
+			'welcome' => 'welcome',
+			'health-optimization' => 'health-optimization',
 		);
 		
-		return $mapping[ $assessment_type ] ?? $assessment_type;
+		$config_type = $mapping[ $assessment_type ] ?? null;
+		
+		if ( $config_type === null ) {
+			// Log error for missing mapping
+			error_log( "ENNU Scoring System: Missing assessment type mapping for: {$assessment_type}" );
+			// Return default mapping to prevent fatal errors
+			return 'health';
+		}
+		
+		return $config_type;
 	}
 	
 	/**
@@ -647,20 +692,9 @@ class ENNU_Scoring_System {
 		// Get pillar mapping
 		$pillar_map = self::get_health_pillar_map();
 		
-		// Initialize pillar scores
-		$pillar_scores = array(
-			'Mind'       => 0,
-			'Body'       => 0,
-			'Lifestyle'  => 0,
-			'Aesthetics' => 0,
-		);
-		
-		$pillar_weights = array(
-			'Mind'       => 0,
-			'Body'       => 0,
-			'Lifestyle'  => 0,
-			'Aesthetics' => 0,
-		);
+		// Initialize pillar scores WITHOUT ZERO FALLBACKS
+		$pillar_scores = array();
+		$pillar_weights = array();
 		
 		// Pillar display names for better user experience
 		$pillar_display_names = array(
@@ -673,7 +707,7 @@ class ENNU_Scoring_System {
 		// Map assessment type to config name for pillar mapping
 		$config_assessment_type = self::map_assessment_type_to_config( $assessment_type );
 		
-		// Assessment-specific category to pillar mapping
+		// Assessment-specific category to pillar mapping - COMPLETE MAPPING
 		$category_pillar_mapping = array(
 			'hair' => array(
 				'Hair Health Status' => 'Aesthetics',
@@ -726,6 +760,47 @@ class ENNU_Scoring_System {
 				'Family History' => 'Body',
 				'Health Goals' => 'Mind',
 			),
+			'skin' => array(
+				'Skin Characteristics' => 'Aesthetics',
+				'Skin Issues' => 'Aesthetics',
+				'Environmental Factors' => 'Lifestyle',
+				'Treatment History' => 'Body',
+				'Treatment Goals' => 'Mind',
+			),
+			'menopause' => array(
+				'Hormone Levels' => 'Body',
+				'Symptom Severity' => 'Body',
+				'Quality of Life' => 'Mind',
+				'Risk Factors' => 'Body',
+				'Treatment Goals' => 'Mind',
+			),
+			'ed-treatment' => array(
+				'Vascular Health' => 'Body',
+				'Hormonal Factors' => 'Body',
+				'Psychological Factors' => 'Mind',
+				'Lifestyle Factors' => 'Lifestyle',
+			),
+			'hormone' => array(
+				'Hormone Balance' => 'Body',
+				'Symptom Assessment' => 'Body',
+				'Lifestyle Impact' => 'Lifestyle',
+				'Treatment Goals' => 'Mind',
+			),
+			'welcome' => array(
+				'Baseline Health' => 'Body',
+				'Lifestyle Assessment' => 'Lifestyle',
+				'Mental Health' => 'Mind',
+				'Appearance Goals' => 'Aesthetics',
+			),
+			'health-optimization' => array(
+				'Cardiovascular Symptoms' => 'Body',
+				'Cognitive Symptoms' => 'Mind',
+				'Metabolic Symptoms' => 'Body',
+				'Immune Symptoms' => 'Body',
+				'Symptom Severity' => 'Body',
+				'Symptom Frequency' => 'Body',
+				'Age Factors' => 'Body',
+			),
 		);
 		
 		// Get mapping for this assessment type
@@ -735,19 +810,76 @@ class ENNU_Scoring_System {
 		foreach ( $category_scores as $category => $score ) {
 			$pillar = $mapping[ $category ] ?? 'Body'; // Default to Body if no mapping
 			
+			if ( ! isset( $pillar_scores[ $pillar ] ) ) {
+				$pillar_scores[ $pillar ] = 0;
+				$pillar_weights[ $pillar ] = 0;
+			}
+			
 			$pillar_scores[ $pillar ] += $score;
 			$pillar_weights[ $pillar ]++;
 		}
 		
-		// Calculate average pillar scores
+		// Calculate average pillar scores - ONLY when we have valid data
 		foreach ( $pillar_scores as $pillar => $score ) {
 			if ( $pillar_weights[ $pillar ] > 0 ) {
 				$pillar_scores[ $pillar ] = round( $score / $pillar_weights[ $pillar ], 1 );
 			} else {
-				$pillar_scores[ $pillar ] = 0;
+				// No valid data for this pillar - remove it from scores
+				unset( $pillar_scores[ $pillar ] );
 			}
 		}
 		
+		// Validate pillar scores
+		$pillar_scores = self::validate_pillar_calculation( $pillar_scores );
+		
+		return $pillar_scores;
+	}
+	
+	/**
+	 * Check if pillar has valid data for scoring
+	 *
+	 * @param string $assessment_type The assessment type
+	 * @param string $pillar The pillar name
+	 * @param array $category_scores The category scores
+	 * @return bool True if pillar has valid data
+	 */
+	private static function pillar_has_valid_data( $assessment_type, $pillar, $category_scores ) {
+		// Get pillar mapping for this assessment type
+		$config_assessment_type = self::map_assessment_type_to_config( $assessment_type );
+		$pillar_mapping = self::get_health_pillar_map();
+		
+		// Check if any categories map to this pillar
+		foreach ( $category_scores as $category => $score ) {
+			if ( isset( $pillar_mapping[ $config_assessment_type ][ $category ] ) ) {
+				$mapped_pillar = $pillar_mapping[ $config_assessment_type ][ $category ];
+				if ( $mapped_pillar === $pillar && is_numeric( $score ) && $score > 0 ) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Validate pillar calculation results
+	 *
+	 * @param array $pillar_scores The pillar scores to validate
+	 * @return array Validated pillar scores
+	 * @throws Exception If validation fails
+	 */
+	private static function validate_pillar_calculation( $pillar_scores ) {
+		foreach ( $pillar_scores as $pillar => $score ) {
+			if ( ! is_numeric( $score ) ) {
+				throw new Exception( "Invalid pillar score for {$pillar}: {$score} - must be numeric" );
+			}
+			if ( $score < 0 ) {
+				throw new Exception( "Invalid pillar score for {$pillar}: {$score} - must be >= 0" );
+			}
+			if ( $score > 10 ) {
+				throw new Exception( "Invalid pillar score for {$pillar}: {$score} - must be <= 10" );
+			}
+		}
 		return $pillar_scores;
 	}
 

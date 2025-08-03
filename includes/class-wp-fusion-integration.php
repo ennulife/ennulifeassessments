@@ -187,7 +187,7 @@ class ENNU_WP_Fusion_Integration {
 			'email'      => $user->user_email,
 			'first_name' => get_user_meta( $user_id, 'first_name', true ) ?: '',
 			'last_name'  => get_user_meta( $user_id, 'last_name', true ) ?: '',
-			'phone'      => get_user_meta( $user_id, 'ennu_global_phone', true ) ?: '',
+			'phone'      => get_user_meta( $user_id, 'ennu_global_billing_phone', true ) ?: '',
 		);
 
 		$global_data = array(

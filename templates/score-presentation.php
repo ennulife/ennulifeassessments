@@ -94,7 +94,17 @@ $size_class = $size_classes[ $size ] ?? 'ennu-score-medium';
 				</div>
 			<?php endif; ?>
 		</div>
-	</div>
+
+		<!-- PHASE 3: Actionable Insights for Score -->
+		<?php if ( class_exists( 'ENNU_Actionable_Feedback' ) ) : ?>
+			<div class="ennu-score-actionable-insights">
+				<h4 class="ennu-insights-title">Actionable Insights</h4>
+				<?php
+				$ennu_actionable_feedback = new ENNU_Actionable_Feedback();
+				echo $ennu_actionable_feedback->render_actionable_feedback_widget();
+				?>
+			</div>
+		<?php endif; ?>
 
 	<!-- Pillar Scores -->
 	<?php if ( $show_pillars && ! empty( $pillar_scores ) ) : ?>
@@ -230,7 +240,7 @@ $size_class = $size_classes[ $size ] ?? 'ennu-score-medium';
 				<svg viewBox="0 0 24 24" class="ennu-btn-icon">
 					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
 				</svg>
-				Retake Assessment
+									<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'RETAKE_ASSESSMENT' ) ); ?>
 			</button>
 		<?php endif; ?>
 	</div>

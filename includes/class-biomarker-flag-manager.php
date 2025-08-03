@@ -22,16 +22,7 @@ class ENNU_Biomarker_Flag_Manager {
 	 * Initialize biomarker flag manager
 	 */
 	public function __construct() {
-		if ( class_exists( 'ENNU_Biomarker_Manager' ) ) {
-			$this->biomarker_manager = new ENNU_Biomarker_Manager();
-		}
-
-		add_action( 'ennu_biomarkers_imported', array( $this, 'auto_flag_biomarkers' ), 10, 2 );
-		add_action( 'wp_ajax_ennu_flag_biomarker', array( $this, 'handle_flag_biomarker' ) );
-		add_action( 'wp_ajax_ennu_remove_flag', array( $this, 'handle_remove_flag' ) );
-		add_action( 'wp_ajax_ennu_get_flagged_biomarkers', array( $this, 'handle_get_flagged_biomarkers' ) );
-
-		error_log( 'ENNU Biomarker Flag Manager: Initialized' );
+		add_action( 'ennu_biomarker_data_updated', array( $this, 'on_biomarker_data_updated' ), 10, 2 );
 	}
 
 	/**
@@ -61,10 +52,11 @@ class ENNU_Biomarker_Flag_Manager {
 	 * @param string $reason Reason for flagging
 	 * @param int $flagged_by User ID of person who flagged (optional)
 	 * @param string $assessment_source Assessment that triggered the flag (optional)
-	 * @param string $symptom_trigger Symptom that triggered the flag (optional)
+	 * @param string $symptom_trigger DEPRECATED: Symptom that triggered the flag (optional)
+	 * @param string $symptom_key The sanitized key of the symptom that triggered the flag.
 	 * @return bool Success status
 	 */
-	public function flag_biomarker( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null, $assessment_source = '', $symptom_trigger = '' ) {
+	public function flag_biomarker( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null, $assessment_source = '', $symptom_trigger = '', $symptom_key = '' ) {
 		error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		
 		$flag_data = array(
@@ -76,7 +68,8 @@ class ENNU_Biomarker_Flag_Manager {
 			'flagged_at'         => current_time( 'mysql' ),
 			'status'             => 'active',
 			'assessment_source'  => $assessment_source,
-			'symptom_trigger'    => $symptom_trigger,
+			'symptom_trigger'    => $symptom_trigger, // Keep for backward compatibility
+			'symptom_key'        => $symptom_key, // Add the new, reliable key
 		);
 
 		$existing_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
@@ -173,13 +166,14 @@ class ENNU_Biomarker_Flag_Manager {
 	}
 
 	/**
-	 * Get flagged biomarkers for a user
+	 * Get flagged biomarkers for a user with deduplication
 	 *
 	 * @param int $user_id User ID
 	 * @param string $status Flag status (active, resolved, all)
+	 * @param bool $deduplicate Whether to deduplicate by biomarker name
 	 * @return array Array of flagged biomarkers
 	 */
-	public function get_flagged_biomarkers( $user_id, $status = 'active' ) {
+	public function get_flagged_biomarkers( $user_id, $status = 'active', $deduplicate = true ) {
 		$all_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
 		if ( ! is_array( $all_flags ) ) {
 			return array();
@@ -192,7 +186,75 @@ class ENNU_Biomarker_Flag_Manager {
 			}
 		}
 
-		return $filtered_flags;
+		// If no deduplication requested, return as-is
+		if ( ! $deduplicate ) {
+			return $filtered_flags;
+		}
+
+		// Deduplicate by biomarker name and add multiple assessment explanations
+		$deduplicated = array();
+		$biomarker_sources = array();
+
+		foreach ( $filtered_flags as $flag_id => $flag_data ) {
+			$biomarker_name = $flag_data['biomarker_name'] ?? '';
+			
+			if ( empty( $biomarker_name ) ) {
+				continue;
+			}
+
+			// Track sources for this biomarker
+			if ( ! isset( $biomarker_sources[ $biomarker_name ] ) ) {
+				$biomarker_sources[ $biomarker_name ] = array();
+			}
+
+			$assessment_source = $flag_data['assessment_source'] ?? 'Unknown';
+			$assessment_display = $this->get_assessment_display_name( $assessment_source );
+			
+			$biomarker_sources[ $biomarker_name ][] = $assessment_display;
+
+			// Keep the most recent flag for this biomarker
+			if ( ! isset( $deduplicated[ $biomarker_name ] ) || 
+				 strtotime( $flag_data['flagged_at'] ) > strtotime( $deduplicated[ $biomarker_name ]['flagged_at'] ) ) {
+				$deduplicated[ $biomarker_name ] = $flag_data;
+			}
+		}
+
+		// Add multiple assessment explanations
+		foreach ( $deduplicated as $biomarker_name => &$flag_data ) {
+			$sources = array_unique( $biomarker_sources[ $biomarker_name ] );
+			
+			if ( count( $sources ) > 1 ) {
+				$flag_data['multiple_assessments'] = true;
+				$flag_data['assessment_count'] = count( $sources );
+				$flag_data['all_assessments'] = $sources;
+				$flag_data['explanation'] = sprintf(
+					'Flagged by %d assessments: %s',
+					count( $sources ),
+					implode( ', ', $sources )
+				);
+			} else {
+				$flag_data['multiple_assessments'] = false;
+				$flag_data['assessment_count'] = 1;
+				$flag_data['all_assessments'] = $sources;
+				$flag_data['explanation'] = sprintf(
+					'Flagged by: %s',
+					$sources[0]
+				);
+			}
+		}
+
+		return $deduplicated;
+	}
+
+	/**
+	 * Get all flagged biomarkers without deduplication (for detailed analysis)
+	 *
+	 * @param int $user_id User ID
+	 * @param string $status Flag status (active, resolved, all)
+	 * @return array Array of all flagged biomarkers
+	 */
+	public function get_all_flagged_biomarkers( $user_id, $status = 'active' ) {
+		return $this->get_flagged_biomarkers( $user_id, $status, false );
 	}
 
 	/**

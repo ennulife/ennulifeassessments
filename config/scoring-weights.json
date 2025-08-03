@@ -1,0 +1,21 @@
+{
+    "biomarker_weight": 0.7,
+    "symptom_weight": 0.3,
+    "biomarkers": {
+        "glucose": 0.1,
+        "hba1c": 0.15,
+        "testosterone": 0.1,
+        "cortisol": 0.1,
+        "vitamin_d": 0.1,
+        "tsh": 0.1,
+        "ldl": 0.1,
+        "hdl": 0.1
+    },
+    "symptoms": {
+        "fatigue": 0.2,
+        "anxiety": 0.2,
+        "depression": 0.2,
+        "insomnia": 0.2,
+        "brain_fog": 0.2
+    }
+}

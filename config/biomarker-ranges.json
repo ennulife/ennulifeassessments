@@ -1,0 +1,35 @@
+{
+    "biomarkers": {
+        "glucose": {
+            "normal": [
+                70,
+                100
+            ],
+            "unit": "mg\/dL",
+            "category": "metabolic"
+        },
+        "hba1c": {
+            "normal": [
+                4,
+                5.7
+            ],
+            "unit": "%",
+            "category": "metabolic"
+        },
+        "testosterone": {
+            "normal": [
+                300,
+                1000
+            ],
+            "unit": "ng\/dL",
+            "category": "hormones"
+        }
+    },
+    "categories": {
+        "metabolic": "Metabolic Health",
+        "hormones": "Hormonal Health",
+        "lipids": "Lipid Profile",
+        "thyroid": "Thyroid Function",
+        "vitamins": "Vitamin Status"
+    }
+}

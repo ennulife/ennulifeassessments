@@ -54,7 +54,7 @@ if ( empty( $assessment_type ) ) {
 		'page_title' => $assessment_title,
 		'page_subtitle' => isset( $result_content['summary'] ) ? $result_content['summary'] : 'Your personalized assessment results are ready.',
 		'show_logo' => true,
-		'logo_color' => 'white',
+		'logo_color' => 'black',
 		'logo_size' => 'medium'
 	);
 	
@@ -63,13 +63,53 @@ if ( empty( $assessment_type ) ) {
 	?>
 
 	<div class="ennu-single-column">
+		<!-- Custom Assessment Headline Section -->
+		<?php
+		// Load assessment headlines configuration
+		$headlines_config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-headlines.php';
+		$headlines_config = file_exists( $headlines_config_file ) ? require $headlines_config_file : array();
+		
+		// Get the canonical assessment type for proper mapping
+		$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+		
+		// Get the headline data for this assessment type
+		$headline_data = $headlines_config[ $canonical_assessment_type ] ?? $headlines_config['default'];
+		
+		// Extract headline components
+		$custom_headline = $headline_data['headline'] ?? 'Ready to Take Your Health to the Next Level?';
+		$custom_subheadline = $headline_data['subheadline'] ?? 'Book your personalized consultation and get expert guidance on achieving your health goals.';
+		$custom_cta_text = $headline_data['cta_text'] ?? 'Book Consultation';
+		?>
+		
+		<div class="ennu-custom-headline-section" style="margin-bottom: 2rem; text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); border-radius: 12px; color: white;">
+			<h2 class="ennu-custom-headline" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+				<?php echo esc_html( $custom_headline ); ?>
+			</h2>
+			<p class="ennu-custom-subheadline" style="font-size: 1.2rem; margin-bottom: 1.5rem; color: rgba(255,255,255,0.9); line-height: 1.6;">
+				<?php echo esc_html( $custom_subheadline ); ?>
+			</p>
+			<div class="ennu-custom-cta" style="margin-bottom: 1rem;">
+				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary" style="background: white; color: var(--accent-primary); font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; transition: all 0.3s ease;">
+					<?php echo esc_html( $custom_cta_text ); ?>
+				</a>
+			</div>
+		</div>
+
+		<!-- HubSpot Booking Calendar Embed -->
+		<div class="ennu-hubspot-embed" style="margin-bottom: 2rem; text-align: center;">
+			<!-- Start of Meetings Embed Script -->
+			<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/lescobar2/ennulife?embed=true"></div>
+			<script type="text/javascript" src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
+			<!-- End of Meetings Embed Script -->
+		</div>
+
 		<!-- Action Buttons -->
 		<div class="ennu-btn-group" style="text-align: center; margin-bottom: 2rem;">
 			<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">
-				Book Consultation
+				<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BOOK_CONSULTATION' ) ); ?>
 			</a>
-			<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
-				View Dashboard
+			<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'DASHBOARD' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+				<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BACK_TO_DASHBOARD' ) ); ?>
 			</a>
 		</div>
 
@@ -128,28 +168,12 @@ if ( empty( $assessment_type ) ) {
 								$pillar_count++;
 							}
 						} else {
-							// Show sample data if no scores available
-							$sample_pillars = array( 'Mind' => 7.5, 'Body' => 6.8 );
-							foreach ( $sample_pillars as $pillar => $score ) {
-								$display_name = $pillar === 'Mind' ? 'Mental Health' : 'Physical Health';
-								$pillar_class = esc_attr( strtolower( $pillar ) );
-								$spin_duration = max( 2, 11 - $score );
-								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
-								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
-									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
-									</svg>
-									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
-										<div class="pillar-orb-score"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
-								</div>
-								<?php
-							}
+							// No sample data - show empty state
+							?>
+							<div class="no-scores-message">
+								<p>No assessment scores available yet. Complete an assessment to see your results.</p>
+							</div>
+							<?php
 						}
 						?>
 					</div>
@@ -306,6 +330,28 @@ if ( empty( $assessment_type ) ) {
 					</div>
 				</div>
 			<?php endif; ?>
+
+			<!-- PHASE 3: What's Next - User Empowerment Section -->
+			<div class="ennu-card ennu-animate-in ennu-animate-delay-3-5">
+				<h2 class="ennu-section-title">What's Next</h2>
+				<div class="ennu-card-content">
+					<?php
+					// PHASE 3: User Empowerment Widgets for Assessment Results
+					if ( class_exists( 'ENNU_Next_Steps_Widget' ) ) {
+						$ennu_next_steps_widget = new ENNU_Next_Steps_Widget();
+						echo $ennu_next_steps_widget->render_next_steps_widget();
+					}
+					if ( class_exists( 'ENNU_Progress_Tracker' ) ) {
+						$ennu_progress_tracker = new ENNU_Progress_Tracker();
+						echo $ennu_progress_tracker->render_progress_widget();
+					}
+					if ( class_exists( 'ENNU_Actionable_Feedback' ) ) {
+						$ennu_actionable_feedback = new ENNU_Actionable_Feedback();
+						echo $ennu_actionable_feedback->render_actionable_feedback_widget();
+					}
+					?>
+				</div>
+			</div>
 
 			<!-- Benefits -->
 			<?php if ( isset( $result_content['benefits'] ) && ! empty( $result_content['benefits'] ) ) : ?>

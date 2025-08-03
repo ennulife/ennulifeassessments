@@ -14,50 +14,86 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_Trends_Visualization_System {
 
 	/**
+	 * Static flag to prevent multiple initializations
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Initialize trends visualization system
 	 */
 	public static function init() {
+		// Prevent multiple initializations
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+		
 		add_action( 'wp_ajax_ennu_get_trend_data', array( __CLASS__, 'handle_get_trend_data' ) );
 		add_action( 'wp_ajax_ennu_get_biomarker_trends', array( __CLASS__, 'handle_get_biomarker_trends' ) );
 		add_action( 'wp_ajax_ennu_get_score_trends', array( __CLASS__, 'handle_get_score_trends' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
+		// Add the "My Health Trends" tab to the dashboard
+		add_filter( 'ennu_dashboard_tabs', array( __CLASS__, 'add_trends_tab' ) );
+		add_action( 'ennu_render_dashboard_tab_content', array( __CLASS__, 'render_trends_tab_content' ), 10, 2 );
+
 		error_log( 'ENNU Trends Visualization System: Initialized' );
 	}
 
 	/**
-	 * Enqueue visualization scripts
+	 * Add the "My Health Trends" tab to the user dashboard.
+	 *
+	 * @param array $tabs Existing dashboard tabs.
+	 * @return array Modified tabs array.
+	 */
+	public static function add_trends_tab( $tabs ) {
+		// Add 'trends' tab after 'goals'
+		$new_tabs = array();
+		foreach ( $tabs as $slug => $title ) {
+			$new_tabs[ $slug ] = $title;
+			if ( 'goals' === $slug ) {
+				$new_tabs['trends'] = __( 'My Health Trends', 'ennulifeassessments' );
+			}
+		}
+		return $new_tabs;
+	}
+
+	/**
+	 * Render the content for the "My Health Trends" tab.
+	 *
+	 * @param string $active_tab The currently active tab.
+	 * @param int    $user_id    The ID of the current user.
+	 */
+	public static function render_trends_tab_content( $active_tab, $user_id ) {
+		if ( 'trends' === $active_tab ) {
+			echo self::get_my_trends_tab_content( $user_id );
+		}
+	}
+
+	/**
+	 * Enqueue scripts for the trends visualization system.
 	 */
 	public static function enqueue_scripts() {
-		// Commented out - file doesn't exist
-		/*
-		if ( is_user_logged_in() ) {
-			wp_enqueue_script(
-				'ennu-trends-visualization',
-				plugin_dir_url( __FILE__ ) . '../assets/js/trends-visualization.js',
-				array( 'jquery' ),
-				'62.2.8',
-				true
-			);
+		// Enqueue Chart.js from a CDN
+		wp_enqueue_script( 'chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), '4.4.1', true );
 
-			wp_enqueue_script(
-				'chart-js',
-				'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js',
-				array(),
-				'3.9.1',
-				true
-			);
+		// Enqueue our custom trends visualization script
+		wp_enqueue_script(
+			'ennu-trends-visualization',
+			ENNU_LIFE_PLUGIN_URL . 'assets/js/trends-visualization.js',
+			array( 'jquery', 'chart-js' ),
+			ENNU_LIFE_VERSION,
+			true
+		);
 
-			wp_localize_script(
-				'ennu-trends-visualization',
-				'ennuTrends',
-				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'ennu_ajax_nonce' ),
-				)
-			);
-		}
-		*/
+		wp_localize_script(
+			'ennu-trends-visualization',
+			'ennuTrends',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'ennu_ajax_nonce' ),
+			)
+		);
 	}
 
 	/**
@@ -495,7 +531,7 @@ class ENNU_Trends_Visualization_System {
 		$assessment_type = sanitize_text_field( $_POST['assessment_type'] ?? 'all' );
 		$time_range      = intval( $_POST['time_range'] ?? 90 );
 
-		$score_trends = self::get_score_trend_data( $user_id, $assessment_type, $time_range );
+		$score_trends = self::get_assessment_score_trends( $user_id, $time_range );
 
 		wp_send_json_success( $score_trends );
 	}

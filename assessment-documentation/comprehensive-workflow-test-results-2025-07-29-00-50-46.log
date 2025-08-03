@@ -1,0 +1,82 @@
+Comprehensive Assessment Workflow Test Results
+Date: 2025-07-29 00:50:46
+Test User ID: 1
+
+=== OVERALL SUMMARY ===
+Total Assessments Tested: 9
+Average Symptom Success Rate: 0%
+Average Biomarker Success Rate: 0%
+
+=== DETAILED RESULTS ===
+Assessment: Health Optimization Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Fatigue, Chronic Fatigue, Insomnia, Poor Sleep, Anxiety, Depression, Brain Fog, Memory Loss, Joint Pain, Muscle Weakness
+Missing Biomarkers: ferritin, vitamin_d, vitamin_b12, cortisol, tsh, free_t3, free_t4, melatonin, magnesium, omega_3, homocysteine
+
+Assessment: Testosterone Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Low Libido, Low Energy, Mood Swings, Muscle Weakness, Erectile Dysfunction
+Missing Biomarkers: testosterone, estradiol, cortisol, tsh, free_t3, free_t4
+
+Assessment: Hormone Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Fatigue, Weight Gain, Anxiety, Depression, Insomnia, Hot Flashes
+Missing Biomarkers: tsh, free_t3, free_t4, cortisol, testosterone, estradiol, progesterone, melatonin
+
+Assessment: Menopause Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Hot Flashes, Mood Swings, Insomnia, Vaginal Dryness, Brain Fog
+Missing Biomarkers: estradiol, progesterone, testosterone, cortisol, melatonin, vitamin_d, magnesium
+
+Assessment: ED Treatment Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Erectile Dysfunction, Low Libido, Low Energy, High Stress, Chest Pain
+Missing Biomarkers: testosterone, estradiol, cortisol, tsh, free_t3, free_t4, blood_pressure, heart_rate
+
+Assessment: Skin Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Acne, Dry Skin, Premature Aging, Skin Inflammation, Slow Healing
+Missing Biomarkers: testosterone, estradiol, cortisol, vitamin_d, vitamin_b12, iron, ferritin, zinc, omega_3
+
+Assessment: Hair Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Hair Loss, Thinning, Dryness, Dandruff, Slow Growth
+Missing Biomarkers: testosterone, estradiol, cortisol, tsh, free_t3, free_t4, vitamin_d, vitamin_b12, iron, ferritin, zinc, biotin
+
+Assessment: Sleep Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Poor Sleep, Insomnia, Sleep Apnea, Poor Restorative Sleep, Nighttime Awakenings
+Missing Biomarkers: melatonin, cortisol, magnesium, vitamin_d, hemoglobin, hematocrit, bnp
+
+Assessment: Weight Loss Assessment
+Symptom Success Rate: 0%
+Biomarker Success Rate: 0%
+User Symptoms: 
+Flagged Biomarkers: 
+Missing Symptoms: Weight Gain, High Appetite, Low Activity, Food Cravings, High Body Fat
+Missing Biomarkers: insulin, fasting_insulin, homa_ir, glucose, hba1c, leptin, ghrelin, adiponectin, one_five_ag
+

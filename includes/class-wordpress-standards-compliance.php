@@ -35,8 +35,8 @@ class ENNU_WordPress_Standards_Compliance {
 	public function add_compliance_menu() {
 		add_submenu_page(
 			'ennu-life-admin',
-			__( 'WordPress Standards Compliance', 'ennu-life-assessments' ),
-			__( 'WP Standards', 'ennu-life-assessments' ),
+					__( 'WordPress Standards Compliance', 'ennulifeassessments' ),
+		__( 'WP Standards', 'ennulifeassessments' ),
 			'manage_options',
 			'ennu-wp-standards',
 			array( $this, 'render_compliance_dashboard' )

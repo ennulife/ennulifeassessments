@@ -93,11 +93,11 @@ $symptom_data = $symptom_data ?? array();
 				<p>Based on your health optimization assessment, we recommend scheduling a consultation with our health specialists to discuss your personalized treatment plan and biomarker testing options.</p>
 			</div>
 			<div class="ennu-btn-group">
-				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'book-health-optimization-consultation' ) ); ?>" class="ennu-btn ennu-btn-primary">
-					Book Health Optimization Consultation
+				<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'BOOK_HEALTH_OPTIMIZATION_CONSULTATION' ) ); ?>" class="ennu-btn ennu-btn-primary">
+					<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BOOK_CONSULTATION' ) ); ?>
 				</a>
-				<a href="<?php echo esc_url( $shortcode_instance->get_page_id_url( 'dashboard' ) ); ?>" class="ennu-btn ennu-btn-secondary">
-					View Dashboard
+				<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'DASHBOARD' ) ); ?>" class="ennu-btn ennu-btn-secondary">
+					<?php echo esc_html( ENNU_UI_Constants::get_button_text( 'BACK_TO_DASHBOARD' ) ); ?>
 				</a>
 			</div>
 		</div>

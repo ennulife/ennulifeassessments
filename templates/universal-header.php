@@ -16,20 +16,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Variables are already extracted by ennu_load_template function
 // No need to extract again
 
-// Default values for header elements
-$display_name = $display_name ?? '';
-$age = $age ?? '';
-$gender = $gender ?? '';
-$height = $height ?? '';
-$weight = $weight ?? '';
-$bmi = $bmi ?? '';
-$show_vital_stats = $show_vital_stats ?? true;
-$show_theme_toggle = $show_theme_toggle ?? true;
-$page_title = $page_title ?? '';
-$page_subtitle = $page_subtitle ?? '';
-$show_logo = $show_logo ?? true;
-$logo_color = $logo_color ?? 'white';
-$logo_size = $logo_size ?? 'medium';
+// Get the shortcode instance for proper URL generation
+// Get the shortcode instance
+if ( ! isset( $shortcode_instance ) ) {
+	$shortcode_manager = ennu_life()->get_shortcodes();
+	if ( $shortcode_manager && method_exists( $shortcode_manager, 'get_renderer' ) ) {
+		$shortcode_instance = $shortcode_manager->get_renderer();
+	}
+	if ( ! $shortcode_instance && class_exists( 'ENNU_Assessment_Shortcodes' ) ) {
+		$shortcode_instance = new ENNU_Assessment_Shortcodes();
+	}
+}
+$home_page_url = '';
+
+// Try to get page URL with fallback
+	if ( class_exists( 'ENNU_UI_Constants' ) ) {
+		$home_page_url = '?' . ENNU_UI_Constants::get_page_type('DASHBOARD');
+} else {
+	// Fallback to dashboard page or home
+	$dashboard_page = get_option( 'ennu_dashboard_page_id' );
+	if ( $dashboard_page ) {
+		$home_page_url = get_permalink( $dashboard_page );
+	} else {
+		$home_page_url = home_url();
+	}
+}
+
+// Prepare header data
+$header_data = array(
+	'display_name' => $display_name ?? '',
+	'age' => $age ?? '',
+	'gender' => $gender ?? '',
+	'height' => $height ?? '',
+	'weight' => $weight ?? '',
+	'bmi' => $bmi ?? '',
+	'show_vital_stats' => $show_vital_stats ?? true,
+	'show_theme_toggle' => $show_theme_toggle ?? true,
+	'page_title' => $page_title ?? '',
+	'page_subtitle' => $page_subtitle ?? '',
+	'show_logo' => $show_logo ?? true,
+	'logo_color' => $logo_color ?? 'black',
+	'logo_size' => $logo_size ?? 'medium',
+	'link'  => $home_page_url,
+);
 
 // Get current user if not provided
 if ( empty( $display_name ) && is_user_logged_in() ) {
@@ -120,7 +149,7 @@ if ( is_user_logged_in() && $show_vital_stats ) {
 					array(
 						'color' => $logo_color,
 						'size'  => $logo_size,
-						'link'  => home_url( '/' ),
+						'link'  => $home_page_url,
 						'alt'   => 'ENNU Life',
 						'class' => 'ennu-header-logo-img',
 					)
@@ -128,7 +157,7 @@ if ( is_user_logged_in() && $show_vital_stats ) {
 				?>
 			<?php else : ?>
 				<!-- Fallback logo if function not available -->
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="ennu-header-logo-link">
+				<a href="<?php echo esc_url( $home_page_url ); ?>" class="ennu-header-logo-link">
 					<img src="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/img/ennu-logo-' . $logo_color . '.png' ); ?>" 
 						 alt="ENNU Life" 
 						 class="ennu-header-logo-img ennu-logo--<?php echo esc_attr( $logo_size ); ?>" />

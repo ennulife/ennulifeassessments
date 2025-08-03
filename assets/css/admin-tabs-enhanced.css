@@ -24,6 +24,25 @@
     left: auto !important;
 }
 
+/* Enhanced tab link styles for better clickability */
+.ennu-admin-tab-nav a {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10 !important;
+    user-select: none !important;
+}
+
+/* Debug styles to make tabs more visible */
+.ennu-admin-tabs::before {
+    content: "ENNU Tabs Container" !important;
+    display: block !important;
+    background: #ffffcc !important;
+    padding: 5px !important;
+    font-weight: bold !important;
+    border: 1px solid #ccc !important;
+    margin-bottom: 10px !important;
+}
+
 /* High specificity selectors to override theme conflicts */
 .wp-admin .wrap .ennu-admin-tabs,
 body.wp-admin .ennu-admin-tabs,

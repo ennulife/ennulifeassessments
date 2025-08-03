@@ -1,0 +1,39 @@
+{
+    "assessments": {
+        "basic": {
+            "name": "Basic Health Assessment",
+            "description": "Comprehensive health evaluation",
+            "biomarkers": [
+                "glucose",
+                "hba1c",
+                "testosterone"
+            ],
+            "symptoms": [
+                "fatigue",
+                "anxiety"
+            ]
+        },
+        "comprehensive": {
+            "name": "Comprehensive Health Assessment",
+            "description": "Detailed health analysis",
+            "biomarkers": [
+                "glucose",
+                "hba1c",
+                "testosterone",
+                "cortisol",
+                "vitamin_d"
+            ],
+            "symptoms": [
+                "fatigue",
+                "anxiety",
+                "depression",
+                "insomnia"
+            ]
+        }
+    },
+    "types": {
+        "quantitative": "Biomarker-based assessment",
+        "qualitative": "Symptom-based assessment",
+        "mixed": "Combined assessment"
+    }
+}

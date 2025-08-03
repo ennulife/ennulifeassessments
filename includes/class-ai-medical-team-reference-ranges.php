@@ -18,6 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ENNU_AI_Medical_Team_Reference_Ranges {
 
 	/**
+	 * Cache for reference ranges to avoid repeated database queries
+	 */
+	private static $cached_reference_ranges = null;
+	private static $cache_expiry = null;
+	private static $cache_duration = 300; // 5 minutes
+
+	/**
 	 * AI Medical Specialists and their domains
 	 */
 	private $ai_specialists = array(
@@ -133,6 +140,11 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 	);
 
 	/**
+	 * Static flag to prevent multiple initializations
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Initialize the AI Medical Team Reference Ranges System
 	 */
 	public function __construct() {
@@ -145,14 +157,26 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 		// add_action( 'edit_user_profile', array( $this, 'add_reference_range_fields' ) );
 		add_action( 'personal_options_update', array( $this, 'save_reference_range_fields' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_reference_range_fields' ) );
+		
+		// Clear cache when ranges are updated
+		add_action( 'wp_ajax_ennu_ai_approve_reference_range', array( $this, 'clear_reference_ranges_cache' ), 5 );
 	}
 
 	/**
 	 * Initialize the system
 	 */
 	public function init() {
+		// Prevent multiple initializations
+		if ( self::$initialized ) {
+			return;
+		}
+		self::$initialized = true;
+		
 		// Create database tables if they don't exist
 		$this->create_database_tables();
+		
+		// Add database indexes for performance
+		$this->add_database_indexes();
 		
 		// Initialize default reference ranges if none exist
 		$this->initialize_default_reference_ranges();
@@ -188,11 +212,45 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 			approved_by varchar(100),
 			approval_date datetime,
 			PRIMARY KEY (id),
-			UNIQUE KEY biomarker_domain (biomarker_name, domain)
+			UNIQUE KEY biomarker_domain (biomarker_name, domain),
+			KEY approval_status (approval_status),
+			KEY biomarker_name (biomarker_name)
 		) $charset_collate;";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
+	}
+
+	/**
+	 * Add database indexes for performance (with duplicate checks)
+	 */
+	private function add_database_indexes() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'ennu_ai_reference_ranges';
+
+		// Get existing indexes
+		$existing_indexes = $wpdb->get_results( "SHOW INDEX FROM $table_name", ARRAY_A );
+		$index_names = array();
+		foreach ( $existing_indexes as $index ) {
+			$index_names[] = $index['Key_name'];
+		}
+
+		// Add indexes only if they don't exist
+		$indexes_to_add = array(
+			'idx_biomarker_name' => 'biomarker_name',
+			'idx_domain' => 'domain',
+			'idx_ai_specialist' => 'ai_specialist',
+			'idx_approval_status' => 'approval_status',
+			'idx_research_date' => 'research_date',
+			'idx_last_updated' => 'last_updated'
+		);
+
+		foreach ( $indexes_to_add as $index_name => $column_name ) {
+			if ( ! in_array( $index_name, $index_names ) ) {
+				$wpdb->query( "ALTER TABLE $table_name ADD INDEX $index_name ($column_name)" );
+				error_log( "ENNU AI Medical Team: Added database index: $index_name" );
+			}
+		}
 	}
 
 	/**
@@ -229,7 +287,7 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 					'approved_by' => 'system_initialization',
 					'approval_date' => current_time( 'mysql' )
 				),
-				array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+				array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 			);
 		}
 
@@ -241,183 +299,222 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 	 */
 	private function get_default_reference_ranges() {
 		return array(
+			// Foundational Metabolic & Hormonal Markers
 			'glucose' => array(
-				'domain' => 'hormones',
-				'ai_specialist' => 'dr_elena_harmonix',
-				'clinical_evidence' => array(
-					'peer_reviewed_studies' => array(
-						'Performance Menu Article (2015): "Optimal Lab Ranges for Performance Athletes"',
-						'American Diabetes Association Clinical Guidelines (2023)',
-						'Endocrine Society Clinical Practice Guidelines (2022)'
-					),
-					'clinical_guidelines' => array(
-						'ADA Standards of Medical Care in Diabetes (2023)',
-						'Endocrine Society Clinical Practice Guidelines'
-					),
-					'meta_analyses' => array(
-						'Systematic review of fasting glucose and metabolic health (2022)'
-					)
-				),
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
 				'reference_ranges' => array(
-					'optimal' => array(
-						'min' => 75,
-						'max' => 90,
-						'unit' => 'mg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Performance Menu Article (2015), ADA Guidelines (2023)'
-					),
-					'normal' => array(
-						'min' => 70,
-						'max' => 100,
-						'unit' => 'mg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'ADA Clinical Guidelines (2023)'
-					),
-					'critical' => array(
-						'min' => 60,
-						'max' => 125,
-						'unit' => 'mg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines (2022)'
-					)
-				),
-				'clinical_significance' => 'Fasting glucose is a critical marker of metabolic health and insulin sensitivity. Optimal levels (75-90 mg/dL) indicate excellent metabolic function, while elevated levels may indicate insulin resistance or prediabetes.',
-				'research_notes' => 'Based on performance athlete research and clinical guidelines. Dawn phenomenon can cause paradoxical elevation in morning fasting glucose.'
+					'optimal' => array('min' => 75, 'max' => 90, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 70, 'max' => 100, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 60, 'max' => 125, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Fasting glucose is a critical marker of metabolic health and insulin sensitivity.',
+			),
+			'hba1c' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 4.0, 'max' => 5.4, 'unit' => '%'),
+					'normal' => array('min' => 4.0, 'max' => 5.6, 'unit' => '%'),
+					'critical' => array('min' => 3.5, 'max' => 6.4, 'unit' => '%'),
+				), 'clinical_significance' => 'Glycated hemoglobin (HbA1c) reflects average blood glucose over the past 2-3 months.',
 			),
 			'insulin' => array(
-				'domain' => 'hormones',
-				'ai_specialist' => 'dr_elena_harmonix',
-				'clinical_evidence' => array(
-					'peer_reviewed_studies' => array(
-						'Performance Menu Article (2015): "Optimal Lab Ranges for Performance Athletes"',
-						'Insulin Resistance and Metabolic Syndrome Studies (2023)'
-					),
-					'clinical_guidelines' => array(
-						'Endocrine Society Clinical Practice Guidelines',
-						'American Association of Clinical Endocrinologists Guidelines'
-					)
-				),
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
 				'reference_ranges' => array(
-					'optimal' => array(
-						'min' => 2,
-						'max' => 6,
-						'unit' => 'μIU/mL',
-						'evidence_level' => 'A',
-						'citation' => 'Performance Menu Article (2015), Endocrine Society Guidelines'
-					),
-					'normal' => array(
-						'min' => 2,
-						'max' => 12,
-						'unit' => 'μIU/mL',
-						'evidence_level' => 'A',
-						'citation' => 'Clinical Laboratory Standards'
-					),
-					'critical' => array(
-						'min' => 1,
-						'max' => 25,
-						'unit' => 'μIU/mL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines'
-					)
-				),
-				'clinical_significance' => 'Fasting insulin levels are a key indicator of insulin sensitivity and metabolic health. Lower levels indicate better insulin sensitivity, while elevated levels may indicate insulin resistance.',
-				'research_notes' => 'Optimal levels for performance athletes are typically lower than standard laboratory ranges, indicating superior metabolic efficiency.'
+					'optimal' => array('min' => 2, 'max' => 6, 'unit' => 'μIU/mL'),
+					'normal' => array('min' => 2, 'max' => 12, 'unit' => 'μIU/mL'),
+					'critical' => array('min' => 1, 'max' => 25, 'unit' => 'μIU/mL'),
+				), 'clinical_significance' => 'Fasting insulin levels are a key indicator of insulin sensitivity.',
 			),
-			'testosterone_total' => array(
-				'domain' => 'hormones',
-				'ai_specialist' => 'dr_elena_harmonix',
-				'clinical_evidence' => array(
-					'peer_reviewed_studies' => array(
-						'Endocrine Society Clinical Practice Guidelines (2022)',
-						'Testosterone and Male Health Studies (2023)',
-						'Performance Menu Article (2015)'
-					),
-					'clinical_guidelines' => array(
-						'Endocrine Society Clinical Practice Guidelines',
-						'American Urological Association Guidelines'
-					)
-				),
+			// Organ Function
+			'bun' => array(
+				'domain' => 'organ_function', 'ai_specialist' => 'dr_renata_flux',
 				'reference_ranges' => array(
-					'optimal' => array(
-						'min' => 600,
-						'max' => 1000,
-						'unit' => 'ng/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines (2022), Performance Menu Article (2015)'
-					),
-					'normal' => array(
-						'min' => 300,
-						'max' => 1200,
-						'unit' => 'ng/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Clinical Laboratory Standards'
-					),
-					'critical' => array(
-						'min' => 200,
-						'max' => 1500,
-						'unit' => 'ng/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines'
-					)
-				),
-				'gender_adjustments' => array(
-					'female' => array(
-						'optimal_min' => 0.15,
-						'optimal_max' => 0.08,
-						'normal_min' => 0.1,
-						'normal_max' => 0.1
-					)
-				),
-				'age_adjustments' => array(
-					'senior' => array(
-						'optimal_min' => 0.9,
-						'optimal_max' => 0.9
-					)
-				),
-				'clinical_significance' => 'Total testosterone is the primary male hormone affecting energy, muscle mass, libido, and overall vitality. Optimal levels support peak performance and health.',
-				'research_notes' => 'Age and gender-specific adjustments are critical for accurate interpretation. Performance athletes often require higher optimal ranges.'
+					'optimal' => array('min' => 7, 'max' => 18, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 6, 'max' => 20, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 4, 'max' => 25, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Blood Urea Nitrogen (BUN) is a key indicator of kidney function.',
 			),
-			'cortisol' => array(
-				'domain' => 'hormones',
-				'ai_specialist' => 'dr_elena_harmonix',
-				'clinical_evidence' => array(
-					'peer_reviewed_studies' => array(
-						'Endocrine Society Clinical Practice Guidelines',
-						'Stress and Cortisol Research (2023)',
-						'Performance Menu Article (2015)'
-					),
-					'clinical_guidelines' => array(
-						'Endocrine Society Clinical Practice Guidelines',
-						'American Association of Clinical Endocrinologists Guidelines'
-					)
-				),
+			'creatinine' => array(
+				'domain' => 'organ_function', 'ai_specialist' => 'dr_renata_flux',
 				'reference_ranges' => array(
-					'optimal' => array(
-						'min' => 10,
-						'max' => 18,
-						'unit' => 'μg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines, Performance Menu Article (2015)'
-					),
-					'normal' => array(
-						'min' => 6,
-						'max' => 23,
-						'unit' => 'μg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Clinical Laboratory Standards'
-					),
-					'critical' => array(
-						'min' => 3,
-						'max' => 30,
-						'unit' => 'μg/dL',
-						'evidence_level' => 'A',
-						'citation' => 'Endocrine Society Guidelines'
-					)
-				),
-				'clinical_significance' => 'Morning cortisol is the primary stress hormone affecting energy, immune function, and metabolic health. Optimal levels support balanced stress response.',
-				'research_notes' => 'Timing of measurement is critical - should be measured between 6-8 AM. Elevated levels may indicate chronic stress or adrenal dysfunction.'
+					'optimal' => array('min' => 0.7, 'max' => 1.1, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 0.6, 'max' => 1.3, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 0.5, 'max' => 1.5, 'unit' => 'mg/dL'),
+				), 'gender_adjustments' => array('female' => array('optimal_max' => 1.0, 'normal_max' => 1.1, 'critical_max' => 1.3)),
+				'clinical_significance' => 'Creatinine is a primary indicator of kidney filtration capacity.',
+			),
+			'ast' => array(
+				'domain' => 'organ_function', 'ai_specialist' => 'dr_renata_flux',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 10, 'max' => 26, 'unit' => 'U/L'),
+					'normal' => array('min' => 8, 'max' => 40, 'unit' => 'U/L'),
+					'critical' => array('min' => 5, 'max' => 50, 'unit' => 'U/L'),
+				), 'clinical_significance' => 'AST is an enzyme indicating liver health.',
+			),
+			'alt' => array(
+				'domain' => 'organ_function', 'ai_specialist' => 'dr_renata_flux',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 10, 'max' => 26, 'unit' => 'U/L'),
+					'normal' => array('min' => 7, 'max' => 40, 'unit' => 'U/L'),
+					'critical' => array('min' => 5, 'max' => 56, 'unit' => 'U/L'),
+				), 'clinical_significance' => 'ALT is a key enzyme for liver function assessment.',
+			),
+			'alkaline_phosphatase' => array(
+				'domain' => 'organ_function', 'ai_specialist' => 'dr_renata_flux',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 45, 'max' => 85, 'unit' => 'IU/L'),
+					'normal' => array('min' => 44, 'max' => 147, 'unit' => 'IU/L'),
+					'critical' => array('min' => 30, 'max' => 160, 'unit' => 'IU/L'),
+				), 'clinical_significance' => 'Alkaline Phosphatase is an enzyme related to the liver, gallbladder, and bones.',
+			),
+			// Complete Blood Count
+			'hemoglobin' => array(
+				'domain' => 'blood_health', 'ai_specialist' => 'dr_harlan_vitalis',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 14.0, 'max' => 17.0, 'unit' => 'g/dL'),
+					'normal' => array('min' => 13.5, 'max' => 17.5, 'unit' => 'g/dL'),
+					'critical' => array('min' => 12.0, 'max' => 18.0, 'unit' => 'g/dL'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 12.5, 'optimal_max' => 15.5, 'normal_min' => 12.0, 'normal_max' => 16.0, 'critical_min' => 11.0, 'critical_max' => 16.5)),
+				'clinical_significance' => 'Hemoglobin is the protein in red blood cells that carries oxygen.',
+			),
+			'hematocrit' => array(
+				'domain' => 'blood_health', 'ai_specialist' => 'dr_harlan_vitalis',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 42, 'max' => 48, 'unit' => '%'),
+					'normal' => array('min' => 40, 'max' => 52, 'unit' => '%'),
+					'critical' => array('min' => 37, 'max' => 54, 'unit' => '%'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 38, 'optimal_max' => 45)),
+				'clinical_significance' => 'Hematocrit is the proportion of red blood cells to the fluid component, or plasma, in your blood.',
+			),
+			'wbc' => array(
+				'domain' => 'blood_health', 'ai_specialist' => 'dr_harlan_vitalis',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 4.5, 'max' => 7.5, 'unit' => 'K/uL'),
+					'normal' => array('min' => 4.0, 'max' => 11.0, 'unit' => 'K/uL'),
+					'critical' => array('min' => 3.5, 'max' => 12.0, 'unit' => 'K/uL'),
+				), 'clinical_significance' => 'White Blood Cell (WBC) count is a measure of the disease-fighting cells in your blood.',
+			),
+			// Lipid Panel
+			'cholesterol' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 125, 'max' => 180, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 125, 'max' => 200, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 100, 'max' => 240, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Total cholesterol is a general marker of cardiovascular risk.',
+			),
+			'hdl' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 60, 'max' => 100, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 40, 'max' => 100, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 35, 'max' => 120, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'High-Density Lipoprotein (HDL) is "good" cholesterol.',
+			),
+			'ldl' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0, 'max' => 70, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 0, 'max' => 100, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 0, 'max' => 130, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Low-Density Lipoprotein (LDL) is "bad" cholesterol.',
+			),
+			'triglycerides' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0, 'max' => 90, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 0, 'max' => 150, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 0, 'max' => 200, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Triglycerides are a type of fat in the blood.',
+			),
+			// Key Hormones
+			'testosterone_free' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 6.8, 'max' => 21.5, 'unit' => 'pg/mL'),
+					'normal' => array('min' => 5.0, 'max' => 25.0, 'unit' => 'pg/mL'),
+					'critical' => array('min' => 4.0, 'max' => 30.0, 'unit' => 'pg/mL'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 0.1, 'optimal_max' => 2.2)),
+				'clinical_significance' => 'Free testosterone is the unbound, biologically active form of testosterone.',
+			),
+			'estradiol' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 20, 'max' => 30, 'unit' => 'pg/mL'),
+					'normal' => array('min' => 10, 'max' => 40, 'unit' => 'pg/mL'),
+					'critical' => array('min' => 5, 'max' => 50, 'unit' => 'pg/mL'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 30, 'optimal_max' => 200)), // Highly variable by cycle phase
+				'clinical_significance' => 'Estradiol is the primary female sex hormone but also plays a critical role in male health.',
+			),
+			'progesterone' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0.2, 'max' => 0.8, 'unit' => 'ng/mL'),
+					'normal' => array('min' => 0.1, 'max' => 1.0, 'unit' => 'ng/mL'),
+					'critical' => array('min' => 0, 'max' => 1.5, 'unit' => 'ng/mL'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 5, 'optimal_max' => 20)), // Luteal phase
+				'clinical_significance' => 'Progesterone is a hormone involved in the menstrual cycle, pregnancy, and embryogenesis.',
+			),
+			'tsh' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0.5, 'max' => 2.0, 'unit' => 'uIU/mL'),
+					'normal' => array('min' => 0.4, 'max' => 4.5, 'unit' => 'uIU/mL'),
+					'critical' => array('min' => 0.2, 'max' => 5.5, 'unit' => 'uIU/mL'),
+				), 'clinical_significance' => 'Thyroid-Stimulating Hormone (TSH) is the primary marker for thyroid function.',
+			),
+			// Foundational Vitamins & Inflammation
+			'ferritin' => array(
+				'domain' => 'blood_health', 'ai_specialist' => 'dr_harlan_vitalis',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 50, 'max' => 150, 'unit' => 'ng/mL'),
+					'normal' => array('min' => 30, 'max' => 300, 'unit' => 'ng/mL'),
+					'critical' => array('min' => 20, 'max' => 400, 'unit' => 'ng/mL'),
+				), 'gender_adjustments' => array('female' => array('optimal_min' => 40, 'optimal_max' => 100)),
+				'clinical_significance' => 'Ferritin indicates the body\'s iron stores.',
+			),
+			'vitamin_d' => array(
+				'domain' => 'hormones', 'ai_specialist' => 'dr_elena_harmonix',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 40, 'max' => 60, 'unit' => 'ng/mL'),
+					'normal' => array('min' => 30, 'max' => 80, 'unit' => 'ng/mL'),
+					'critical' => array('min' => 20, 'max' => 100, 'unit' => 'ng/mL'),
+				), 'clinical_significance' => 'Vitamin D is crucial for bone health and immune function.',
+			),
+			'hs_crp' => array(
+				'domain' => 'analytics', 'ai_specialist' => 'alex_dataforge',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0, 'max' => 0.9, 'unit' => 'mg/L'),
+					'normal' => array('min' => 0, 'max' => 3.0, 'unit' => 'mg/L'),
+					'critical' => array('min' => 0, 'max' => 10.0, 'unit' => 'mg/L'),
+				), 'clinical_significance' => 'High-Sensitivity C-Reactive Protein (hs-CRP) is a key marker of inflammation.',
+			),
+			'homocysteine' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 5, 'max' => 7, 'unit' => 'umol/L'),
+					'normal' => array('min' => 5, 'max' => 15, 'unit' => 'umol/L'),
+					'critical' => array('min' => 4, 'max' => 20, 'unit' => 'umol/L'),
+				), 'clinical_significance' => 'Homocysteine is an amino acid; high levels are linked to cardiovascular disease.',
+			),
+			'apob' => array(
+				'domain' => 'cardiovascular', 'ai_specialist' => 'dr_victor_pulse',
+				'reference_ranges' => array(
+					'optimal' => array('min' => 0, 'max' => 80, 'unit' => 'mg/dL'),
+					'normal' => array('min' => 0, 'max' => 100, 'unit' => 'mg/dL'),
+					'critical' => array('min' => 0, 'max' => 120, 'unit' => 'mg/dL'),
+				), 'clinical_significance' => 'Apolipoprotein B (ApoB) is a measure of the total number of atherogenic particles.',
 			)
+			// This list now contains all the most critical biomarkers. Others can be added later following this exact format.
 		);
+	}
+
+	/**
+	 * Clear the cached reference ranges
+	 */
+	public function clear_reference_ranges_cache() {
+		self::$cached_reference_ranges = null;
+		self::$cache_expiry = null;
+		error_log( 'ENNU AI Medical Team Reference Ranges: Cache cleared' );
 	}
 
 	/**
@@ -481,6 +578,11 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'ennu_ai_reference_ranges';
 
+		// Check cache
+		if ( self::$cached_reference_ranges !== null && self::$cache_expiry > time() ) {
+			return self::$cached_reference_ranges;
+		}
+
 		$results = $wpdb->get_results( "SELECT * FROM $table_name WHERE approval_status = 'approved'", ARRAY_A );
 
 		$reference_ranges = array();
@@ -500,6 +602,10 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 				'approval_date' => $row['approval_date']
 			);
 		}
+
+		// Cache results
+		self::$cached_reference_ranges = $reference_ranges;
+		self::$cache_expiry = time() + self::$cache_duration;
 
 		return $reference_ranges;
 	}

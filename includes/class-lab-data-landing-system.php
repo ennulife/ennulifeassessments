@@ -22,6 +22,7 @@ class ENNU_Lab_Data_Landing_System {
 		add_action( 'wp_ajax_ennu_upload_lab_data', array( __CLASS__, 'handle_lab_data_upload' ) );
 		add_action( 'wp_ajax_ennu_validate_lab_data', array( __CLASS__, 'handle_lab_data_validation' ) );
 		add_action( 'wp_ajax_ennu_get_csv_template', array( __CLASS__, 'handle_get_csv_template' ) );
+		add_action( 'wp_ajax_ennu_upload_pdf', array( __CLASS__, 'handle_pdf_upload' ) );
 
 		error_log( 'ENNU Lab Data Landing System: Initialized' );
 	}
@@ -421,16 +422,172 @@ class ENNU_Lab_Data_Landing_System {
 	}
 
 	/**
+	 * Handle PDF upload via AJAX
+	 */
+	public static function handle_pdf_upload() {
+		// Debug logging
+		error_log( 'ENNU PDF Upload: AJAX request received' );
+		error_log( 'ENNU PDF Upload: POST data: ' . print_r( $_POST, true ) );
+		error_log( 'ENNU PDF Upload: FILES data: ' . print_r( $_FILES, true ) );
+		
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'Security check failed.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Security Error',
+					'message' => 'Invalid security token. Please refresh the page and try again.',
+				),
+			) ) );
+		}
+		
+		// Check user permissions
+		if ( ! is_user_logged_in() ) {
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'User not logged in.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Authentication Required',
+					'message' => 'Please log in to upload LabCorp results.',
+				),
+			) ) );
+		}
+		
+		$user_id = get_current_user_id();
+		
+		// Check if file was uploaded
+		if ( ! isset( $_FILES['labcorp_pdf'] ) || $_FILES['labcorp_pdf']['error'] !== UPLOAD_ERR_OK ) {
+			$error_message = 'No file uploaded or upload error occurred.';
+			if ( isset( $_FILES['labcorp_pdf']['error'] ) ) {
+				switch ( $_FILES['labcorp_pdf']['error'] ) {
+					case UPLOAD_ERR_INI_SIZE:
+						$error_message = 'File too large. Maximum size is 10MB.';
+						break;
+					case UPLOAD_ERR_PARTIAL:
+						$error_message = 'File upload was incomplete.';
+						break;
+					case UPLOAD_ERR_NO_FILE:
+						$error_message = 'No file was uploaded.';
+						break;
+					default:
+						$error_message = 'Upload error occurred.';
+				}
+			}
+			
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => $error_message,
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Upload Failed',
+					'message' => $error_message,
+				),
+			) ) );
+		}
+		
+		$file = $_FILES['labcorp_pdf'];
+		
+		// Validate file type
+		$allowed_types = array( 'application/pdf' );
+		$file_type = mime_content_type( $file['tmp_name'] );
+		
+		if ( ! in_array( $file_type, $allowed_types ) ) {
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'Invalid file type. Only PDF files are allowed.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Invalid File Type',
+					'message' => 'Please upload a valid PDF file from LabCorp.',
+				),
+			) ) );
+		}
+		
+		// Validate file size (10MB max)
+		if ( $file['size'] > 10 * 1024 * 1024 ) {
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'File too large. Maximum size is 10MB.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'File Too Large',
+					'message' => 'Please upload a PDF file smaller than 10MB.',
+				),
+			) ) );
+		}
+		
+		// Create upload directory if it doesn't exist
+		$upload_dir = wp_upload_dir();
+		$labcorp_dir = $upload_dir['basedir'] . '/labcorp-pdfs/';
+		
+		if ( ! file_exists( $labcorp_dir ) ) {
+			wp_mkdir_p( $labcorp_dir );
+		}
+		
+		// Generate unique filename
+		$filename = 'labcorp_' . $user_id . '_' . time() . '.pdf';
+		$file_path = $labcorp_dir . $filename;
+		
+		// Move uploaded file
+		if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'Failed to save uploaded file.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'File Save Failed',
+					'message' => 'Unable to process the uploaded file. Please try again.',
+				),
+			) ) );
+		}
+		
+		// Process PDF
+		try {
+			$processor = new ENNU_PDF_Processor();
+			$result = $processor->process_labcorp_pdf( $file_path, $user_id );
+			
+			// Clean up uploaded file
+			unlink( $file_path );
+			
+			// Log success
+			error_log( 'ENNU PDF Upload: Success - ' . print_r( $result, true ) );
+			
+			// Return detailed result with notification
+			wp_die( json_encode( $result ) );
+			
+		} catch ( Exception $e ) {
+			// Clean up uploaded file
+			if ( file_exists( $file_path ) ) {
+				unlink( $file_path );
+			}
+			
+			wp_die( json_encode( array(
+				'success' => false,
+				'message' => 'PDF processing failed: ' . $e->getMessage(),
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Processing Failed',
+					'message' => 'Unable to process the LabCorp PDF. Please ensure it contains valid biomarker data.',
+				),
+			) ) );
+		}
+	}
+
+	/**
 	 * Validate file type
 	 *
 	 * @param array $file File data
 	 * @return bool Whether file is valid
 	 */
 	private static function validate_file_type( $file ) {
-		$allowed_types  = array( 'text/csv', 'application/csv', 'text/plain' );
+		$allowed_types  = array( 'text/csv', 'application/csv', 'text/plain', 'application/pdf' );
 		$file_extension = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
 
-		return $file_extension === 'csv' && in_array( $file['type'], $allowed_types, true );
+		return ( $file_extension === 'csv' && in_array( $file['type'], $allowed_types, true ) ) ||
+			   ( $file_extension === 'pdf' && $file['type'] === 'application/pdf' );
 	}
 
 	/**
@@ -503,47 +660,87 @@ class ENNU_Lab_Data_Landing_System {
 	 * @return array Import result
 	 */
 	private static function process_lab_data_import( $file ) {
-		$csv_data = self::parse_csv_file( $file['tmp_name'] );
+		$file_extension = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		
+		if ( $file_extension === 'pdf' ) {
+			return self::process_pdf_import( $file );
+		} else {
+			// Existing CSV processing logic
+			$csv_data = self::parse_csv_file( $file['tmp_name'] );
 
-		if ( empty( $csv_data ) ) {
-			return array(
-				'success' => false,
-				'message' => 'Unable to parse CSV file or file is empty',
-			);
-		}
-
-		$imported_count   = 0;
-		$patients_updated = array();
-		$flagged_count    = 0;
-
-		foreach ( $csv_data as $row_index => $row ) {
-			if ( $row_index === 0 ) {
-				continue;
+			if ( empty( $csv_data ) ) {
+				return array(
+					'success' => false,
+					'message' => 'Unable to parse CSV file or file is empty',
+				);
 			}
 
-			$import_result = self::import_lab_record( $row );
+			$imported_count   = 0;
+			$patients_updated = array();
+			$flagged_count    = 0;
 
-			if ( $import_result['success'] ) {
-				$imported_count++;
+			foreach ( $csv_data as $row_index => $row ) {
+				if ( $row_index === 0 ) {
+					continue;
+				}
 
-				if ( ! in_array( $import_result['user_id'], $patients_updated, true ) ) {
-					$patients_updated[] = $import_result['user_id'];
+				$import_result = self::import_lab_record( $row );
+
+				if ( $import_result['success'] ) {
+					$imported_count++;
+					if ( ! in_array( $import_result['user_id'], $patients_updated, true ) ) {
+						$patients_updated[] = $import_result['user_id'];
+					}
 				}
 
 				if ( $import_result['flagged'] ) {
 					$flagged_count++;
 				}
 			}
-		}
 
-		return array(
-			'success' => true,
-			'data'    => array(
-				'imported_count'   => $imported_count,
-				'patients_updated' => count( $patients_updated ),
-				'flagged_count'    => $flagged_count,
-			),
-		);
+			return array(
+				'success' => true,
+				'message' => "Successfully imported {$imported_count} records for " . count( $patients_updated ) . " patients. {$flagged_count} records flagged for review.",
+				'data'    => array(
+					'imported_count'   => $imported_count,
+					'patients_updated' => count( $patients_updated ),
+					'flagged_count'    => $flagged_count,
+				),
+			);
+		}
+	}
+
+	/**
+	 * Process PDF import for LabCorp documents
+	 *
+	 * @param array $file File data
+	 * @return array Import result
+	 */
+	private static function process_pdf_import( $file ) {
+		// Check if PDF processor class exists
+		if ( ! class_exists( 'ENNU_PDF_Processor' ) ) {
+			return array(
+				'success' => false,
+				'message' => 'PDF processor not available. Please ensure the ENNU_PDF_Processor class is loaded.',
+			);
+		}
+		
+		// Create PDF processor instance
+		$pdf_processor = new ENNU_PDF_Processor();
+		
+		// Get current user ID
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return array(
+				'success' => false,
+				'message' => 'User not authenticated.',
+			);
+		}
+		
+		// Process the PDF
+		$result = $pdf_processor->process_labcorp_pdf( $file['tmp_name'], $user_id );
+		
+		return $result;
 	}
 
 	/**
@@ -596,32 +793,16 @@ class ENNU_Lab_Data_Landing_System {
 			);
 		}
 
-		if ( class_exists( 'ENNU_Enhanced_Lab_Data_Manager' ) ) {
-			$lab_manager    = new ENNU_Enhanced_Lab_Data_Manager();
-			$import_success = $lab_manager->import_single_biomarker(
-				$user->ID,
-				$biomarker_name,
-				$test_value,
-				$test_date,
-				$reference_range
-			);
-		} else {
-			$biomarker_data = array(
-				'biomarker_name'  => $biomarker_name,
+		$biomarker_data = array(
+			$biomarker_name => array(
 				'value'           => $test_value,
 				'date_tested'     => $test_date,
 				'reference_range' => $reference_range,
-				'imported_at'     => current_time( 'mysql' ),
-			);
+			)
+		);
 
-			$existing_biomarkers = get_user_meta( $user->ID, 'ennu_user_biomarkers', true );
-			if ( ! is_array( $existing_biomarkers ) ) {
-				$existing_biomarkers = array();
-			}
-
-			$existing_biomarkers[ $biomarker_name ] = $biomarker_data;
-			$import_success                         = update_user_meta( $user->ID, 'ennu_user_biomarkers', $existing_biomarkers );
-		}
+		// Use the new centralized saving method
+		$import_success = ENNU_Biomarker_Manager::save_user_biomarkers( $user->ID, $biomarker_data, 'lab_import' );
 
 		$flagged = false;
 		if ( class_exists( 'ENNU_Biomarker_Flag_Manager' ) ) {
@@ -757,32 +938,19 @@ class ENNU_Lab_Data_Landing_System {
 		$templates = array(
 			'quest'     => array(
 				'headers'     => array( 'patient_id', 'biomarker_name', 'test_value', 'test_date', 'reference_range', 'units', 'status' ),
-				'sample_data' => array(
-					array( 'user123', 'testosterone_total', '450', '2024-01-15', '300-1000', 'ng/dL', 'normal' ),
-					array( 'user123', 'vitamin_d', '35', '2024-01-15', '30-100', 'ng/mL', 'normal' ),
-				),
+				'sample_data' => array(),
 			),
 			'labcorp'   => array(
 				'headers'     => array( 'patient_id', 'test_name', 'result', 'date_collected', 'reference_interval', 'unit', 'flag' ),
-				'sample_data' => array(
-					array( 'user456', 'Total Testosterone', '520', '2024-01-15', '264-916', 'ng/dL', '' ),
-					array( 'user456', '25-Hydroxy Vitamin D', '42', '2024-01-15', '30-100', 'ng/mL', '' ),
-				),
+				'sample_data' => array(),
 			),
 			'generic'   => array(
 				'headers'     => array( 'patient_id', 'biomarker_name', 'test_value', 'test_date', 'reference_range' ),
-				'sample_data' => array(
-					array( 'patient@email.com', 'testosterone_total', '380', '2024-01-15', '300-1000' ),
-					array( 'patient@email.com', 'thyroid_tsh', '2.5', '2024-01-15', '0.4-4.0' ),
-				),
+				'sample_data' => array(),
 			),
 			'ennu_full' => array(
 				'headers'     => array( 'patient_id', 'biomarker_name', 'test_value', 'test_date', 'reference_range', 'units', 'lab_provider', 'notes' ),
-				'sample_data' => array(
-					array( 'user789', 'testosterone_total', '425', '2024-01-15', '300-1000', 'ng/dL', 'Quest', 'Fasting sample' ),
-					array( 'user789', 'estradiol', '28', '2024-01-15', '7.6-42.6', 'pg/mL', 'Quest', '' ),
-					array( 'user789', 'vitamin_d', '38', '2024-01-15', '30-100', 'ng/mL', 'Quest', '' ),
-				),
+				'sample_data' => array(),
 			),
 		);
 
