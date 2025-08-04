@@ -99,6 +99,7 @@ final class ENNU_Assessment_Shortcodes {
 
 		$this->all_definitions = ENNU_Scoring_System::get_all_definitions();
 		error_log( 'ENNU Shortcodes: Loaded ' . count( $this->all_definitions ) . ' assessment definitions.' );
+		error_log( 'ENNU Shortcodes: Available assessment types: ' . implode( ', ', array_keys( $this->all_definitions ) ) );
 
 		// Delay assessment initialization until after textdomain is loaded
 		add_action( 'init', array( $this, 'init_assessments' ), 15 );
@@ -300,8 +301,11 @@ final class ENNU_Assessment_Shortcodes {
 	 * Setup WordPress hooks for AJAX and asset enqueuing.
 	 */
 	private function setup_hooks() {
-		// All hooks are now registered in the main plugin file for centralized control.
-		// This method is kept for clarity and future use if needed.
+		// Assessment submission AJAX handlers - CRITICAL FIX
+		add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+		add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+		
+		// Email and auth state checks
 		add_action( 'wp_ajax_nopriv_ennu_check_email', array( $this, 'ajax_check_email_exists' ) );
 		add_action( 'wp_ajax_ennu_check_auth_state', array( $this, 'ajax_check_auth_state' ) );
 		add_action( 'wp_ajax_nopriv_ennu_check_auth_state', array( $this, 'ajax_check_auth_state' ) );
@@ -469,7 +473,6 @@ final class ENNU_Assessment_Shortcodes {
 
 		return '';
 	}
-
 	/**
 	 * Render default assessment template
 	 *
@@ -519,21 +522,6 @@ final class ENNU_Assessment_Shortcodes {
 				<!-- Questions Container -->
 				<div class="questions-container">
 					<?php echo $this->render_assessment_questions( $assessment_type, $config, $current_user_data ); ?>
-				</div>
-				
-				<!-- Success Message -->
-				<div class="assessment-success" style="display: none;">
-					<div class="success-icon">✓</div>
-					<h2><?php esc_html_e( 'Assessment Complete!', 'ennulifeassessments' ); ?></h2>
-					<p><?php esc_html_e( 'Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.', 'ennulifeassessments' ); ?></p>
-					<div class="next-steps">
-						<h3><?php esc_html_e( 'What happens next?', 'ennulifeassessments' ); ?></h3>
-						<ul>
-							<li><?php esc_html_e( 'Our medical team will review your responses', 'ennulifeassessments' ); ?></li>
-							<li><?php esc_html_e( 'You\'ll receive personalized recommendations via email', 'ennulifeassessments' ); ?></li>
-							<li><?php esc_html_e( 'A specialist may contact you to discuss treatment options', 'ennulifeassessments' ); ?></li>
-						</ul>
-					</div>
 				</div>
 			</form>
 		</div>
@@ -779,6 +767,23 @@ final class ENNU_Assessment_Shortcodes {
 		// Ensure $saved_options is always an array to prevent fatal errors.
 		$saved_options = is_array( $saved_options ) ? $saved_options : array();
 
+		// Defensive fix: If user is not logged in and all options are selected, reset to empty
+		if ( ! is_user_logged_in() && ! empty( $saved_options ) ) {
+			$all_option_keys = array_keys( $question['options'] );
+			$saved_sorted = $saved_options;
+			sort( $all_option_keys );
+			sort( $saved_sorted );
+			if ( $saved_sorted === $all_option_keys ) {
+				$saved_options = array();
+			}
+		}
+
+		// Determine the field name - use global field name if this is a global field
+		$field_name = $question_key;
+		if ( ! empty( $question['global_key'] ) ) {
+			$field_name = 'ennu_global_' . $question['global_key'];
+		}
+
 		$count       = count( $question['options'] );
 		$num_columns = 2; // Default
 		if ( $count === 3 || $count > 4 ) {
@@ -794,7 +799,7 @@ final class ENNU_Assessment_Shortcodes {
 					<div class="answer-option">
 						<input type="checkbox" 
 							   id="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>" 
-							   name="<?php echo esc_attr( $question_key ); ?>[]" 
+							   name="<?php echo esc_attr( $field_name ); ?>[]" 
 							   value="<?php echo esc_attr( $option_value ); ?>" 
 							   <?php checked( in_array( $option_value, $saved_options ) ); ?> required>
 						<label for="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>">
@@ -910,28 +915,38 @@ final class ENNU_Assessment_Shortcodes {
 			error_log( "ENNU Height/Weight Debug - Parsed Values - ft: {$height_ft}, in: {$height_in}, lbs: {$weight_lbs}" );
 		}
 
+		// Determine the field names - use global field names if this is a global field
+		$height_ft_name = 'height_ft';
+		$height_in_name = 'height_in';
+		$weight_lbs_name = 'weight_lbs';
+		
+		if ( ! empty( $question['global_key'] ) ) {
+			$height_ft_name = 'ennu_global_height_weight_ft';
+			$height_in_name = 'ennu_global_height_weight_in';
+			$weight_lbs_name = 'ennu_global_height_weight_lbs';
+		}
+
 		ob_start();
 		?>
 		<div class="question-content">
 			<div class="height-weight-container">
 				<div class="hw-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_height_ft">Height (ft):</label>
-					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_height_ft" name="height_ft" min="0" step="1" required value="<?php echo esc_attr( $height_ft ); ?>">
+					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_height_ft" name="<?php echo esc_attr( $height_ft_name ); ?>" min="0" step="1" required value="<?php echo esc_attr( $height_ft ); ?>">
 				</div>
 				<div class="hw-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_height_in">Height (in):</label>
-					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_height_in" name="height_in" min="0" step="1" required value="<?php echo esc_attr( $height_in ); ?>">
+					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_height_in" name="<?php echo esc_attr( $height_in_name ); ?>" min="0" step="1" required value="<?php echo esc_attr( $height_in ); ?>">
 				</div>
 				<div class="hw-field">
 					<label for="<?php echo esc_attr( $question_key ); ?>_weight_lbs">Weight (lbs):</label>
-					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_weight_lbs" name="weight_lbs" min="0" step="0.1" required value="<?php echo esc_attr( $weight_lbs ); ?>">
+					<input type="number" id="<?php echo esc_attr( $question_key ); ?>_weight_lbs" name="<?php echo esc_attr( $weight_lbs_name ); ?>" min="0" step="0.1" required value="<?php echo esc_attr( $weight_lbs ); ?>">
 				</div>
 			</div>
 		</div>
 		<?php
 		return ob_get_clean();
 	}
-
 	/**
 	 * Renders the HTML for a 'contact_info' question.
 	 */
@@ -968,7 +983,6 @@ final class ENNU_Assessment_Shortcodes {
 				<?php
 				return ob_get_clean();
 	}
-
 	/**
 	 * Renders the HTML for a 'radio' button question.
 	 */
@@ -982,6 +996,12 @@ final class ENNU_Assessment_Shortcodes {
 		// Debug logging for gender fields
 		if ( strpos( $question_key, 'gender' ) !== false || ( isset( $question['global_key'] ) && $question['global_key'] === 'gender' ) ) {
 			error_log( "ENNU DEBUG: Rendering gender field {$question_key} with pre_selected_value: " . ( $pre_selected_value ?: 'empty' ) );
+		}
+
+		// Determine the field name - use global field name if this is a global field
+		$field_name = $question_key;
+		if ( ! empty( $question['global_key'] ) ) {
+			$field_name = 'ennu_global_' . $question['global_key'];
 		}
 
 		$count       = count( $question['options'] );
@@ -1002,7 +1022,7 @@ final class ENNU_Assessment_Shortcodes {
 					<div class="answer-option">
 						<input type="radio" 
 							   id="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>" 
-							   name="<?php echo esc_attr( $question_key ); ?>" 
+							   name="<?php echo esc_attr( $field_name ); ?>" 
 							   value="<?php echo esc_attr( $option_value ); ?>" 
 							   <?php echo ( $pre_selected_value === $option_value ) ? 'checked="checked"' : ''; ?> required>
 						<label for="<?php echo esc_attr( $question_key ); ?>_<?php echo esc_attr( $option_value ); ?>">
@@ -1077,33 +1097,21 @@ final class ENNU_Assessment_Shortcodes {
 	 * @return array
 	 */
 	public function get_assessment_questions( $assessment_type ) {
-		// DEFINITIVE FIX: Use the class property, not a direct file include,
-		// to ensure the correct, unified definitions are always used.
-		
-		// If all_definitions is empty, try to reload from scoring system
-		if ( empty( $this->all_definitions ) ) {
-			error_log( 'ENNU Shortcodes: all_definitions is empty, attempting to reload from scoring system...' );
-			
-			// Force reload from scoring system
-			if ( class_exists( 'ENNU_Scoring_System' ) ) {
-				// CRITICAL FIX: Skip transient deletion during AJAX requests to prevent slow queries
-				if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
-					delete_transient( 'ennu_assessment_definitions_v1' );
-				} else {
-					error_log( 'ENNU Shortcodes: Skipping transient deletion during AJAX request to prevent slow queries.' );
-					// CRITICAL FIX: Skip the entire reload process during AJAX to prevent slow queries
-					return array();
-				}
-				
-				// Reload definitions
-				$this->all_definitions = ENNU_Scoring_System::get_all_definitions();
-				error_log( 'ENNU Shortcodes: Reloaded ' . count( $this->all_definitions ) . ' assessment definitions from scoring system.' );
-			} else {
-				error_log( 'ENNU Shortcodes: ERROR - ENNU_Scoring_System class not found during reload attempt!' );
-			}
+		// Always reload from scoring system to ensure fresh data
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
+			$this->all_definitions = ENNU_Scoring_System::get_all_definitions();
+			error_log( 'ENNU Shortcodes: Reloaded ' . count( $this->all_definitions ) . ' assessment definitions from scoring system.' );
+		} else {
+			error_log( 'ENNU Shortcodes: ERROR - ENNU_Scoring_System class not found!' );
+			return array();
 		}
 		
-		$assessment_config = $this->all_definitions[ $assessment_type ] ?? array();
+		$assessment_config = $this->all_definitions[$assessment_type] ?? array();
+		if (empty($assessment_config) || empty($assessment_config['questions'])) {
+			error_log('ENNU ERROR: Assessment config for ' . $assessment_type . ' is missing or has no questions!');
+		}
+		$question_keys = isset($assessment_config['questions']) ? array_keys($assessment_config['questions']) : [];
+		error_log('ENNU DEBUG: Assessment type: ' . $assessment_type . ' | Question keys: ' . implode(', ', $question_keys));
 		return isset( $assessment_config['questions'] ) ? $assessment_config['questions'] : array();
 	}
 
@@ -1279,7 +1287,6 @@ final class ENNU_Assessment_Shortcodes {
 		if ( $form_data['assessment_type'] === 'health_optimization_assessment' ) {
 			$config_assessment_type = 'health-optimization';
 		}
-		
 		$assessment_config = $this->all_definitions[ $config_assessment_type ] ?? array();
 		$this->_log_submission_debug( 'Routing to assessment engine.', $assessment_config['assessment_engine'] ?? 'quantitative' );
 		if ( isset( $assessment_config['assessment_engine'] ) && $assessment_config['assessment_engine'] === 'qualitative' ) {
@@ -1348,8 +1355,12 @@ final class ENNU_Assessment_Shortcodes {
 			$this->_log_submission_debug( 'Processing with NEW Quantitative engine.' );
 
 			$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $form_data['assessment_type'], $form_data );
+			error_log( 'ENNU REDIRECT DEBUG: calculate_scores_for_assessment returned: ' . ( $scores ? 'SUCCESS' : 'FAILED' ) );
 			$this->_log_submission_debug( 'Initial scores calculated.', $scores );
 			$this->_log_submission_debug( 'Pillar scores from calculation:', $scores['pillar_scores'] ?? 'NOT FOUND' );
+
+			// Initialize results_token outside the if block
+			$results_token = null;
 
 			if ( $scores ) {
 				$completion_time = date( 'Y-m-d H:i:s.u' );
@@ -1401,6 +1412,7 @@ final class ENNU_Assessment_Shortcodes {
 				$this->trigger_hubspot_sync( $user_id, $form_data['assessment_type'], $form_data );
 				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
 				$this->_log_submission_debug( 'Results transient stored.', $results_token );
+				error_log( 'ENNU REDIRECT DEBUG: store_results_transient returned: ' . ( $results_token ? $results_token : 'NULL' ) );
 				$this->_log_submission_debug( 'Scores being stored in transient:', $scores );
 
 				// --- Definitive Fix: Prepare data and gracefully handle email errors ---
@@ -1432,6 +1444,16 @@ final class ENNU_Assessment_Shortcodes {
 					// Log the error, but don't crash the submission process
 					error_log( 'ENNU Assessments - Email Notification Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
 				}
+			} else {
+				// If scoring failed, still generate a token for basic results
+				error_log( 'ENNU REDIRECT DEBUG: Scoring failed, generating fallback token' );
+				$fallback_scores = array(
+					'overall_score' => 0,
+					'category_scores' => array(),
+					'pillar_scores' => array(),
+				);
+				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $fallback_scores, $form_data );
+				$this->_log_submission_debug( 'Fallback results transient stored.', $results_token );
 			}
 			error_log( 'ENNU REDIRECT DEBUG: About to call get_thank_you_url with assessment_type: ' . $form_data['assessment_type'] );
 			
@@ -1446,6 +1468,7 @@ final class ENNU_Assessment_Shortcodes {
 				$redirect_url = home_url( '/signup' );
 			}
 		} else {
+			error_log( 'ENNU REDIRECT DEBUG: Calling get_thank_you_url with token: ' . ( $results_token ? $results_token : 'NULL' ) );
 			$redirect_url = $this->get_thank_you_url( $form_data['assessment_type'], $results_token ?? null );
 			error_log( 'ENNU REDIRECT DEBUG: get_thank_you_url returned: ' . $redirect_url );
 			
@@ -1464,12 +1487,14 @@ final class ENNU_Assessment_Shortcodes {
 			// Include auth state data in response for frontend
 			$auth_state_data = $this->get_current_auth_state_data();
 
-			wp_send_json_success(
-				array(
-					'redirect_url' => $redirect_url,
-					'auth_state'   => $auth_state_data,
-				)
+			$response_data = array(
+				'redirect_url' => $redirect_url,
+				'auth_state'   => $auth_state_data,
 			);
+			
+			error_log( 'ENNU REDIRECT DEBUG: Final response data: ' . json_encode( $response_data ) );
+			
+			wp_send_json_success( $response_data );
 		}
 		$this->_log_submission_debug( '--- Submission process finished ---' );
 	}
@@ -1503,6 +1528,14 @@ final class ENNU_Assessment_Shortcodes {
 				$errors[] = 'Core data: ' . $core_result->get_error_message();
 			} else {
 				$saved_fields = array_merge( $saved_fields, $core_result );
+			}
+
+			// 1.5. SAVE EMAIL TO GLOBAL META (name fields stay in WordPress user fields only)
+			$this->_log_submission_debug( 'Saving email to global meta...' );
+			$user = get_user_by( 'ID', $user_id );
+			if ( $user && ! empty( $user->user_email ) ) {
+				update_user_meta( $user_id, 'ennu_global_email', $user->user_email );
+				$saved_fields[] = 'global_email';
 			}
 
 					// 2. SAVE GLOBAL FIELDS (DOB, Height/Weight, etc.) - ENHANCED
@@ -1566,6 +1599,14 @@ final class ENNU_Assessment_Shortcodes {
 	private function save_core_user_data( $user_id, $form_data ) {
 		$saved_fields = array();
 
+		// Debug: Log what contact data is being processed
+		$this->_log_submission_debug( 'Processing core user data', array(
+			'first_name' => $form_data['first_name'] ?? 'NOT_SET',
+			'last_name' => $form_data['last_name'] ?? 'NOT_SET',
+			'email' => $form_data['email'] ?? 'NOT_SET',
+			'billing_phone' => $form_data['billing_phone'] ?? 'NOT_SET'
+		) );
+
 		// Update WordPress user fields
 		$user_data_update = array( 'ID' => $user_id );
 		if ( isset( $form_data['first_name'] ) ) {
@@ -1583,14 +1624,8 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 
-		// Save to user meta for consistency - OPTIMIZED with batch operations
+		// Save email to user meta (only email, not name fields)
 		$meta_to_update = array();
-		if ( isset( $form_data['first_name'] ) ) {
-			$meta_to_update['ennu_global_first_name'] = sanitize_text_field( $form_data['first_name'] );
-		}
-		if ( isset( $form_data['last_name'] ) ) {
-			$meta_to_update['ennu_global_last_name'] = sanitize_text_field( $form_data['last_name'] );
-		}
 		if ( isset( $form_data['email'] ) ) {
 			$meta_to_update['ennu_global_email'] = sanitize_email( $form_data['email'] );
 			$saved_fields[] = 'email';
@@ -1750,7 +1785,6 @@ final class ENNU_Assessment_Shortcodes {
 		$this->_log_submission_debug( "Assessment-specific fields saved: " . count( $saved_fields ) );
 		return $saved_fields;
 	}
-
 	/**
 	 * Enhanced form data normalization to fix field name mismatches
 	 */
@@ -1765,7 +1799,6 @@ final class ENNU_Assessment_Shortcodes {
 		
 		return $normalized_data;
 	}
-
 	/**
 	 * Enhanced assessment-specific field saving with better field name handling
 	 */
@@ -1779,10 +1812,19 @@ final class ENNU_Assessment_Shortcodes {
 		
 		$this->_log_submission_debug( "Processing enhanced assessment-specific fields for {$assessment_type}. Questions found: " . count( $questions ) );
 
+		// Define core user fields that should NOT be saved as assessment-specific
+		$core_user_fields = array('first_name', 'last_name', 'email', 'billing_phone');
+
 		foreach ( $questions as $question_id => $question_def ) {
 			// Skip global fields (handled separately)
 			if ( isset( $question_def['global_key'] ) ) {
 				$this->_log_submission_debug( "Skipping global field: {$question_id}" );
+				continue;
+			}
+
+			// Skip core user fields (handled by save_core_user_data)
+			if ( in_array( $question_id, $core_user_fields ) ) {
+				$this->_log_submission_debug( "Skipping core user field: {$question_id}" );
 				continue;
 			}
 
@@ -1946,7 +1988,6 @@ final class ENNU_Assessment_Shortcodes {
 		$this->_log_submission_debug( "Data integrity verification passed. Fields saved: " . count( $saved_fields ) );
 		return true;
 	}
-
 	/**
 	 * Stores the results of a quantitative assessment in a temporary transient.
 	 *
@@ -1958,6 +1999,8 @@ final class ENNU_Assessment_Shortcodes {
 	 */
 	public function store_results_transient( $user_id, $assessment_type, $scores, $form_data ) {
 		$token         = wp_generate_password( 32, false );
+		error_log( 'ENNU REDIRECT DEBUG: Generated token: ' . $token );
+		
 		$data_to_store = array(
 			'user_id'         => $user_id,
 			'assessment_type' => $assessment_type,
@@ -1967,9 +2010,13 @@ final class ENNU_Assessment_Shortcodes {
 			'pillar_scores'   => $scores['pillar_scores'] ?? array(), // Add pillar scores to transient
 			'answers'         => $form_data,
 		);
+		error_log( 'ENNU REDIRECT DEBUG: Data to store: ' . json_encode( $data_to_store ) );
+		
 		// Use a manual transient to avoid issues with object caching on some hosts
 		// Extended to 24 hours to give users more time to access results
 		$this->_set_manual_transient( 'ennu_results_' . $token, $data_to_store, DAY_IN_SECONDS );
+		error_log( 'ENNU REDIRECT DEBUG: Manual transient set with key: ennu_results_' . $token );
+		
 		return $token;
 	}
 
@@ -2118,6 +2165,14 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 
+		// Debug: Log what contact data is being received
+		$this->_log_submission_debug( 'Sanitized assessment data received', array(
+			'first_name' => $sanitized_data['first_name'] ?? 'NOT_SET',
+			'last_name' => $sanitized_data['last_name'] ?? 'NOT_SET',
+			'email' => $sanitized_data['email'] ?? 'NOT_SET',
+			'billing_phone' => $sanitized_data['billing_phone'] ?? 'NOT_SET'
+		) );
+
 		// Ensure logged-in users have their contact info in the form data
 		if ( is_user_logged_in() ) {
 			$user = wp_get_current_user();
@@ -2204,7 +2259,6 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 	}
-
 	/**
 	 * Saves all fields marked with a `global_key` to user meta.
 	 * This is the new, robust handler that replaces the brittle hardcoded function.
@@ -2266,7 +2320,6 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 	}
-
 	/**
 	 * Syncs core data (name, email, phone) to native WP and WooCommerce fields.
 	 *
@@ -2407,34 +2460,18 @@ final class ENNU_Assessment_Shortcodes {
 		// Get the actual page ID from admin settings (selected pages, not created pages)
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
-		$slug = $this->get_assessment_page_slug( $assessment_key );
 		
-		// Try the complex format first (assessments/{slug}/details)
-		$complex_key = "assessments/{$slug}/details";
-		if ( isset( $page_mappings[ $complex_key ] ) ) {
-			return $page_mappings[ $complex_key ];
+		// SIMPLE: Look for direct page_id mapping for this assessment type
+		$page_id_key = $assessment_key . '_details_page_id';
+		
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			return $page_mappings[ $page_id_key ];
 		}
 		
-		// Try the simple format (slug-details)
-		$simple_key = "{$slug}-details";
-		if ( isset( $page_mappings[ $simple_key ] ) ) {
-			return $page_mappings[ $simple_key ];
-		}
-		
-		// Fallback to direct page lookup
-		$page = get_page_by_path( $complex_key );
-		if ( $page ) {
-			return $page->ID;
-		}
-		
-		$page = get_page_by_path( $simple_key );
-		if ( $page ) {
-			return $page->ID;
-		}
-		
+		// NO FALLBACKS - Return null if page not configured
 		return null;
 	}
-
 	/**
 	 * Get the consultation page ID for an assessment from admin settings
 	 */
@@ -2442,29 +2479,13 @@ final class ENNU_Assessment_Shortcodes {
 		// Get the actual page ID from admin settings (selected pages, not created pages)
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
-		$slug = $this->get_assessment_page_slug( $assessment_key );
 		
-		// Try the complex format first (assessments/{slug}/consultation)
-		$complex_key = "assessments/{$slug}/consultation";
-		if ( isset( $page_mappings[ $complex_key ] ) ) {
-			return $page_mappings[ $complex_key ];
-		}
+		// SIMPLE: Look for direct page_id mapping for this assessment type
+		$page_id_key = $assessment_key . '_consultation_page_id';
 		
-		// Try the simple format (slug-consultation)
-		$simple_key = "{$slug}-consultation";
-		if ( isset( $page_mappings[ $simple_key ] ) ) {
-			return $page_mappings[ $simple_key ];
-		}
-		
-		// Fallback to direct page lookup
-		$page = get_page_by_path( $complex_key );
-		if ( $page ) {
-			return $page->ID;
-		}
-		
-		$page = get_page_by_path( $simple_key );
-		if ( $page ) {
-			return $page->ID;
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			return $page_mappings[ $page_id_key ];
 		}
 		
 		// Final fallback to generic call page
@@ -2599,46 +2620,42 @@ final class ENNU_Assessment_Shortcodes {
 	 * @return string
 	 */
 	public function get_thank_you_url( $assessment_type, $token = null ) {
-		error_log( 'ENNU REDIRECT DEBUG: Starting get_thank_you_url with assessment_type: ' . $assessment_type . ', token: ' . ( $token ? 'present' : 'null' ) );
+		error_log( 'ENNU REDIRECT DEBUG: Starting get_thank_you_url with assessment_type: ' . $assessment_type . ', token: ' . ( $token ? $token : 'null' ) );
 		
 		// Get the page mappings from admin settings ONLY
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
 		
-		// Handle both formats: 'weight-loss' and 'weight_loss_assessment'
-		$base_slug = $assessment_type;
-		if ( strpos( $assessment_type, '-' ) !== false ) {
-			$base_slug = $assessment_type;
-		} else {
-			// Convert assessment type (e.g., 'weight_loss_assessment') to slug (e.g., 'weight-loss')
-			$base_slug = str_replace( '_assessment', '', $assessment_type );
-			$base_slug = str_replace( '_', '-', $base_slug );
-		}
+		// SIMPLE: Look for direct page_id mapping for this assessment type
+		$page_id_key = $assessment_type . '_results_page_id';
 		
-		// Create assessment-specific results page slug
-		$results_slug = $base_slug . '-assessment-details';
+		error_log( 'ENNU REDIRECT DEBUG: Looking for simple page_id key: ' . $page_id_key );
+		error_log( 'ENNU REDIRECT DEBUG: Available page mappings: ' . print_r( array_keys( $page_mappings ), true ) );
 		
-		// ONLY use admin-configured pages - NO AUTOMATIC CREATION
-		if ( isset( $page_mappings[ $results_slug ] ) && ! empty( $page_mappings[ $results_slug ] ) ) {
-			$page_id = $page_mappings[ $results_slug ];
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			$page_id = $page_mappings[ $page_id_key ];
 			
-			// Use the ?page_id= format with token parameter
+			// Use the simple ?page_id= format with token parameter
 			$redirect_url = home_url( "/?page_id={$page_id}" );
 			
 			// Add results token if available
 			if ( $token ) {
 				$redirect_url = add_query_arg( 'token', urlencode( $token ), $redirect_url );
+				error_log( 'ENNU REDIRECT DEBUG: Token added to URL: ' . $token );
+			} else {
+				error_log( 'ENNU REDIRECT DEBUG: No token provided to get_thank_you_url' );
 			}
 			
-			error_log( 'ENNU REDIRECT DEBUG: Using admin-configured results page for ' . $base_slug . ' with page_id=' . $page_id . ' (slug: ' . $results_slug . ')' );
+			error_log( 'ENNU REDIRECT DEBUG: Using simple page_id redirect for ' . $assessment_type . ' with page_id=' . $page_id );
 			return $redirect_url;
 		}
 		
 		// NO FALLBACKS - Return false if page not configured
-		error_log( 'ENNU REDIRECT DEBUG: No admin-configured results page found for ' . $base_slug . ' (slug: ' . $results_slug . ') - Redirect will fail' );
+		error_log( 'ENNU REDIRECT DEBUG: No simple page_id configured for ' . $assessment_type . ' (key: ' . $page_id_key . ') - Redirect will fail' );
+		error_log( 'ENNU REDIRECT DEBUG: To fix this, configure the page in WordPress Admin → ENNU Life → Settings' );
 		return false;
 	}
-
 	/**
 	 * Render assessment results page
 	 *
@@ -2886,7 +2903,6 @@ final class ENNU_Assessment_Shortcodes {
 			wp_enqueue_style( 'user-dashboard-style', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION );
 		}
 	}
-
 	/**
 	 * Enqueue results page styles if a page contains a results shortcode.
 	 */
@@ -2949,7 +2965,6 @@ final class ENNU_Assessment_Shortcodes {
 			}
 		}
 	}
-
 	/**
 	 * Render thank you page shortcode, now with dynamic results.
 	 *
@@ -3320,8 +3335,8 @@ final class ENNU_Assessment_Shortcodes {
 		}
 
 		// Get the transient data using the token
-		$results_data = get_transient( 'ennu_results_token_' . $token );
-		error_log( 'ENNU REDIRECT DEBUG: Retrieved transient data: ' . ( $results_data ? 'found' : 'not found' ) );
+		$results_data = get_option( '_ennu_manual_transient_ennu_results_' . $token );
+		error_log( 'ENNU REDIRECT DEBUG: Retrieved manual transient: ' . ( $results_data ? 'found' : 'not found' ) );
 		
 		if ( ! $results_data || ! is_array( $results_data ) ) {
 			error_log( 'ENNU REDIRECT DEBUG: No valid results data found for token' );
@@ -3339,7 +3354,8 @@ final class ENNU_Assessment_Shortcodes {
 		if ( $time_diff > $expiry_time ) {
 			error_log( 'ENNU REDIRECT DEBUG: Token has expired (diff: ' . $time_diff . ' > ' . $expiry_time . ')' );
 			// Token has expired, delete it
-			delete_transient( 'ennu_results_token_' . $token );
+			delete_option( '_ennu_manual_transient_ennu_results_' . $token );
+			delete_option( '_ennu_manual_transient_timeout_ennu_results_' . $token );
 			return false;
 		}
 
@@ -3347,7 +3363,6 @@ final class ENNU_Assessment_Shortcodes {
 		// Token is valid, return the results data
 		return $results_data;
 	}
-
 	/**
 	 * Fallback method to retrieve assessment data from user meta when transient has expired
 	 *
@@ -3444,7 +3459,6 @@ final class ENNU_Assessment_Shortcodes {
 			'answers'         => array(), // We don't have the original form data in fallback
 		);
 	}
-
 	private function get_user_assessments_data( $user_id ) {
 		$user_assessments   = array();
 		$assessment_configs = $this->all_definitions;
@@ -3772,28 +3786,23 @@ final class ENNU_Assessment_Shortcodes {
 	 * @return string
 	 */
 	public function get_assessment_cta_url( $assessment_type ) {
-		// Convert assessment type to slug format
-		$slug = str_replace( '_', '-', $assessment_type );
-
-		// Try multiple consultation URL patterns in order of preference
-		$consultation_patterns = array(
-			"assessments/{$slug}/consultation",
-			"book-{$slug}-consultation",
-			"{$slug}-consultation",
-			'consultation',
-		);
-
-		foreach ( $consultation_patterns as $pattern ) {
-			$url = $this->get_page_id_url( $pattern );
-			if ( ! empty( $url ) && $url !== home_url( "/{$pattern}/" ) ) {
-				return $url;
-			}
+		// Convert assessment type to key format (e.g., weight_loss_assessment -> weight_loss)
+		$key = str_replace( '_assessment', '', $assessment_type );
+		
+		// SIMPLE: Look for direct consultation page_id mapping
+		$settings = get_option( 'ennu_life_settings', array() );
+		$page_mappings = $settings['page_mappings'] ?? array();
+		$page_id_key = $key . '_consultation_page_id';
+		
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			$page_id = $page_mappings[ $page_id_key ];
+			return home_url( "/?page_id={$page_id}" );
 		}
-
+		
 		// Final fallback to generic consultation page
 		return $this->get_page_id_url( 'call' );
 	}
-
 	/**
 	 * Get thank you content data for assessment type
 	 */
@@ -3919,7 +3928,6 @@ final class ENNU_Assessment_Shortcodes {
 
 		return isset( $content_map[ $assessment_type ] ) ? $content_map[ $assessment_type ] : $content_map['health_assessment'];
 	}
-
 	/**
 	 * Adjust color brightness
 	 *
@@ -3948,7 +3956,6 @@ final class ENNU_Assessment_Shortcodes {
 					str_pad( dechex( $g ), 2, '0', STR_PAD_LEFT ) .
 					str_pad( dechex( $b ), 2, '0', STR_PAD_LEFT );
 	}
-
 	/**
 	 * Render error message
 	 *
@@ -4283,7 +4290,6 @@ final class ENNU_Assessment_Shortcodes {
 		}
 		return null;
 	}
-	
 	/**
 	 * Get lifestyle score if valid data exists
 	 *
@@ -4343,7 +4349,6 @@ final class ENNU_Assessment_Shortcodes {
 		ennu_load_template( 'health-optimization-results.php', $report_data );
 		return ob_get_clean();
 	}
-
 	/**
 	 * Render smart contact form with intelligent logic
 	 * Shows contact form only when needed, with only missing fields
@@ -4438,7 +4443,6 @@ final class ENNU_Assessment_Shortcodes {
 
 		return $output;
 	}
-
 	/**
 	 * Determine if user needs contact form
 	 *
@@ -4656,7 +4660,6 @@ final class ENNU_Assessment_Shortcodes {
 		ennu_load_template( 'consultation-booking', $data );
 		return ob_get_clean();
 	}
-
 	/**
 	 * Get consultation configuration
 	 */
@@ -4934,7 +4937,6 @@ final class ENNU_Assessment_Shortcodes {
 	public function get_login_url() {
 		return $this->get_page_id_url('login');
 	}
-
 	/**
 	 * Get dynamic consultation title based on consultation type and user context
 	 *
@@ -5025,7 +5027,6 @@ final class ENNU_Assessment_Shortcodes {
 
 		return $user_data;
 	}
-
 	/**
 	 * Render assessments listing page
 	 *
@@ -5365,7 +5366,6 @@ final class ENNU_Assessment_Shortcodes {
 			'all_goals'  => $formatted_goals,
 		);
 	}
-
 	/**
 	 * Signup shortcode - Premium product selection page
 	 */
@@ -6068,4 +6068,3 @@ final class ENNU_Assessment_Shortcodes {
 }
 // Initialize the class
 // new ENNU_Assessment_Shortcodes();
-

@@ -41,8 +41,8 @@ class ENNU_Global_Fields_Processor {
      */
     public static function init() {
         add_action( 'ennu_assessment_completed', array( __CLASS__, 'process_global_fields' ), 10, 2 );
-        add_action( 'wp_ajax_ennu_submit_assessment', array( __CLASS__, 'process_global_fields_from_ajax' ), 5 );
-        add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( __CLASS__, 'process_global_fields_from_ajax' ), 5 );
+        // Removed AJAX hooks to prevent interference with main AJAX handler
+        // Global fields are now processed by the main AJAX handler
     }
     
     /**

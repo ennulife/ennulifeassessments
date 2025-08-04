@@ -5,7 +5,7 @@ Tags: health, assessment, biomarkers, wellness, scoring, healthcare, medical, sy
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 64.53.3
+Stable tag: 64.54.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,20 @@ Yes, the plugin includes a comprehensive configuration system that allows custom
 5. Admin interface for system configuration
 
 == Changelog ==
+
+= 64.54.0 =
+* MAJOR ENHANCEMENT: Comprehensive Admin Profile Tab System
+* ADDED: Organized tabbed interface for all ENNU plugin fields in wp-admin/profile.php
+* ADDED: 20+ logical tab categories (Global, Assessments, Biomarkers, Symptoms, System, etc.)
+* ADDED: Smart field type detection with appropriate input types (text, textarea, select, date, email, phone)
+* ADDED: Comprehensive field display with empty field indicators and current values
+* ADDED: Professional CSS styling with responsive design and accessibility features
+* ADDED: Robust JavaScript tab system with jQuery fallback and comprehensive error handling
+* FIXED: PHP syntax errors and fatal errors that were preventing page loading
+* FIXED: Variable scope issues in field rendering logic
+* IMPROVED: User experience with organized field categories and professional styling
+* ENHANCED: Admin interface with complete visibility into all ENNU plugin data
+* UPDATED: Plugin version to 64.54.0
 
 = 64.53.1 =
 * FIXED: Undefined method error in height/weight question rendering

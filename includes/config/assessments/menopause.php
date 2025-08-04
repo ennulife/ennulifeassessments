@@ -33,6 +33,22 @@ return array(
 				),
 			),
 		),
+		'menopause_q_gender' => array(
+			'title'      => 'What is your gender?',
+			'type'       => 'radio',
+			'options'    => array(
+				'female' => 'FEMALE',
+				'male'   => 'MALE',
+			),
+			'required'   => true,
+			'global_key' => 'gender',
+		),
+		'menopause_q_height_weight' => array(
+			'title'      => 'What is your height and weight?',
+			'type'       => 'height_weight',
+			'required'   => true,
+			'global_key' => 'height_weight',
+		),
 		'menopause_q1'    => array(
 			'title'    => 'Which of the following menopausal symptoms are you experiencing?',
 			'type'     => 'multiselect',

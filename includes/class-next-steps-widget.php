@@ -702,10 +702,12 @@ class ENNU_Next_Steps_Widget {
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
 		
-		// Check if we have a mapped page for this assessment
-		$assessment_page_key = "assessments/{$assessment}";
-		if ( isset( $page_mappings[ $assessment_page_key ] ) ) {
-			$page_id = $page_mappings[ $assessment_page_key ];
+		// SIMPLE: Look for direct page_id mapping for this assessment type
+		$page_id_key = $assessment . '_assessment_page_id';
+		
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			$page_id = $page_mappings[ $page_id_key ];
 			return get_permalink( $page_id );
 		}
 		

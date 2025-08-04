@@ -516,47 +516,27 @@ class ENNU_AJAX_Handler_DISABLED {
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
 		
-		// Map assessment types to their results page slugs (matching admin configuration)
-		$assessment_results_map = array(
-			'weight-loss' => 'assessments/weight-loss/results',
-			'health-optimization' => 'assessments/health-optimization/results',
-			'hormone' => 'assessments/hormone/results',
-			'menopause' => 'assessments/menopause/results',
-			'testosterone' => 'assessments/testosterone/results',
-			'sleep' => 'assessments/sleep/results',
-			'skin' => 'assessments/skin/results',
-			'hair' => 'assessments/hair/results',
-			'ed-treatment' => 'assessments/ed-treatment/results',
-			'health' => 'assessments/health/results',
-			'welcome' => 'welcome-assessment-details'
-		);
+		// SIMPLE: Look for direct page_id mapping for this assessment type
+		$page_id_key = $assessment_type . '_results_page_id';
 		
-		// Check if we have a specific results page for this assessment
-		if ( isset( $assessment_results_map[ $assessment_type ] ) ) {
-			$results_slug = $assessment_results_map[ $assessment_type ];
+		// Check if we have a direct page_id configured
+		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
+			$page_id = $page_mappings[ $page_id_key ];
 			
-			// ONLY use admin-configured pages
-			if ( isset( $page_mappings[ $results_slug ] ) && ! empty( $page_mappings[ $results_slug ] ) ) {
-				$page_id = $page_mappings[ $results_slug ];
-				
-				// Use the ?page_id= format as requested
-				$redirect_url = $base_url . '/?page_id=' . $page_id;
-				
-				// Add results token if available
-				if ( isset( $response_data['results_token'] ) ) {
-					$redirect_url .= '&token=' . urlencode( $response_data['results_token'] );
-				}
-				
-				$this->logger->log( 'ENNU REDIRECT DEBUG: Using admin-configured results page for ' . $assessment_type . ' with page_id=' . $page_id . ' (slug: ' . $results_slug . ')' );
-				return $redirect_url;
-			} else {
-				$this->logger->log( 'ENNU REDIRECT DEBUG: No admin-configured results page found for ' . $assessment_type . ' (slug: ' . $results_slug . ') - Redirect will fail' );
-				return false;
+			// Use the simple ?page_id= format with token parameter
+			$redirect_url = $base_url . '/?page_id=' . $page_id;
+			
+			// Add results token if available
+			if ( isset( $response_data['results_token'] ) ) {
+				$redirect_url .= '&token=' . urlencode( $response_data['results_token'] );
 			}
+			
+			$this->logger->log( 'ENNU REDIRECT DEBUG: Using simple page_id redirect for ' . $assessment_type . ' with page_id=' . $page_id );
+			return $redirect_url;
 		}
 		
-		// NO FALLBACKS - Return false if no mapping found
-		$this->logger->log( 'ENNU REDIRECT DEBUG: No assessment mapping found for ' . $assessment_type . ' - Redirect will fail' );
+		// NO FALLBACKS - Return false if page not configured
+		$this->logger->log( 'ENNU REDIRECT DEBUG: No simple page_id configured for ' . $assessment_type . ' (key: ' . $page_id_key . ') - Redirect will fail' );
 		return false;
 	}
 }

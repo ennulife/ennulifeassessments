@@ -86,9 +86,12 @@ class ENNU_AJAX_Service_Handler {
 	 * Register all AJAX actions
 	 */
 	private function register_ajax_actions() {
-		// Assessment submission
+		// DISABLED: Assessment submission - conflicts with main handler in class-assessment-shortcodes.php
+		// This was causing duplicate data storage with assessment prefixes
+		/*
 		add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
 		add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
+		*/
 		
 		// Assessment results
 		add_action( 'wp_ajax_ennu_get_results', array( $this, 'handle_get_results' ) );
@@ -102,7 +105,7 @@ class ENNU_AJAX_Service_Handler {
 		add_action( 'wp_ajax_test_manual_save', array( $this, 'test_manual_save' ) );
 		add_action( 'wp_ajax_test_scoring_system', array( $this, 'test_scoring_system' ) );
 		
-		error_log( 'ENNU AJAX Service Handler: Registered all AJAX actions' );
+		error_log( 'ENNU AJAX Service Handler: Registered AJAX actions (assessment submission disabled to prevent conflicts)' );
 	}
 	
 	/**
@@ -605,17 +608,44 @@ class ENNU_AJAX_Service_Handler {
 
 			// 4. Process user
 			$user_id = get_current_user_id();
+			
 			if ( ! $user_id ) {
 				$email = sanitize_email( $form_data['email'] ?? '' );
+				
 				if ( empty( $email ) ) {
 					$this->send_error( 'Email is required for new users' );
 					return;
 				}
 
-				$user_id = wp_create_user( $email, wp_generate_password(), $email );
+				// Check if user already exists
+				$existing_user = get_user_by( 'email', $email );
+				
+				if ( $existing_user ) {
+					// User exists, log them in
+					wp_set_current_user( $existing_user->ID );
+					wp_set_auth_cookie( $existing_user->ID );
+					$user_id = $existing_user->ID;
+				} else {
+					// Create new user and log them in
+					$password = wp_generate_password();
+					$user_data = array(
+						'user_login' => $email,
+						'user_email' => $email,
+						'user_pass'  => $password,
+						'first_name' => $form_data['first_name'] ?? '',
+						'last_name'  => $form_data['last_name'] ?? '',
+					);
+					
+					$user_id = wp_insert_user( $user_data );
+					
 				if ( is_wp_error( $user_id ) ) {
 					$this->send_error( $user_id->get_error_message() );
 					return;
+					}
+					
+					// Log the new user in
+					wp_set_current_user( $user_id );
+					wp_set_auth_cookie( $user_id );
 				}
 			}
 
@@ -627,21 +657,38 @@ class ENNU_AJAX_Service_Handler {
 				$form_data 
 			);
 			
-			if ( ! $save_result || is_wp_error( $save_result ) ) {
-				$this->send_error( 'Failed to save assessment data' );
+			if ( ! $save_result || ! $save_result->is_success() ) {
+				$error_message = 'Failed to save assessment data';
+				if ( $save_result && ! $save_result->is_success() ) {
+					$error_message = $save_result->get_error_message();
+				}
+				$this->send_error( $error_message );
 				return;
 			}
 
-			// 6. Generate redirect URL using the correct logic from assessment shortcodes
-			$assessment_shortcodes = new ENNU_Assessment_Shortcodes();
-			$redirect_url = $assessment_shortcodes->get_thank_you_url( $form_data['assessment_type'] );
+			// 5.5. Process global fields
+			if ( class_exists( 'ENNU_Global_Fields_Processor' ) ) {
+				ENNU_Global_Fields_Processor::process_form_data( $user_id, $form_data );
+			}
 
-			// 7. Send success response
+			// 6. Generate results token and store data
+			$token = null;
+			if ( $this->is_quantitative_assessment( $form_data['assessment_type'] ) ) {
+				$token = $this->generate_results_token( $user_id, $form_data );
+				error_log( 'ENNU REDIRECT DEBUG: Generated token: ' . $token );
+			}
+
+			// 7. Generate redirect URL using the correct logic from assessment shortcodes
+			$assessment_shortcodes = new ENNU_Assessment_Shortcodes();
+			$redirect_url = $assessment_shortcodes->get_thank_you_url( $form_data['assessment_type'], $token );
+
+			// 8. Send success response
 			$this->send_success( array(
 				'message' => 'Assessment submitted successfully',
 				'redirect_url' => $redirect_url,
 				'user_id' => $user_id,
-				'assessment_type' => $form_data['assessment_type']
+				'assessment_type' => $form_data['assessment_type'],
+				'results_token' => $token
 			) );
 
 		} catch ( Exception $e ) {
@@ -750,6 +797,146 @@ class ENNU_AJAX_Service_Handler {
 		} catch ( Exception $e ) {
 			error_log( 'ENNU AJAX Service Handler Error: ' . $e->getMessage() );
 			$this->send_error( 'An error occurred during scoring test: ' . $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Check if assessment is quantitative (generates results)
+	 */
+	private function is_quantitative_assessment( $assessment_type ) {
+		$quantitative_assessments = array(
+			'hair',
+			'weight-loss',
+			'health-optimization',
+			'hormone',
+			'menopause',
+			'testosterone',
+			'sleep',
+			'skin',
+			'ed-treatment',
+			'health'
+		);
+		
+		return in_array( $assessment_type, $quantitative_assessments );
+	}
+
+	/**
+	 * Generate results token and store assessment data
+	 */
+	private function generate_results_token( $user_id, $form_data ) {
+		// Generate unique token
+		$token = wp_generate_password( 32, false );
+		
+		// Calculate assessment scores
+		$scores = $this->calculate_assessment_scores( $form_data );
+		
+		// Prepare results data
+		$results_data = array(
+			'user_id' => $user_id,
+			'assessment_type' => $form_data['assessment_type'],
+			'score' => $scores['total_score'],
+			'category_scores' => $scores['category_scores'],
+			'interpretation' => $scores['interpretation'],
+			'answers' => $form_data,
+			'timestamp' => current_time( 'timestamp' )
+		);
+		
+		// Store in transient (expires in 1 hour)
+		$transient_key = 'ennu_results_' . $token;
+		set_transient( $transient_key, $results_data, 3600 );
+		
+		error_log( 'ENNU REDIRECT DEBUG: Stored results data with token: ' . $token );
+		
+		return $token;
+	}
+
+	/**
+	 * Calculate assessment scores
+	 */
+	private function calculate_assessment_scores( $form_data ) {
+		$assessment_type = $form_data['assessment_type'];
+		$answers = $form_data;
+		
+		// Basic scoring logic - can be enhanced based on assessment type
+		$total_score = 0;
+		$category_scores = array();
+		
+		// Calculate scores based on answers
+		foreach ( $answers as $key => $value ) {
+			if ( strpos( $key, 'question_' ) === 0 || strpos( $key, '_' ) !== false ) {
+				// Simple scoring: convert answers to numeric values
+				$score = $this->convert_answer_to_score( $value );
+				$total_score += $score;
+				
+				// Categorize scores
+				$category = $this->get_answer_category( $key );
+				if ( ! isset( $category_scores[ $category ] ) ) {
+					$category_scores[ $category ] = 0;
+				}
+				$category_scores[ $category ] += $score;
+			}
+		}
+		
+		// Normalize total score to 0-100 range
+		$total_score = min( 100, max( 0, $total_score ) );
+		
+		// Determine interpretation
+		$interpretation = $this->get_score_interpretation( $total_score );
+		
+		return array(
+			'total_score' => $total_score,
+			'category_scores' => $category_scores,
+			'interpretation' => $interpretation
+		);
+	}
+
+	/**
+	 * Convert answer to numeric score
+	 */
+	private function convert_answer_to_score( $answer ) {
+		$score_map = array(
+			'yes' => 10,
+			'no' => 0,
+			'good' => 8,
+			'fair' => 5,
+			'poor' => 2,
+			'frequently' => 8,
+			'sometimes' => 5,
+			'rarely' => 2,
+			'never' => 0,
+			'high' => 8,
+			'moderate' => 5,
+			'low' => 2
+		);
+		
+		return isset( $score_map[ strtolower( $answer ) ] ) ? $score_map[ strtolower( $answer ) ] : 5;
+	}
+
+	/**
+	 * Get answer category
+	 */
+	private function get_answer_category( $question_key ) {
+		if ( strpos( $question_key, 'stress' ) !== false ) return 'lifestyle';
+		if ( strpos( $question_key, 'diet' ) !== false ) return 'nutrition';
+		if ( strpos( $question_key, 'sleep' ) !== false ) return 'lifestyle';
+		if ( strpos( $question_key, 'exercise' ) !== false ) return 'fitness';
+		if ( strpos( $question_key, 'family' ) !== false ) return 'genetics';
+		
+		return 'general';
+	}
+
+	/**
+	 * Get score interpretation
+	 */
+	private function get_score_interpretation( $score ) {
+		if ( $score >= 80 ) {
+			return array( 'level' => 'Excellent', 'color' => '#28a745' );
+		} elseif ( $score >= 60 ) {
+			return array( 'level' => 'Good', 'color' => '#17a2b8' );
+		} elseif ( $score >= 40 ) {
+			return array( 'level' => 'Fair', 'color' => '#ffc107' );
+		} else {
+			return array( 'level' => 'Poor', 'color' => '#dc3545' );
 		}
 	}
 } 

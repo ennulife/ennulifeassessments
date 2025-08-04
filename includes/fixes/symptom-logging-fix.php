@@ -53,20 +53,20 @@ add_action( "init", function() {
     }
 }, 1 );
 
-// Enhanced AJAX submission handler
-add_action( "wp_ajax_ennu_submit_assessment", function() {
-    if ( class_exists( "ENNU_Assessment_Shortcodes" ) ) {
-        $shortcodes = new ENNU_Assessment_Shortcodes();
-        $shortcodes->handle_assessment_submission();
-    }
-}, 5 );
+// Enhanced AJAX submission handler - DISABLED: Conflicts with new ENNU_AJAX_Service_Handler
+// add_action( "wp_ajax_ennu_submit_assessment", function() {
+//     if ( class_exists( "ENNU_Assessment_Shortcodes" ) ) {
+//         $shortcodes = new ENNU_Assessment_Shortcodes();
+//         $shortcodes->handle_assessment_submission();
+//     }
+// }, 5 );
 
-add_action( "wp_ajax_nopriv_ennu_submit_assessment", function() {
-    if ( class_exists( "ENNU_Assessment_Shortcodes" ) ) {
-        $shortcodes = new ENNU_Assessment_Shortcodes();
-        $shortcodes->handle_assessment_submission();
-    }
-}, 5 );
+// add_action( "wp_ajax_nopriv_ennu_submit_assessment", function() {
+//     if ( class_exists( "ENNU_Assessment_Shortcodes" ) ) {
+//         $shortcodes = new ENNU_Assessment_Shortcodes();
+//         $shortcodes->handle_assessment_submission();
+//     }
+// }, 5 );
 
 // Fix for array to string conversion in centralized symptoms manager
 add_action( "init", function() {

@@ -20,6 +20,9 @@ class ENNU_Scoring_System {
 		// Force refresh for testing - remove this line after verification
 		delete_transient( 'ennu_assessment_definitions_v1' );
 		
+		// Clear static cache to force fresh load
+		self::$all_definitions = array();
+		
 		if ( ! empty( self::$all_definitions ) ) {
 			return self::$all_definitions;
 		}
@@ -35,13 +38,20 @@ class ENNU_Scoring_System {
 
 		if ( is_dir( $config_dir ) ) {
 			$files = glob( $config_dir . '*.php' );
+			error_log( 'ENNU Scoring System: Found ' . count( $files ) . ' config files in ' . $config_dir );
 			foreach ( $files as $file ) {
 				$assessment_type = basename( $file, '.php' );
+				error_log( 'ENNU Scoring System: Loading config for ' . $assessment_type . ' from ' . $file );
 				$definition      = require $file;
 				if ( is_array( $definition ) ) {
 					$definitions[ $assessment_type ] = $definition;
+					error_log( 'ENNU Scoring System: Successfully loaded ' . $assessment_type . ' with ' . count( $definition['questions'] ?? [] ) . ' questions' );
+				} else {
+					error_log( 'ENNU Scoring System: ERROR - Failed to load ' . $assessment_type . ' from ' . $file . ' - not an array' );
 				}
 			}
+		} else {
+			error_log( 'ENNU Scoring System: ERROR - Config directory not found: ' . $config_dir );
 		}
 
 		self::$all_definitions = $definitions;
@@ -283,7 +293,11 @@ class ENNU_Scoring_System {
 		if ( $performance_monitor ) {
 			$metrics = $performance_monitor->end_timer( 'scoring_calculation' );
 			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
-			error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+			if ( $metrics && is_array( $metrics ) ) {
+				error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+			} else {
+				error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (performance monitoring returned invalid data)' );
+			}
 		} else {
 			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
 			error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (performance monitoring not available)' );
@@ -341,7 +355,11 @@ class ENNU_Scoring_System {
 		// End performance monitoring if available
 		if ( $performance_monitor ) {
 			$metrics = $performance_monitor->end_timer( 'pillar_calculation' );
-			error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+			if ( $metrics && is_array( $metrics ) ) {
+				error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
+			} else {
+				error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (performance monitoring returned invalid data)' );
+			}
 		} else {
 			error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (performance monitoring not available)' );
 		}
@@ -502,24 +520,38 @@ class ENNU_Scoring_System {
 		return $symptom_data;
 	}
 
+	/**
+	 * Clear configuration cache
+	 */
 	public static function clear_configuration_cache() {
-		delete_transient( 'ennu_assessment_definitions_v1' );
-		delete_transient( 'ennu_pillar_map_v1' );
-		delete_transient( 'ennu_health_goal_definitions_v1' );
-
-		self::$all_definitions = array();
-		self::$pillar_map      = array();
-
+		// Clear WordPress object cache for assessment configurations
+		wp_cache_delete( 'ennu_assessment_definitions', 'ennu_life' );
+		wp_cache_delete( 'ennu_assessment_questions', 'ennu_life' );
+		
+		// Clear any transients related to assessment configurations
+		delete_transient( 'ennu_assessment_definitions_cache' );
+		delete_transient( 'ennu_assessment_questions_cache' );
+		delete_transient( 'ennu_scoring_configurations_cache' );
+		
+		// Clear any cached field mappings
+		delete_transient( 'ennu_field_mappings_cache' );
+		delete_transient( 'ennu_global_fields_cache' );
+		
 		error_log( 'ENNU Caching: All configuration caches cleared' );
-
+		
 		return array(
 			'success'        => true,
 			'message'        => 'Configuration caches cleared successfully',
 			'cleared_caches' => array(
-				'assessment_definitions',
-				'pillar_map',
-				'health_goal_definitions',
-			),
+				'wp_cache' => array( 'ennu_assessment_definitions', 'ennu_assessment_questions' ),
+				'transients' => array( 
+					'ennu_assessment_definitions_cache',
+					'ennu_assessment_questions_cache', 
+					'ennu_scoring_configurations_cache',
+					'ennu_field_mappings_cache',
+					'ennu_global_fields_cache'
+				)
+			)
 		);
 	}
 

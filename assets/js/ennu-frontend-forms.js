@@ -80,28 +80,37 @@ class ENNUAssessmentForm {
     // Pre-fill a specific global field with existing data
     prefillGlobalField(questionElement) {
         const inputs = questionElement.querySelectorAll('input, select, textarea');
-        
+        // Try to get saved values for this field from a data attribute or JS state
+        let savedValues = [];
+        if (questionElement.dataset && questionElement.dataset.savedValues) {
+            try {
+                savedValues = JSON.parse(questionElement.dataset.savedValues);
+            } catch (e) {
+                savedValues = [];
+            }
+        }
         inputs.forEach(input => {
-            // Check if the input already has a value (from server-side pre-filling)
+            // For checkboxes: only check if value is in savedValues
+            if (input.type === 'checkbox') {
+                input.checked = Array.isArray(savedValues) && savedValues.includes(input.value);
+                return;
+            }
+            // For radio: only check if value matches saved value
+            if (input.type === 'radio') {
+                input.checked = savedValues === input.value;
+                return;
+            }
+            // For other types, prefill if value exists
             if (input.value && input.value.trim() !== '') {
-                // For radio buttons and checkboxes, check them if they have a value
-                if (input.type === 'radio' || input.type === 'checkbox') {
-                    input.checked = true;
-                }
                 return; // Already has data, no need to pre-fill
             }
-            
             // For DOB fields, try to get from user meta
             if (input.name && input.name.includes('date_of_birth')) {
                 const dobValue = this.getUserDOB();
                 if (dobValue) {
                     input.value = dobValue;
-                    if (input.type === 'radio' || input.type === 'checkbox') {
-                        input.checked = true;
-                    }
                 }
             }
-            
             // For gender fields, try to get from user meta
             if (input.name && input.name.includes('gender')) {
                 const genderValue = this.getUserGender();
@@ -137,16 +146,26 @@ class ENNUAssessmentForm {
     }
 
     bindEvents() {
+        console.log('ENNU REDIRECT DEBUG: bindEvents() called');
+        
         // Next/Previous buttons
         this.form.addEventListener('click', (e) => {
+            console.log('ENNU REDIRECT DEBUG: Form click event triggered');
+            console.log('ENNU REDIRECT DEBUG: Clicked element:', e.target);
+            console.log('ENNU REDIRECT DEBUG: Element classes:', e.target.classList);
+            
             if (e.target.classList.contains('next')) {
+                console.log('ENNU REDIRECT DEBUG: Next button clicked');
                 e.preventDefault();
                 if (e.target.classList.contains('submit')) {
+                    console.log('ENNU REDIRECT DEBUG: Submit button clicked - calling handleSubmitButton()');
                     this.handleSubmitButton();
                 } else {
+                    console.log('ENNU REDIRECT DEBUG: Next button clicked - calling nextQuestion()');
                     this.nextQuestion();
                 }
             } else if (e.target.classList.contains('prev')) {
+                console.log('ENNU REDIRECT DEBUG: Prev button clicked');
                 e.preventDefault();
                 this.prevQuestion();
             }
@@ -175,9 +194,14 @@ class ENNUAssessmentForm {
     }
     
     handleSubmitButton() {
+        console.log('ENNU REDIRECT DEBUG: handleSubmitButton() called');
+        console.log('ENNU REDIRECT DEBUG: currentStep:', this.currentStep, 'totalSteps:', this.totalSteps);
+        
         const currentSlide = this.questions[this.currentStep];
         const isLastQuestion = this.currentStep >= this.totalSteps - 1;
         const isContactForm = currentSlide && currentSlide.hasAttribute('data-is-contact-form');
+        
+        console.log('ENNU REDIRECT DEBUG: isLastQuestion:', isLastQuestion, 'isContactForm:', isContactForm);
         
         // If this is the last question and auto-submit is ready, submit immediately
         if (isLastQuestion && this.autoSubmitReady && !isContactForm) {
@@ -555,7 +579,14 @@ class ENNUAssessmentForm {
     }
     
     submitForm() {
-        if (this.isSubmitting || !this.validateCurrentQuestion()) return;
+        console.log('ENNU REDIRECT DEBUG: submitForm() called');
+        console.log('ENNU REDIRECT DEBUG: this.isSubmitting:', this.isSubmitting);
+        console.log('ENNU REDIRECT DEBUG: validateCurrentQuestion():', this.validateCurrentQuestion());
+        
+        if (this.isSubmitting || !this.validateCurrentQuestion()) {
+            console.log('ENNU REDIRECT DEBUG: Form submission blocked - isSubmitting:', this.isSubmitting, 'validation:', this.validateCurrentQuestion());
+            return;
+        }
         
         this.isSubmitting = true;
         this.form.classList.add('loading');
@@ -602,9 +633,10 @@ class ENNUAssessmentForm {
             console.log('ENNU REDIRECT DEBUG: Data type:', typeof data);
             console.log('ENNU REDIRECT DEBUG: Data keys:', Object.keys(data));
             console.log('ENNU REDIRECT DEBUG: Success property:', data.success);
-            console.log('ENNU REDIRECT DEBUG: Data property:', data.data);
-            
-            if (data && data.success === true) {
+            			console.log('ENNU REDIRECT DEBUG: Data property:', data.data);
+			console.log('ENNU REDIRECT DEBUG: Full response structure:', JSON.stringify(data, null, 2));
+			
+			if (data && data.success === true) {
                 			if (data.data && data.data.redirect_url && data.data.redirect_url !== false) {
 				console.log('ENNU REDIRECT DEBUG: Redirect URL found:', data.data.redirect_url);
 				
@@ -624,7 +656,7 @@ class ENNUAssessmentForm {
 					this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
 				}
 			} else {
-				console.warn('No redirect_url in response or redirect_url is false. Showing error message.');
+				console.error('ENNU REDIRECT DEBUG: No redirect_url in response');
 				this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
 			}
             } else {
@@ -648,16 +680,7 @@ class ENNUAssessmentForm {
         })
                         .catch(error => {
                     console.error('ENNU REDIRECT DEBUG: AJAX catch error:', error);
-                    
-                    // Show success message even if AJAX fails (data was likely processed)
-                    console.log('ENNU REDIRECT DEBUG: AJAX request failed, but showing success message as data was likely processed');
-                    this.showFallbackSuccess();
-                    
-                    // Try to redirect to a default results page
-                    setTimeout(() => {
-                        console.log('ENNU REDIRECT DEBUG: Attempting fallback redirect to assessment results');
-                        window.location.href = '/assessment-results/';
-                    }, 2000);
+                    this.showError(this.form, 'Assessment submission failed. Please try again or contact support if the problem persists.');
                 })
         .finally(() => {
             this.isSubmitting = false;
@@ -682,32 +705,6 @@ class ENNUAssessmentForm {
             <p><small>If you don't remember your password, you can <a href="/wp-login.php?action=lostpassword">reset it here</a>.</small></p>
         `;
         this.form.parentNode.insertBefore(loginDiv, this.form.nextSibling);
-    }
-
-    showFallbackSuccess(redirectUrl = null) {
-        // Remove form and show a visible success message with manual redirect link
-        this.form.style.display = 'none';
-        let fallbackDiv = document.createElement('div');
-        fallbackDiv.className = 'ennu-fallback-success';
-        
-        const dashboardUrl = redirectUrl || '/dashboard';
-        
-        fallbackDiv.innerHTML = `
-            <div class="success-icon">✓</div>
-            <h2>Assessment Complete!</h2>
-            <p>Thank you for completing your assessment. Your personalized results and recommendations will be sent to your email shortly.</p>
-            <div class="next-steps">
-                <h3>What happens next?</h3>
-                <ul>
-                    <li>Our medical team will review your responses</li>
-                    <li>You'll receive personalized recommendations via email</li>
-                    <li>A specialist may contact you to discuss treatment options</li>
-                </ul>
-            </div>
-            <p><a href="${dashboardUrl}" class="ennu-dashboard-link">Go to your dashboard</a></p>
-            <p><small>If the link doesn't work, please copy and paste this URL: ${dashboardUrl}</small></p>
-        `;
-        this.form.parentNode.insertBefore(fallbackDiv, this.form.nextSibling);
     }
 
     /**

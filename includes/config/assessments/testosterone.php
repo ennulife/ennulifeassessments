@@ -32,6 +32,22 @@ return array(
 				),
 			),
 		),
+		'testosterone_q_gender' => array(
+			'title'      => 'What is your gender?',
+			'type'       => 'radio',
+			'options'    => array(
+				'female' => 'FEMALE',
+				'male'   => 'MALE',
+			),
+			'required'   => true,
+			'global_key' => 'gender',
+		),
+		'testosterone_q_height_weight' => array(
+			'title'      => 'What is your height and weight?',
+			'type'       => 'height_weight',
+			'required'   => true,
+			'global_key' => 'height_weight',
+		),
 		'testosterone_q1'    => array(
 			'title'    => 'Which of the following symptoms, often associated with low testosterone, are you experiencing?',
 			'type'     => 'multiselect',

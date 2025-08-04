@@ -3,13 +3,17 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://enulife.com
  * Description: Comprehensive health assessment and biomarker management system
- * Version: 64.53.6
- * Author: Luis Escobar
+ * Version: 64.54.0
+ * Author: ENNU Life
  * Author URI: https://ennulife.com
- * License: GPL-2.0+
+ * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: ennulifeassessments
  * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
+ * Network: false
  *
  * @package ENNU_Life
  * @copyright Copyright (c) 2024, Luis Escobar, https://ennulife.com
@@ -27,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @var string
  */
-const ENNU_LIFE_VERSION = '64.53.6';
+const ENNU_LIFE_VERSION = '64.54.0';
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -214,6 +218,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-assessment-shortcodes.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-monitoring.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-scoring-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-life-score-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-flag-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-recommended-range-manager.php';
@@ -239,6 +244,8 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-data-validation-service.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-progressive-data-collector.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-unified-api-service.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-security-validator.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-input-sanitizer.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ajax-security.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-pdf-security.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-pdf-processor.php';
@@ -491,9 +498,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize modern ENNU_AJAX_Service_Handler - CRITICAL FIX
 			if ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
 				$this->ajax_handler = new ENNU_AJAX_Service_Handler();
+				$this->ajax_handler->init();
 				error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
 			} elseif ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
 				$this->ajax_handler = new ENNU_AJAX_Service_Handler();
+				$this->ajax_handler->init();
 				error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - No AJAX handler class found!' );
@@ -853,7 +862,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			if ( $has_assessment_shortcode ) {
 				wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css', array(), ENNU_LIFE_VERSION );
-				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array(), ENNU_LIFE_VERSION, true );
+				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array(), ENNU_LIFE_VERSION . '.' . time(), true );
 				wp_localize_script(
 					'ennu-frontend-forms',
 					'ennu_ajax',
@@ -1219,26 +1228,33 @@ function ennu_load_template( $template_name, $data = array() ) {
 /*
  * CHANGELOG
  *
- * ## [62.6.0] - 2024-01-15
+ * ## [64.53.18] - 2025-01-21
  *
- * ### Changed
- * - **Simplified Admin Interface**: Replaced multiple management buttons with single "Recalculate Centralized Symptoms" button
- * - **Automatic Symptom Centralization**: Symptoms are now automatically centralized when assessments are completed (both quantitative and qualitative)
- * - **No Admin Intervention Required**: Removed manual populate, update, and clear history buttons - system works automatically
+ * ### Fixed
+ * - **User Edit Page**: Added health_goals field to WordPress admin user profile page
+ * - **Admin Interface**: Enhanced user profile section to display and edit health goals
+ * - **Data Management**: Added proper saving and loading of health goals in admin interface
+ * - **User Experience**: Admins can now view and edit all global fields including health goals
+ * - **Field Consistency**: Ensured user edit page displays all global fields consistently
  *
- * ### Added
- * - **Automatic Processing**: Added automatic symptom centralization for qualitative assessments
- * - **Streamlined UI**: Cleaner admin interface with only essential recalculation functionality
- * - **Assessment Completion Hooks**: Added hooks for other systems to respond to assessment completion
+ * ## [64.53.17] - 2025-01-21
  *
- * ## [62.5.0] - 2024-01-15
+ * ### Fixed
+ * - **HubSpot Field Mapper**: Updated to include new global fields (health_goals, height_weight, contact form fields)
+ * - **Configuration Cache**: Enhanced cache clearing to include field mappings and global fields cache
+ * - **Documentation**: Updated README.md to reflect global field system enhancements
+ * - **Plugin Integration**: Ensured all plugin components work with new global field configurations
+ * - **Data Consistency**: Verified all systems properly handle the new global field structure
  *
- * ### Added
- * - **Admin Symptoms Tab**: Added comprehensive centralized symptoms tab to WordPress admin user profile
- * - **Symptom Management**: Added populate, update, and clear history buttons for symptom management
- * - **Enhanced UI**: Professional admin interface with summary statistics, analytics, and organized symptom display
- * - **AJAX Handlers**: Added secure AJAX handlers for symptom management operations
- * - **JavaScript Integration**: Enhanced admin JavaScript with proper event handling and error management
- * - **Debug Tools**: Created comprehensive debugging scripts for troubleshooting admin functionality
+ * ## [64.53.16] - 2025-01-21
+ *
+ * ### Fixed
+ * - **Additional Global Fields**: Added missing height/weight fields to testosterone, menopause, and ed-treatment assessments for BMI calculation
+ * - **Health Goals Expansion**: Added health goals fields to sleep, skin, and hair assessments for personalized recommendations
+ * - **Complete Coverage**: All assessments now have appropriate global field configurations based on their specific needs
+ * - **Data Consistency**: Ensured all assessments that provide recommendations have health goals collection
+ * - **BMI Calculation**: Added height/weight fields to assessments that mention weight-related conditions
+ *
+ * ## [64.53.15] - 2025-01-21
  */
 

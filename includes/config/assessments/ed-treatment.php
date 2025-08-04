@@ -33,6 +33,22 @@ return array(
 				),
 			),
 		),
+		'ed_q_gender' => array(
+			'title'      => 'What is your gender?',
+			'type'       => 'radio',
+			'options'    => array(
+				'female' => 'FEMALE',
+				'male'   => 'MALE',
+			),
+			'required'   => true,
+			'global_key' => 'gender',
+		),
+		'ed_q_height_weight' => array(
+			'title'      => 'What is your height and weight?',
+			'type'       => 'height_weight',
+			'required'   => true,
+			'global_key' => 'height_weight',
+		),
 		'ed_q1'    => array(
 			'title'    => 'How would you describe your ability to achieve and maintain an erection sufficient for satisfactory sexual performance?',
 			'type'     => 'radio',

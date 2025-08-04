@@ -21,6 +21,14 @@ class ENNU_HubSpot_Field_Mapper {
         'ennudateofbirth' => 'ennu_global_date_of_birth',
         'ennuheight' => 'ennu_global_height',
         'ennubmi' => 'ennu_global_bmi',
+        'ennuhealthgoals' => 'ennu_global_health_goals',
+        'ennuheightweight' => 'ennu_global_height_weight',
+        
+        // Contact form fields mapping
+        'first_name' => 'ennu_global_first_name',
+        'last_name' => 'ennu_global_last_name',
+        'email' => 'ennu_global_email',
+        'billing_phone' => 'ennu_global_billing_phone',
         
         // Life score fields mapping
         'ennu_life_score' => 'ennu_life_score',

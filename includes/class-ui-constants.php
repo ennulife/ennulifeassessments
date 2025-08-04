@@ -48,8 +48,8 @@ class ENNU_UI_Constants {
 	 * These are dynamically generated based on assessment type
 	 */
 	const ASSESSMENT_PAGE_SUFFIXES = array(
-		'DETAILS'      => '-assessment-details',
-		'CONSULTATION' => '-consultation',
+		'DETAILS'      => '_details_page_id',
+		'CONSULTATION' => '_consultation_page_id',
 	);
 
 	/**

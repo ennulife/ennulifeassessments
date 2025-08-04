@@ -16,23 +16,34 @@ return array(
 			'required'   => true,
 			'global_key' => 'date_of_birth',
 		),
-		'hair_q2'  => array(
+		'hair_q_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
 				'female' => 'FEMALE',
 				'male'   => 'MALE',
 			),
-			'scoring'    => array(
-				'category' => 'Genetic Factors',
-				'weight'   => 2,
-				'answers'  => array(
-					'female' => 5,
-					'male'   => 3,
-				),
-			),
 			'required'   => true,
 			'global_key' => 'gender',
+		),
+		'hair_q_goals' => array(
+			'title'      => 'What are your primary health goals?',
+			'type'       => 'multiselect',
+			'options'    => array(
+				'longevity'        => 'Longevity & Healthy Aging',
+				'energy'           => 'Improve Energy & Vitality',
+				'strength'         => 'Build Strength & Muscle',
+				'libido'           => 'Enhance Libido & Sexual Health',
+				'weight_loss'      => 'Achieve & Maintain Healthy Weight',
+				'hormonal_balance' => 'Hormonal Balance',
+				'cognitive_health' => 'Sharpen Cognitive Function',
+				'heart_health'     => 'Support Heart Health',
+				'aesthetics'       => 'Improve Hair, Skin & Nails',
+				'sleep'            => 'Improve Sleep Quality',
+				'stress'           => 'Reduce Stress & Improve Resilience',
+			),
+			'required'   => true,
+			'global_key' => 'health_goals',
 		),
 		'hair_q3'  => array(
 			'title'    => 'What are your main hair concerns?',

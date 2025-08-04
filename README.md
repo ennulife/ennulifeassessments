@@ -5,7 +5,7 @@
  * @author            Luis Escobar (CTO)
  * @copyright         2024 ENNU Life
  * @license           Proprietary - Internal Company Software
- * @version           64.53.4
+ * @version           64.53.24
  * @description       Revolutionary health optimization platform with mathematical transformation as a service
  * @requires          PHP 7.4+
  * @requires          WordPress 5.0+
@@ -16,7 +16,7 @@
  * Plugin Name:       ENNU Life Assessments
  * Plugin URI:        https://ennulife.com
  * Description:       Revolutionary health optimization platform with mathematical transformation as a service
- * Version:           64.53.4
+ * Version:           64.53.24
  * Requires at least: 5.0
  * Tested up to:      6.4
  * Requires PHP:      7.4
@@ -37,7 +37,7 @@
 # ENNU Life - Proprietary Health Optimization Platform
 
 [![Proprietary Software](https://img.shields.io/badge/Proprietary-Software-red.svg)]
-[![Version](https://img.shields.io/badge/Version-64.53.4-green.svg)]
+[![Version](https://img.shields.io/badge/Version-64.53.24-green.svg)]
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)]
 [![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.0+-blue.svg)](https://wordpress.org/)
@@ -130,6 +130,13 @@ Our proprietary platform is built on a sophisticated service-oriented architectu
 - Real-time validation and progress tracking
 - Mobile-responsive design with accessibility compliance
 
+**Global Field System** (Enhanced)
+- **Comprehensive Data Persistence**: All assessments now share common global fields
+- **Smart Field Mapping**: Automatic field detection and mapping across assessments
+- **Contact Form Integration**: Seamless contact data collection and persistence
+- **Cross-Assessment Data**: Users never need to re-enter basic information
+- **HubSpot Synchronization**: Real-time sync of global fields to CRM
+
 **Four-Engine Scoring System**
 - **Quantitative Engine**: Base scores from assessment responses
 - **Qualitative Engine**: Symptom-based penalty system
@@ -182,22 +189,23 @@ Traditional healthcare suffers from critical limitations:
 ENNU Life Assessments is our proprietary health platform that creates a complete health assessment ecosystem for internal company use. It provides:
 
 1. **Interactive Health Assessments**: 11 specialized assessment types with dynamic form rendering
-2. **Advanced Scoring System**: Multi-engine scoring combining quantitative, qualitative, objective, and intentionality factors
-3. **Biomarker Management**: Comprehensive lab result tracking with reference ranges and trend analysis
-4. **CRM Integration**: Seamless HubSpot synchronization with custom field mapping
-5. **User Dashboard**: Personalized health insights, progress tracking, and trend visualization
-6. **Admin Management**: Comprehensive backend for healthcare providers with analytics and reporting
-7. **Consultation Booking**: Integrated booking system with pre-filled assessment data
-8. **Data Export/Import**: Full data portability for compliance and analysis
-9. **Multi-language Support**: Internationalization ready for global deployment
-10. **Advanced Branding**: Complete branding customization for company use
-11. **Slack Notifications**: Real-time notifications for assessment completions and health alerts
-12. **HIPAA Compliance**: Full medical data encryption and audit trails
-13. **REST API**: Comprehensive API endpoints for all functionality
-14. **Trends Visualization**: Advanced charts and data visualization system
-15. **Advanced Analytics**: User behavior tracking, conversion analysis, and business intelligence
-16. **AI/ML Manager**: Personalized recommendations and predictive analytics
-17. **Performance Optimization**: Caching, database optimization, and asset management
+2. **Global Field System**: Comprehensive data persistence across all assessments with smart field mapping
+3. **Advanced Scoring System**: Multi-engine scoring combining quantitative, qualitative, objective, and intentionality factors
+4. **Biomarker Management**: Comprehensive lab result tracking with reference ranges and trend analysis
+5. **CRM Integration**: Seamless HubSpot synchronization with custom field mapping
+6. **User Dashboard**: Personalized health insights, progress tracking, and trend visualization
+7. **Admin Management**: Comprehensive backend for healthcare providers with analytics and reporting
+8. **Consultation Booking**: Integrated booking system with pre-filled assessment data
+9. **Data Export/Import**: Full data portability for compliance and analysis
+10. **Multi-language Support**: Internationalization ready for global deployment
+11. **Advanced Branding**: Complete branding customization for company use
+12. **Slack Notifications**: Real-time notifications for assessment completions and health alerts
+13. **HIPAA Compliance**: Full medical data encryption and audit trails
+14. **REST API**: Comprehensive API endpoints for all functionality
+15. **Trends Visualization**: Advanced charts and data visualization system
+16. **Advanced Analytics**: User behavior tracking, conversion analysis, and business intelligence
+17. **AI/ML Manager**: Personalized recommendations and predictive analytics
+18. **Performance Optimization**: Caching, database optimization, and asset management
 18. **AI Medical Research System**: 10 specialist AI modules for biomarker research and validation
 19. **Service-Oriented Architecture**: 25+ service classes for modular, scalable development
 20. **Advanced Security Framework**: Multi-layered security with CSRF protection, input sanitization, and audit logging
@@ -3051,7 +3059,7 @@ npm install --save-dev @wordpress/prettier-config
  * @package   ENNU_Life_Assessments
  * @copyright Copyright (c) 2024, ENNU Life
  * @license   GPL-3.0+
- * @since     64.53.4
+ * @since     64.53.16
  */
 
 // 1. File Documentation
@@ -3089,7 +3097,7 @@ class ENNU_Example_Class {
  * ENNU Life Assessments - JavaScript Standards
  *
  * @package ENNU_Life_Assessments
- * @since 64.53.4
+ * @since 64.53.16
  */
 
 // 1. Use ES6+ features
@@ -3124,7 +3132,7 @@ export default ENNU_Example;
  * ENNU Life Assessments - CSS Standards
  *
  * @package ENNU_Life_Assessments
- * @since 64.53.4
+ * @since 64.53.16
  */
 
 /* 1. Use BEM methodology */
@@ -3175,7 +3183,7 @@ composer test
  * Test class for ENNU_Scoring_System
  *
  * @package ENNU_Life_Assessments
- * @since 64.53.4
+ * @since 64.53.16
  */
 class ENNU_Scoring_System_Test extends WP_UnitTestCase {
 
@@ -3391,7 +3399,7 @@ ssh user@staging-server "cd /var/www/html && wp plugin deactivate ennulifeassess
  * This method processes assessment data and calculates comprehensive
  * health scores using the four-engine scoring system.
  *
- * @since 64.53.4
+ * @since 64.53.16
  *
  * @param int  $user_id      The user ID to calculate scores for.
  * @param bool $force_recalc Whether to force recalculation of cached scores.
@@ -3413,7 +3421,7 @@ public static function calculate_and_save_all_user_scores( $user_id, $force_reca
 /**
  * REST API endpoint for assessment submission.
  *
- * @since 64.53.4
+ * @since 64.53.16
  *
  * @param WP_REST_Request $request The request object.
  * @return WP_REST_Response|WP_Error The response object.
@@ -4062,7 +4070,7 @@ ennulifeassessments/
 /**
  * Plugin Name: ENNU Life Assessments
  * Description: Revolutionary health optimization platform
- * Version: 64.53.4
+ * Version: 64.53.16
  * Author: Luis Escobar (CTO)
  * License: GPL v2 or later
  */
@@ -4076,7 +4084,7 @@ class ENNU_Life_Assessments {
     }
     
     private function define_constants() {
-        define('ENNU_LIFE_VERSION', '64.53.4');
+        define('ENNU_LIFE_VERSION', '64.53.16');
         define('ENNU_LIFE_PLUGIN_DIR', plugin_dir_path(__FILE__));
         define('ENNU_LIFE_PLUGIN_URL', plugin_dir_url(__FILE__));
     }
@@ -5207,3 +5215,45 @@ $final_scores = [
 - **Overall Health Score**: 3.03 (average of all pillars)
 - **Primary Concerns**: Body (2.65) and Lifestyle (1.50) scores
 - **Recommendations**: Focus on stress management, nutrition, and hormone optimization
+
+---
+
+## 📝 Changelog
+
+### Version 64.53.24 (Latest)
+- **Comprehensive**: Complete migration to simple page_id approach across all components
+- **Fixed**: Updated all methods to use simple `_results_page_id`, `_details_page_id`, `_consultation_page_id` format
+- **Enhanced**: Admin interface now shows simple "Page ID" dropdowns for all assessment pages
+- **Improved**: Next Steps Widget and UI Constants now use simple page ID mapping
+- **Simplified**: Removed all complex slug-based URL generation patterns
+- **Improved**: Redirect system uses direct page_id=# format for cleaner URLs
+
+### Version 64.53.23
+- **Fixed**: Assessment redirects now properly use admin-configured page IDs
+- **Enhanced**: Added comprehensive debugging for redirect URL generation
+- **Improved**: Redirect system now follows WordPress admin page mapping settings
+
+### Version 64.53.22
+- **Fixed**: AJAX assessment submission returning "0" instead of proper JSON response
+- **Enhanced**: Removed conflicting AJAX hooks from global fields processor
+- **Improved**: Global fields now processed by main AJAX handler for proper JSON responses
+
+### Version 64.53.21
+- **Fixed**: AJAX assessment submission returning "0" instead of proper JSON response
+- **Enhanced**: Proper handling of ENNU_Form_Result objects in AJAX service handler
+- **Improved**: Better error handling and debugging for assessment submissions
+
+### Version 64.53.20
+- **Fixed**: Duplicate first name and last name fields in WordPress admin profile page
+- **Enhanced**: User edit page now properly integrates with WordPress core profile fields
+- **Improved**: Global field system now saves WordPress core first/last name to global meta
+
+### Version 64.53.18
+- **Enhanced**: User edit page with comprehensive global field management
+- **Added**: Health goals multi-select interface in admin
+- **Improved**: Global field persistence across all assessments
+
+### Version 64.53.17
+- **Fixed**: PHP warnings for undefined array keys and null array access
+- **Enhanced**: Cache clearing for assessment configurations
+- **Improved**: Error handling in scoring system and medical reference ranges
