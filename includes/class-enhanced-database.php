@@ -149,11 +149,23 @@ class ENNU_Life_Enhanced_Database {
 			if ( ! $calculated_scores ) {
 				throw new Exception( "Failed to calculate scores for {$assessment_type}" );
 			}
+			
+			// Calculate pillar scores from category scores
+			if ( isset( $calculated_scores['category_scores'] ) ) {
+				// Use reflection to call the private method map_categories_to_pillars
+				$reflection = new ReflectionClass( 'ENNU_Scoring_System' );
+				$method = $reflection->getMethod( 'map_categories_to_pillars' );
+				$method->setAccessible( true );
+				
+				$pillar_scores = $method->invoke( null, $assessment_type, $calculated_scores['category_scores'] );
+				$calculated_scores['pillar_scores'] = $pillar_scores;
+			}
 
 			// Store calculated scores
 			$score_data = array(
 				'overall_score'   => $calculated_scores['overall_score'],
 				'category_scores' => $calculated_scores['category_scores'],
+				'pillar_scores'   => $calculated_scores['pillar_scores'] ?? array(),
 				'interpretation'  => $this->get_score_interpretation( $calculated_scores['overall_score'] ),
 				'calculated_at'   => current_time( 'mysql' ),
 				'assessment_type' => $assessment_type,
@@ -162,8 +174,12 @@ class ENNU_Life_Enhanced_Database {
 			// Save to user meta with correct ennu_ prefix for dashboard compatibility
 			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', $score_data['overall_score'] );
 			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_category_scores', $score_data['category_scores'] );
+			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_pillar_scores', $score_data['pillar_scores'] );
 			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_interpretation', $score_data['interpretation'] );
 			update_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_calculated_at', $score_data['calculated_at'] );
+			
+			// Recalculate average pillar scores across all assessments
+			ENNU_Scoring_System::calculate_average_pillar_scores( $user_id );
 
 			// Cache the results
 			ENNU_Score_Cache::cache_score( $user_id, $assessment_type, $score_data );
@@ -552,6 +568,137 @@ class ENNU_Life_Enhanced_Database {
 			}
 		}
 		return $history;
+	}
+
+	/**
+	 * Create database constraints for duplicate prevention
+	 */
+	public function create_database_constraints() {
+		global $wpdb;
+		
+		try {
+			// Add unique constraint to user_email if it doesn't exist
+			$table_name = $wpdb->users;
+			$check_constraint = $wpdb->get_results( "
+				SELECT CONSTRAINT_NAME 
+				FROM information_schema.TABLE_CONSTRAINTS 
+				WHERE TABLE_SCHEMA = DATABASE() 
+				AND TABLE_NAME = '{$wpdb->users}' 
+				AND CONSTRAINT_TYPE = 'UNIQUE' 
+				AND CONSTRAINT_NAME LIKE '%user_email%'
+			" );
+			
+			if ( empty( $check_constraint ) ) {
+				$wpdb->query( "ALTER TABLE {$wpdb->users} ADD CONSTRAINT unique_user_email UNIQUE (user_email)" );
+				error_log( 'ENNU Database: Added unique constraint to user_email' );
+			}
+			
+			// Create rate limiting table if it doesn't exist
+			$rate_limit_table = $wpdb->prefix . 'ennu_rate_limits';
+			$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '{$rate_limit_table}'" );
+			
+			if ( ! $table_exists ) {
+				$wpdb->query( "
+					CREATE TABLE {$rate_limit_table} (
+						id INT AUTO_INCREMENT PRIMARY KEY,
+						ip_address VARCHAR(45) NOT NULL,
+						action_type VARCHAR(50) NOT NULL,
+						attempt_count INT DEFAULT 1,
+						first_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+						last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+						INDEX idx_ip_action (ip_address, action_type),
+						INDEX idx_last_attempt (last_attempt)
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+				" );
+				error_log( 'ENNU Database: Created rate limiting table' );
+			}
+			
+			return true;
+			
+		} catch ( Exception $e ) {
+			error_log( 'ENNU Database Error: ' . $e->getMessage() );
+			return false;
+		}
+	}
+	
+	/**
+	 * Check rate limiting for user creation
+	 */
+	public function check_user_creation_rate_limit( $ip_address ) {
+		global $wpdb;
+		
+		$rate_limit_table = $wpdb->prefix . 'ennu_rate_limits';
+		$current_time = current_time( 'mysql' );
+		$one_hour_ago = date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) );
+		
+		// Get current attempts for this IP
+		$attempts = $wpdb->get_row( $wpdb->prepare( "
+			SELECT * FROM {$rate_limit_table} 
+			WHERE ip_address = %s AND action_type = 'user_creation'
+		", $ip_address ) );
+		
+		if ( $attempts ) {
+			// Check if within rate limit window
+			if ( strtotime( $attempts->last_attempt ) > strtotime( '-1 hour' ) ) {
+				if ( $attempts->attempt_count >= 5 ) {
+					return false; // Rate limit exceeded
+				}
+				
+				// Update attempt count
+				$wpdb->update( 
+					$rate_limit_table,
+					array( 
+						'attempt_count' => $attempts->attempt_count + 1,
+						'last_attempt' => $current_time
+					),
+					array( 'id' => $attempts->id )
+				);
+			} else {
+				// Reset attempts after 1 hour
+				$wpdb->update( 
+					$rate_limit_table,
+					array( 
+						'attempt_count' => 1,
+						'last_attempt' => $current_time
+					),
+					array( 'id' => $attempts->id )
+				);
+			}
+		} else {
+			// Create new rate limit record
+			$wpdb->insert( 
+				$rate_limit_table,
+				array(
+					'ip_address' => $ip_address,
+					'action_type' => 'user_creation',
+					'attempt_count' => 1,
+					'first_attempt' => $current_time,
+					'last_attempt' => $current_time
+				)
+			);
+		}
+		
+		return true; // Rate limit not exceeded
+	}
+	
+	/**
+	 * Get client IP address
+	 */
+	private function get_client_ip() {
+		$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' );
+		
+		foreach ( $ip_keys as $key ) {
+			if ( array_key_exists( $key, $_SERVER ) === true ) {
+				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+					$ip = trim( $ip );
+					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) {
+						return $ip;
+					}
+				}
+			}
+		}
+		
+		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 	}
 }
 

@@ -1259,3 +1259,65 @@
 	border-color: #902123;
 }
 
+/* ENNU Admin Enhanced Styles - SIMPLIFIED */
+.ennu-page-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.ennu-page-item label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.ennu-page-dropdown {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.ennu-page-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.ennu-page-info {
+    font-style: italic;
+}
+
+/* Loading state for buttons */
+input[name="ennu_detect_pages_submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success/Error notices */
+.notice {
+    margin: 15px 0;
+    padding: 10px 15px;
+    border-left: 4px solid;
+}
+
+.notice-success {
+    border-color: #46b450;
+    background: #f7fcf7;
+}
+
+.notice-error {
+    border-color: #dc3232;
+    background: #fef7f7;
+}
+
+.notice-info {
+    border-color: #00a0d2;
+    background: #f7fbfc;
+}
+

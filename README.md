@@ -5,7 +5,7 @@
  * @author            Luis Escobar (CTO)
  * @copyright         2024 ENNU Life
  * @license           Proprietary - Internal Company Software
- * @version           64.53.24
+ * @version           64.56.0
  * @description       Revolutionary health optimization platform with mathematical transformation as a service
  * @requires          PHP 7.4+
  * @requires          WordPress 5.0+
@@ -16,7 +16,7 @@
  * Plugin Name:       ENNU Life Assessments
  * Plugin URI:        https://ennulife.com
  * Description:       Revolutionary health optimization platform with mathematical transformation as a service
- * Version:           64.53.24
+ * Version:           64.56.0
  * Requires at least: 5.0
  * Tested up to:      6.4
  * Requires PHP:      7.4
@@ -37,7 +37,7 @@
 # ENNU Life - Proprietary Health Optimization Platform
 
 [![Proprietary Software](https://img.shields.io/badge/Proprietary-Software-red.svg)]
-[![Version](https://img.shields.io/badge/Version-64.53.24-green.svg)]
+[![Version](https://img.shields.io/badge/Version-64.56.0-green.svg)]
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)]
 [![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-5.0+-blue.svg)](https://wordpress.org/)
@@ -5220,7 +5220,23 @@ $final_scores = [
 
 ## 📝 Changelog
 
-### Version 64.53.24 (Latest)
+### Version 64.56.0 (Latest) - August 6, 2025
+- **FIXED**: Assessment scores and pillar scores now display properly in results
+- **FIXED**: Meta key mismatch in `calculate_average_pillar_scores()` method
+- **ADDED**: Biomarker auto-flagging system based on assessment symptoms
+- **ADDED**: Symptom extraction from all 11 assessment types
+- **ENHANCED**: Results page now handles both legacy and new data formats
+- **ENHANCED**: Pillar score calculation added to all assessment submission handlers
+- **ENHANCED**: Symptom-to-biomarker mapping with 35+ symptom definitions
+- **IMPROVED**: Centralized symptoms manager integration
+- **IMPROVED**: Healthcare provider dashboard shows flagged biomarkers
+- **UPDATED**: Added nutrition-related symptoms to symptom map
+- **VERIFIED**: All 11 assessments properly trigger biomarker flags
+- **TECHNICAL**: Implemented reflection to access private pillar mapping methods
+- **TECHNICAL**: Added `extract_symptoms_from_assessment()` method
+- **STATUS**: Production-ready with complete assessment → scoring → biomarker flow
+
+### Version 64.53.24
 - **Comprehensive**: Complete migration to simple page_id approach across all components
 - **Fixed**: Updated all methods to use simple `_results_page_id`, `_details_page_id`, `_consultation_page_id` format
 - **Enhanced**: Admin interface now shows simple "Page ID" dropdowns for all assessment pages

@@ -23,20 +23,155 @@ class ENNU_Internationalization {
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor - Enable translation system
+	 */
 	private function __construct() {
-		// Temporarily disable to fix translation loading issue
-		// add_action( 'init', array( $this, 'load_textdomain' ) );
-		// add_action( 'init', array( $this, 'register_strings' ) );
+		// Enable translation system
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_translations' ) );
+		add_filter( 'ennu_get_localized_string', array( $this, 'get_localized_string' ), 10, 2 );
+		add_filter( 'ennu_format_localized_date', array( $this, 'format_localized_date' ), 10, 2 );
+		add_filter( 'ennu_format_localized_number', array( $this, 'format_localized_number' ), 10, 2 );
 	}
 
 	/**
-	 * Load plugin textdomain
+	 * Load text domain for translations
 	 */
 	public function load_textdomain() {
 		load_plugin_textdomain(
-			$this->text_domain,
+			'ennulifeassessments',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/../languages'
+		);
+	}
+
+	/**
+	 * Enqueue translations for JavaScript
+	 */
+	public function enqueue_translations() {
+		$translations = array(
+			'required_field' => __( 'This field is required.', 'ennulifeassessments' ),
+			'invalid_email' => __( 'Please enter a valid email address.', 'ennulifeassessments' ),
+			'processing_form' => __( 'Processing your form...', 'ennulifeassessments' ),
+			'form_submitted' => __( 'Form submitted successfully!', 'ennulifeassessments' ),
+			'error_occurred' => __( 'An error occurred. Please try again.', 'ennulifeassessments' ),
+			'next_question' => __( 'Next Question', 'ennulifeassessments' ),
+			'previous_question' => __( 'Previous Question', 'ennulifeassessments' ),
+			'submit_assessment' => __( 'Submit Assessment', 'ennulifeassessments' ),
+			'progress' => __( 'Progress', 'ennulifeassessments' ),
+			'question' => __( 'Question', 'ennulifeassessments' ),
+			'of' => __( 'of', 'ennulifeassessments' ),
+		);
+
+		wp_localize_script( 'ennu-frontend-forms', 'ennu_translations', $translations );
+	}
+
+	/**
+	 * Get localized string with context support
+	 */
+	public function get_localized_string( $string, $context = '' ) {
+		$translated = __( $string, 'ennulifeassessments' );
+
+		// Add context-specific translations
+		if ( ! empty( $context ) ) {
+			$context_key = $context . '_' . sanitize_key( $string );
+			$context_translated = __( $context_key, 'ennulifeassessments' );
+
+			if ( $context_translated !== $context_key ) {
+				return $context_translated;
+			}
+		}
+
+		return $translated;
+	}
+
+	/**
+	 * Get assessment translations
+	 */
+	public function get_assessment_translations( $assessment_type ) {
+		$translations = array(
+			'title' => $this->get_localized_string( $assessment_type . '_title' ),
+			'description' => $this->get_localized_string( $assessment_type . '_description' ),
+			'questions' => $this->get_question_translations( $assessment_type ),
+			'answers' => $this->get_answer_translations( $assessment_type ),
+		);
+
+		return $translations;
+	}
+
+	/**
+	 * Get question translations for assessment
+	 */
+	private function get_question_translations( $assessment_type ) {
+		$questions = array();
+		$assessment_config = include( dirname( __FILE__ ) . '/config/assessments/' . $assessment_type . '.php' );
+
+		if ( isset( $assessment_config['questions'] ) ) {
+			foreach ( $assessment_config['questions'] as $key => $question ) {
+				$questions[$key] = array(
+					'title' => $this->get_localized_string( $question['title'], $assessment_type ),
+					'help_text' => isset( $question['help_text'] ) ? $this->get_localized_string( $question['help_text'], $assessment_type ) : '',
+				);
+			}
+		}
+
+		return $questions;
+	}
+
+	/**
+	 * Get answer translations for assessment
+	 */
+	private function get_answer_translations( $assessment_type ) {
+		$answers = array();
+		$assessment_config = include( dirname( __FILE__ ) . '/config/assessments/' . $assessment_type . '.php' );
+
+		if ( isset( $assessment_config['questions'] ) ) {
+			foreach ( $assessment_config['questions'] as $key => $question ) {
+				if ( isset( $question['options'] ) ) {
+					$answers[$key] = array();
+					foreach ( $question['options'] as $option_key => $option_text ) {
+						$answers[$key][$option_key] = $this->get_localized_string( $option_text, $assessment_type );
+					}
+				}
+			}
+		}
+
+		return $answers;
+	}
+
+	/**
+	 * Format localized date
+	 */
+	public function format_localized_date( $date, $format = '' ) {
+		if ( empty( $format ) ) {
+			$format = get_option( 'date_format' );
+		}
+
+		return date_i18n( $format, strtotime( $date ) );
+	}
+
+	/**
+	 * Format localized number
+	 */
+	public function format_localized_number( $number, $decimals = 2 ) {
+		$locale = get_locale();
+		$decimal_separator = localeconv()['decimal_point'] ?? '.';
+		$thousands_separator = localeconv()['thousands_sep'] ?? ',';
+
+		return number_format( $number, $decimals, $decimal_separator, $thousands_separator );
+	}
+
+	/**
+	 * Get current locale information
+	 */
+	public function get_locale_info() {
+		return array(
+			'locale' => get_locale(),
+			'date_format' => get_option( 'date_format' ),
+			'time_format' => get_option( 'time_format' ),
+			'decimal_separator' => localeconv()['decimal_point'] ?? '.',
+			'thousands_separator' => localeconv()['thousands_sep'] ?? ',',
 		);
 	}
 

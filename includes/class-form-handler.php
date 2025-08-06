@@ -44,7 +44,9 @@ class ENNU_Form_Handler {
 			// 1. Validate input
 			$validation_result = $this->validator->validate( $form_data );
 			if ( ! $validation_result->is_valid() ) {
-				return ENNU_Form_Result::error( 'validation_failed', $validation_result->get_errors() );
+				$error_handler = ENNU_Error_Handler::get_instance();
+				$error_response = $error_handler->handle_form_error( 'Validation failed', array( 'errors' => $validation_result->get_errors() ) );
+				return ENNU_Form_Result::error( 'validation_failed', $error_response['user_message'] );
 			}
 
 			// 2. Sanitize data
@@ -53,7 +55,9 @@ class ENNU_Form_Handler {
 			// 3. Process user
 			$user_result = $this->process_user( $sanitized_data );
 			if ( ! $user_result->is_success() ) {
-				return $user_result;
+				$error_handler = ENNU_Error_Handler::get_instance();
+				$error_response = $error_handler->handle_form_error( $user_result->get_error_message(), array( 'user_creation' => true ) );
+				return ENNU_Form_Result::error( $user_result->get_error_code(), $error_response['user_message'] );
 			}
 
 			$user_id = $user_result->get_user_id();
@@ -66,13 +70,17 @@ class ENNU_Form_Handler {
 				$sanitized_data 
 			);
 			if ( ! $save_result->is_success() ) {
-				return $save_result;
+				$error_handler = ENNU_Error_Handler::get_instance();
+				$error_response = $error_handler->handle_form_error( $save_result->get_error_message(), array( 'data_saving' => true ) );
+				return ENNU_Form_Result::error( 'data_save_failed', $error_response['user_message'] );
 			}
 
 			// 5. Route to assessment engine (quantitative vs qualitative)
 			$engine_result = $this->route_to_assessment_engine( $user_id, $sanitized_data );
 			if ( ! $engine_result->is_success() ) {
-				return $engine_result;
+				$error_handler = ENNU_Error_Handler::get_instance();
+				$error_response = $error_handler->handle_form_error( $engine_result->get_error_message(), array( 'assessment_engine' => true ) );
+				return ENNU_Form_Result::error( 'engine_failed', $error_response['user_message'] );
 			}
 
 			// 6. Send notifications
@@ -89,8 +97,10 @@ class ENNU_Form_Handler {
 			) );
 
 		} catch ( Exception $e ) {
+			$error_handler = ENNU_Error_Handler::get_instance();
+			$error_response = $error_handler->handle_form_error( $e, array( 'form_processing' => true ) );
 			$this->logger->log_error( 'Form processing failed', $e->getMessage() );
-			return ENNU_Form_Result::error( 'processing_failed', $e->getMessage() );
+			return ENNU_Form_Result::error( 'processing_failed', $error_response['user_message'] );
 		}
 	}
 
@@ -130,6 +140,17 @@ class ENNU_Form_Handler {
 		$scores = array();
 		if ( class_exists( 'ENNU_Scoring_System' ) ) {
 			$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $form_data['assessment_type'], $form_data );
+			
+			// Calculate pillar scores from category scores
+			if ( $scores && isset( $scores['category_scores'] ) ) {
+				// Use reflection to call the private method map_categories_to_pillars
+				$reflection = new ReflectionClass( 'ENNU_Scoring_System' );
+				$method = $reflection->getMethod( 'map_categories_to_pillars' );
+				$method->setAccessible( true );
+				
+				$pillar_scores = $method->invoke( null, $form_data['assessment_type'], $scores['category_scores'] );
+				$scores['pillar_scores'] = $pillar_scores;
+			}
 		}
 
 		if ( $scores ) {
@@ -142,6 +163,9 @@ class ENNU_Form_Handler {
 			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', ENNU_Scoring_System::get_score_interpretation( $scores['overall_score'] ) );
 			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
 			update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_pillar_scores', $scores['pillar_scores'] );
+			
+			// Recalculate average pillar scores across all assessments
+			ENNU_Scoring_System::calculate_average_pillar_scores( $user_id );
 
 			// Save score history for progress tracking
 			$score_history_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
@@ -201,7 +225,13 @@ class ENNU_Form_Handler {
 	 * Process user creation or retrieval
 	 */
 	private function process_user( $form_data ) {
-		$email = $form_data['email'];
+		$email = sanitize_email( $form_data['email'] );
+		
+		// Validate email format
+		if ( empty( $email ) || ! is_email( $email ) ) {
+			return ENNU_Form_Result::error( 'invalid_email', 'Please enter a valid email address.' );
+		}
+		
 		$user_id = email_exists( $email );
 
 		if ( ! $user_id ) {
@@ -223,9 +253,20 @@ class ENNU_Form_Handler {
 	}
 
 	/**
-	 * Create new user account
+	 * Create new user account with rate limiting and duplicate prevention
 	 */
 	private function create_user( $form_data ) {
+		// Check rate limiting
+		$database = ENNU_Life_Enhanced_Database::get_instance();
+		$ip_address = $this->get_client_ip();
+		
+		if ( ! $database->check_user_creation_rate_limit( $ip_address ) ) {
+			return ENNU_Form_Result::error( 'rate_limit_exceeded', 'Too many account creation attempts. Please try again in 1 hour.' );
+		}
+		
+		// Create database constraints if they don't exist
+		$database->create_database_constraints();
+		
 		$password = wp_generate_password();
 		$user_data = array(
 			'user_login' => $form_data['email'],
@@ -238,19 +279,45 @@ class ENNU_Form_Handler {
 		$user_id = wp_insert_user( $user_data );
 
 		if ( is_wp_error( $user_id ) ) {
-			return ENNU_Form_Result::error( 'user_creation_failed', $user_id->get_error_message() );
+			$error_message = $user_id->get_error_message();
+			
+			// Handle duplicate email error specifically
+			if ( strpos( $error_message, 'email' ) !== false ) {
+				return ENNU_Form_Result::error( 'duplicate_email', 'An account with this email already exists. Please log in instead.' );
+			}
+			
+			return ENNU_Form_Result::error( 'user_creation_failed', $error_message );
 		}
 
-		// Log the new user in
-		wp_set_current_user( $user_id );
-		wp_set_auth_cookie( $user_id );
+		// Log the new user in with proper session management
+		$this->set_user_session( $user_id );
 
 		$this->logger->log( 'New user created', array( 'user_id' => $user_id ) );
 		return ENNU_Form_Result::success( array( 'user_id' => $user_id ) );
 	}
+	
+	/**
+	 * Get client IP address
+	 */
+	private function get_client_ip() {
+		$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' );
+		
+		foreach ( $ip_keys as $key ) {
+			if ( array_key_exists( $key, $_SERVER ) === true ) {
+				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+					$ip = trim( $ip );
+					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) {
+						return $ip;
+					}
+				}
+			}
+		}
+		
+		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+	}
 
 	/**
-	 * Handle existing user login
+	 * Handle existing user login with session management
 	 */
 	private function handle_existing_user( $user_id, $form_data ) {
 		// Check if user is logged in
@@ -261,7 +328,48 @@ class ENNU_Form_Handler {
 			);
 		}
 
+		// Enforce session timeout
+		$this->enforce_session_timeout( $user_id );
+
 		return ENNU_Form_Result::success( array( 'user_id' => $user_id ) );
+	}
+	
+	/**
+	 * Enforce session timeout based on HIPAA compliance
+	 */
+	private function enforce_session_timeout( $user_id ) {
+		$session_start = get_user_meta( $user_id, 'ennu_session_start', true );
+		$current_time = time();
+		$timeout_duration = 900; // 15 minutes from HIPAA compliance
+		
+		// Check if session has expired
+		if ( $session_start && ( $current_time - $session_start ) > $timeout_duration ) {
+			// Session expired, log user out
+			wp_logout();
+			$this->logger->log( 'Session expired', array( 'user_id' => $user_id ) );
+			return false;
+		}
+		
+		// Update last activity
+		update_user_meta( $user_id, 'ennu_last_activity', $current_time );
+		return true;
+	}
+	
+	/**
+	 * Set user session with proper timeout
+	 */
+	private function set_user_session( $user_id ) {
+		$current_time = time();
+		
+		// Set session metadata
+		update_user_meta( $user_id, 'ennu_session_start', $current_time );
+		update_user_meta( $user_id, 'ennu_last_activity', $current_time );
+		
+		// Set WordPress session
+		wp_set_current_user( $user_id );
+		wp_set_auth_cookie( $user_id, false, is_ssl() );
+		
+		$this->logger->log( 'User session set', array( 'user_id' => $user_id ) );
 	}
 }
 

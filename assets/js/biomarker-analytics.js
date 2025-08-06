@@ -36,68 +36,90 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        // Trend Chart
+        // Trend Chart - Load real user data
         var trendCtx = document.getElementById('trendChart');
         if (trendCtx) {
-            new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Glucose Levels',
-                        data: [85, 88, 92, 87, 90, 89],
-                        borderColor: '#0073aa',
-                        backgroundColor: 'rgba(0, 115, 170, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Biomarker Trend Analysis'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
-                }
-            });
+            this.loadBiomarkerTrendData(trendCtx);
         }
         
-        // Distribution Chart
+        // Distribution Chart - Load real user data
         var distributionCtx = document.getElementById('distributionChart');
         if (distributionCtx) {
-            new Chart(distributionCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Optimal', 'Suboptimal', 'Poor'],
-                    datasets: [{
-                        label: 'User Distribution',
-                        data: [65, 25, 10],
-                        backgroundColor: [
-                            '#28a745',
-                            '#ffc107',
-                            '#dc3545'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Biomarker Distribution'
-                        }
-                    }
-                }
-            });
+            this.loadBiomarkerDistributionData(distributionCtx);
         }
+    }
+    
+    // Load real biomarker trend data
+    loadBiomarkerTrendData(canvas) {
+        // Check if user has biomarker data
+        const hasData = this.checkUserBiomarkerData();
+        
+        if (!hasData) {
+            this.showEmptyBiomarkerState(canvas, 'trend');
+            return;
+        }
+        
+        // Load actual user biomarker data via AJAX
+        this.fetchUserBiomarkerTrends()
+            .then(data => this.renderTrendChart(canvas, data))
+            .catch(error => {
+                console.error('Failed to load biomarker trends:', error);
+                this.showEmptyBiomarkerState(canvas, 'trend');
+            });
+    }
+    
+    // Load real biomarker distribution data  
+    loadBiomarkerDistributionData(canvas) {
+        // Check if user has biomarker data
+        const hasData = this.checkUserBiomarkerData();
+        
+        if (!hasData) {
+            this.showEmptyBiomarkerState(canvas, 'distribution');
+            return;
+        }
+        
+        // Load actual user distribution data via AJAX
+        this.fetchUserBiomarkerDistribution()
+            .then(data => this.renderDistributionChart(canvas, data))
+            .catch(error => {
+                console.error('Failed to load biomarker distribution:', error);
+                this.showEmptyBiomarkerState(canvas, 'distribution');
+            });
+    }
+    
+    // Check if user has any biomarker data
+    checkUserBiomarkerData() {
+        // This would check if user has uploaded lab results or entered biomarker data
+        const userMeta = window.ennuUserData || {};
+        return userMeta.hasBiomarkerData === true;
+    }
+    
+    // Show empty state for biomarker charts
+    showEmptyBiomarkerState(canvas, type) {
+        const wrapper = canvas.parentElement;
+        const messages = {
+            trend: {
+                title: 'No Biomarker Trends Available',
+                message: 'Upload your lab results to see biomarker trends over time.',
+                icon: '📈'
+            },
+            distribution: {
+                title: 'No Distribution Data Available', 
+                message: 'Upload lab results to see how your biomarkers compare to optimal ranges.',
+                icon: '📊'
+            }
+        };
+        
+        const config = messages[type] || messages.trend;
+        
+        wrapper.innerHTML = `
+            <div class="empty-state" style="text-align: center; padding: 3rem 2rem; color: rgba(255, 255, 255, 0.7);">
+                <div class="empty-state-icon" style="font-size: 4rem; margin-bottom: 1.5rem;">${config.icon}</div>
+                <h3 style="margin: 0 0 1rem 0; color: rgba(255, 255, 255, 0.9); font-size: 1.2rem;">${config.title}</h3>
+                <p style="margin: 0 0 2rem 0; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">${config.message}</p>
+                <button class="ennu-btn ennu-btn-primary" onclick="window.location.href='#upload-labs'">Upload Lab Results</button>
+            </div>
+        `;
     }
     
     // Initialize correlation matrix

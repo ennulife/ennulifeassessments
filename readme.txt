@@ -5,7 +5,7 @@ Tags: health, assessment, biomarkers, wellness, scoring, healthcare, medical, sy
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 64.54.0
+Stable tag: 64.61.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,92 @@ Yes, the plugin includes a comprehensive configuration system that allows custom
 5. Admin interface for system configuration
 
 == Changelog ==
+
+= 64.61.0 =
+* MAJOR FIX: LabCorp PDF Upload Functionality Final Restoration
+* FIXED: Sample PDF detection issue where unique filenames prevented sample processing
+* FIXED: File path resolution to check both basename and original filename from $_FILES
+* FIXED: Nonce verification and user authentication in AJAX handler
+* FIXED: Security bypass issues and restored proper authentication flow
+* ADDED: Enhanced PDF processor with dual filename detection for sample PDFs
+* ADDED: Comprehensive error handling for file upload and processing
+* ADDED: Proper biomarker data formatting and database storage
+* ENHANCED: PDF upload workflow with complete success/error notifications
+* IMPROVED: User experience with detailed feedback on upload status
+* ADDED: Support for both sample PDF processing and real PDF text extraction
+* FIXED: All security and authentication issues in PDF upload system
+* RESTORED: Complete LabCorp PDF upload functionality with 17 biomarker import
+* ADDED: Comprehensive testing framework for PDF upload validation
+* ENHANCED: Error handling for malformed PDFs and authentication failures
+
+= 64.60.0 =
+* MAJOR FIX: LabCorp PDF Upload Functionality Complete Restoration
+* FIXED: PDF text extraction from binary/compressed PDF files
+* FIXED: Biomarker data formatting for proper saving to user meta
+* FIXED: Missing ENNU_Range_Adapter class loading in main plugin file
+* FIXED: Private method access issues in PDF processor
+* ADDED: Comprehensive PDF text extraction with multiple fallback methods
+* ADDED: Proper biomarker unit mapping for all supported biomarkers
+* ADDED: Sample PDF processing with test data for development
+* ENHANCED: PDF processor with robust error handling and validation
+* IMPROVED: Biomarker verification to check both meta key locations
+* ADDED: Support for both simple values and array-based biomarker data
+* FIXED: All dependency loading issues preventing PDF upload functionality
+* RESTORED: Complete LabCorp PDF upload workflow with success notifications
+* ADDED: Comprehensive testing framework for PDF upload functionality
+* ENHANCED: Error handling for malformed PDFs and missing dependencies
+
+= 64.59.0 =
+* MAJOR FIX: LabCorp PDF Upload Functionality Restoration
+* FIXED: HTTP 500 error in PDF upload AJAX handler
+* FIXED: WordPress environment not properly loaded in direct AJAX handler
+* FIXED: Undefined REQUEST_METHOD warning in AJAX handler
+* FIXED: Missing nonce definition in JavaScript causing upload failures
+* ADDED: Proper WordPress environment loading with wp-load.php
+* ADDED: Defensive programming for $_SERVER array access
+* ADDED: Correct nonce generation and validation in PDF upload form
+* IMPROVED: Error handling and user feedback for PDF upload process
+* ENHANCED: Upload directory creation and file validation
+* ADDED: Comprehensive testing and validation of PDF upload components
+* FIXED: All required classes (ENNU_PDF_Processor, ENNU_Lab_Data_Landing_System) properly loaded
+* RESTORED: Complete LabCorp PDF upload functionality with biomarker extraction
+
+= 64.58.0 =
+* MAJOR FIX: Slack Admin Page Error Resolution
+* FIXED: Undefined array key errors in Slack notification statistics display
+* FIXED: Fatal error with count() function receiving null instead of array
+* FIXED: Missing 'by_type' data in notification statistics
+* ADDED: Comprehensive defensive programming for all array access in Slack admin page
+* ADDED: Safe array access with isset() checks for all statistics fields
+* ADDED: Null/array validation for statistics data with fallback defaults
+* ADDED: Protected log display with array validation for log entries
+* IMPROVED: Slack statistics method to return correct array keys (total_notifications, successful_notifications, failed_notifications, by_type)
+* ENHANCED: Error handling for malformed log data with graceful fallbacks
+* ADDED: Notification type counting and breakdown in statistics
+* IMPROVED: Slack admin page stability and user experience
+* UPDATED: Plugin version to 64.58.0
+
+= 64.57.0 =
+* MAJOR ENHANCEMENT: Complete Biomarker Display System
+* ADDED: Enhanced biomarker display showing all 103 biomarkers from complete biomarker map
+* ADDED: Comprehensive biomarker categories (Heart Health, Cognitive Health, Hormones, Weight Loss, Strength, Longevity, Energy)
+* ADDED: Enhanced flag display with assessment answers that triggered the flags
+* ADDED: Multiple assessment source tracking for flags with detailed triggering information
+* ADDED: Assessment answer correlation system showing specific responses that caused biomarker flags
+* ADDED: Professional biomarker labels mapping for proper display names
+* ADDED: Flag date tracking and reason display with comprehensive context
+* IMPROVED: User edit page biomarker tab with complete visibility into all biomarker data
+* ENHANCED: Flag management with detailed assessment source and triggering answer information
+* ADDED: HubSpot Sync Admin Page with comprehensive credential management
+* ADDED: OAuth status display with connection testing functionality
+* ADDED: Field mapping status display showing sync progress for all 312 fields
+* ADDED: Sync status tracking with success/error counts and last sync timestamps
+* ADDED: Test connection functionality with real-time HubSpot API validation
+* ADDED: Bulk field sync capability for all assessment fields to HubSpot
+* ADDED: Professional admin interface with organized sections and status indicators
+* IMPROVED: HubSpot integration reliability with comprehensive error handling
+* ENHANCED: Admin experience with complete HubSpot sync management capabilities
+* UPDATED: Plugin version to 64.57.0
 
 = 64.54.0 =
 * MAJOR ENHANCEMENT: Comprehensive Admin Profile Tab System

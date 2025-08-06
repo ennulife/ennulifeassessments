@@ -26,6 +26,12 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
+		'welcome_q_height_weight' => array(
+			'title'      => 'What is your height and weight?',
+			'type'       => 'height_weight',
+			'required'   => true,
+			'global_key' => 'height_weight',
+		),
 		'welcome_q3' => array(
 			'title'      => 'What are your primary health goals?',
 			'type'       => 'multiselect',

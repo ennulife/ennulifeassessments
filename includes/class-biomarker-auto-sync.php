@@ -167,6 +167,15 @@ class ENNU_Biomarker_Auto_Sync {
 				update_user_meta( $user_id, 'ennu_height', $height_cm );
 				update_user_meta( $user_id, 'ennu_weight', $weight_lbs ); // Store in lbs
 				update_user_meta( $user_id, 'ennu_bmi', $bmi );
+				update_user_meta( $user_id, 'ennu_calculated_bmi', $bmi ); // Also save to the key the dashboard expects
+				
+				// Save to combined height/weight field that dashboard expects
+				$height_weight_data = array(
+					'ft' => $ft,
+					'in' => $in,
+					'weight' => $weight_lbs
+				);
+				update_user_meta( $user_id, 'ennu_global_height_weight', $height_weight_data );
 			}
 		}
 

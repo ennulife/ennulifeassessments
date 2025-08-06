@@ -697,6 +697,7 @@ class ENNU_Slack_Notifications_Manager {
 		$total = count( $logs );
 		$errors = 0;
 		$success = 0;
+		$by_type = array();
 
 		foreach ( $logs as $log ) {
 			if ( $log['type'] === 'error' ) {
@@ -704,12 +705,20 @@ class ENNU_Slack_Notifications_Manager {
 			} else {
 				$success++;
 			}
+			
+			// Count by notification type
+			$notification_type = isset( $log['notification_type'] ) ? $log['notification_type'] : 'general';
+			if ( ! isset( $by_type[ $notification_type ] ) ) {
+				$by_type[ $notification_type ] = 0;
+			}
+			$by_type[ $notification_type ]++;
 		}
 
 		return array(
-			'total'   => $total,
-			'errors'  => $errors,
-			'success' => $success,
+			'total_notifications'   => $total,
+			'failed_notifications'  => $errors,
+			'successful_notifications' => $success,
+			'by_type' => $by_type,
 		);
 	}
 

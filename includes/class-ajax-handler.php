@@ -23,11 +23,9 @@ class ENNU_AJAX_Handler_DISABLED {
 	private $logger;
 
 	public function __construct() {
-		// Prevent instantiation of deprecated class
-		if ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
-			error_log( 'ENNU: Attempted to instantiate deprecated ENNU_AJAX_Handler. Use ENNU_AJAX_Service_Handler instead.' );
-			return;
-		}
+		// This class is deprecated and disabled - ENNU_Assessment_Shortcodes handles AJAX now
+		error_log( 'ENNU: ENNU_AJAX_Handler is disabled. ENNU_Assessment_Shortcodes handles AJAX submissions.' );
+		return;
 		
 		$this->form_handler = new ENNU_Form_Handler();
 		$this->security = new ENNU_AJAX_Security_Handler();

@@ -48,26 +48,7 @@ return array(
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'hormone_q_goals' => array(
-			'title'      => 'What are your primary health goals?',
-			'type'       => 'multiselect',
-			'options'    => array(
-				'longevity'        => 'Longevity & Healthy Aging',
-				'energy'           => 'Improve Energy & Vitality',
-				'strength'         => 'Build Strength & Muscle',
-				'libido'           => 'Enhance Libido & Sexual Health',
-				'weight_loss'      => 'Achieve & Maintain Healthy Weight',
-				'hormonal_balance' => 'Hormonal Balance',
-				'cognitive_health' => 'Sharpen Cognitive Function',
-				'heart_health'     => 'Support Heart Health',
-				'aesthetics'       => 'Improve Hair, Skin & Nails',
-				'sleep'            => 'Improve Sleep Quality',
-				'stress'           => 'Reduce Stress & Improve Resilience',
-			),
-			'required'   => true,
-			'global_key' => 'health_goals',
-		),
-		'hormone_q1'       => array(
+'hormone_q1'       => array(
 			'title'    => 'Which of the following symptoms of hormonal imbalance are you experiencing?',
 			'type'     => 'multiselect',
 			'options'  => array(

@@ -284,49 +284,265 @@
     letter-spacing: 0.5px;
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
+/* ENNU Life Assessments - Admin User Profile Styles
+ * Enhanced styling for the user profile assessment fields
+ */
+
+.ennu-field-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.ennu-field-input:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+.ennu-question-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #007cba;
+}
+
+.ennu-question-text {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.ennu-current-answer {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #e7f3ff;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #007cba;
+}
+
+/* Height & Weight Fields */
+.height-weight-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.height-section,
+.weight-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.height-inputs {
+    display: flex;
+    gap: 8px;
+}
+
+.height-inputs input {
+    flex: 1;
+}
+
+/* Date of Birth Fields */
+.dob-container {
+    margin-bottom: 15px;
+}
+
+.dob-inputs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dob-inputs select {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Name Fields */
+.name-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.name-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Contact Fields */
+.contact-container,
+.contact-info-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.contact-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Severity Scale */
+.severity-scale-container {
+    margin-bottom: 15px;
+}
+
+.severity-scale-container select {
+    width: 100%;
+    max-width: 300px;
+}
+
+/* User-Friendly List Fields */
+.goals-list-container,
+.symptoms-list-container,
+.biomarkers-list-container,
+.responses-list-container,
+.scores-list-container {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+/* Enhanced Assessment Responses Display */
+.ennu-responses-detailed {
+    margin-top: 10px;
+}
+
+.ennu-response-item {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 4px;
+    border-left: 3px solid #007cba;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ennu-question-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.ennu-response-value {
+    color: #007cba;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 4px 8px;
+    background: #e7f3ff;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.goals-list-container label,
+.symptoms-list-container label,
+.biomarkers-list-container label,
+.responses-list-container label,
+.scores-list-container label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.ennu-goals-list,
+.ennu-symptoms-list,
+.ennu-biomarkers-list,
+.ennu-responses-list,
+.ennu-scores-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.ennu-goals-list li,
+.ennu-symptoms-list li,
+.ennu-biomarkers-list li,
+.ennu-responses-list li,
+.ennu-scores-list li {
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.ennu-no-data {
+    color: #6c757d;
+    font-style: italic;
+    margin: 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px dashed #dee2e6;
+}
+
+/* Severity indicators */
+.severity {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+/* Biomarker status indicators */
+.status-high {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.status-low {
+    color: #fd7e14;
+    font-weight: 500;
+}
+
+.status-normal {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.status-optimal {
+    color: #20c997;
+    font-weight: 500;
+}
+
+/* Section Headers */
+.ennu-section-header {
+    margin: 20px 0 15px 0;
+    padding: 10px 0;
+    border-bottom: 2px solid #007cba;
+}
+
+.ennu-section-header h3 {
+    margin: 0;
+    color: #007cba;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .ennu-admin-tab-nav ul {
+    .height-weight-container,
+    .name-container,
+    .contact-container,
+    .contact-info-container {
         flex-direction: column;
     }
     
-    .ennu-admin-tab-nav a {
-        padding: 12px 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .ennu-admin-tab-content {
-        padding: 15px;
-    }
-    
-    .ennu-admin-tab-content .form-table th,
-    .ennu-admin-tab-content .form-table td {
-        display: block;
-        width: 100%;
-        padding: 10px 0;
-    }
-    
-    .ennu-admin-tab-content .form-table th {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 5px;
-    }
-    
-    .ennu-admin-action-buttons {
+    .height-inputs {
         flex-direction: column;
-        align-items: stretch;
     }
     
-    .ennu-admin-action-buttons .button {
-        text-align: center;
-    }
-    
-    .ennu-health-summary .ennu-score-display {
+    .dob-inputs {
         flex-direction: column;
-        gap: 15px;
     }
     
-    .ennu-score-item {
-        min-width: auto;
+    .dob-inputs select {
+        min-width: 100%;
     }
 }
 

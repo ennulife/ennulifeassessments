@@ -86,12 +86,8 @@ class ENNU_AJAX_Service_Handler {
 	 * Register all AJAX actions
 	 */
 	private function register_ajax_actions() {
-		// DISABLED: Assessment submission - conflicts with main handler in class-assessment-shortcodes.php
-		// This was causing duplicate data storage with assessment prefixes
-		/*
-		add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
-		add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
-		*/
+		// DISABLED: Assessment submission - handled by ENNU_Assessment_Shortcodes class
+		// Keeping this disabled to prevent conflicts with the main handler
 		
 		// Assessment results
 		add_action( 'wp_ajax_ennu_get_results', array( $this, 'handle_get_results' ) );

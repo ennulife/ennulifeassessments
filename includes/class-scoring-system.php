@@ -321,36 +321,69 @@ class ENNU_Scoring_System {
 
 		$all_definitions     = self::get_all_definitions();
 		$pillar_map          = self::get_health_pillar_map();
-		$all_category_scores = array();
-
-		$meta_keys = array();
+		
+		// Try multiple key formats to handle different storage patterns
+		$all_pillar_scores = array(
+			'Mind' => array(),
+			'Body' => array(),
+			'Lifestyle' => array(),
+			'Aesthetics' => array()
+		);
+		
 		foreach ( array_keys( $all_definitions ) as $assessment_type ) {
-			if ( 'health_optimization_assessment' === $assessment_type ) {
+			if ( $assessment_type === 'health-optimization' || $assessment_type === 'welcome' ) {
 				continue;
 			}
-			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
-			$meta_keys[] = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
-		}
-
-		$user_meta_batch = array();
-		foreach ( $meta_keys as $key ) {
-			$user_meta_batch[ $key ] = get_user_meta( $user_id, $key, true );
-		}
-
-		foreach ( array_keys( $all_definitions ) as $assessment_type ) {
-			if ( 'health_optimization_assessment' === $assessment_type ) {
-				continue;
+			
+			// Try different meta key formats
+			$meta_keys_to_try = array(
+				// Format 1: ennu_{canonical}_category_scores (e.g., ennu_testosterone_category_scores)
+				'ennu_' . str_replace( '-', '_', $assessment_type ) . '_category_scores',
+				// Format 2: {canonical}_category_scores (e.g., testosterone_category_scores)
+				str_replace( '-', '_', $assessment_type ) . '_category_scores',
+				// Format 3: Old format with _assessment_ (e.g., ennu_testosterone_assessment_category_scores)
+				ENNU_Assessment_Constants::get_full_meta_key( 
+					ENNU_Assessment_Constants::get_canonical_key( $assessment_type ), 
+					'category_scores' 
+				)
+			);
+			
+			$category_scores = null;
+			foreach ( $meta_keys_to_try as $meta_key ) {
+				$data = get_user_meta( $user_id, $meta_key, true );
+				if ( $data && is_array( $data ) ) {
+					$category_scores = $data;
+					break;
+				}
 			}
-			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
-			$meta_key        = ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'category_scores' );
-			$category_scores = $user_meta_batch[ $meta_key ] ?? array();
-			if ( is_array( $category_scores ) && ! empty( $category_scores ) ) {
-				$all_category_scores = array_merge( $all_category_scores, $category_scores );
+			
+			if ( $category_scores && is_array( $category_scores ) ) {
+				// Map categories to pillars for this assessment
+				$pillar_scores = self::map_categories_to_pillars( $assessment_type, $category_scores );
+				
+				// Add to pillar totals
+				foreach ( $pillar_scores as $pillar => $score ) {
+					if ( is_numeric( $score ) && $score > 0 ) {
+						$all_pillar_scores[ $pillar ][] = $score;
+					}
+				}
 			}
 		}
 
-		$pillar_calculator  = new ENNU_Pillar_Score_Calculator( $all_category_scores, $pillar_map );
-		$base_pillar_scores = $pillar_calculator->calculate();
+		// Calculate averages from all collected scores
+		$final_pillar_scores = array();
+		foreach ( $all_pillar_scores as $pillar => $scores ) {
+			if ( ! empty( $scores ) ) {
+				$final_pillar_scores[ $pillar ] = round( array_sum( $scores ) / count( $scores ), 1 );
+			} else {
+				$final_pillar_scores[ $pillar ] = 0;
+			}
+		}
+		
+		// Remove pillars with no data (optional - keep all 4 pillars even with 0)
+		// $final_pillar_scores = array_filter( $final_pillar_scores, function( $score ) {
+		//     return $score > 0;
+		// });
 
 		// End performance monitoring if available
 		if ( $performance_monitor ) {
@@ -365,8 +398,8 @@ class ENNU_Scoring_System {
 		}
 
 		// Save for future use
-		update_user_meta( $user_id, 'ennu_average_pillar_scores', $base_pillar_scores );
-		return $base_pillar_scores;
+		update_user_meta( $user_id, 'ennu_average_pillar_scores', $final_pillar_scores );
+		return $final_pillar_scores;
 	}
 
 	public static function get_score_interpretation( $score ) {
@@ -750,6 +783,8 @@ class ENNU_Scoring_System {
 				'Nutritional Support' => 'Lifestyle',
 				'Treatment History' => 'Body',
 				'Treatment Expectations' => 'Mind',
+				// Add actual category names from hair assessment
+				'Psychological Factors' => 'Mind',
 			),
 			'weight_loss' => array(
 				'Motivation & Goals' => 'Mind',
@@ -772,6 +807,13 @@ class ENNU_Scoring_System {
 				'Medical History' => 'Body',
 				'Lifestyle Factors' => 'Lifestyle',
 				'Treatment Goals' => 'Mind',
+				// Add actual category names from testosterone assessment
+				'Exercise & Lifestyle' => 'Lifestyle',
+				'Stress & Cortisol' => 'Mind',
+				'Sleep Quality' => 'Lifestyle',
+				'Body Composition' => 'Body',
+				'Biomarker Monitoring' => 'Body',
+				'Self-Assessment' => 'Mind',
 			),
 			'sleep' => array(
 				'Sleep Quality' => 'Lifestyle',
@@ -791,6 +833,18 @@ class ENNU_Scoring_System {
 				'Medical History' => 'Body',
 				'Family History' => 'Body',
 				'Health Goals' => 'Mind',
+				// Add actual category names from health assessment
+				'Current Health Status' => 'Body',
+				'Vitality & Energy' => 'Body',
+				'Physical Activity' => 'Lifestyle',
+				'Nutrition' => 'Lifestyle',
+				'Stress Management' => 'Mind',
+				'Sleep Quality' => 'Lifestyle',
+				'Social Health' => 'Mind',
+				'Cognitive Function' => 'Mind',
+				'Mood Assessment' => 'Mind',
+				'Motivation & Drive' => 'Mind',
+				'Life Satisfaction' => 'Mind',
 			),
 			'skin' => array(
 				'Skin Characteristics' => 'Aesthetics',
@@ -798,6 +852,16 @@ class ENNU_Scoring_System {
 				'Environmental Factors' => 'Lifestyle',
 				'Treatment History' => 'Body',
 				'Treatment Goals' => 'Mind',
+				// Add actual category names from skin assessment
+				'Skincare Routine' => 'Lifestyle',
+				'Sun Protection' => 'Lifestyle',
+				'Sun Damage History' => 'Aesthetics',
+				'Skin Cancer Risk' => 'Body',
+				'Skin Tone & Sensitivity' => 'Aesthetics',
+				'Mole Monitoring' => 'Body',
+				'Skin Hydration' => 'Aesthetics',
+				'Exfoliation' => 'Lifestyle',
+				'Overall Assessment' => 'Aesthetics',
 			),
 			'menopause' => array(
 				'Hormone Levels' => 'Body',

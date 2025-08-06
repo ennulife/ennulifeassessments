@@ -64,6 +64,16 @@ class ENNU_Slack_Admin {
 		$slack_manager = ENNU_Slack_Notifications_Manager::get_instance();
 		$logs = $slack_manager->get_notification_logs();
 		$stats = $slack_manager->get_notification_statistics();
+		
+		// Ensure stats is an array
+		if ( ! is_array( $stats ) ) {
+			$stats = array(
+				'total_notifications' => 0,
+				'successful_notifications' => 0,
+				'failed_notifications' => 0,
+				'by_type' => array(),
+			);
+		}
 		?>
 		<div class="wrap">
 			<h1>Slack Notifications Configuration</h1>
@@ -143,19 +153,19 @@ class ENNU_Slack_Admin {
 					<h2>Notification Statistics</h2>
 					<div class="ennu-stats-grid">
 						<div class="ennu-stat-card">
-							<h3><?php echo esc_html( $stats['total_notifications'] ); ?></h3>
+							<h3><?php echo esc_html( isset( $stats['total_notifications'] ) ? $stats['total_notifications'] : 0 ); ?></h3>
 							<p>Total Notifications</p>
 						</div>
 						<div class="ennu-stat-card">
-							<h3><?php echo esc_html( $stats['successful_notifications'] ); ?></h3>
+							<h3><?php echo esc_html( isset( $stats['successful_notifications'] ) ? $stats['successful_notifications'] : 0 ); ?></h3>
 							<p>Successful</p>
 						</div>
 						<div class="ennu-stat-card">
-							<h3><?php echo esc_html( $stats['failed_notifications'] ); ?></h3>
+							<h3><?php echo esc_html( isset( $stats['failed_notifications'] ) ? $stats['failed_notifications'] : 0 ); ?></h3>
 							<p>Failed</p>
 						</div>
 						<div class="ennu-stat-card">
-							<h3><?php echo esc_html( count( $stats['by_type'] ) ); ?></h3>
+							<h3><?php echo esc_html( isset( $stats['by_type'] ) && is_array( $stats['by_type'] ) ? count( $stats['by_type'] ) : 0 ); ?></h3>
 							<p>Notification Types</p>
 						</div>
 					</div>
@@ -182,16 +192,18 @@ class ENNU_Slack_Admin {
 								</thead>
 								<tbody>
 									<?php foreach ( array_slice( $logs, -20 ) as $log ) : ?>
-										<tr>
-											<td><?php echo esc_html( $log['timestamp'] ); ?></td>
-											<td>
-												<span class="ennu-log-type ennu-log-type-<?php echo esc_attr( $log['type'] ); ?>">
-													<?php echo esc_html( ucfirst( $log['type'] ) ); ?>
-												</span>
-											</td>
-											<td><?php echo esc_html( $log['notification_type'] ); ?></td>
-											<td><?php echo esc_html( $log['message'] ); ?></td>
-										</tr>
+										<?php if ( is_array( $log ) ) : ?>
+											<tr>
+												<td><?php echo esc_html( isset( $log['timestamp'] ) ? $log['timestamp'] : 'N/A' ); ?></td>
+												<td>
+													<span class="ennu-log-type ennu-log-type-<?php echo esc_attr( isset( $log['type'] ) ? $log['type'] : 'unknown' ); ?>">
+														<?php echo esc_html( ucfirst( isset( $log['type'] ) ? $log['type'] : 'unknown' ) ); ?>
+													</span>
+												</td>
+												<td><?php echo esc_html( isset( $log['notification_type'] ) ? $log['notification_type'] : 'N/A' ); ?></td>
+												<td><?php echo esc_html( isset( $log['message'] ) ? $log['message'] : 'N/A' ); ?></td>
+											</tr>
+										<?php endif; ?>
 									<?php endforeach; ?>
 								</tbody>
 							</table>
@@ -819,7 +831,4 @@ class ENNU_Slack_Admin {
 			)
 		);
 	}
-}
-
-// Initialize the Slack admin interface
-new ENNU_Slack_Admin(); 
+} 

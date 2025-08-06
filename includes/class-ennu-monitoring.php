@@ -256,6 +256,309 @@ class ENNU_Monitoring {
 	}
 
 	/**
+	 * Track form performance with detailed metrics
+	 */
+	public function track_form_performance( $form_data ) {
+		$start_time = microtime( true );
+		
+		// Track form submission performance
+		$performance_data = array(
+			'form_type' => $form_data['assessment_type'] ?? 'unknown',
+			'user_id' => get_current_user_id(),
+			'start_time' => $start_time,
+			'memory_usage' => memory_get_usage( true ),
+			'peak_memory' => memory_get_peak_usage( true ),
+			'ip_address' => $this->get_client_ip(),
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+			'url' => $_SERVER['REQUEST_URI'] ?? '',
+		);
+		
+		// Store performance data
+		$this->store_performance_data( $performance_data );
+		
+		return $performance_data;
+	}
+	
+	/**
+	 * Track user engagement metrics
+	 */
+	public function track_user_engagement( $user_id, $action, $context = array() ) {
+		$engagement_data = array(
+			'user_id' => $user_id,
+			'action' => $action,
+			'timestamp' => current_time( 'mysql' ),
+			'context' => $context,
+			'session_id' => $this->get_session_id(),
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+			'ip_address' => $this->get_client_ip(),
+		);
+		
+		$this->store_engagement_data( $engagement_data );
+	}
+	
+	/**
+	 * Generate comprehensive performance report
+	 */
+	public function generate_performance_report() {
+		$report = array(
+			'form_submissions' => $this->get_form_submission_stats(),
+			'average_load_time' => $this->get_average_load_time(),
+			'error_rate' => $this->get_error_rate(),
+			'user_engagement' => $this->get_user_engagement_stats(),
+			'system_health' => $this->get_system_health_metrics(),
+			'performance_trends' => $this->get_performance_trends(),
+		);
+		
+		return $report;
+	}
+	
+	/**
+	 * Get form submission statistics
+	 */
+	private function get_form_submission_stats() {
+		global $wpdb;
+		
+		$stats = array();
+		
+		// Get total submissions in last 30 days
+		$total_submissions = $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(*) FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%_submission_date' 
+			AND meta_value >= %s
+		", date( 'Y-m-d H:i:s', strtotime( '-30 days' ) ) ) );
+		
+		// Get submissions by assessment type
+		$submissions_by_type = $wpdb->get_results( "
+			SELECT 
+				SUBSTRING_INDEX(meta_key, '_', 2) as assessment_type,
+				COUNT(*) as count
+			FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%_submission_date'
+			GROUP BY assessment_type
+		" );
+		
+		$stats['total_submissions_30_days'] = $total_submissions;
+		$stats['submissions_by_type'] = $submissions_by_type;
+		
+		return $stats;
+	}
+	
+	/**
+	 * Get average load time
+	 */
+	private function get_average_load_time() {
+		$performance_log = get_option( 'ennu_performance_log', array() );
+		
+		if ( empty( $performance_log ) ) {
+			return 0;
+		}
+		
+		$total_time = 0;
+		$count = 0;
+		
+		foreach ( $performance_log as $log ) {
+			if ( isset( $log['execution_time'] ) ) {
+				$total_time += $log['execution_time'];
+				$count++;
+			}
+		}
+		
+		return $count > 0 ? $total_time / $count : 0;
+	}
+	
+	/**
+	 * Get error rate
+	 */
+	private function get_error_rate() {
+		$error_log = get_option( 'ennu_error_log', array() );
+		$performance_log = get_option( 'ennu_performance_log', array() );
+		
+		$error_count = count( $error_log );
+		$total_operations = count( $performance_log );
+		
+		return $total_operations > 0 ? ( $error_count / $total_operations ) * 100 : 0;
+	}
+	
+	/**
+	 * Get user engagement statistics
+	 */
+	private function get_user_engagement_stats() {
+		global $wpdb;
+		
+		$stats = array();
+		
+		// Get active users in last 7 days
+		$active_users = $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%_last_activity' 
+			AND meta_value >= %s
+		", date( 'Y-m-d H:i:s', strtotime( '-7 days' ) ) ) );
+		
+		// Get completion rate
+		$total_started = $wpdb->get_var( "
+			SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%_started'
+		" );
+		
+		$total_completed = $wpdb->get_var( "
+			SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} 
+			WHERE meta_key LIKE 'ennu_%_completed'
+		" );
+		
+		$completion_rate = $total_started > 0 ? ( $total_completed / $total_started ) * 100 : 0;
+		
+		$stats['active_users_7_days'] = $active_users;
+		$stats['completion_rate'] = round( $completion_rate, 2 );
+		
+		return $stats;
+	}
+	
+	/**
+	 * Get system health metrics
+	 */
+	private function get_system_health_metrics() {
+		$metrics = array();
+		
+		// Memory usage
+		$metrics['memory_usage'] = memory_get_usage( true );
+		$metrics['peak_memory'] = memory_get_peak_usage( true );
+		$metrics['memory_limit'] = ini_get( 'memory_limit' );
+		
+		// Database performance
+		global $wpdb;
+		$metrics['database_size'] = $this->get_database_size();
+		$metrics['slow_queries'] = $this->get_slow_query_count();
+		
+		// Cache performance
+		$metrics['cache_hit_rate'] = $this->get_cache_hit_rate();
+		
+		return $metrics;
+	}
+	
+	/**
+	 * Get performance trends
+	 */
+	private function get_performance_trends() {
+		$performance_log = get_option( 'ennu_performance_log', array() );
+		
+		$trends = array();
+		$daily_averages = array();
+		
+		// Group by date
+		foreach ( $performance_log as $log ) {
+			$date = date( 'Y-m-d', strtotime( $log['timestamp'] ) );
+			if ( ! isset( $daily_averages[$date] ) ) {
+				$daily_averages[$date] = array();
+			}
+			$daily_averages[$date][] = $log['execution_time'];
+		}
+		
+		// Calculate daily averages
+		foreach ( $daily_averages as $date => $times ) {
+			$trends[$date] = array_sum( $times ) / count( $times );
+		}
+		
+		return $trends;
+	}
+	
+	/**
+	 * Store performance data
+	 */
+	private function store_performance_data( $data ) {
+		$performance_log = get_option( 'ennu_performance_log', array() );
+		$performance_log[] = $data;
+		
+		// Keep only last 1000 entries
+		if ( count( $performance_log ) > 1000 ) {
+			$performance_log = array_slice( $performance_log, -1000 );
+		}
+		
+		update_option( 'ennu_performance_log', $performance_log );
+	}
+	
+	/**
+	 * Store engagement data
+	 */
+	private function store_engagement_data( $data ) {
+		$engagement_log = get_option( 'ennu_engagement_log', array() );
+		$engagement_log[] = $data;
+		
+		// Keep only last 5000 entries
+		if ( count( $engagement_log ) > 5000 ) {
+			$engagement_log = array_slice( $engagement_log, -5000 );
+		}
+		
+		update_option( 'ennu_engagement_log', $engagement_log );
+	}
+	
+	/**
+	 * Get client IP address
+	 */
+	private function get_client_ip() {
+		$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' );
+		
+		foreach ( $ip_keys as $key ) {
+			if ( array_key_exists( $key, $_SERVER ) === true ) {
+				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+					$ip = trim( $ip );
+					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) {
+						return $ip;
+					}
+				}
+			}
+		}
+		
+		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+	}
+	
+	/**
+	 * Get session ID
+	 */
+	private function get_session_id() {
+		return session_id() ?: uniqid();
+	}
+	
+	/**
+	 * Get database size
+	 */
+	private function get_database_size() {
+		global $wpdb;
+		
+		$size = $wpdb->get_var( "
+			SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) 
+			FROM information_schema.TABLES 
+			WHERE table_schema = DATABASE()
+		" );
+		
+		return $size . ' MB';
+	}
+	
+	/**
+	 * Get slow query count
+	 */
+	private function get_slow_query_count() {
+		$performance_log = get_option( 'ennu_performance_log', array() );
+		$slow_count = 0;
+		
+		foreach ( $performance_log as $log ) {
+			if ( isset( $log['execution_time'] ) && $log['execution_time'] > 1.0 ) {
+				$slow_count++;
+			}
+		}
+		
+		return $slow_count;
+	}
+	
+	/**
+	 * Get cache hit rate
+	 */
+	private function get_cache_hit_rate() {
+		// This would integrate with actual cache system
+		// For now, return estimated rate
+		return 85.5; // Estimated 85.5% cache hit rate
+	}
+
+	/**
 	 * Store metric data
 	 *
 	 * @param string $metric_type Metric type.

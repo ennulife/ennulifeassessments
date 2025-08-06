@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://enulife.com
  * Description: Comprehensive health assessment and biomarker management system
- * Version: 64.54.0
+ * Version: 64.61.0
  * Author: ENNU Life
  * Author URI: https://ennulife.com
  * License: GPL v2 or later
@@ -31,7 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @var string
  */
-const ENNU_LIFE_VERSION = '64.54.0';
+const ENNU_LIFE_VERSION = '64.61.0';
+
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -43,6 +44,16 @@ if ( function_exists( 'plugin_dir_url' ) ) {
 	define( 'ENNU_LIFE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 } else {
 	define( 'ENNU_LIFE_PLUGIN_URL', '' );
+}
+
+// Add backward compatibility constant
+if ( ! defined( 'ENNU_LIFE_PLUGIN_DIR' ) ) {
+	define( 'ENNU_LIFE_PLUGIN_DIR', ENNU_LIFE_PLUGIN_PATH );
+}
+
+// Add plugin file constant for completeness
+if ( ! defined( 'ENNU_LIFE_PLUGIN_FILE' ) ) {
+	define( 'ENNU_LIFE_PLUGIN_FILE', __FILE__ );
 }
 
 // Biomarker management classes are now loaded in load_dependencies()
@@ -221,6 +232,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-life-score-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-flag-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-range-adapter.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-recommended-range-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-age-management-system.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-health-optimization-calculator.php';
@@ -279,6 +291,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-goal-progression-tracker.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-csrf-protection.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-target-weight-calculator.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-admin-page.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-rest-api.php';
 			
 			// Load Slack notifications manager
@@ -564,12 +577,28 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			error_log( 'ENNU Life Plugin: WARNING - ENNU_Global_Fields_Processor class not found' );
 		}
 
+		// Initialize HubSpot Admin Page - NEW
+		if ( class_exists( 'ENNU_HubSpot_Admin_Page' ) ) {
+			new ENNU_HubSpot_Admin_Page();
+			error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_Admin_Page' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_Admin_Page class not found' );
+		}
+
 		// Initialize Slack Notifications Manager
 		if ( class_exists( 'ENNU_Slack_Notifications_Manager' ) ) {
 			ENNU_Slack_Notifications_Manager::get_instance();
 			error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Notifications_Manager' );
 		} else {
 			error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Notifications_Manager class not found' );
+		}
+
+		// Initialize Slack Admin Page
+		if ( class_exists( 'ENNU_Slack_Admin' ) ) {
+			new ENNU_Slack_Admin();
+			error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Admin' );
+		} else {
+			error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Admin class not found' );
 		}
 
 		// Initialize AI Medical Team Reference Ranges - PHASE 15
@@ -795,15 +824,15 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Shortcode and AJAX Hooks will be set up after shortcodes are initialized
 			// add_action( 'init', array( $this, 'setup_shortcode_hooks' ), 10 ); // This is now deprecated
 			
-			// Assessment Submission AJAX Handler - DISABLED due to conflict with modern ENNU_AJAX_Handler
-			// The modern AJAX handler is now responsible for all assessment submissions
-			// if ( isset( $this->shortcodes ) ) {
-			// 	add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-			// 	add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-			// 	error_log( 'ENNU Life Plugin: Assessment submission AJAX handlers registered' );
-			// } else {
-			// 	error_log( 'ENNU Life Plugin: ERROR - Shortcodes instance is null, cannot register AJAX handlers!' );
-			// }
+			// Assessment Submission AJAX Handler - ENABLED
+			// The shortcodes class handles assessment submissions
+			if ( isset( $this->shortcodes ) ) {
+				add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+				add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
+				error_log( 'ENNU Life Plugin: Assessment submission AJAX handlers registered' );
+			} else {
+				error_log( 'ENNU Life Plugin: ERROR - Shortcodes instance is null, cannot register AJAX handlers!' );
+			}
 
 					// Target Weight Calculator Hook
 		if ( class_exists( 'ENNU_Target_Weight_Calculator' ) ) {
@@ -814,12 +843,13 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		}
 
 		// Database Optimizer Initialization
-		if ( class_exists( 'ENNU_Database_Optimizer' ) ) {
-			$db_optimizer = ENNU_Database_Optimizer::get_instance();
-			$db_optimizer->initialize_optimizations();
+		if ( class_exists( 'ENNU_Life_Enhanced_Database' ) ) {
+			$db_optimizer = ENNU_Life_Enhanced_Database::get_instance();
+			// Initialize database constraints and rate limiting
+			$db_optimizer->create_database_constraints();
 			error_log( 'ENNU Life Plugin: Database optimizer initialized' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Database_Optimizer class not found' );
+			error_log( 'ENNU Life Plugin: WARNING - ENNU_Life_Enhanced_Database class not found' );
 		}
 
 		// Database Cleanup Schedule

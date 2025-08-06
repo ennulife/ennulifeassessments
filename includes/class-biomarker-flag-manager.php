@@ -514,4 +514,122 @@ class ENNU_Biomarker_Flag_Manager {
 
 		wp_send_json_success( array( 'flagged_biomarkers' => $flagged_biomarkers ) );
 	}
+
+	/**
+	 * Enhanced flag biomarker method with anonymous user support
+	 */
+	public function flag_biomarker_enhanced( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null, $assessment_source = '', $symptom_trigger = '', $symptom_key = '' ) {
+		// Handle anonymous users with session-based storage
+		if ( ! $user_id ) {
+			$session_id = $this->get_anonymous_session_id();
+			if ( $session_id ) {
+				return $this->flag_anonymous_biomarker( $session_id, $biomarker_name, $flag_type, $reason, $assessment_source, $symptom_trigger, $symptom_key );
+			}
+			return false;
+		}
+		
+		// Existing logic for logged-in users
+		error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+		
+		$flag_data = array(
+			'user_id'            => $user_id,
+			'biomarker_name'     => $biomarker_name,
+			'flag_type'          => $flag_type,
+			'reason'             => $reason,
+			'flagged_by'         => $flagged_by ?: get_current_user_id(),
+			'flagged_at'         => current_time( 'mysql' ),
+			'status'             => 'active',
+			'assessment_source'  => $assessment_source,
+			'symptom_trigger'    => $symptom_trigger,
+			'symptom_key'        => $symptom_key,
+		);
+
+		$existing_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
+		if ( ! is_array( $existing_flags ) ) {
+			$existing_flags = array();
+		}
+
+		$flag_id                    = $biomarker_name . '_' . time();
+		$existing_flags[ $flag_id ] = $flag_data;
+
+		error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
+
+		$success = update_user_meta( $user_id, 'ennu_biomarker_flags', $existing_flags );
+
+		error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
+
+		if ( $success ) {
+			$this->log_flag_action( $user_id, $biomarker_name, 'flagged', $flag_data );
+			do_action( 'ennu_biomarker_flagged', $user_id, $biomarker_name, $flag_data );
+			error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
+		} else {
+			error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+		}
+
+		return $success;
+	}
+	
+	/**
+	 * Flag biomarker for anonymous users
+	 */
+	private function flag_anonymous_biomarker( $session_id, $biomarker_name, $flag_type = 'manual', $reason = '', $assessment_source = '', $symptom_trigger = '', $symptom_key = '' ) {
+		$flag_data = array(
+			'biomarker_name' => $biomarker_name,
+			'flag_type' => $flag_type,
+			'reason' => $reason,
+			'flagged_at' => current_time( 'mysql' ),
+			'session_id' => $session_id,
+			'assessment_source' => $assessment_source,
+			'symptom_trigger' => $symptom_trigger,
+			'symptom_key' => $symptom_key,
+			'status' => 'active'
+		);
+		
+		$anonymous_flags = get_transient( 'ennu_anonymous_biomarker_flags_' . $session_id ) ?: array();
+		$flag_id = $biomarker_name . '_' . time();
+		$anonymous_flags[$flag_id] = $flag_data;
+		set_transient( 'ennu_anonymous_biomarker_flags_' . $session_id, $anonymous_flags, 3600 );
+		
+		return true;
+	}
+	
+	/**
+	 * Get anonymous session ID
+	 */
+	private function get_anonymous_session_id() {
+		if ( ! isset( $_COOKIE['ennu_anonymous_session'] ) ) {
+			$session_id = wp_generate_password( 32, false );
+			setcookie( 'ennu_anonymous_session', $session_id, time() + 3600, '/' );
+			return $session_id;
+		}
+		
+		return $_COOKIE['ennu_anonymous_session'];
+	}
+	
+	/**
+	 * Migrate anonymous biomarker flags to user account
+	 */
+	public function migrate_anonymous_biomarker_flags( $user_id, $session_id ) {
+		$anonymous_flags = get_transient( 'ennu_anonymous_biomarker_flags_' . $session_id );
+		
+		if ( $anonymous_flags ) {
+			$existing_flags = get_user_meta( $user_id, 'ennu_biomarker_flags', true );
+			if ( ! is_array( $existing_flags ) ) {
+				$existing_flags = array();
+			}
+			
+			// Convert session-based flags to user-based flags
+			foreach ( $anonymous_flags as $biomarker_name => $flag_data ) {
+				$flag_data['user_id'] = $user_id;
+				unset( $flag_data['session_id'] );
+				$existing_flags[$biomarker_name] = $flag_data;
+			}
+			
+			update_user_meta( $user_id, 'ennu_biomarker_flags', $existing_flags );
+			delete_transient( 'ennu_anonymous_biomarker_flags_' . $session_id );
+			return true;
+		}
+		
+		return false;
+	}
 }

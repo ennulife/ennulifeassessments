@@ -159,7 +159,7 @@ if ( empty( $assessment_type ) ) {
 									</svg>
 									<div class="pillar-orb-content">
 										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
 									</div>
 									<div class="floating-particles"></div>
 									<div class="decoration-dots"></div>
@@ -237,7 +237,7 @@ if ( empty( $assessment_type ) ) {
 									</svg>
 									<div class="pillar-orb-content">
 										<div class="pillar-orb-label"><?php echo esc_html( $display_name ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : '-'; ?></div>
+										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
 									</div>
 									<div class="floating-particles"></div>
 									<div class="decoration-dots"></div>
@@ -246,28 +246,19 @@ if ( empty( $assessment_type ) ) {
 								$pillar_count++;
 							}
 						} else {
-							// Show sample data if no scores available
-							$sample_pillars = array( 'Lifestyle' => 8.2, 'Aesthetics' => 7.1 );
-							foreach ( $sample_pillars as $pillar => $score ) {
-								$display_name = $pillar === 'Lifestyle' ? 'Lifestyle' : 'Appearance';
-								$pillar_class = esc_attr( strtolower( $pillar ) );
-								$spin_duration = max( 2, 11 - $score );
-								$style_attr = '--spin-duration: ' . $spin_duration . 's;';
-								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>">
-									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
+							// Show empty state when no scores are available
+							?>
+							<div class="ennu-empty-state">
+								<div class="empty-state-icon">
+									<svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 									</svg>
-									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
 								</div>
-								<?php
-							}
+								<h3>Complete Your Assessment</h3>
+								<p>Your personalized health scores will appear here once you complete the assessment.</p>
+								<a href="#assessment-form" class="ennu-btn ennu-btn-primary">Start Assessment</a>
+							</div>
+							<?php
 						}
 						?>
 					</div>

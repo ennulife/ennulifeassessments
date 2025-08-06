@@ -274,7 +274,11 @@ final class ENNU_Assessment_Shortcodes {
 		add_shortcode( 'ennu-signup', array( $this, 'signup_shortcode' ) ); // Signup page with product selection
 		add_shortcode( 'scorepresentation', array( $this, 'render_score_presentation' ) ); // Score presentation shortcode
 		add_shortcode( 'ennu-biomarkers', array( $this, 'render_biomarkers_only' ) ); // Biomarkers only shortcode
-		error_log( 'ENNU Shortcodes: Registered core shortcodes: ennu-user-dashboard, ennu-assessment-results, ennu-assessments, ennu-signup, scorepresentation, ennu-biomarkers' );
+		
+		// Register the generic assessment form shortcode
+		add_shortcode( 'ennu_assessment_form', array( $this, 'render_assessment_form' ) );
+		
+		error_log( 'ENNU Shortcodes: Registered core shortcodes: ennu-user-dashboard, ennu-assessment-results, ennu-assessments, ennu-signup, scorepresentation, ennu-biomarkers, ennu_assessment_form' );
 
 		// Register consultation shortcodes to match page creation
 		$consultation_types = array(
@@ -305,6 +309,10 @@ final class ENNU_Assessment_Shortcodes {
 		add_action( 'wp_ajax_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
 		add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this, 'handle_assessment_submission' ) );
 		
+		// Simplified form submission test
+		add_action( 'wp_ajax_ennu_submit_assessment_simple', array( $this, 'handle_assessment_submission_simple' ) );
+		add_action( 'wp_ajax_nopriv_ennu_submit_assessment_simple', array( $this, 'handle_assessment_submission_simple' ) );
+		
 		// Email and auth state checks
 		add_action( 'wp_ajax_nopriv_ennu_check_email', array( $this, 'ajax_check_email_exists' ) );
 		add_action( 'wp_ajax_ennu_check_auth_state', array( $this, 'ajax_check_auth_state' ) );
@@ -315,6 +323,36 @@ final class ENNU_Assessment_Shortcodes {
 		add_action( 'wp_ajax_test_assessment_hook', array( $this, 'ajax_test_assessment_hook' ) );
 		add_action( 'wp_ajax_check_debug_logs', array( $this, 'ajax_check_debug_logs' ) );
 		add_action( 'wp_ajax_ennu_get_pillar_modal', array( $this, 'ajax_get_pillar_modal' ) );
+	}
+
+	/**
+	 * Render generic assessment form shortcode
+	 * Usage: [ennu_assessment_form type="welcome"]
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @param string $content Shortcode content
+	 * @return string
+	 */
+	public function render_assessment_form( $atts, $content = '' ) {
+		// Parse attributes
+		$atts = shortcode_atts(
+			array(
+				'type' => 'welcome', // Default to welcome assessment
+			),
+			$atts,
+			'ennu_assessment_form'
+		);
+		
+		// Map the type to assessment key format
+		$assessment_type = str_replace('_', '-', $atts['type']);
+		
+		// Check if assessment type exists
+		if ( ! isset( $this->all_definitions[ $assessment_type ] ) ) {
+			return $this->render_error_message( sprintf( __( 'Invalid assessment type: %s', 'ennulifeassessments' ), $assessment_type ) );
+		}
+		
+		// Call the existing render method
+		return $this->render_assessment_shortcode( $atts, $content, 'ennu-' . $assessment_type );
 	}
 
 	/**
@@ -484,6 +522,18 @@ final class ENNU_Assessment_Shortcodes {
 	private function render_default_assessment( $assessment_type, $config, $atts, $current_user_data = array() ) {
 		$current_user = wp_get_current_user();
 		$nonce        = wp_create_nonce( 'ennu_assessment_' . $assessment_type );
+
+		// Enqueue assessment form JavaScript
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'ennu-assessment-form', ENNU_LIFE_PLUGIN_URL . 'assets/js/assessment-form.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
+		wp_localize_script(
+			'ennu-assessment-form',
+			'ennuAssessmentData',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'ennu_ajax_nonce' ),
+			)
+		);
 
 		// Get the actual questions to count them properly
 		$questions       = $this->get_assessment_questions( $assessment_type );
@@ -1126,377 +1176,205 @@ final class ENNU_Assessment_Shortcodes {
 	 * and saves the assessment data to the database.
 	 */
 	public function handle_assessment_submission() {
-		error_log( 'ENNU REDIRECT DEBUG: handle_assessment_submission() method called' );
+		error_log( 'ENNU FIXED: handle_assessment_submission() called' );
 		
-		// IMMEDIATE DATABASE OPTIMIZATION - CRITICAL FIX FOR SLOW QUERIES
-		global $wpdb;
-		
-		error_log( 'ENNU REDIRECT DEBUG: Starting database optimization' );
-		
-		// Force cleanup of expired transients immediately
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_%' AND option_value < " . time() );
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_%' AND option_value < " . time() );
-		
-		error_log( 'ENNU REDIRECT DEBUG: Database optimization completed' );
-		
-		$this->_log_submission_debug( '--- Submission process started with immediate database optimization ---' );
-
-		// AGGRESSIVE DATABASE OPTIMIZATION - CRITICAL FIX FOR SLOW QUERIES
-		// Skip database optimization during AJAX to prevent timeouts
-		if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
-			if ( class_exists( 'ENNU_Database_Optimizer' ) ) {
-				$db_optimizer = new ENNU_Database_Optimizer();
-				$db_optimizer->cleanup_expired_transients();
-				$db_optimizer->optimize_database_tables();
-				$this->_log_submission_debug( 'Database optimization completed to prevent slow queries.' );
-			}
-		} else {
-			error_log( 'ENNU REDIRECT DEBUG: Skipping database optimization during AJAX to prevent timeouts' );
-			$this->_log_submission_debug( 'Database optimization skipped during AJAX to prevent timeouts' );
-		}
-
-		$security_result = ENNU_AJAX_Security::validate_ajax_request( 'ennu_submit_assessment' );
-
-		if ( is_wp_error( $security_result ) ) {
-			wp_send_json_error(
-				array(
-					'message' => $security_result->get_error_message(),
-					'code'    => $security_result->get_error_code(),
-				)
-			);
-		}
-		$this->_log_submission_debug( 'Verifying nonce...' );
-		check_ajax_referer( 'ennu_ajax_nonce', 'nonce' );
-		$this->_log_submission_debug( 'Nonce verified successfully.' );
-
-		$security_validator = ENNU_Security_Validator::get_instance();
-		if ( ! $security_validator->rate_limit_check( 'assessment_submission', 5, 300 ) ) {
-			wp_send_json_error( array( 'message' => 'Too many submission attempts. Please wait before trying again.' ), 429 );
+		// 1. Basic nonce verification
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security verification failed. Please refresh the page.' ) );
 			return;
 		}
-
-		// Future-proofing: Capture user IP for potential rate-limiting or security audits.
-		$user_ip = $_SERVER['REMOTE_ADDR'];
-		$this->_log_submission_debug( 'User IP captured.', $user_ip );
-		$this->_log_submission_debug( 'Raw POST data:', $_POST );
-
-		// 2. Get and Sanitize Data with enhanced security
-		$input_sanitizer = ENNU_Input_Sanitizer::get_instance();
-		$form_data       = $input_sanitizer->sanitize_form_data( $_POST, 'assessment' );
-		$this->_log_submission_debug( 'Sanitized form data:', $form_data );
-
-		// 3. Validate Data
-		$validation_result = $this->validate_assessment_data( $form_data );
-		if ( is_wp_error( $validation_result ) ) {
-			$this->_log_submission_debug( 'Validation failed.', $validation_result->get_error_message() );
-			wp_send_json_error(
-				array(
-					'message' => $validation_result->get_error_message(),
-					'code'    => $validation_result->get_error_code(),
-				),
-				400
-			);
+		
+		// 2. Basic data validation
+		if ( empty( $_POST['email'] ) || empty( $_POST['assessment_type'] ) ) {
+			wp_send_json_error( array( 'message' => 'Missing required fields: email and assessment type.' ) );
 			return;
 		}
-		$this->_log_submission_debug( 'Validation passed.' );
-
-		// 4. Determine User ID (Create user if doesn't exist)
-		$email   = $form_data['email'];
+		
+		$email = sanitize_email( $_POST['email'] );
+		$assessment_type = sanitize_text_field( $_POST['assessment_type'] );
+		
+		// 3. Create or get user with rate limiting
 		$user_id = email_exists( $email );
-		$this->_log_submission_debug( 'Checking for existing user with email.', $email );
-
+		
 		if ( ! $user_id ) {
-			$this->_log_submission_debug( 'User does not exist. Creating new user.' );
-			// User does not exist, create a new one with all available details
-			$password  = wp_generate_password();
+			// SECURITY FIX: Add rate limiting for user creation
+			$ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+			$rate_limit_key = 'ennu_registration_attempts_' . md5( $ip_address );
+			$attempts = get_transient( $rate_limit_key );
+			
+			if ( $attempts && $attempts >= 5 ) {
+				error_log( 'ENNU: Rate limit exceeded for IP: ' . $ip_address );
+				wp_send_json_error( array( 'message' => 'Too many registration attempts. Please try again later.' ) );
+				return;
+			}
+			
+			// SECURITY FIX: Don't modify global registration setting
+			// Instead, create user directly without changing site-wide settings
+			$password = wp_generate_password( 12, true, false );
+			
+			// Add nonce verification for additional security
+			if ( ! is_user_logged_in() ) {
+				// For anonymous users, verify they came from our assessment form
+				$referer = wp_get_referer();
+				if ( ! $referer || strpos( $referer, home_url() ) !== 0 ) {
+					wp_send_json_error( array( 'message' => 'Invalid request origin.' ) );
+					return;
+				}
+			}
+			
 			$user_data = array(
 				'user_login' => $email,
 				'user_email' => $email,
 				'user_pass'  => $password,
-				'first_name' => $form_data['first_name'] ?? '',
-				'last_name'  => $form_data['last_name'] ?? '',
+				'first_name' => sanitize_text_field( $_POST['first_name'] ?? '' ),
+				'last_name'  => sanitize_text_field( $_POST['last_name'] ?? '' ),
+				'role'       => 'subscriber',
 			);
-			$user_id   = wp_insert_user( $user_data );
-
+			
+			// Create user without modifying global settings
+			remove_filter( 'pre_option_users_can_register', '__return_true' );
+			$user_id = wp_insert_user( $user_data );
+			
+			// Update rate limiting
+			set_transient( $rate_limit_key, ( $attempts ? $attempts + 1 : 1 ), HOUR_IN_SECONDS );
+			
 			if ( is_wp_error( $user_id ) ) {
-				$this->_log_submission_debug( 'Failed to create new user.', $user_id->get_error_message() );
-				wp_send_json_error( array( 'message' => 'Could not create a new user account: ' . $user_id->get_error_message() ), 500 );
+				error_log( 'ENNU: User creation failed: ' . $user_id->get_error_message() );
+				wp_send_json_error( array( 'message' => 'Failed to create user: ' . $user_id->get_error_message() ) );
 				return;
 			}
-			$this->_log_submission_debug( 'New user created successfully.', array( 'user_id' => $user_id ) );
-			// Log the new user in
+			
+			error_log( 'ENNU: Successfully created user with ID: ' . $user_id );
+			
+			// Log the user in
 			wp_set_current_user( $user_id );
 			wp_set_auth_cookie( $user_id );
 		} else {
-			$this->_log_submission_debug( 'User exists.', array( 'user_id' => $user_id ) );
-			// User already exists, check if they are logged in
-			if ( ! is_user_logged_in() || get_current_user_id() != $user_id ) {
-				$this->_log_submission_debug( 'User exists but is not logged in. Sending login required error.' );
-				$login_url = wp_login_url( get_permalink() );
-				wp_send_json_error(
-					array(
-						'message' => 'An account with this email already exists. Please <a href="' . esc_url( $login_url ) . '">log in</a> to continue.',
-						'action'  => 'login_required',
-					),
-					409
-				);
-				return;
-			}
+			error_log( 'ENNU: Using existing user with ID: ' . $user_id );
 		}
-		$this->_log_submission_debug( 'User ID determined.', $user_id );
-
-		// 5. Calculate and save BMI if applicable
-		if ( isset( $form_data['height_ft'] ) && isset( $form_data['height_in'] ) && isset( $form_data['weight_lbs'] ) ) {
-			$this->_log_submission_debug( 'Calculating BMI.' );
-			$height_in_total = ( intval( $form_data['height_ft'] ) * 12 ) + intval( $form_data['height_in'] );
-			$weight_lbs      = intval( $form_data['weight_lbs'] );
-			if ( $height_in_total > 0 && $weight_lbs > 0 ) {
-				$bmi = ( $weight_lbs / ( $height_in_total * $height_in_total ) ) * 703;
-				$this->_log_submission_debug( 'BMI calculated.', $bmi );
-				update_user_meta( $user_id, 'ennu_calculated_bmi', round( $bmi, 1 ) );
-
-				// --- v57.0.9: Store Historical BMI ---
-				$bmi_history = get_user_meta( $user_id, 'ennu_bmi_history', true );
-				if ( ! is_array( $bmi_history ) ) {
-					$bmi_history = array();
-				}
-				$bmi_history[] = array(
-					'date' => date( 'Y-m-d H:i:s.u' ),
-					'bmi'  => round( $bmi, 1 ),
-				);
-				update_user_meta( $user_id, 'ennu_bmi_history', $bmi_history );
-				$this->_log_submission_debug( 'BMI history updated.' );
-				// --- END ---
-			}
-		}
-
-		// 6. UNIFIED DATA SAVING SYSTEM - CRITICAL FIX
-		$this->_log_submission_debug( 'Starting unified data saving system...' );
-		$save_result = $this->unified_save_assessment_data( $user_id, $form_data );
 		
-		if ( is_wp_error( $save_result ) ) {
-			$this->_log_submission_debug( 'Data saving failed.', $save_result->get_error_message() );
-			wp_send_json_error( array( 'message' => 'Failed to save assessment data: ' . $save_result->get_error_message() ), 500 );
-			return;
+		// 4. Save assessment data - FIXED FIELD NAMING + GLOBAL FIELD EXCLUSION
+		$saved_fields = array();
+		$form_data = array(); // Keep original field names for scoring
+		
+		foreach ( $_POST as $key => $value ) {
+			if ( $key !== 'action' && $key !== 'nonce' ) {
+				// Handle array values properly (for multiselect fields)
+				if ( is_array( $value ) ) {
+					$sanitized_value = array_map( 'sanitize_text_field', $value );
+				} else {
+					$sanitized_value = sanitize_text_field( $value );
+				}
+				
+				// Keep original field names for scoring system
+				$form_data[ $key ] = $sanitized_value;
+				
+				// CRITICAL FIX: Skip global fields - let them be processed by dedicated global field saving
+				if ( strpos( $key, 'ennu_global_' ) === 0 ) {
+					continue; // Skip global fields, they'll be handled separately
+				}
+				
+				// CRITICAL FIX: Remove assessment prefix from key to prevent double-prefixing for meta storage
+				$clean_key = $key;
+				if ( strpos( $key, $assessment_type . '_' ) === 0 ) {
+					$clean_key = substr( $key, strlen( $assessment_type . '_' ) );
+				}
+				
+				$meta_key = 'ennu_' . $assessment_type . '_' . sanitize_key( $clean_key );
+				update_user_meta( $user_id, $meta_key, $sanitized_value );
+				$saved_fields[] = $key;
+			}
 		}
-		$this->_log_submission_debug( 'Unified data saving completed successfully.' );
-
-		// 8. ROUTE TO THE CORRECT ENGINE
-		// Convert assessment type to match config file naming convention
-		$config_assessment_type = $form_data['assessment_type'];
-		if ( $form_data['assessment_type'] === 'health_optimization_assessment' ) {
-			$config_assessment_type = 'health-optimization';
-		}
-		$assessment_config = $this->all_definitions[ $config_assessment_type ] ?? array();
-		$this->_log_submission_debug( 'Routing to assessment engine.', $assessment_config['assessment_engine'] ?? 'quantitative' );
-		if ( isset( $assessment_config['assessment_engine'] ) && $assessment_config['assessment_engine'] === 'qualitative' ) {
-
-			$this->_log_submission_debug( 'Processing with Qualitative engine.' );
-			// For qualitative, we store the raw form data to generate the report
-			$results_token = wp_generate_password( 32, false );
-			$this->_set_manual_transient( 'ennu_results_' . $results_token, $form_data, HOUR_IN_SECONDS );
-
+		
+		// 4.5. Calculate scores immediately for quantitative assessments
+		$calculated_score = null;
+		$score_breakdown = null;
+		
+		if ( class_exists( 'ENNU_Scoring_System' ) ) {
 			try {
-				$this->_log_submission_debug( 'Preparing email data for qualitative assessment...' );
-				// Prepare a dedicated data array for the email templates
-				$email_data = array(
-					'assessment_type' => $form_data['assessment_type'],
-					'contact_name'    => trim( ( $form_data['first_name'] ?? '' ) . ' ' . ( $form_data['last_name'] ?? '' ) ),
-					'contact_email'   => $form_data['email'],
-					'contact_phone'   => $form_data['billing_phone'] ?? 'N/A',
-					'answers'         => array(),
-				);
-
-				// Extract only the question/answer pairs for the email body from the original form data
-				foreach ( $form_data as $key => $value ) {
-					// A simple check to see if the key represents a question
-					if ( strpos( $key, '_q' ) !== false ) {
-						$email_data['answers'][ $key ] = is_array( $value ) ? implode( ', ', $value ) : $value;
-					}
+				// Debug: Log the form data being passed to scoring
+				error_log( 'ENNU DEBUG: Form data for scoring: ' . json_encode( array_keys( $form_data ) ) );
+				
+				$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $assessment_type, $form_data );
+				
+				// Calculate pillar scores from the category scores
+				if ( $scores && isset( $scores['category_scores'] ) ) {
+					// Use reflection to call the private method map_categories_to_pillars
+					$reflection = new ReflectionClass( 'ENNU_Scoring_System' );
+					$method = $reflection->getMethod( 'map_categories_to_pillars' );
+					$method->setAccessible( true );
+					
+					$pillar_scores = $method->invoke( null, $assessment_type, $scores['category_scores'] );
+					$scores['pillar_scores'] = $pillar_scores;
+					
+					// Also save the category scores to user meta for pillar calculation
+					$canonical_key = str_replace( '-', '_', $assessment_type );
+					update_user_meta( $user_id, 'ennu_' . $canonical_key . '_category_scores', $scores['category_scores'] );
+					
+					// Recalculate average pillar scores across all assessments
+					ENNU_Scoring_System::calculate_average_pillar_scores( $user_id );
 				}
-				$this->_log_submission_debug( 'Email data prepared.', $email_data );
-
-				$this->_log_submission_debug( 'Sending notification email...' );
-				$this->send_assessment_notification( $email_data );
-				$this->_log_submission_debug( 'Notification email sent.' );
-			} catch ( Throwable $e ) { // Use Throwable to catch all errors and exceptions
-				$this->_log_submission_debug( 'Email notification failed.', $e->getMessage() );
-				// Log the error, but don't crash the submission process
-				error_log( 'ENNU Assessments - Email Notification Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+				
+				// Debug: Log scoring result
+				error_log( 'ENNU DEBUG: Scoring result: ' . json_encode( $scores ) );
+				
+				if ( $scores && isset( $scores['overall_score'] ) ) {
+					$calculated_score = $scores['overall_score'];
+					$score_breakdown = $scores;
+					
+					// Save the calculated score
+					update_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', $calculated_score );
+					update_user_meta( $user_id, 'ennu_' . $assessment_type . '_score_breakdown', $score_breakdown );
+					
+					error_log( 'ENNU: Calculated score for ' . $assessment_type . ': ' . $calculated_score );
+				} else {
+					error_log( 'ENNU: Score calculation returned invalid result: ' . json_encode( $scores ) );
+				}
+			} catch ( Exception $e ) {
+				error_log( 'ENNU: Score calculation failed: ' . $e->getMessage() );
 			}
-
-			// Update centralized symptoms for qualitative assessments too
-			if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
-				ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
-				$this->_log_submission_debug( 'Centralized symptoms updated for qualitative assessment.' );
-
-				// Trigger assessment completion hook for other systems
-				do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
-				
-				// Trigger HubSpot real-time sync
-				$this->trigger_hubspot_sync( $user_id, $form_data['assessment_type'], $form_data );
-			}
-
-			$redirect_url = $this->get_thank_you_url( 'health_optimization_assessment', $results_token );
-			$this->_log_submission_debug( 'Qualitative flow complete. Sending redirect URL.', $redirect_url );
-
-			// Include auth state data in response for frontend
-			$auth_state_data = $this->get_current_auth_state_data();
-
-			wp_send_json_success(
-				array(
-					'redirect_url' => $redirect_url,
-					'auth_state'   => $auth_state_data,
-				)
-			);
-
-		} else {
-			// --- NEW: Quantitative Engine Flow using the new Orchestrator ---
-			$this->_log_submission_debug( 'Processing with NEW Quantitative engine.' );
-
-			$scores = ENNU_Scoring_System::calculate_scores_for_assessment( $form_data['assessment_type'], $form_data );
-			error_log( 'ENNU REDIRECT DEBUG: calculate_scores_for_assessment returned: ' . ( $scores ? 'SUCCESS' : 'FAILED' ) );
-			$this->_log_submission_debug( 'Initial scores calculated.', $scores );
-			$this->_log_submission_debug( 'Pillar scores from calculation:', $scores['pillar_scores'] ?? 'NOT FOUND' );
-
-			// Initialize results_token outside the if block
-			$results_token = null;
-
-			if ( $scores ) {
-				$completion_time = date( 'Y-m-d H:i:s.u' );
-
-				// Save the scores for this specific assessment
-				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_calculated_at', $completion_time );
-				$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $form_data['assessment_type'] );
-			update_user_meta( $user_id, ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'calculated_score' ), $scores['overall_score'] );
-				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_score_interpretation', ENNU_Scoring_System::get_score_interpretation( $scores['overall_score'] ) );
-				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_category_scores', $scores['category_scores'] );
-				update_user_meta( $user_id, 'ennu_' . $form_data['assessment_type'] . '_pillar_scores', $scores['pillar_scores'] );
-
-				// --- DOSSIER CHART FIX: Save score history for progress tracking ---
-				$score_history_key = 'ennu_' . $form_data['assessment_type'] . '_historical_scores';
-				$score_history = get_user_meta( $user_id, $score_history_key, true );
-				if ( ! is_array( $score_history ) ) {
-					$score_history = array();
-				}
-				
-				// Add current score to history with timestamp
-				$score_history[] = array(
-					'date'  => $completion_time,
-					'score' => $scores['overall_score'],
-				);
-				
-				// Keep only last 50 entries to prevent database bloat
-				if ( count( $score_history ) > 50 ) {
-					$score_history = array_slice( $score_history, -50 );
-				}
-				
-				update_user_meta( $user_id, $score_history_key, $score_history );
-				$this->_log_submission_debug( 'Score history saved for dossier chart.', array( 'entries' => count( $score_history ) ) );
-				// --- END DOSSIER CHART FIX ---
-
-				// Now, calculate and save all the master user scores
-				ENNU_Scoring_System::calculate_and_save_all_user_scores( $user_id );
-				$this->_log_submission_debug( 'All master user scores calculated and saved.' );
-
+		}
+		
+		// 5. Store results transient with score data
+		$token = wp_generate_password( 32, false );
+		$results_data = array(
+			'user_id' => $user_id,
+			'assessment_type' => $assessment_type,
+			'saved_fields' => $saved_fields,
+			'calculated_score' => $calculated_score,
+			'score_breakdown' => $score_breakdown,
+			'form_data' => $form_data,
+			'submitted_at' => current_time( 'mysql' )
+		);
+		
+		// Use manual transient system to match results page retrieval logic
+		$this->_set_manual_transient( 'ennu_results_' . $token, $results_data, DAY_IN_SECONDS );
+		
+		// 5b. Process symptoms and flag biomarkers based on assessment answers
+		if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
+			error_log( 'ENNU: Processing symptoms from assessment for biomarker flagging' );
+			
+			// Extract symptoms from form data
+			$symptoms_found = $this->extract_symptoms_from_assessment( $assessment_type, $form_data );
+			
+			if ( ! empty( $symptoms_found ) ) {
 				// Update centralized symptoms
-				if ( class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
-					ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $form_data['assessment_type'] );
-					$this->_log_submission_debug( 'Centralized symptoms updated.' );
-				}
-
-				// Trigger assessment completion hook for symptom extraction
-				do_action( 'ennu_assessment_completed', $user_id, $form_data['assessment_type'] );
+				ENNU_Centralized_Symptoms_Manager::update_from_assessment( $user_id, $assessment_type );
 				
-				// Trigger HubSpot real-time sync
-				$this->trigger_hubspot_sync( $user_id, $form_data['assessment_type'], $form_data );
-				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $scores, $form_data );
-				$this->_log_submission_debug( 'Results transient stored.', $results_token );
-				error_log( 'ENNU REDIRECT DEBUG: store_results_transient returned: ' . ( $results_token ? $results_token : 'NULL' ) );
-				$this->_log_submission_debug( 'Scores being stored in transient:', $scores );
-
-				// --- Definitive Fix: Prepare data and gracefully handle email errors ---
-				try {
-					$this->_log_submission_debug( 'Preparing email data for quantitative assessment...' );
-					// Prepare a dedicated data array for the email templates
-					$email_data = array(
-						'assessment_type' => $form_data['assessment_type'],
-						'contact_name'    => trim( ( $form_data['first_name'] ?? '' ) . ' ' . ( $form_data['last_name'] ?? '' ) ),
-						'contact_email'   => $form_data['email'],
-						'contact_phone'   => $form_data['billing_phone'] ?? 'N/A',
-						'answers'         => array(),
-					);
-
-					// Extract only the question/answer pairs for the email body from the original form data
-					foreach ( $form_data as $key => $value ) {
-						// A simple check to see if the key represents a question
-						if ( strpos( $key, '_q' ) !== false ) {
-							$email_data['answers'][ $key ] = is_array( $value ) ? implode( ', ', $value ) : $value;
-						}
-					}
-					$this->_log_submission_debug( 'Email data prepared.', $email_data );
-
-					$this->_log_submission_debug( 'Sending notification email...' );
-					$this->send_assessment_notification( $email_data );
-					$this->_log_submission_debug( 'Notification email sent.' );
-				} catch ( Throwable $e ) { // Use Throwable to catch all errors and exceptions
-					$this->_log_submission_debug( 'Email notification failed.', $e->getMessage() );
-					// Log the error, but don't crash the submission process
-					error_log( 'ENNU Assessments - Email Notification Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
-				}
-			} else {
-				// If scoring failed, still generate a token for basic results
-				error_log( 'ENNU REDIRECT DEBUG: Scoring failed, generating fallback token' );
-				$fallback_scores = array(
-					'overall_score' => 0,
-					'category_scores' => array(),
-					'pillar_scores' => array(),
-				);
-				$results_token = $this->store_results_transient( $user_id, $form_data['assessment_type'], $fallback_scores, $form_data );
-				$this->_log_submission_debug( 'Fallback results transient stored.', $results_token );
-			}
-			error_log( 'ENNU REDIRECT DEBUG: About to call get_thank_you_url with assessment_type: ' . $form_data['assessment_type'] );
-			
-					// Special redirect for welcome assessment ONLY
-		if ( $form_data['assessment_type'] === 'welcome' ) {
-			$redirect_url = $this->get_thank_you_url( 'welcome', $results_token ?? null );
-			error_log( 'ENNU REDIRECT DEBUG: Welcome assessment - using configured results page' );
-			
-			// Validate redirect URL
-			if ( ! $redirect_url ) {
-				error_log( 'ENNU REDIRECT DEBUG: No welcome assessment results page configured - redirecting to /signup' );
-				$redirect_url = home_url( '/signup' );
-			}
-		} else {
-			error_log( 'ENNU REDIRECT DEBUG: Calling get_thank_you_url with token: ' . ( $results_token ? $results_token : 'NULL' ) );
-			$redirect_url = $this->get_thank_you_url( $form_data['assessment_type'], $results_token ?? null );
-			error_log( 'ENNU REDIRECT DEBUG: get_thank_you_url returned: ' . $redirect_url );
-			
-			// Validate redirect URL
-			if ( ! $redirect_url ) {
-				error_log( 'ENNU REDIRECT DEBUG: No redirect URL generated - admin must configure results page' );
-				wp_send_json_error( array(
-					'message' => 'Assessment submitted successfully, but no results page is configured. Please contact support.',
-					'redirect_url' => false
-				) );
-				return;
+				error_log( 'ENNU: Found ' . count( $symptoms_found ) . ' symptoms in assessment, biomarkers will be flagged' );
 			}
 		}
-			$this->_log_submission_debug( 'Quantitative flow complete. Sending redirect URL.', $redirect_url );
-
-			// Include auth state data in response for frontend
-			$auth_state_data = $this->get_current_auth_state_data();
-
-			$response_data = array(
-				'redirect_url' => $redirect_url,
-				'auth_state'   => $auth_state_data,
-			);
-			
-			error_log( 'ENNU REDIRECT DEBUG: Final response data: ' . json_encode( $response_data ) );
-			
-			wp_send_json_success( $response_data );
-		}
-		$this->_log_submission_debug( '--- Submission process finished ---' );
+		
+		// 6. Get thank you URL
+		$thank_you_url = $this->get_thank_you_url( $assessment_type, $token );
+		
+		// 7. Send success response
+		wp_send_json_success( array(
+			'message' => 'Assessment submitted successfully!',
+			'redirect_url' => $thank_you_url,
+			'user_id' => $user_id,
+			'saved_fields' => $saved_fields
+		) );
 	}
 
 	/**
@@ -1828,7 +1706,12 @@ final class ENNU_Assessment_Shortcodes {
 				continue;
 			}
 
-			$meta_key = 'ennu_' . $assessment_type . '_' . $question_id;
+			// CRITICAL FIX: Remove assessment prefix from question_id to prevent double-prefixing
+			$clean_question_id = $question_id;
+			if ( strpos( $question_id, $assessment_type . '_' ) === 0 ) {
+				$clean_question_id = substr( $question_id, strlen( $assessment_type . '_' ) );
+			}
+			$meta_key = 'ennu_' . $assessment_type . '_' . $clean_question_id;
 			$value_to_save = null;
 
 			// Enhanced field value extraction
@@ -2992,8 +2875,30 @@ final class ENNU_Assessment_Shortcodes {
 
 			// --- DEFINITIVE DATA HARMONIZATION FIX ---
 			$assessment_type    = $results_transient['assessment_type'] ?? '';
-			$score              = $results_transient['score'] ?? 0;
-			$interpretation     = $results_transient['interpretation'] ?? array();
+			
+			// Handle both data formats - new format has 'score', old format has 'calculated_score'
+			if ( isset( $results_transient['score'] ) ) {
+				// New format from store_results_transient
+				$score = $results_transient['score'];
+				$interpretation = $results_transient['interpretation'] ?? array();
+				$category_scores = $results_transient['category_scores'] ?? array();
+				$pillar_scores = $results_transient['pillar_scores'] ?? array();
+			} elseif ( isset( $results_transient['calculated_score'] ) ) {
+				// Old format from AJAX handler
+				$score = $results_transient['calculated_score'];
+				$score_breakdown = $results_transient['score_breakdown'] ?? array();
+				$category_scores = $score_breakdown['category_scores'] ?? array();
+				$pillar_scores = $score_breakdown['pillar_scores'] ?? array();
+				// Calculate interpretation from score
+				$interpretation = ENNU_Scoring_System::get_score_interpretation( $score );
+			} else {
+				// Fallback
+				$score = 0;
+				$interpretation = array( 'level' => 'fair' );
+				$category_scores = array();
+				$pillar_scores = array();
+			}
+			
 			$interpretation_key = strtolower( $interpretation['level'] ?? 'fair' );
 
 			// 1. Load the master results content configuration
@@ -3035,8 +2940,8 @@ final class ENNU_Assessment_Shortcodes {
 				'assessment_title'         => $this->assessments[ $assessment_type ]['title'] ?? ucwords( str_replace( '_', ' ', $assessment_type ) ),
 				'overall_score'            => $score, // Make sure this is available for the template
 				'score'                    => $score,
-				'pillar_scores'            => $results_transient['pillar_scores'] ?? array(), // Add pillar scores
-				'category_scores'          => $results_transient['category_scores'] ?? array(),
+				'pillar_scores'            => $pillar_scores, // Use extracted pillar scores
+				'category_scores'          => $category_scores, // Use extracted category scores
 				'result_content'           => $result_content,
 				'matched_recs'             => array(),
 				'details_button_url'       => $details_button_url,
@@ -3423,7 +3328,12 @@ final class ENNU_Assessment_Shortcodes {
 		// Get the actual score and data for the most recent assessment
 		$score = get_user_meta( $current_user_id, 'ennu_' . $most_recent_assessment . '_calculated_score', true );
 		if ( empty( $score ) ) {
-			$score = 7.0; // Default score if not found
+			// No score available - user hasn't completed assessments
+			return '<div class="ennu-no-assessment-notice">
+				<h3>Complete Your First Assessment</h3>
+				<p>Your health scores will appear here once you complete an assessment.</p>
+				<a href="' . esc_url( home_url( '/assessment/' ) ) . '" class="ennu-btn ennu-btn-primary">Take Assessment</a>
+			</div>';
 		}
 
 		$interpretation = ENNU_Scoring_System::get_score_interpretation( $score );
@@ -6064,6 +5974,182 @@ final class ENNU_Assessment_Shortcodes {
 			echo '. Please configure them in the ENNU Life settings to enable proper redirects.';
 			echo '</p></div>';
 		}
+	}
+
+	/**
+	 * Simplified form submission test - bypasses complex security
+	 */
+	public function handle_assessment_submission_simple() {
+		error_log( 'ENNU SIMPLE: handle_assessment_submission_simple() method called' );
+		
+		// Basic nonce check only
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security verification failed.' ) );
+			return;
+		}
+		
+		// Basic data validation
+		if ( empty( $_POST['email'] ) || empty( $_POST['assessment_type'] ) ) {
+			wp_send_json_error( array( 'message' => 'Missing required fields.' ) );
+			return;
+		}
+		
+		$email = sanitize_email( $_POST['email'] );
+		$assessment_type = sanitize_text_field( $_POST['assessment_type'] );
+		
+		// Create or get user
+		$user_id = email_exists( $email );
+		
+		if ( ! $user_id ) {
+			// Create new user
+			$password = wp_generate_password();
+			$user_data = array(
+				'user_login' => $email,
+				'user_email' => $email,
+				'user_pass'  => $password,
+				'first_name' => sanitize_text_field( $_POST['first_name'] ?? '' ),
+				'last_name'  => sanitize_text_field( $_POST['last_name'] ?? '' ),
+			);
+			
+			$user_id = wp_insert_user( $user_data );
+			
+			if ( is_wp_error( $user_id ) ) {
+				wp_send_json_error( array( 'message' => 'Failed to create user: ' . $user_id->get_error_message() ) );
+				return;
+			}
+			
+			// Log the user in
+			wp_set_current_user( $user_id );
+			wp_set_auth_cookie( $user_id );
+		}
+		
+		// Save basic assessment data - FIXED FIELD NAMING + GLOBAL FIELD EXCLUSION
+		$saved_fields = array();
+		foreach ( $_POST as $key => $value ) {
+			if ( $key !== 'action' && $key !== 'nonce' ) {
+				// CRITICAL FIX: Skip global fields - let them be processed by dedicated global field saving
+				if ( strpos( $key, 'ennu_global_' ) === 0 ) {
+					continue; // Skip global fields, they'll be handled separately
+				}
+				
+				// CRITICAL FIX: Remove assessment prefix from key to prevent double-prefixing
+				$clean_key = $key;
+				if ( strpos( $key, $assessment_type . '_' ) === 0 ) {
+					$clean_key = substr( $key, strlen( $assessment_type . '_' ) );
+				}
+				
+				$meta_key = 'ennu_' . $assessment_type . '_' . sanitize_key( $clean_key );
+				
+				// Handle array values properly (for multiselect fields)
+				if ( is_array( $value ) ) {
+					$sanitized_value = array_map( 'sanitize_text_field', $value );
+				} else {
+					$sanitized_value = sanitize_text_field( $value );
+				}
+				
+				update_user_meta( $user_id, $meta_key, $sanitized_value );
+				$saved_fields[] = $key;
+			}
+		}
+		
+		// Store results transient
+		$token = wp_generate_password( 32, false );
+		$results_data = array(
+			'user_id' => $user_id,
+			'assessment_type' => $assessment_type,
+			'saved_fields' => $saved_fields,
+			'submitted_at' => current_time( 'mysql' )
+		);
+		
+		// Use manual transient system to match results page retrieval logic
+		$this->_set_manual_transient( 'ennu_results_' . $token, $results_data, DAY_IN_SECONDS );
+		
+		// Get thank you URL
+		$thank_you_url = $this->get_thank_you_url( $assessment_type, $token );
+		
+		wp_send_json_success( array(
+			'message' => 'Assessment submitted successfully!',
+			'redirect_url' => $thank_you_url,
+			'user_id' => $user_id,
+			'saved_fields' => $saved_fields
+		) );
+	}
+	
+	/**
+	 * Extract symptoms from assessment form data
+	 * Maps assessment question answers to symptoms that need biomarker flagging
+	 * 
+	 * @param string $assessment_type The type of assessment
+	 * @param array $form_data The submitted form data
+	 * @return array Array of symptoms found
+	 */
+	private function extract_symptoms_from_assessment( $assessment_type, $form_data ) {
+		$symptoms = array();
+		
+		// Map of question patterns to symptoms
+		// These are common patterns across different assessments
+		$symptom_mappings = array(
+			// Fatigue and energy symptoms
+			'fatigue' => array( 'fatigue', 'tired', 'exhausted', 'low_energy', 'no_energy' ),
+			'brain_fog' => array( 'brain_fog', 'foggy', 'concentration', 'focus_issues', 'mental_clarity' ),
+			'low_libido' => array( 'libido', 'sex_drive', 'sexual_desire', 'decreased_libido' ),
+			'mood_changes' => array( 'mood_swings', 'mood_changes', 'irritability', 'depression', 'anxiety' ),
+			'weight_gain' => array( 'weight_gain', 'gaining_weight', 'increased_weight' ),
+			'weight_loss' => array( 'weight_loss', 'losing_weight', 'decreased_weight' ),
+			'insomnia' => array( 'insomnia', 'sleep_issues', 'poor_sleep', 'cant_sleep' ),
+			'hot_flashes' => array( 'hot_flashes', 'hot_flushes', 'heat_episodes' ),
+			'night_sweats' => array( 'night_sweats', 'sweating_night', 'nocturnal_sweating' ),
+			'hair_loss' => array( 'hair_loss', 'thinning_hair', 'balding', 'alopecia' ),
+			'joint_pain' => array( 'joint_pain', 'arthralgia', 'joint_aches' ),
+			'muscle_weakness' => array( 'muscle_weakness', 'weak_muscles', 'decreased_strength' ),
+			'headaches' => array( 'headaches', 'migraines', 'head_pain' ),
+			'diabetes' => array( 'diabetes', 'diabetic', 'blood_sugar' ),
+			'thyroid_issues' => array( 'thyroid', 'hypothyroid', 'hyperthyroid' ),
+			'high_blood_pressure' => array( 'hypertension', 'high_blood_pressure', 'elevated_bp' )
+		);
+		
+		// Process form data to find symptoms
+		foreach ( $form_data as $key => $value ) {
+			// Skip non-question fields
+			if ( in_array( $key, array( 'action', 'nonce', 'assessment_type', 'email', 'first_name', 'last_name' ) ) ) {
+				continue;
+			}
+			
+			// Convert value to array if it's not already
+			$values = is_array( $value ) ? $value : array( $value );
+			
+			// Check each value for symptom keywords
+			foreach ( $values as $answer ) {
+				$answer_lower = strtolower( $answer );
+				
+				// Check against symptom mappings
+				foreach ( $symptom_mappings as $symptom_key => $keywords ) {
+					foreach ( $keywords as $keyword ) {
+						if ( strpos( $answer_lower, $keyword ) !== false ) {
+							if ( ! in_array( $symptom_key, $symptoms ) ) {
+								$symptoms[] = $symptom_key;
+								error_log( "ENNU: Found symptom '$symptom_key' from answer '$answer' in question '$key'" );
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Also check for specific assessment types with known symptom questions
+		if ( $assessment_type === 'testosterone' && isset( $form_data['testosterone_q1'] ) ) {
+			// Testosterone Q1 is typically a multi-select of symptoms
+			if ( is_array( $form_data['testosterone_q1'] ) ) {
+				foreach ( $form_data['testosterone_q1'] as $symptom ) {
+					$symptom_key = str_replace( array( ' ', '-' ), '_', strtolower( $symptom ) );
+					if ( ! in_array( $symptom_key, $symptoms ) ) {
+						$symptoms[] = $symptom_key;
+					}
+				}
+			}
+		}
+		
+		return $symptoms;
 	}
 }
 // Initialize the class

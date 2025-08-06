@@ -5,64 +5,20 @@
  * Handles PDF upload AJAX requests directly without relying on WordPress admin-ajax.php
  */
 
-// Simulate WordPress environment
-define( 'ABSPATH', dirname( __FILE__ ) . '/' );
-define( 'WP_DEBUG', true );
+// Load WordPress environment
+require_once dirname( __FILE__ ) . '/../../../wp-load.php';
 
-// Mock WordPress functions
+// Ensure we have WordPress functions
 if ( ! function_exists( 'wp_verify_nonce' ) ) {
-    function wp_verify_nonce( $nonce, $action ) {
-        return true; // Mock for testing
-    }
-}
-
-if ( ! function_exists( 'is_user_logged_in' ) ) {
-    function is_user_logged_in() {
-        return true; // Mock for testing
-    }
-}
-
-if ( ! function_exists( 'get_current_user_id' ) ) {
-    function get_current_user_id() {
-        return 1; // Mock for testing
-    }
-}
-
-if ( ! function_exists( 'wp_die' ) ) {
-    function wp_die( $message ) {
-        header( 'Content-Type: application/json' );
-        echo $message;
-        exit;
-    }
-}
-
-if ( ! function_exists( 'wp_upload_dir' ) ) {
-    function wp_upload_dir() {
-        return array(
-            'basedir' => dirname( __FILE__ ) . '/uploads',
-            'baseurl' => 'http://localhost/wp-content/plugins/ennulifeassessments/uploads'
-        );
-    }
-}
-
-if ( ! function_exists( 'wp_mkdir_p' ) ) {
-    function wp_mkdir_p( $path ) {
-        return mkdir( $path, 0755, true );
-    }
-}
-
-if ( ! function_exists( 'mime_content_type' ) ) {
-    function mime_content_type( $filename ) {
-        return 'application/pdf';
-    }
+    wp_die( 'WordPress not loaded properly' );
 }
 
 // Include required files
-require_once 'includes/services/class-pdf-processor.php';
-require_once 'includes/class-lab-data-landing-system.php';
+require_once dirname( __FILE__ ) . '/includes/services/class-pdf-processor.php';
+require_once dirname( __FILE__ ) . '/includes/class-lab-data-landing-system.php';
 
 // Handle AJAX request
-if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) && $_POST['action'] === 'ennu_upload_pdf' ) {
+if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) && $_POST['action'] === 'ennu_upload_pdf' ) {
     
     // Set JSON response header
     header( 'Content-Type: application/json' );
@@ -73,35 +29,36 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) && $_POS
         error_log( 'Direct AJAX Handler: POST data: ' . print_r( $_POST, true ) );
         error_log( 'Direct AJAX Handler: FILES data: ' . print_r( $_FILES, true ) );
         
-        // Verify nonce
-        if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
-            echo json_encode( array(
-                'success' => false,
-                'message' => 'Security check failed.',
-                'notification' => array(
-                    'type' => 'error',
-                    'title' => 'Security Error',
-                    'message' => 'Invalid security token. Please refresh the page and try again.',
-                ),
-            ) );
-            exit;
-        }
+        		// Verify nonce (restored with proper handling)
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
+			error_log( 'ENNU Direct AJAX: Nonce verification failed. Nonce: ' . $_POST['nonce'] );
+			echo json_encode( array(
+				'success' => false,
+				'message' => 'Security check failed.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Security Error',
+					'message' => 'Invalid security token. Please refresh the page and try again.',
+				),
+			) );
+			exit;
+		}
         
-        // Check user permissions
-        if ( ! is_user_logged_in() ) {
-            echo json_encode( array(
-                'success' => false,
-                'message' => 'User not logged in.',
-                'notification' => array(
-                    'type' => 'error',
-                    'title' => 'Authentication Required',
-                    'message' => 'Please log in to upload LabCorp results.',
-                ),
-            ) );
-            exit;
-        }
+        		// Check user permissions (restored)
+		if ( ! is_user_logged_in() ) {
+			echo json_encode( array(
+				'success' => false,
+				'message' => 'User not logged in.',
+				'notification' => array(
+					'type' => 'error',
+					'title' => 'Authentication Required',
+					'message' => 'Please log in to upload LabCorp results.',
+				),
+			) );
+			exit;
+		}
         
-        $user_id = get_current_user_id();
+        		$user_id = get_current_user_id();
         
         // Check if file was uploaded
         if ( ! isset( $_FILES['labcorp_pdf'] ) || $_FILES['labcorp_pdf']['error'] !== UPLOAD_ERR_OK ) {

@@ -7,6 +7,90 @@ Version: 2.0.0
 .empty-state-message {
     color: #ffc12b !important;
 }
+
+/* Empty State Styling */
+.ennu-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    margin: 2rem 0;
+}
+
+.ennu-empty-state .empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.ennu-empty-state h3 {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.4rem;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.ennu-empty-state p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ennu-no-assessment-notice {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(255, 193, 43, 0.1) 0%, rgba(255, 193, 43, 0.05) 100%);
+    border: 1px solid rgba(255, 193, 43, 0.3);
+    margin: 2rem 0;
+}
+
+.ennu-no-assessment-notice h3 {
+    color: #ffc12b;
+    font-size: 1.3rem;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+}
+
+.ennu-no-assessment-notice p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0 0 2rem 0;
+}
+
+/* Chart Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-state .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.empty-state h3 {
+    margin: 0 0 1rem 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    opacity: 0.8;
+}
 .goal-pill.selected {
     border-color: #138d66;
 }
@@ -17272,4 +17356,85 @@ html {
 	margin: 0 0 16px 0;
 	font-size: 14px;
 	line-height: 1.5;
+}
+
+/* ADDITIONAL TAB CLICKING FIXES - More Aggressive */
+.my-story-tab-nav {
+    position: relative !important;
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+}
+
+.my-story-tab-nav * {
+    pointer-events: auto !important;
+    user-select: none !important;
+}
+
+.my-story-tab-nav a {
+    position: relative !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+.my-story-tab-nav a:hover,
+.my-story-tab-nav a:focus,
+.my-story-tab-nav a:active {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+.my-story-tab-nav a[href] {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Override any theme styles that might interfere */
+.my-story-tab-nav,
+.my-story-tab-nav *,
+.my-story-tab-nav a,
+.my-story-tab-nav a:hover,
+.my-story-tab-nav a:focus,
+.my-story-tab-nav a:active {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+/* Ensure tab content is properly positioned */
+.my-story-tab-content {
+    position: relative !important;
+    z-index: 999 !important;
+    pointer-events: auto !important;
+}
+
+.my-story-tab-content.my-story-tab-active {
+    position: relative !important;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Debug styles to make tabs more visible */
+.my-story-tab-nav a {
+    border: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.my-story-tab-nav a:hover {
+    border-color: #007cba !important;
+    background-color: rgba(0, 124, 186, 0.1) !important;
+}
+
+.my-story-tab-nav a.my-story-tab-active {
+    border-color: #007cba !important;
+    background-color: rgba(0, 124, 186, 0.2) !important;
 }

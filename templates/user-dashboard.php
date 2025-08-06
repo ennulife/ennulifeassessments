@@ -12,8 +12,15 @@
 
 // Ensure biomarker auto-sync is triggered for weight and BMI
 if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
-	$auto_sync = new ENNU_Biomarker_Auto_Sync();
-	$auto_sync->ensure_biomarker_sync();
+	try {
+		$auto_sync = new ENNU_Biomarker_Auto_Sync();
+		if ( method_exists( $auto_sync, 'ensure_biomarker_sync' ) ) {
+			$auto_sync->ensure_biomarker_sync();
+		}
+	} catch ( Exception $e ) {
+		// Log error but don't break the dashboard
+		error_log( 'ENNU Dashboard Auto-Sync Error: ' . $e->getMessage() );
+	}
 }
 
 // Initialize UX systems - temporarily disabled for performance
@@ -1331,7 +1338,7 @@ if ( empty( $display_name ) ) {
 
 
 			<!-- My Scores Section -->
-			<details class="health-scores-accordion">
+			<details class="health-scores-accordion" open>
 				<summary class="scores-title-container">
 					<h2 class="scores-title">MY LIFE SCORES</h2>
 				</summary>
@@ -1919,7 +1926,12 @@ if ( empty( $display_name ) ) {
 								<?php
 								// Get recommended assessments from Next Steps Widget
 								if ( class_exists( 'ENNU_Next_Steps_Widget' ) ) {
-									$next_steps_widget = new ENNU_Next_Steps_Widget();
+	try {
+		$next_steps_widget = new ENNU_Next_Steps_Widget();
+	} catch ( Exception $e ) {
+		error_log( 'ENNU Dashboard Error - Next Steps Widget: ' . $e->getMessage() );
+		$next_steps_widget = null;
+	}
 									$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
 									
 									if ( ! empty( $next_steps_data['assessment_recommendations'] ) ) {
@@ -3402,50 +3414,94 @@ if ( empty( $display_name ) ) {
 		// Theme system is now handled by the centralized ENNUThemeManager
 		console.log('ENNU Dashboard: Theme management delegated to ENNUThemeManager');
 		
-		// Tab switching functionality
-		const tabLinks = document.querySelectorAll('.my-story-tab-nav a');
-		const tabContents = document.querySelectorAll('.my-story-tab-content');
+		// ENNU DASHBOARD TAB CLICKING FIX - Aggressive Override
+		console.log('ENNU Dashboard: Applying aggressive tab clicking fix...');
 		
-		console.log('ENNU Dashboard: Found', tabLinks.length, 'tab links and', tabContents.length, 'tab contents');
-		
-		// Debug: Log all tab IDs
-		tabContents.forEach((content, index) => {
-			console.log('ENNU Dashboard: Tab content', index + 1, 'ID:', content.id);
-		});
-		
-		tabLinks.forEach((link, index) => {
-			console.log('ENNU Dashboard: Tab link', index + 1, 'href:', link.getAttribute('href'));
-			link.addEventListener('click', function(e) {
-				e.preventDefault();
-				console.log('ENNU Dashboard: Tab clicked:', this.getAttribute('href'));
-				
-				// Remove active class from all tabs and contents
-				tabLinks.forEach(l => l.classList.remove('my-story-tab-active'));
-				tabContents.forEach(c => c.classList.remove('my-story-tab-active'));
-				
-				// Add active class to clicked tab
-				this.classList.add('my-story-tab-active');
-				console.log('ENNU Dashboard: Added active class to tab link');
-				
-				// Show corresponding content
-				const targetId = this.getAttribute('href').substring(1);
-				const targetContent = document.getElementById(targetId);
-				console.log('ENNU Dashboard: Looking for target content with ID:', targetId);
-				console.log('ENNU Dashboard: Target content found:', targetContent);
-				
-				if (targetContent) {
-					targetContent.classList.add('my-story-tab-active');
-					console.log('ENNU Dashboard: Activated tab content:', targetId);
-					
-					// Debug: Check if content is visible
-					const computedStyle = window.getComputedStyle(targetContent);
-					console.log('ENNU Dashboard: Tab content display style:', computedStyle.display);
-					console.log('ENNU Dashboard: Tab content visibility:', computedStyle.visibility);
-				} else {
-					console.error('ENNU Dashboard: Target content not found:', targetId);
-				}
+		// Wait a bit for any other scripts to load
+		setTimeout(function() {
+			// Force remove any existing event listeners by cloning and replacing
+			const tabLinks = document.querySelectorAll('.my-story-tab-nav a');
+			const tabContents = document.querySelectorAll('.my-story-tab-content');
+			
+			console.log('ENNU Dashboard: Found', tabLinks.length, 'tab links and', tabContents.length, 'tab contents');
+			
+			// Remove all existing event listeners by cloning and replacing
+			tabLinks.forEach(function(link) {
+				const newLink = link.cloneNode(true);
+				link.parentNode.replaceChild(newLink, link);
 			});
-		});
+			
+			// Get fresh references after cloning
+			const freshTabLinks = document.querySelectorAll('.my-story-tab-nav a');
+			const freshTabContents = document.querySelectorAll('.my-story-tab-content');
+			
+			// Add new event listeners with aggressive fixes
+			freshTabLinks.forEach(function(link) {
+				console.log('ENNU Dashboard: Adding aggressive click listener to:', link.getAttribute('href'));
+				
+				// Force enable pointer events immediately
+				link.style.pointerEvents = 'auto';
+				link.style.cursor = 'pointer';
+				link.style.zIndex = '10000';
+				
+				link.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+					
+					console.log('ENNU Dashboard: Tab clicked:', this.getAttribute('href'));
+					
+					// Remove active class from all tabs and contents
+					freshTabLinks.forEach(l => {
+						l.classList.remove('my-story-tab-active');
+						l.style.pointerEvents = 'auto';
+					});
+					freshTabContents.forEach(c => {
+						c.classList.remove('my-story-tab-active');
+						c.style.display = 'none';
+					});
+					
+					// Add active class to clicked tab
+					this.classList.add('my-story-tab-active');
+					this.style.pointerEvents = 'auto';
+					
+					// Show corresponding content
+					const targetId = this.getAttribute('href').substring(1);
+					const targetContent = document.getElementById(targetId);
+					
+					console.log('ENNU Dashboard: Looking for target content:', targetId);
+					console.log('ENNU Dashboard: Target content found:', targetContent);
+					
+					if (targetContent) {
+						targetContent.classList.add('my-story-tab-active');
+						targetContent.style.display = 'block';
+						targetContent.style.opacity = '1';
+						targetContent.style.transform = 'translateY(0)';
+						targetContent.style.pointerEvents = 'auto';
+						console.log('ENNU Dashboard: Activated tab content:', targetId);
+					} else {
+						console.error('ENNU Dashboard: Target content not found:', targetId);
+					}
+				});
+			});
+			
+			// Force enable pointer events on tab navigation
+			const tabNav = document.querySelector('.my-story-tab-nav');
+			if (tabNav) {
+				tabNav.style.pointerEvents = 'auto';
+				tabNav.style.zIndex = '9999';
+			}
+			
+			// Show default tab (My Biomarkers)
+			const defaultTab = document.querySelector('a[href="#tab-my-biomarkers"]');
+			if (defaultTab) {
+				defaultTab.click();
+			} else if (freshTabLinks.length > 0) {
+				freshTabLinks[0].click();
+			}
+			
+			console.log('ENNU Dashboard: Aggressive tab clicking fix applied');
+		}, 100);
 		
 		// Show My Biomarkers tab by default
 		const biomarkersTabLink = document.querySelector('a[href="#tab-my-biomarkers"]');
@@ -3518,7 +3574,7 @@ if ( empty( $display_name ) ) {
 				
 				const formData = new FormData(this);
 				formData.append('action', 'ennu_upload_pdf');
-				formData.append('nonce', ennu_ajax.nonce);
+				formData.append('nonce', '<?php echo wp_create_nonce( 'ennu_ajax_nonce' ); ?>');
 				
 				const progressDiv = document.getElementById('ennu-pdf-progress');
 				const feedbackDiv = document.getElementById('ennu-pdf-feedback');
@@ -4415,12 +4471,22 @@ if ( empty( $display_name ) ) {
 	
 	// Function to handle assessment navigation
 	function takeAssessment(pillarType) {
-		// Map pillar types to assessment URLs
+		// Map pillar types to assessment URLs using admin-configured pages
+		<?php
+		$settings = get_option('ennu_life_settings', array());
+		$page_mappings = $settings['page_mappings'] ?? array();
+		
+		// Try to get proper assessment pages or fallback to general assessment page
+		$mind_page = $page_mappings['cognitive-assessment'] ?? $page_mappings['mental-health-assessment'] ?? $page_mappings['health-assessment'] ?? null;
+		$body_page = $page_mappings['health-assessment'] ?? $page_mappings['physical-assessment'] ?? null;
+		$lifestyle_page = $page_mappings['weight-loss-assessment'] ?? $page_mappings['lifestyle-assessment'] ?? $page_mappings['health-assessment'] ?? null;
+		$aesthetics_page = $page_mappings['skin-assessment'] ?? $page_mappings['hair-assessment'] ?? $page_mappings['aesthetics-assessment'] ?? null;
+		?>
 		const assessmentUrls = {
-			'mind': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['mental-health-assessment'] ?? 1 ) ) ); ?>',
-			'body': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['physical-assessment'] ?? 1 ) ) ); ?>',
-			'lifestyle': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['lifestyle-assessment'] ?? 1 ) ) ); ?>',
-			'aesthetics': '<?php echo esc_url( home_url( "/?page_id=" . ( get_option( 'ennu_life_settings' )['page_mappings']['aesthetics-assessment'] ?? 1 ) ) ); ?>'
+			'mind': '<?php echo esc_url( $mind_page ? home_url( "/?page_id=" . $mind_page ) : home_url('/assessment/cognitive/') ); ?>',
+			'body': '<?php echo esc_url( $body_page ? home_url( "/?page_id=" . $body_page ) : home_url('/assessment/health/') ); ?>',
+			'lifestyle': '<?php echo esc_url( $lifestyle_page ? home_url( "/?page_id=" . $lifestyle_page ) : home_url('/assessment/weight-loss/') ); ?>',
+			'aesthetics': '<?php echo esc_url( $aesthetics_page ? home_url( "/?page_id=" . $aesthetics_page ) : home_url('/assessment/skin/') ); ?>'
 		};
 		
 		const url = assessmentUrls[pillarType];

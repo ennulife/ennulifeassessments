@@ -32,13 +32,18 @@ class ENNU_Centralized_Symptoms_Manager {
 	const SYMPTOM_LOCK_KEY = '_symptom_update_lock';
 
 	/**
-	 * Update centralized symptoms for a user
-	 *
-	 * @param int $user_id User ID
-	 * @param string $assessment_type Assessment type (optional - if provided, only update from this assessment)
-	 * @return bool Success status
+	 * Update centralized symptoms with anonymous user support
 	 */
 	public static function update_centralized_symptoms( $user_id, $assessment_type = null ) {
+		// Handle anonymous users with session-based storage
+		if ( ! $user_id ) {
+			$session_id = self::get_anonymous_session_id();
+			if ( $session_id ) {
+				return self::update_anonymous_symptoms( $session_id, $assessment_type );
+			}
+			return false;
+		}
+		
 		// --- TRANSACTIONAL LOCKING: Prevent race conditions ---
 		$lock_key = self::SYMPTOM_LOCK_KEY . $user_id;
 		if ( get_transient( $lock_key ) ) {
@@ -93,6 +98,50 @@ class ENNU_Centralized_Symptoms_Manager {
 			delete_transient( $lock_key );
 		}
 	}
+	
+	/**
+	 * Update symptoms for anonymous users
+	 */
+	private static function update_anonymous_symptoms( $session_id, $assessment_type = null ) {
+		$symptoms_data = self::aggregate_all_symptoms( null, $assessment_type ); // Pass null for user_id
+		
+		if ( ! empty( $symptoms_data ) ) {
+			$anonymous_symptoms = get_transient( 'ennu_anonymous_symptoms_' . $session_id ) ?: array();
+			$anonymous_symptoms = array_merge( $anonymous_symptoms, $symptoms_data );
+			set_transient( 'ennu_anonymous_symptoms_' . $session_id, $anonymous_symptoms, 3600 );
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get anonymous session ID
+	 */
+	private static function get_anonymous_session_id() {
+		if ( ! isset( $_COOKIE['ennu_anonymous_session'] ) ) {
+			$session_id = wp_generate_password( 32, false );
+			setcookie( 'ennu_anonymous_session', $session_id, time() + 3600, '/' );
+			return $session_id;
+		}
+		
+		return $_COOKIE['ennu_anonymous_session'];
+	}
+	
+	/**
+	 * Migrate anonymous symptoms to user account
+	 */
+	public static function migrate_anonymous_symptoms( $user_id, $session_id ) {
+		$anonymous_symptoms = get_transient( 'ennu_anonymous_symptoms_' . $session_id );
+		
+		if ( $anonymous_symptoms ) {
+			update_user_meta( $user_id, 'ennu_centralized_symptoms', $anonymous_symptoms );
+			delete_transient( 'ennu_anonymous_symptoms_' . $session_id );
+			return true;
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Get centralized symptoms for a user
@@ -106,13 +155,9 @@ class ENNU_Centralized_Symptoms_Manager {
 			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
 			return array(); // Return empty array to prevent fatal error
 		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			self::CENTRALIZED_SYMPTOMS_KEY,
-			self::SYMPTOM_TRIGGERS_KEY
-		) );
-
-		$symptoms = $meta_data[ self::CENTRALIZED_SYMPTOMS_KEY ] ?? array();
+		// Use standard WordPress get_user_meta instead of non-existent batch method
+		$symptoms = get_user_meta( $user_id, self::CENTRALIZED_SYMPTOMS_KEY, true );
+		$symptom_triggers = get_user_meta( $user_id, self::SYMPTOM_TRIGGERS_KEY, true );
 
 		if ( empty( $symptoms ) || ! is_array( $symptoms ) ) {
 			// If no centralized data exists, return empty structure to prevent infinite loop
@@ -169,12 +214,8 @@ class ENNU_Centralized_Symptoms_Manager {
 			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
 			return $merged_symptoms; // Return what we have so far
 		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			self::SYMPTOM_TRIGGERS_KEY
-		) );
-		
-		$symptom_triggers = $meta_data[ self::SYMPTOM_TRIGGERS_KEY ] ?? array();
+		// Use standard WordPress get_user_meta instead of non-existent batch method
+		$symptom_triggers = get_user_meta( $user_id, self::SYMPTOM_TRIGGERS_KEY, true );
 		if ( ! is_array( $symptom_triggers ) ) {
 			$symptom_triggers = array();
 		}

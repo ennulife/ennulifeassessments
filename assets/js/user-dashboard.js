@@ -1293,24 +1293,10 @@ class ENNUDashboard {
 				});
 			}
 			
-			// If still no data, create sample data for demonstration
+			// If no data available, show empty state instead of sample data
 			if (scoreData.length === 0) {
-				console.log('ENNU Dashboard: No score data found, creating sample data for demonstration');
-				// Create 7 days of sample data with realistic progression
-				const baseScore = 6.5;
-				for (let i = 6; i >= 0; i--) {
-					const date = new Date();
-					date.setDate(date.getDate() - i);
-					const variation = (Math.random() - 0.5) * 2; // ±1 point variation
-					const score = Math.max(0, Math.min(10, baseScore + variation));
-					
-					scoreData.push({
-						date: date.toISOString(),
-						score: parseFloat(score.toFixed(1)),
-						originalDate: date.toISOString().split('T')[0],
-						isSample: true
-					});
-				}
+				console.log('ENNU Dashboard: No score data found - user needs to complete assessments');
+				return this.showEmptyScoreState();
 			}
 			
 			// Sort by timestamp (not original date)
@@ -1320,13 +1306,8 @@ class ENNUDashboard {
 			return scoreData;
 		} catch (error) {
 			console.error('ENNU Dashboard: Error getting user score data:', error);
-			// Return sample data as fallback
-			return [{
-				date: new Date().toISOString(),
-				score: 7.5,
-				originalDate: new Date().toISOString().split('T')[0],
-				isSample: true
-			}];
+			// Return empty array to show empty state
+			return [];
 		}
 	}
 
@@ -1411,24 +1392,10 @@ class ENNUDashboard {
 				}
 			}
 			
-			// If still no data, create sample data for demonstration
+			// If no data available, return empty array for empty state handling
 			if (bmiData.length === 0) {
-				console.log('ENNU Dashboard: No BMI data found, creating sample data for demonstration');
-				// Create 7 days of sample BMI data with realistic progression
-				const baseBMI = 24.5;
-				for (let i = 6; i >= 0; i--) {
-					const date = new Date();
-					date.setDate(date.getDate() - i);
-					const variation = (Math.random() - 0.5) * 0.8; // ±0.4 BMI variation
-					const bmi = Math.max(18, Math.min(35, baseBMI + variation));
-					
-					bmiData.push({
-						date: date.toISOString(),
-						bmi: parseFloat(bmi.toFixed(1)),
-						originalDate: date.toISOString().split('T')[0],
-						isSample: true
-					});
-				}
+				console.log('ENNU Dashboard: No BMI data found - user needs to enter height/weight');
+				return [];
 			}
 			
 			// Sort by timestamp (not original date)
@@ -1437,13 +1404,8 @@ class ENNUDashboard {
 			return bmiData;
 		} catch (error) {
 			console.error('ENNU Dashboard: Error getting user BMI data:', error);
-			// Return sample data as fallback
-			return [{
-				date: new Date().toISOString(),
-				bmi: 24.5,
-				originalDate: new Date().toISOString().split('T')[0],
-				isSample: true
-			}];
+			// Return empty array to show empty state instead of fake data
+			return [];
 		}
 	}
 
@@ -1476,6 +1438,20 @@ class ENNUDashboard {
 				`;
 			}
 		});
+	}
+
+	// Helper method to show empty score state
+	showEmptyScoreState() {
+		const scoreCanvas = document.getElementById('scoreHistoryChart');
+		if (scoreCanvas) {
+			this.showEmptyChartState(
+				scoreCanvas,
+				'📊',
+				'No Assessment Data',
+				'Complete your first assessment to see your health scores over time.'
+			);
+		}
+		return false; // Indicates no data to process
 	}
 
 	// Method to update charts with new data
