@@ -300,12 +300,16 @@ class ENNU_Life_Enhanced_Database {
 
 		try {
 			// Get global keys dynamically from the question configuration
-			$all_questions = include ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessment-questions.php';
-			$global_keys   = array();
-			if ( isset( $all_questions[ $assessment_type ] ) ) {
-				foreach ( $all_questions[ $assessment_type ] as $question ) {
-					if ( isset( $question['global_key'] ) ) {
-						$global_keys[] = $question['global_key'];
+			$config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessments/' . $assessment_type . '.php';
+			$global_keys = array();
+			
+			if ( file_exists( $config_file ) ) {
+				$config = include $config_file;
+				if ( isset( $config['questions'] ) ) {
+					foreach ( $config['questions'] as $question ) {
+						if ( isset( $question['global_key'] ) ) {
+							$global_keys[] = $question['global_key'];
+						}
 					}
 				}
 			}
@@ -699,6 +703,86 @@ class ENNU_Life_Enhanced_Database {
 		}
 		
 		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+	}
+
+	/**
+	 * Create database tables for the plugin
+	 *
+	 * @return void
+	 */
+	public function create_tables() {
+		global $wpdb;
+		
+		$charset_collate = $wpdb->get_charset_collate();
+		
+		// Table for rate limiting
+		$rate_limit_table = $wpdb->prefix . 'ennu_rate_limits';
+		$sql_rate_limit = "CREATE TABLE IF NOT EXISTS $rate_limit_table (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			ip_address varchar(45) NOT NULL,
+			action varchar(100) NOT NULL,
+			attempts int(11) NOT NULL DEFAULT 1,
+			last_attempt datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY ip_action (ip_address, action),
+			KEY last_attempt (last_attempt)
+		) $charset_collate;";
+		
+		// Table for assessment history
+		$assessment_history_table = $wpdb->prefix . 'ennu_assessment_history';
+		$sql_assessment_history = "CREATE TABLE IF NOT EXISTS $assessment_history_table (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			assessment_type varchar(50) NOT NULL,
+			assessment_data longtext,
+			scores longtext,
+			completed_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY user_assessment (user_id, assessment_type),
+			KEY completed_at (completed_at)
+		) $charset_collate;";
+		
+		// Table for biomarker data
+		$biomarker_table = $wpdb->prefix . 'ennu_biomarkers';
+		$sql_biomarker = "CREATE TABLE IF NOT EXISTS $biomarker_table (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			biomarker_name varchar(100) NOT NULL,
+			value decimal(10,2),
+			unit varchar(20),
+			status varchar(20),
+			recorded_date datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY user_biomarker (user_id, biomarker_name),
+			KEY recorded_date (recorded_date)
+		) $charset_collate;";
+		
+		// Table for score cache
+		$score_cache_table = $wpdb->prefix . 'ennu_score_cache';
+		$sql_score_cache = "CREATE TABLE IF NOT EXISTS $score_cache_table (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			assessment_type varchar(50) NOT NULL,
+			cache_key varchar(255) NOT NULL,
+			score_data longtext,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			expires_at datetime DEFAULT NULL,
+			PRIMARY KEY (id),
+			UNIQUE KEY cache_key (cache_key),
+			KEY user_assessment (user_id, assessment_type),
+			KEY expires_at (expires_at)
+		) $charset_collate;";
+		
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		
+		// Execute the SQL statements
+		dbDelta( $sql_rate_limit );
+		dbDelta( $sql_assessment_history );
+		dbDelta( $sql_biomarker );
+		dbDelta( $sql_score_cache );
+		
+		// Log table creation
+		error_log( 'ENNU Life: Database tables created/verified' );
 	}
 }
 

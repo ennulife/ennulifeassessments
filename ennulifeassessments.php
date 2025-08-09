@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://enulife.com
  * Description: Comprehensive health assessment and biomarker management system
- * Version: 64.61.0
+ * Version: 64.70.1
  * Author: ENNU Life
  * Author URI: https://ennulife.com
  * License: GPL v2 or later
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @var string
  */
-const ENNU_LIFE_VERSION = '64.61.0';
+const ENNU_LIFE_VERSION = '64.70.1';
 
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
@@ -194,7 +194,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Load new service classes (refactored architecture)
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-biomarker-service.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-assessment-service.php';
-			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-ajax-handler.php';
+            require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-ajax-handler.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-unified-import-service.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-configuration-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-json-configuration-strategy.php';
@@ -221,6 +221,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-deployment-manager.php';
 			
 			// Load scoring engine classes
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-quantitative-engine.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-qualitative-engine.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-objective-engine.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-intentionality-engine.php';
@@ -235,8 +236,10 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-range-adapter.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-recommended-range-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-age-management-system.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-assessment-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-health-optimization-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-centralized-symptoms-manager.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-question-mapper.php';
 			
 			// Load missing classes that are causing warnings
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-health-goals-ajax.php';
@@ -249,8 +252,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ai-medical-team-reference-ranges.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-csv-biomarker-importer.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-user-csv-import-shortcode.php';
-					require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ajax-handler.php';
-		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-ajax-handler.php';
+            // Old handler removed; service handler is loaded above
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-unified-scoring-service.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-assessment-rendering-service.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-data-validation-service.php';
@@ -300,6 +302,8 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-form-handler.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-database.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-database-optimizer.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/dashboard/class-dashboard-helpers.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-dashboard-data-service.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-admin.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-performance-monitor.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-pillar-score-calculator.php';
@@ -815,6 +819,10 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				add_action( 'wp_ajax_ennu_update_symptoms', array( $this->admin, 'ajax_update_symptoms' ) );
 				add_action( 'wp_ajax_ennu_populate_symptoms', array( $this->admin, 'ajax_populate_symptoms' ) );
 				add_action( 'wp_ajax_ennu_get_symptoms_data', array( $this->admin, 'ajax_get_symptoms_data' ) );
+				
+				// v64.70.0: User Data AJAX action
+				add_action( 'wp_ajax_ennu_get_user_data', array( $this, 'ajax_get_user_data' ) );
+				add_action( 'wp_ajax_nopriv_ennu_get_user_data', array( $this, 'ajax_get_user_data' ) );
 
 				error_log( 'ENNU Life Plugin: Admin hooks registered successfully' );
 			} else {
@@ -891,8 +899,16 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			}
 
 			if ( $has_assessment_shortcode ) {
+				// Enqueue all assessment CSS files
 				wp_enqueue_style( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css', array(), ENNU_LIFE_VERSION );
-				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array(), ENNU_LIFE_VERSION . '.' . time(), true );
+				wp_enqueue_style( 'ennu-unified-design', ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-unified-design.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-theme-system', ENNU_LIFE_PLUGIN_URL . 'assets/css/theme-system.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-assessment-results', ENNU_LIFE_PLUGIN_URL . 'assets/css/assessment-results.css', array(), ENNU_LIFE_VERSION );
+				wp_enqueue_style( 'ennu-templates', ENNU_LIFE_PLUGIN_URL . 'assets/css/templates.css', array(), ENNU_LIFE_VERSION );
+				
+				// Enqueue assessment JavaScript
+				wp_enqueue_script( 'jquery' );
+				wp_enqueue_script( 'ennu-frontend-forms', ENNU_LIFE_PLUGIN_URL . 'assets/js/ennu-frontend-forms.js', array( 'jquery' ), ENNU_LIFE_VERSION, true );
 				wp_localize_script(
 					'ennu-frontend-forms',
 					'ennu_ajax',
@@ -934,22 +950,28 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				// Enqueue theme system styles
 				wp_enqueue_style( 'ennu-theme-system', ENNU_LIFE_PLUGIN_URL . 'assets/css/theme-system.css', array(), ENNU_LIFE_VERSION . '.' . time() );
 				
-				wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION . '.' . time() );
+				// Only load dashboard-specific CSS on dashboard pages
+				if ( $has_dashboard_shortcode || $has_biomarkers_shortcode ) {
+					wp_enqueue_style( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/css/user-dashboard.css', array(), ENNU_LIFE_VERSION . '.' . time() );
+					
+					// Enqueue My Story and My Insights tab styling
+					wp_enqueue_style( 'ennu-my-story-insights', ENNU_LIFE_PLUGIN_URL . 'assets/css/my-story-insights-styling.css', array(), ENNU_LIFE_VERSION . '.' . time() );
+				}
 				
-				// Enqueue My Story and My Insights tab styling
-				wp_enqueue_style( 'ennu-my-story-insights', ENNU_LIFE_PLUGIN_URL . 'assets/css/my-story-insights-styling.css', array(), ENNU_LIFE_VERSION . '.' . time() );
-				
-				// Enqueue Chart.js for trends visualization
-				wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js', array(), '3.9.1', true );
-				
-				// Enqueue Chart.js time adapter for time-based charts
-				wp_enqueue_script( 'chartjs-adapter-date-fns', 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.1/dist/chartjs-adapter-date-fns.bundle.min.js', array( 'chartjs' ), '2.0.1', true );
-				
-				// Enqueue theme manager script
-				wp_enqueue_script( 'ennu-theme-manager', ENNU_LIFE_PLUGIN_URL . 'assets/js/theme-manager.js', array(), ENNU_LIFE_VERSION . '.' . time(), true );
-				
-				// Enqueue user dashboard script
-				wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns', 'ennu-theme-manager' ), ENNU_LIFE_VERSION . '.' . time(), true );
+				// Only load dashboard JavaScript on actual dashboard pages
+				if ( $has_dashboard_shortcode ) {
+					// Enqueue Chart.js for trends visualization
+					wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js', array(), '3.9.1', true );
+					
+					// Enqueue Chart.js time adapter for time-based charts
+					wp_enqueue_script( 'chartjs-adapter-date-fns', 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.1/dist/chartjs-adapter-date-fns.bundle.min.js', array( 'chartjs' ), '2.0.1', true );
+					
+					// Enqueue theme manager script
+					wp_enqueue_script( 'ennu-theme-manager', ENNU_LIFE_PLUGIN_URL . 'assets/js/theme-manager.js', array(), ENNU_LIFE_VERSION . '.' . time(), true );
+					
+					// Enqueue user dashboard script ONLY on dashboard pages
+					wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns', 'ennu-theme-manager' ), ENNU_LIFE_VERSION . '.' . time(), true );
+				}
 
 				// --- FIX: Add nonce localization for user dashboard ---
 				if ( $has_dashboard_shortcode ) {
@@ -1114,6 +1136,43 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		public function customize_login_logo_title() {
 			return get_bloginfo( 'name' ) . ' - ' . get_bloginfo( 'description' );
 		}
+		
+		/**
+		 * AJAX handler for getting user data
+		 * @since 64.70.0
+		 */
+		public function ajax_get_user_data() {
+			// Check nonce
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
+				wp_send_json_error( 'Invalid nonce' );
+			}
+			
+			$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : get_current_user_id();
+			
+			if ( ! $user_id ) {
+				wp_send_json_error( 'No user ID provided' );
+			}
+			
+			// Get user data
+			$user_data = array(
+				'assessments' => array(),
+				'biomarkers' => get_user_meta( $user_id, 'ennu_biomarker_data', true ),
+				'symptoms' => get_user_meta( $user_id, 'ennu_centralized_symptoms', true ),
+				'health_goals' => get_user_meta( $user_id, 'ennu_global_health_goals', true )
+			);
+			
+			// Get all assessment data
+			$assessment_types = array( 'hair', 'weight_loss', 'health', 'skin', 'hormone', 'sleep', 'testosterone', 'menopause', 'ed_treatment', 'health_optimization', 'welcome' );
+			foreach ( $assessment_types as $type ) {
+				$meta_key = 'ennu_assessment_responses_' . str_replace( '_', '-', $type );
+				$data = get_user_meta( $user_id, $meta_key, true );
+				if ( $data ) {
+					$user_data['assessments'][$type] = $data;
+				}
+			}
+			
+			wp_send_json_success( $user_data );
+		}
 
 		/**
 		 * Check if plugin is compatible
@@ -1225,8 +1284,8 @@ if ( ! function_exists( 'ennu_life' ) ) {
  * @param array  $data          An associative array of data to be extracted into variables.
  */
 function ennu_load_template( $template_name, $data = array() ) {
-	// Ensure the template name is a valid file name.
-	$template_name = basename( $template_name );
+	// Remove any leading slashes but preserve subdirectories
+	$template_name = ltrim( $template_name, '/' );
 	
 	// Add .php extension if not present
 	if ( ! str_ends_with( $template_name, '.php' ) ) {

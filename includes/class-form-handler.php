@@ -583,7 +583,7 @@ class ENNU_Data_Persistence {
 			$saved_fields[] = 'email';
 		}
 		if ( isset( $form_data['billing_phone'] ) ) {
-			update_user_meta( $user_id, 'ennu_global_billing_phone', $form_data['billing_phone'] );
+			update_user_meta( $user_id, 'billing_phone', $form_data['billing_phone'] );
 			$saved_fields[] = 'phone';
 		}
 

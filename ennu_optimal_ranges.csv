@@ -1,0 +1,44 @@
+Primary Key,Lab Test Name,ennu Optimal Range,Date Of Optimal Range Creation,Date of Optimal Range Modification,Is this an actively used optimal range?,"1 = Lab Test Level, 2 = Physical Measurement","If MetricType = 1, this is a labcorp internal test code. If MetricType = 2, this is the FielName from the OpenDental orthochart table","If MetricType = 1, this is a labcorp internal test code. If MetricType = 2, this is the FielName from the OpenDental orthochart table","0 = male, 1 = female",High Value of Optimal Range,Low Value of Optimal Range,Whether it is okay to be above the High Value of the Optimal Range,Weight of the measurement in the member health score calculation,*Not sure on this one,Has to do with the MetricValueHighOK value. This tells whether a value above the optimal high value should still give points towards the member's health score.
+MetricNum,MetricDescription,MetricRangeDescription,MetricDateCreated,MetricDateModified,MetricActive,MetricType,MetricSourcesCode,MetricSourcesObsCode,MetricGender,MetricValueHigh,MetricValueLow,MetricValueHighOK,MetricWeight,MetricVersion,MetricScoreException
+1,CRP,Less Than 1 mg/L,1/14/2016 16:19,1/14/2016 16:19,1,1,1988-5,006627,0,1,0,0,9,1,2
+2,CRP,Less Than 1 mg/L,1/14/2016 16:19,1/14/2016 16:19,1,1,1988-5,006627,1,1,0,0,5,1,2
+3,DHEA,Between 300 and 600 ug/dL,1/14/2016 16:19,1/14/2016 16:19,1,1,2191-5,004699,0,600,300,1,10,1,1
+4,DHEA,Between 200 and 250 ug/dL,1/14/2016 16:19,1/14/2016 16:19,1,1,2191-5,004699,1,250,200,1,10,1,1
+6,Triiodothyronine Free,Between 3.4 and 4.4 pg/mL,1/14/2016 16:19,1/14/2016 16:19,1,1,3051-0,010389,1,4.4,3.39,1,12,1,1
+7,Triiodothyronine Free,Between 3.4 and 4.4 pg/mL,1/14/2016 16:19,1/14/2016 16:19,1,1,3051-0,010389,0,4.4,3.39,1,15,1,1
+8,"Estradiol
+",Between 34 and 65 pg/mL,1/14/2016 16:19,1/14/2016 16:19,1,1,2243-4,004519,0,65,34,1,10,1,1
+9,"Estradiol
+",Between 60 and 80 pg/mL,1/14/2016 16:19,1/14/2016 16:19,1,1,2243-4,004519,1,80,60,1,10,1,1
+10,Testosterone Free,Between 2 and 5 ng/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2991-8,144981,1,5,2,1,15,1,1
+11,Testosterone Free,Between 21 and 35 ng/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2991-8,144981,0,35,21,1,20,1,1
+12,Hemoglobin A1c,Less than 5.7%,1/15/2016 11:11,1/15/2016 11:11,1,1,4548-4,001481,1,5.69,0,0,10,1,0
+13,Hemoglobin A1c,Less than 5.7%,1/15/2016 11:11,1/15/2016 11:11,1,1,4548-4,001481,0,5.69,0,0,12,1,0
+14,LDL,Less than 100 mg/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,13457-7,012054,1,100,0,0,0,1,0
+15,LDL,Less than 100 mg/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,13457-7,012054,0,100,0,0,0,1,0
+16,Triglyceride,Less than 150 mg/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2571-8,001172,1,150,0,0,0,1,0
+17,Triglyceride,Less than 150 mg/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2571-8,001172,0,150,0,0,0,1,0
+18,D3,Between 60 and 80 ng/mL,1/15/2016 11:11,1/15/2016 11:11,1,1,62292-8,081953,1,80,60,1,10,1,1
+19,D3,Between 60 and 80 ng/mL,1/15/2016 11:22,1/15/2016 11:22,1,1,62292-8,081953,0,80,60,1,10,1,1
+20,Magnesium,Greater than 2 mg/dL,1/15/2016 11:24,1/15/2016 11:24,1,1,19123-9,001537,1,3,2.01,1,3,1,0
+21,Magnesium,Greater than 2 mg/dL,1/15/2016 11:24,1/15/2016 11:24,1,1,19123-9,001537,0,3,2.01,1,4,1,0
+22,Systolic,< 130/80,1/15/2016 11:24,1/15/2016 11:24,1,2,Systolic,Systolic,0,130,NULL,0,0,1,2
+23,Systolic,< 130/80,1/15/2016 11:24,1/15/2016 11:24,1,2,Systolic,Systolic,1,130,NULL,0,0,1,2
+24,Diastolic,< 130/80,1/15/2016 11:24,1/15/2016 11:24,1,2,Diastolic,Diastolic,0,80,NULL,0,0,1,2
+25,Diastolic,< 130/80,1/15/2016 11:24,1/15/2016 11:24,1,2,Diastolic,Diastolic,1,80,NULL,0,0,1,2
+26,BMI,Between 18.5 and 25,1/15/2016 11:24,1/15/2016 11:24,1,2,BMI,BMI,0,25,18.49,0,0,1,2
+27,BMI,Between 18.5 and 25,1/15/2016 11:24,1/15/2016 11:24,1,2,BMI,BMI,1,25,18.49,0,0,1,2
+28,Waistline,"Less than 35"",2016-01-15 11:24:08""",1/15/2016 11:24,1/15/2016 11:24,1,2,WaistInches,WaistInches,0,35,0,0,0,1,2
+29,Waistline,"Less than 32"",2016-01-15 11:24:08""",1/15/2016 11:24,1/15/2016 11:24,1,2,WaistInches,WaistInches,1,32,0,0,5,1,2
+30,Body Fat %,Between 11 and 17%,1/15/2016 11:24,1/15/2016 11:24,1,2,BodyFat,BodyFat,0,17,11,0,10,1,2
+31,Body Fat %,Between 19 and 22%,1/15/2016 11:24,1/15/2016 11:24,1,2,BodyFat,BodyFat,1,22,19,0,0,1,2
+32,Weight,See BMI,1/15/2016 11:24,1/15/2016 11:24,1,2,WeightLbs,WeightLbs,0,NULL,NULL,0,0,1,2
+33,Weight,See BMI,1/15/2016 11:24,1/15/2016 11:24,1,2,WeightLbs,WeightLbs,1,NULL,NULL,0,0,1,2
+57,Testosterone Free,Between 2 and 5 ng/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2991-8,080796,1,5,2,1,15,1,1
+58,Testosterone Free,Between 21 and 35 ng/dL,1/15/2016 11:11,1/15/2016 11:11,1,1,2991-8,080796,0,35,21,1,20,1,1
+59,Progesterone,Between 3 and 14 ng/mL,1/14/2016 16:19,1/14/2016 16:19,1,1,2839-9,004317,1,14,3,1,20,1,1
+60,Progesterone,Not Applicable to Men,1/14/2016 16:19,1/14/2016 16:19,1,1,2839-9,004317,0,0,0,1,0,1,0
+61,Hemoglobin A1c,Less than 5.7%,1/15/2016 11:11,1/15/2016 11:11,1,1,4548-4,001464,1,5.69,0,0,10,1,2
+62,Hemoglobin A1c,Less than 5.7%,1/15/2016 11:11,1/15/2016 11:11,1,1,4548-4,001464,0,5.69,0,0,12,1,2
+63,Insulin-Like Growth Factor I,Between 200 and 250 ng/mL,7/10/2025 20:34,7/10/2025 20:34,1,1,2484-4,010369,1,249.9,200,0,0,1,0
+64,Insulin-Like Growth Factor I,Between 200 and 250 ng/mL,7/10/2025 20:34,7/10/2025 20:34,1,1,2484-4,010369,0,249.9,200,0,0,1,0

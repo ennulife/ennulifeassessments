@@ -5,7 +5,7 @@ Tags: health, assessment, biomarkers, wellness, scoring, healthcare, medical, sy
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 64.61.0
+Stable tag: 64.68.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,95 @@ Yes, the plugin includes a comprehensive configuration system that allows custom
 5. Admin interface for system configuration
 
 == Changelog ==
+
+= 64.68.0 =
+* CRITICAL FIX: Biomarker Statistics Calculation Logic
+* FIXED: "Has Data Count" showing 0 despite user having 21 biomarkers with data
+* FIXED: Biomarker key mismatch between user data and available biomarkers list
+* CHANGED: Statistics calculation now iterates through user biomarkers instead of available biomarkers
+* FIXED: Logic now properly counts biomarkers that have data regardless of available list
+* ADDED: Range checking only for biomarkers that exist in the available biomarkers list
+* ENHANCED: Debug information now shows available biomarker keys for comparison
+* IMPROVED: Biomarker statistics now accurately reflect user's actual data
+* BENEFIT: Users now see correct statistics that match their uploaded biomarker data
+
+= 64.67.0 =
+* FIXED: Biomarker Statistics Error Handling and Debug Information
+* ENHANCED: Biomarker statistics calculation with comprehensive error handling
+* ADDED: Try-catch blocks around biomarker manager instantiation and data retrieval
+* ADDED: Array validation checks to prevent fatal errors in statistics calculation
+* ADDED: Fallback values for all biomarker statistics when errors occur
+* ADDED: Error logging for debugging biomarker statistics issues
+* ADDED: Debug information display for administrators (when WP_DEBUG is enabled)
+* IMPROVED: Robustness of biomarker statistics display with defensive programming
+* ENHANCED: User experience with graceful error handling instead of fatal errors
+* BENEFIT: System stability and easier debugging for biomarker functionality
+
+= 64.66.0 =
+* ENHANCED: Biomarker Statistics Display - Comprehensive 5-Category Overview
+* UPDATED: MY BIOMARKERS section now shows detailed statistics instead of basic counts
+* ADDED: "Biomarkers" - Total count of available biomarkers
+* ADDED: "Flagged" - Count of biomarkers flagged for attention
+* ADDED: "Has Data" - Count of biomarkers with user data
+* ADDED: "Within Optimal Range" - Count of biomarkers within optimal range
+* ADDED: "Outside Optimal Range" - Count of biomarkers outside optimal range
+* IMPROVED: Real-time calculation of biomarker status using ENNU_Biomarker_Manager
+* ENHANCED: User dashboard provides comprehensive biomarker health overview
+* BENEFIT: Users can now see their biomarker health status at a glance
+
+= 64.65.0 =
+* COMPLETE: Unified Global Field IDs Implementation - All Fields Updated
+* UPDATED: All 11 assessment configuration files to use unified field IDs
+* COMPLETED: Height & Weight fields now use 'ennu_global_height_weight' across all assessments
+* COMPLETED: Gender fields use 'ennu_global_gender' across all assessments
+* COMPLETED: Date of Birth fields use 'ennu_global_date_of_birth' across all assessments
+* COMPLETED: Health Goals field uses 'ennu_global_health_goals' in welcome assessment
+* UPDATED: HubSpot integration field mapping to use unified global field IDs
+* REDUCED: Field ID complexity from 31 assessment-specific IDs to 4 unified IDs
+* IMPROVED: Data consistency and analytics capabilities across all assessments
+* ENHANCED: CRM integration potential with simplified field mapping
+* SIMPLIFIED: Assessment maintenance with unified field structure
+* BENEFIT: 87% reduction in field ID complexity for global fields
+* VERIFIED: All templates, admin pages, and processing logic are compatible
+
+= 64.64.0 =
+* MAJOR ENHANCEMENT: Unified Global Field IDs Implementation
+* IMPLEMENTED: Unified field IDs across all 11 assessments for consistent data storage
+* CHANGED: All global fields now use unified IDs: ennu_global_gender, ennu_global_date_of_birth, ennu_global_height_weight
+* UPDATED: 11 assessment configuration files to use unified field IDs
+* REDUCED: Field ID complexity from 31 assessment-specific IDs to 4 unified IDs
+* IMPROVED: Data consistency and analytics capabilities across all assessments
+* ENHANCED: CRM integration potential with simplified field mapping
+* SIMPLIFIED: Assessment maintenance with unified field structure
+* ADDED: Support for health_goals global field in welcome assessment
+* BENEFIT: 87% reduction in field ID complexity for global fields
+
+= 64.63.0 =
+* CRITICAL FIX: Weight-Loss Assessment Scoring System Restoration
+* FIXED: Weight-loss assessment showing 0.0 scores due to missing assessment type mapping
+* FIXED: "Missing assessment type mapping for: weight-loss" error in scoring system
+* ADDED: 'weight-loss' => 'weight-loss' mapping to scoring system configuration
+* RESTORED: Complete scoring functionality for weight-loss assessment with proper category and pillar scores
+* ENHANCED: Scoring system now correctly calculates Motivation & Goals, Nutrition, Physical Activity scores
+* IMPROVED: Assessment results now display meaningful scores instead of 0.0
+* ADDED: Comprehensive testing framework for scoring system validation
+* ENHANCED: User experience with proper score breakdown and interpretation
+* FIXED: All assessment types now properly mapped and scored
+* RESTORED: Complete assessment functionality with accurate scoring calculations
+
+= 64.62.0 =
+* CRITICAL FIX: Assessment Submission and PDF Processor Error Resolution
+* FIXED: Fatal error in assessment submission due to undefined method 'update_from_assessment'
+* FIXED: PDF processor fatal error due to undefined 'current_time()' function in direct AJAX handler
+* FIXED: All current_time() calls in PDF processor now use function_exists() safety checks
+* FIXED: Assessment submission now uses correct 'update_centralized_symptoms' method
+* ENHANCED: PDF processor robustness with fallback timestamp generation
+* IMPROVED: Error handling for WordPress environment availability in direct AJAX calls
+* ADDED: Comprehensive testing framework for PDF processor and assessment submission fixes
+* ENHANCED: System stability for both assessment forms and PDF upload functionality
+* FIXED: All fatal errors that were causing 500 Internal Server Errors
+* RESTORED: Complete functionality for assessment submission and biomarker flagging
+* ADDED: Defensive programming for WordPress function availability in custom AJAX handlers
 
 = 64.61.0 =
 * MAJOR FIX: LabCorp PDF Upload Functionality Final Restoration

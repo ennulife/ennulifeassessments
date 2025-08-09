@@ -228,9 +228,9 @@ if ( empty( $assessment_type ) ) {
 			<div class="ennu-card ennu-animate-in ennu-animate-delay-1">
 				<h2 class="ennu-section-title">Progress Over Time</h2>
 				<div class="ennu-progress-chart-container">
-					<div class="ennu-progress-chart">
-						<canvas id="progressChart" width="800" height="400"></canvas>
-					</div>
+                    <div class="ennu-progress-chart">
+                        <canvas id="assessmentTimelineChart" width="800" height="400"></canvas>
+                    </div>
 					<div class="ennu-progress-stats">
 						<div class="ennu-progress-stat">
 							<div class="ennu-progress-stat-value"><?php echo esc_html( number_format( $overall_score ?? 0, 1 ) ); ?></div>
@@ -325,13 +325,11 @@ if ( empty( $assessment_type ) ) {
 			<?php endif; ?>
 
 			<!-- Biomarkers Section -->
-			<?php error_log( 'ENNU Details: Reaching biomarkers section' ); ?>
 			<div class="ennu-card ennu-animate-in ennu-animate-delay-6">
 				<h2 class="ennu-section-title">Related Biomarkers</h2>
 				<div class="ennu-biomarkers-section">
 					<?php
 					// Debug: Check if biomarkers template is loading
-					error_log( 'ENNU Details: Loading biomarkers template for user ' . get_current_user_id() );
 					
 					// Load the biomarkers-only template content
 					$biomarkers_data = array(
@@ -343,7 +341,6 @@ if ( empty( $assessment_type ) ) {
 					// Load the biomarkers template
 					ennu_load_template( 'biomarkers-only', $biomarkers_data );
 					
-					error_log( 'ENNU Details: Biomarkers template loaded successfully' );
 					?>
 				</div>
 			</div>
@@ -352,57 +349,6 @@ if ( empty( $assessment_type ) ) {
 </div>
 
 <!-- Progress Chart JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    
-    // No sample progress data - show empty chart or message
-    const progressData = {
-        labels: [],
-        datasets: [{
-            label: '<?php echo esc_js( ucwords( str_replace( '_', ' ', $assessment_type ) ) ); ?> Score',
-            data: [],
-            borderColor: 'rgba(16, 185, 129, 1)',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4
-        }]
-    };
-    
-    const config = {
-        type: 'line',
-        data: progressData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 10,
-                    ticks: {
-                        stepSize: 2
-                    }
-                }
-            },
-            elements: {
-                point: {
-                    radius: 6,
-                    backgroundColor: 'rgba(16, 185, 129, 1)',
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }
-            }
-        }
-    };
-    
-    new Chart(ctx, config);
-});
-</script>
+<!-- Chart boot handled by assets/js/assessment-details.js -->
 
 <!-- Theme system is now handled by the centralized ENNUThemeManager --> 

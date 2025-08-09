@@ -10,7 +10,7 @@ return array(
 	'title'             => 'Weight Loss Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'wl_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -20,19 +20,19 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'wl_q_dob' => array(
+		'ennu_global_date_of_birth' => array(
 			'title'      => 'What is your date of birth?',
 			'type'       => 'dob_dropdowns',
 			'required'   => true,
 			'global_key' => 'date_of_birth',
 		),
-		'wl_q1'       => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your current height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'wl_q2'       => array(
+		'weight_loss_q2'       => array(
 			'title'    => 'What is your primary weight loss goal?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -53,7 +53,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q3'       => array(
+		'weight_loss_q3'       => array(
 			'title'    => 'How would you describe your typical diet?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -76,7 +76,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q4'       => array(
+		'weight_loss_q4'       => array(
 			'title'    => 'How often do you exercise per week?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -97,7 +97,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q5'       => array(
+		'weight_loss_q5'       => array(
 			'title'    => 'How many hours of sleep do you typically get per night?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -118,7 +118,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q6'       => array(
+		'weight_loss_q6'       => array(
 			'title'    => 'How would you rate your daily stress levels?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -139,7 +139,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q7'       => array(
+		'weight_loss_q7'       => array(
 			'title'    => 'What has been your experience with weight loss in the past?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -160,7 +160,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q8'       => array(
+		'weight_loss_q8'       => array(
 			'title'    => 'Do you find yourself eating due to stress, boredom, or other emotional cues?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -181,7 +181,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q9'       => array(
+		'weight_loss_q9'       => array(
 			'title'    => 'Have you been diagnosed with any conditions that can affect weight?',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -202,7 +202,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q10'      => array(
+		'weight_loss_q10'      => array(
 			'title'    => 'How motivated are you to make lifestyle changes to achieve your weight goals?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -223,7 +223,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q11'      => array(
+		'weight_loss_q11'      => array(
 			'title'    => 'What is your primary body composition goal?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -242,7 +242,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q12'      => array(
+		'weight_loss_q12'      => array(
 			'title'    => 'Do you have a strong support system (family, friends) for your health journey?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -261,7 +261,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_q13'      => array(
+		'weight_loss_q13'      => array(
 			'title'    => 'How confident are you in your ability to achieve your weight loss goals?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -280,7 +280,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'wl_symptoms' => array(
+		'weight_loss_symptoms' => array(
 			'title'    => 'Select any symptoms you are experiencing:',
 			'type'     => 'multiselect',
 			'options'  => array(

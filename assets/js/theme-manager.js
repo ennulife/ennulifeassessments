@@ -40,7 +40,6 @@ class ENNUThemeManager {
 		
 		this.isInitialized = true;
 		
-		console.log('ENNU Theme Manager: Initialized with theme:', this.theme);
 	}
 	
 	/**
@@ -141,7 +140,6 @@ class ENNUThemeManager {
 		this.saveTheme();
 		this.applyTheme();
 		
-		console.log('ENNU Theme Manager: Theme toggled to:', this.theme);
 	}
 	
 	/**
@@ -149,7 +147,6 @@ class ENNUThemeManager {
 	 */
 	setTheme(theme) {
 		if (theme !== 'dark' && theme !== 'light') {
-			console.warn('ENNU Theme Manager: Invalid theme:', theme);
 			return;
 		}
 		
@@ -157,7 +154,6 @@ class ENNUThemeManager {
 		this.saveTheme();
 		this.applyTheme();
 		
-		console.log('ENNU Theme Manager: Theme set to:', this.theme);
 	}
 	
 	/**
@@ -185,7 +181,6 @@ class ENNUThemeManager {
 		// 	if (!localStorage.getItem(this.storageKey)) {
 		// 		this.theme = e.matches ? 'dark' : 'light';
 		// 		this.applyTheme();
-		// 		console.log('ENNU Theme Manager: System theme changed to:', this.theme);
 		// 	}
 		// });
 		

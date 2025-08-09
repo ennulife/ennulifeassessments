@@ -19,7 +19,6 @@ if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
 		}
 	} catch ( Exception $e ) {
 		// Log error but don't break the dashboard
-		error_log( 'ENNU Dashboard Auto-Sync Error: ' . $e->getMessage() );
 	}
 }
 
@@ -35,20 +34,16 @@ if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
 <script type="text/javascript">
 // Enhanced toggle functions with visual feedback and accessibility
 window.togglePanel = function(panelKey) {
-    console.log('togglePanel called with:', panelKey);
     const panelContent = document.getElementById('panel-content-' + panelKey);
     if (!panelContent) {
-        console.error('Panel content not found for:', panelKey);
         return;
     }
     const panelHeader = panelContent.previousElementSibling;
     if (!panelHeader) {
-        console.error('Panel header not found for:', panelKey);
         return;
     }
     const expandIcon = panelHeader.querySelector('.panel-expand-icon');
     if (!expandIcon) {
-        console.error('Panel expand icon not found for:', panelKey);
         return;
     }
     
@@ -176,23 +171,19 @@ document.addEventListener('keydown', function(e) {
 });
 
 window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarkerKey) {
-    console.log('toggleBiomarkerMeasurements called with:', panelKey, vectorCategory, biomarkerKey);
     const containerId = 'biomarker-measurement-' + panelKey + '-' + vectorCategory + '-' + biomarkerKey;
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error('Biomarker container not found for:', containerId);
         showFeedback('Biomarker data not found', 'error');
         return;
     }
     const listItem = container.previousElementSibling;
     if (!listItem) {
-        console.error('Biomarker list item not found for:', containerId);
         showFeedback('Biomarker item not found', 'error');
         return;
     }
     const expandIcon = listItem.querySelector('.biomarker-list-expand');
     if (!expandIcon) {
-        console.error('Biomarker expand icon not found for:', containerId);
         showFeedback('Biomarker controls not found', 'error');
         return;
     }
@@ -225,10 +216,8 @@ window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarke
 };
 
 window.toggleVectorCategory = function(panelKey, vectorCategory) {
-    console.log('toggleVectorCategory called with:', panelKey, vectorCategory);
     const vectorContainer = document.querySelector('[data-panel="' + panelKey + '"][data-vector="' + vectorCategory + '"]');
     if (!vectorContainer) {
-        console.error('Vector container not found for:', panelKey, vectorCategory);
         showFeedback('Vector category not found', 'error');
         return;
     }
@@ -273,7 +262,6 @@ window.toggleVectorCategory = function(panelKey, vectorCategory) {
     }, 300);
 };
 
-console.log('Inline toggle functions loaded successfully');
 </script>
 <?php
 
@@ -721,7 +709,6 @@ function render_biomarker_measurement($measurement_data) {
             $optimal_max = is_numeric($optimal_max) ? (float)$optimal_max : 1;
             $target_value = (float)$optimal_min + (((float)$optimal_max - (float)$optimal_min) / 2);
             $target_position = 50; // Middle position
-            error_log("ENNU DEBUG: Using fallback target for $biomarker_id - range data invalid");
         }
     }
     
@@ -742,7 +729,6 @@ function render_biomarker_measurement($measurement_data) {
             $target_value = 0; // Ultimate fallback
         }
         $target_position = 50; // Middle position
-        error_log("ENNU DEBUG: Applied final safety fallback for $biomarker_id - target_value: $target_value");
     }
     
     // Get range boundaries for ruler - use the complete range from AI Medical Team
@@ -781,7 +767,6 @@ function render_biomarker_measurement($measurement_data) {
         $optimal_center = ($optimal_min + $optimal_max) / 2;
         $optimal_min = $optimal_center - ($min_optimal_width / 2);
         $optimal_max = $optimal_center + ($min_optimal_width / 2);
-        error_log("ENNU DEBUG: Expanded optimal range for biomarker $biomarker_id to ensure visibility");
     }
     
     // Recalculate positions with adjusted ranges
@@ -794,7 +779,6 @@ function render_biomarker_measurement($measurement_data) {
         $critical_min = $optimal_min - 0.5;
         $critical_max = $optimal_max + 0.5;
         $range_width = $critical_max - $critical_min;
-        error_log("ENNU DEBUG: Fixed division by zero for biomarker $biomarker_id - using fallback range");
     }
     
     $optimal_start_pos = (($optimal_min - $critical_min) / $range_width) * 100;
@@ -811,7 +795,6 @@ function render_biomarker_measurement($measurement_data) {
     $target_ruler_position = $target_ruler_position !== null ? max(0, min(100, $target_ruler_position)) : null;
     
     // Debug output for troubleshooting
-    error_log("ENNU DEBUG: Biomarker $biomarker_id - Critical: $critical_min-$critical_max, Normal: $normal_min-$normal_max, Optimal: $optimal_min-$optimal_max, Current: $current_value, Target: $target_value, Range Width: $range_width");
     
     // Also output to browser for immediate debugging
     if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -1847,15 +1830,41 @@ if ( empty( $display_name ) ) {
 												<div class="assessment-section recommendations-section hidden">
 													<h4 class="scores-title">RECOMMENDATIONS</h4>
 													<div class="recommendations-content">
-														<p>Your personalized recommendations will appear here based on your assessment results.</p>
-														<!-- This can be populated with actual recommendations data -->
+														<?php
+														// Get assessment-specific recommendations based on scores
+														$recommendations = array();
+														$avg_score = isset( $assessment['average_score'] ) ? $assessment['average_score'] : 0;
+														
+														if ( $avg_score >= 8.0 ) {
+															$recommendations[] = 'Excellent results! Continue your current health practices to maintain optimal performance.';
+															$recommendations[] = 'Consider advanced optimization strategies for peak performance.';
+															$recommendations[] = 'Schedule quarterly check-ins to track your continued progress.';
+														} elseif ( $avg_score >= 6.0 ) {
+															$recommendations[] = 'Good foundation with room for improvement in specific areas.';
+															$recommendations[] = 'Focus on the categories with lower scores for targeted enhancement.';
+															$recommendations[] = 'Schedule a consultation to discuss personalized optimization strategies.';
+														} else {
+															$recommendations[] = 'Significant opportunities for health improvement identified.';
+															$recommendations[] = 'Immediate attention recommended - book a comprehensive consultation.';
+															$recommendations[] = 'Consider our intensive health transformation program.';
+														}
+														
+														if ( ! empty( $recommendations ) ) : ?>
+															<ul class="recommendations-list">
+																<?php foreach ( $recommendations as $rec ) : ?>
+																	<li><?php echo esc_html( $rec ); ?></li>
+																<?php endforeach; ?>
+															</ul>
+														<?php else : ?>
+															<p>Complete this assessment to receive personalized recommendations.</p>
+														<?php endif; ?>
 													</div>
 												</div>
 												
 												<!-- Breakdown Section (Hidden by default) -->
-												<?php if ( ! empty( $assessment['categories'] ) ) : ?>
-													<div class="assessment-section breakdown-section hidden">
-														<h4 class="scores-title">CATEGORY SCORES</h4>
+												<div class="assessment-section breakdown-section hidden">
+													<h4 class="scores-title">CATEGORY SCORES</h4>
+													<?php if ( ! empty( $assessment['categories'] ) && is_array( $assessment['categories'] ) ) : ?>
 														<div class="category-scores">
 															<?php foreach ( $assessment['categories'] as $category => $score ) : ?>
 																<div class="category-score-item">
@@ -1867,8 +1876,13 @@ if ( empty( $display_name ) ) {
 																</div>
 															<?php endforeach; ?>
 														</div>
-													</div>
-												<?php endif; ?>
+													<?php else : ?>
+														<div class="no-category-data">
+															<p>Category breakdown not available for this assessment.</p>
+															<small>Complete the assessment again to see detailed category scores.</small>
+														</div>
+													<?php endif; ?>
+												</div>
 											<?php endif; ?>
 											
 											<div class="assessment-card-actions">
@@ -1902,14 +1916,72 @@ if ( empty( $display_name ) ) {
 															</svg>
 															Speak With Expert
 														</a>
-														<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
+														<a href="<?php 
+															// Get assessment page from settings
+															$assessment_page_id = null;
+															$settings = get_option( 'ennu_life_settings', array() );
+															$page_mappings = $settings['page_mappings'] ?? array();
+															
+															// Try to get specific assessment page - handle different key formats
+															// First try with dashes (ed-treatment, weight-loss)
+															$assessment_key_with_dash = $assessment['key'] . '_assessment_page_id';
+															// Then try with underscores
+															$assessment_key_with_underscore = str_replace('-', '_', $assessment['key']) . '_assessment_page_id';
+															
+															if ( isset( $page_mappings[$assessment_key_with_dash] ) ) {
+																$assessment_page_id = $page_mappings[$assessment_key_with_dash];
+															} elseif ( isset( $page_mappings[$assessment_key_with_underscore] ) ) {
+																$assessment_page_id = $page_mappings[$assessment_key_with_underscore];
+															}
+															
+															// Fallback to general assessments page
+															if ( ! $assessment_page_id && isset( $page_mappings['assessments'] ) ) {
+																$assessment_page_id = $page_mappings['assessments'];
+															}
+															
+															if ( $assessment_page_id ) {
+																echo esc_url( home_url( "/?page_id={$assessment_page_id}" ) );
+															} else {
+																// Final fallback using UI Constants
+																echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) );
+															}
+														?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
 													</div>
 												<?php endif; ?>
 											</div>
 											
 											<?php if ( $assessment['completed'] ) : ?>
 												<div class="assessment-retake-link">
-													<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'RETAKE_ASSESSMENT' ) ); ?></a>
+													<a href="<?php 
+														// Get assessment page from settings for retake
+														$retake_page_id = null;
+														$settings = get_option( 'ennu_life_settings', array() );
+														$page_mappings = $settings['page_mappings'] ?? array();
+														
+														// Try to get specific assessment page - handle different key formats
+														// First try with dashes (ed-treatment, weight-loss)
+														$assessment_key_with_dash = $assessment['key'] . '_assessment_page_id';
+														// Then try with underscores
+														$assessment_key_with_underscore = str_replace('-', '_', $assessment['key']) . '_assessment_page_id';
+														
+														if ( isset( $page_mappings[$assessment_key_with_dash] ) ) {
+															$retake_page_id = $page_mappings[$assessment_key_with_dash];
+														} elseif ( isset( $page_mappings[$assessment_key_with_underscore] ) ) {
+															$retake_page_id = $page_mappings[$assessment_key_with_underscore];
+														}
+														
+														// Fallback to general assessments page
+														if ( ! $retake_page_id && isset( $page_mappings['assessments'] ) ) {
+															$retake_page_id = $page_mappings['assessments'];
+														}
+														
+														if ( $retake_page_id ) {
+															echo esc_url( home_url( "/?page_id={$retake_page_id}" ) );
+														} else {
+															// Final fallback using UI Constants
+															echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) );
+														}
+													?>"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'RETAKE_ASSESSMENT' ) ); ?></a>
 												</div>
 											<?php endif; ?>
 										</div>
@@ -1917,7 +1989,8 @@ if ( empty( $display_name ) ) {
 								<?php endforeach; ?>
 							</div>
 							
-							<!-- Recommended Assessments Section -->
+							<!-- Recommended Assessments Section REMOVED - Too much information/overkill -->
+							<?php if ( false ) : // Permanently disabled - removing clutter ?>
 							<div class="recommended-assessments-section">
 								<div class="scores-title-container">
 									<h2 class="scores-title">RECOMMENDED ASSESSMENTS</h2>
@@ -1929,7 +2002,6 @@ if ( empty( $display_name ) ) {
 	try {
 		$next_steps_widget = new ENNU_Next_Steps_Widget();
 	} catch ( Exception $e ) {
-		error_log( 'ENNU Dashboard Error - Next Steps Widget: ' . $e->getMessage() );
 		$next_steps_widget = null;
 	}
 									$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
@@ -1949,7 +2021,36 @@ if ( empty( $display_name ) ) {
 														</span>
 													</div>
 													<div class="recommended-assessment-actions">
-														<a href="<?php echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) ); ?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
+														<a href="<?php 
+															// Get assessment page from settings
+															$assessment_page_id = null;
+															$settings = get_option( 'ennu_life_settings', array() );
+															$page_mappings = $settings['page_mappings'] ?? array();
+															
+															// Try to get specific assessment page - handle different key formats
+															// First try with dashes (ed-treatment, weight-loss)
+															$assessment_key_with_dash = $assessment['key'] . '_assessment_page_id';
+															// Then try with underscores
+															$assessment_key_with_underscore = str_replace('-', '_', $assessment['key']) . '_assessment_page_id';
+															
+															if ( isset( $page_mappings[$assessment_key_with_dash] ) ) {
+																$assessment_page_id = $page_mappings[$assessment_key_with_dash];
+															} elseif ( isset( $page_mappings[$assessment_key_with_underscore] ) ) {
+																$assessment_page_id = $page_mappings[$assessment_key_with_underscore];
+															}
+															
+															// Fallback to general assessments page
+															if ( ! $assessment_page_id && isset( $page_mappings['assessments'] ) ) {
+																$assessment_page_id = $page_mappings['assessments'];
+															}
+															
+															if ( $assessment_page_id ) {
+																echo esc_url( home_url( "/?page_id={$assessment_page_id}" ) );
+															} else {
+																// Final fallback using UI Constants
+																echo esc_url( '?' . ENNU_UI_Constants::get_page_type( 'ASSESSMENTS' ) );
+															}
+														?>" class="btn btn-primary btn-pill"><?php echo esc_html( ENNU_UI_Constants::get_button_text( 'START_ASSESSMENT' ) ); ?></a>
 													</div>
 												</div>
 											</div>
@@ -1968,6 +2069,7 @@ if ( empty( $display_name ) ) {
 								}
 								?>
 							</div>
+							<?php endif; // End of disabled recommended assessments section ?>
 						</div>
 					</div>
 					
@@ -2230,25 +2332,81 @@ if ( empty( $display_name ) ) {
 								<h2 class="scores-title">MY BIOMARKERS</h2>
 								</div>
 								
-							<!-- Clean Stats Row -->
+							<!-- Enhanced Biomarker Statistics -->
+							<?php
+							// Calculate comprehensive biomarker statistics with error handling
+							try {
+								$biomarker_manager = new ENNU_Biomarker_Manager();
+								$flag_manager = new ENNU_Biomarker_Flag_Manager();
+								
+								// Get all available biomarkers
+								$all_biomarkers = $biomarker_manager->get_all_available_biomarkers();
+								$total_biomarkers = is_array($all_biomarkers) ? count($all_biomarkers) : 0;
+								
+								// Get user's biomarker data
+								$user_biomarkers = $biomarker_manager->get_user_biomarkers($user_id);
+								$has_data_count = 0;
+								$within_range_count = 0;
+								$outside_range_count = 0;
+								
+								// Count biomarkers with data and check ranges
+								if (is_array($all_biomarkers) && is_array($user_biomarkers)) {
+									// First, count biomarkers that have data (regardless of whether they're in the available list)
+									foreach ($user_biomarkers as $user_biomarker_key => $user_biomarker_data) {
+										if (isset($user_biomarker_data['value']) && !empty($user_biomarker_data['value'])) {
+											$has_data_count++;
+											
+											// Check if within optimal range for biomarkers that are in the available list
+											if (in_array($user_biomarker_key, $all_biomarkers)) {
+												$measurement_data = $biomarker_manager->get_biomarker_measurement_data($user_id, $user_biomarker_key);
+												if (isset($measurement_data['status']) && $measurement_data['status'] === 'optimal') {
+													$within_range_count++;
+												} elseif (isset($measurement_data['status']) && in_array($measurement_data['status'], ['low', 'high', 'critical'])) {
+													$outside_range_count++;
+												}
+											}
+										}
+									}
+								}
+								
+								// Get flagged biomarkers count
+								$flagged_biomarkers = $flag_manager->get_flagged_biomarkers($user_id, 'active');
+								$flagged_count = is_array($flagged_biomarkers) ? count($flagged_biomarkers) : 0;
+								
+							} catch (Exception $e) {
+								// Fallback values if there's an error
+								$total_biomarkers = 0;
+								$flagged_count = 0;
+								$has_data_count = 0;
+								$within_range_count = 0;
+								$outside_range_count = 0;
+								
+								// Log error for debugging
+							}
+							?>
+							
 							<div class="biomarkers-stats-row">
 								<div class="stat-item">
-									<span class="stat-number">50</span>
-									<span class="stat-label">Core Biomarkers</span>
-									</div>
-								<div class="stat-item">
-									<span class="stat-number">0</span>
-									<span class="stat-label">Tested</span>
-									</div>
-								<div class="stat-item">
-									<span class="stat-number"><?php 
-										$flag_manager = new ENNU_Biomarker_Flag_Manager();
-										$flagged_count = count($flag_manager->get_flagged_biomarkers($user_id, 'active'));
-										echo $flagged_count;
-									?></span>
-									<span class="stat-label">Flagged</span>
-									</div>
+									<span class="stat-number"><?php echo $total_biomarkers; ?></span>
+									<span class="stat-label">Biomarkers</span>
 								</div>
+								<div class="stat-item">
+									<span class="stat-number"><?php echo $flagged_count; ?></span>
+									<span class="stat-label">Flagged</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-number"><?php echo $has_data_count; ?></span>
+									<span class="stat-label">Has Data</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-number"><?php echo $within_range_count; ?></span>
+									<span class="stat-label">Within Optimal Range</span>
+								</div>
+								<div class="stat-item">
+									<span class="stat-number"><?php echo $outside_range_count; ?></span>
+									<span class="stat-label">Outside Optimal Range</span>
+								</div>
+							</div>
 								
 							<!-- Action Buttons - Widened and Clean -->
 								<div class="biomarkers-actions">
@@ -2477,7 +2635,6 @@ if ( empty( $display_name ) ) {
 											<?php foreach ($grouped_flagged as $assessment_name => $biomarkers) : 
 												// Skip sections with empty assessment names only
 												if (empty($assessment_name)) {
-													error_log("Warning: Skipping flagged biomarkers with empty assessment name");
 													continue;
 												}
 												
@@ -2573,7 +2730,6 @@ if ( empty( $display_name ) ) {
 							
 							// Load core biomarkers from the Recommended Range Manager (AI Medical Team source)
 							if (!isset($core_biomarkers) || empty($core_biomarkers)) {
-								error_log("ENNU DEBUG: Loading biomarker data from Recommended Range Manager");
 								$range_manager = new ENNU_Recommended_Range_Manager();
 								$user_data = array(
 									'age' => $user_age ?? 35,
@@ -2582,7 +2738,6 @@ if ( empty( $display_name ) ) {
 								
 								// Get all biomarker configurations from AI Medical Team
 								$biomarker_config = $range_manager->get_biomarker_configuration();
-								error_log("ENNU DEBUG: Loaded " . count($biomarker_config) . " biomarker configurations");
 								
 								// Convert to dashboard format
 								$core_biomarkers = array();
@@ -2922,7 +3077,6 @@ if ( empty( $display_name ) ) {
 										$actionable_feedback = new ENNU_Actionable_Feedback();
 										$actionable_insights = $actionable_feedback->get_actionable_feedback( $user_id );
 									} catch ( Exception $e ) {
-										error_log( 'ENNU Actionable Feedback Error: ' . $e->getMessage() );
 										$actionable_insights = array();
 									}
 								}
@@ -3157,7 +3311,6 @@ if ( empty( $display_name ) ) {
 										$next_steps_widget = new ENNU_Next_Steps_Widget();
 										$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
 									} catch ( Exception $e ) {
-										error_log( 'ENNU Next Steps Widget Error: ' . $e->getMessage() );
 										$next_steps_data = array();
 									}
 								}
@@ -3221,7 +3374,6 @@ if ( empty( $display_name ) ) {
 										$progress_tracker = new ENNU_Progress_Tracker();
 										$progress_data = $progress_tracker->get_user_progress( $user_id );
 									} catch ( Exception $e ) {
-										error_log( 'ENNU Progress Tracker Error: ' . $e->getMessage() );
 										$progress_data = array();
 									}
 								}
@@ -3301,7 +3453,6 @@ if ( empty( $display_name ) ) {
 										$next_steps_widget = new ENNU_Next_Steps_Widget();
 										$next_steps_data = $next_steps_widget->get_next_steps( $user_id );
 									} catch ( Exception $e ) {
-										error_log( 'ENNU Next Steps Widget Error: ' . $e->getMessage() );
 										$next_steps_data = array();
 									}
 								}
@@ -3409,13 +3560,124 @@ if ( empty( $display_name ) ) {
 
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
-		console.log('ENNU Dashboard: DOM loaded, initializing tabs...');
+		
+		// Handle Recommendations and Breakdown button clicks
+		function setupAssessmentButtons() {
+			// Handle Recommendations button clicks
+			document.querySelectorAll('.btn-recommendations').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					const card = this.closest('.assessment-card');
+					if (!card) {
+						console.error('No assessment card found');
+						return;
+					}
+					
+					const section = card.querySelector('.recommendations-section');
+					if (!section) {
+						console.error('No recommendations section found');
+						return;
+					}
+					
+					// Toggle visibility with proper display handling
+					if (section.style.display === 'none' || section.style.display === '' || section.classList.contains('hidden')) {
+						// Show the section
+						section.classList.remove('hidden');
+						section.style.display = 'block';
+						section.style.opacity = '1';
+						section.style.maxHeight = '1000px';
+						section.style.visibility = 'visible';
+						this.classList.add('active');
+						console.log('Showing recommendations section');
+					} else {
+						// Hide the section
+						section.classList.add('hidden');
+						section.style.display = 'none';
+						section.style.opacity = '0';
+						section.style.maxHeight = '0';
+						section.style.visibility = 'hidden';
+						this.classList.remove('active');
+						console.log('Hiding recommendations section');
+					}
+				});
+			});
+			
+			// Handle Breakdown button clicks
+			document.querySelectorAll('.btn-breakdown').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					
+					const card = this.closest('.assessment-card');
+					if (!card) {
+						console.error('No assessment card found');
+						return;
+					}
+					
+					const section = card.querySelector('.breakdown-section');
+					if (!section) {
+						console.error('No breakdown section found');
+						return;
+					}
+					
+					// Toggle visibility with proper display handling
+					if (section.style.display === 'none' || section.style.display === '' || section.classList.contains('hidden')) {
+						// Show the section
+						section.classList.remove('hidden');
+						section.style.display = 'block';
+						section.style.opacity = '1';
+						section.style.maxHeight = '1000px';
+						section.style.visibility = 'visible';
+						this.classList.add('active');
+						console.log('Showing breakdown section');
+						
+						// Animate progress bars
+						const bars = section.querySelectorAll('.category-score-fill');
+						bars.forEach(function(bar) {
+							const width = bar.style.width;
+							bar.style.width = '0%';
+							setTimeout(function() {
+								bar.style.width = width;
+							}, 100);
+						});
+					} else {
+						// Hide the section
+						section.classList.add('hidden');
+						section.style.display = 'none';
+						section.style.opacity = '0';
+						section.style.maxHeight = '0';
+						section.style.visibility = 'hidden';
+						this.classList.remove('active');
+						console.log('Hiding breakdown section');
+					}
+				});
+			});
+		}
+		
+		// Initialize assessment buttons
+		setupAssessmentButtons();
+		
+		// Additional failsafe to ensure sections work
+		setTimeout(function() {
+			// Re-check all sections and ensure they're properly set up
+			document.querySelectorAll('.assessment-section').forEach(function(section) {
+				if (section.classList.contains('hidden')) {
+					section.style.display = 'none';
+				}
+			});
+			
+			// Add debug info
+			console.log('Found ' + document.querySelectorAll('.btn-recommendations').length + ' recommendation buttons');
+			console.log('Found ' + document.querySelectorAll('.btn-breakdown').length + ' breakdown buttons');
+			console.log('Found ' + document.querySelectorAll('.recommendations-section').length + ' recommendation sections');
+			console.log('Found ' + document.querySelectorAll('.breakdown-section').length + ' breakdown sections');
+		}, 500);
 		
 		// Theme system is now handled by the centralized ENNUThemeManager
-		console.log('ENNU Dashboard: Theme management delegated to ENNUThemeManager');
 		
 		// ENNU DASHBOARD TAB CLICKING FIX - Aggressive Override
-		console.log('ENNU Dashboard: Applying aggressive tab clicking fix...');
 		
 		// Wait a bit for any other scripts to load
 		setTimeout(function() {
@@ -3423,7 +3685,6 @@ if ( empty( $display_name ) ) {
 			const tabLinks = document.querySelectorAll('.my-story-tab-nav a');
 			const tabContents = document.querySelectorAll('.my-story-tab-content');
 			
-			console.log('ENNU Dashboard: Found', tabLinks.length, 'tab links and', tabContents.length, 'tab contents');
 			
 			// Remove all existing event listeners by cloning and replacing
 			tabLinks.forEach(function(link) {
@@ -3437,7 +3698,6 @@ if ( empty( $display_name ) ) {
 			
 			// Add new event listeners with aggressive fixes
 			freshTabLinks.forEach(function(link) {
-				console.log('ENNU Dashboard: Adding aggressive click listener to:', link.getAttribute('href'));
 				
 				// Force enable pointer events immediately
 				link.style.pointerEvents = 'auto';
@@ -3449,7 +3709,6 @@ if ( empty( $display_name ) ) {
 					e.stopPropagation();
 					e.stopImmediatePropagation();
 					
-					console.log('ENNU Dashboard: Tab clicked:', this.getAttribute('href'));
 					
 					// Remove active class from all tabs and contents
 					freshTabLinks.forEach(l => {
@@ -3469,8 +3728,6 @@ if ( empty( $display_name ) ) {
 					const targetId = this.getAttribute('href').substring(1);
 					const targetContent = document.getElementById(targetId);
 					
-					console.log('ENNU Dashboard: Looking for target content:', targetId);
-					console.log('ENNU Dashboard: Target content found:', targetContent);
 					
 					if (targetContent) {
 						targetContent.classList.add('my-story-tab-active');
@@ -3478,9 +3735,7 @@ if ( empty( $display_name ) ) {
 						targetContent.style.opacity = '1';
 						targetContent.style.transform = 'translateY(0)';
 						targetContent.style.pointerEvents = 'auto';
-						console.log('ENNU Dashboard: Activated tab content:', targetId);
 					} else {
-						console.error('ENNU Dashboard: Target content not found:', targetId);
 					}
 				});
 			});
@@ -3500,7 +3755,6 @@ if ( empty( $display_name ) ) {
 				freshTabLinks[0].click();
 			}
 			
-			console.log('ENNU Dashboard: Aggressive tab clicking fix applied');
 		}, 100);
 		
 		// Show My Biomarkers tab by default
@@ -3602,8 +3856,6 @@ if ( empty( $display_name ) ) {
 					body: formData
 				})
 				.then(response => {
-					console.log('Response status:', response.status);
-					console.log('Response headers:', response.headers);
 					
 					if (!response.ok) {
 						throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -3612,7 +3864,6 @@ if ( empty( $display_name ) ) {
 					return response.text();
 				})
 				.then(data => {
-					console.log('Raw response:', data);
 					
 					clearInterval(progressInterval);
 					progressDiv.style.display = 'none';
@@ -3620,7 +3871,6 @@ if ( empty( $display_name ) ) {
 					
 					try {
 						const result = JSON.parse(data);
-						console.log('Parsed result:', result);
 						
 						// Display detailed notification
 						showDetailedNotification(result);
@@ -3647,8 +3897,6 @@ if ( empty( $display_name ) ) {
 							feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
 						}
 					} catch (parseError) {
-						console.error('JSON parse error:', parseError);
-						console.error('Raw data:', data);
 						
 						feedbackDiv.innerHTML = `
 							<div class="ennu-feedback-error">
@@ -3668,7 +3916,6 @@ if ( empty( $display_name ) ) {
 					}
 				})
 				.catch(error => {
-					console.error('Fetch error:', error);
 					
 					clearInterval(progressInterval);
 					progressDiv.style.display = 'none';
@@ -3958,21 +4205,18 @@ if ( empty( $display_name ) ) {
 		try {
 			// Charts are now initialized by the user-dashboard.js file
 			// This prevents conflicts with the main dashboard initialization
-			console.log('ENNU Dashboard: Chart initialization delegated to user-dashboard.js');
 			
 			// Initialize assessment charts with a slight delay to ensure DOM is ready
 			setTimeout(function() {
 				initializeAssessmentCharts();
 			}, 500);
 		} catch (chartError) {
-			console.error('ENNU Dashboard: Error initializing charts:', chartError);
 			// Continue execution - don't let chart errors break other functionality
 		}
 	});
 	
 	// Initialize biomarker measurement components
 	function initializeBiomarkerMeasurements() {
-		console.log('ENNU Dashboard: Initializing biomarker measurements...');
 		
 		// Add click handlers for info icons
 		document.querySelectorAll('.biomarker-info-icon').forEach(icon => {
@@ -4027,22 +4271,17 @@ if ( empty( $display_name ) ) {
 	
 	// Initialize assessment charts
 	function initializeAssessmentCharts() {
-		console.log('ENNU Dashboard: Initializing assessment charts...');
 		
 		// Check if Chart.js is available
 		if (typeof Chart === 'undefined') {
-			console.error('ENNU Dashboard: Chart.js is not loaded!');
 			return;
 		}
 		
-		console.log('ENNU Dashboard: Chart.js is available');
 		
 		// Find all assessment chart canvases
 		const assessmentCharts = document.querySelectorAll('canvas[id^="assessmentChart_"]');
-		console.log('ENNU Dashboard: Found', assessmentCharts.length, 'assessment chart canvases');
 		
 		assessmentCharts.forEach((canvas, index) => {
-			console.log('ENNU Dashboard: Processing chart', index + 1, 'with ID:', canvas.id);
 			const assessmentKey = canvas.id.replace('assessmentChart_', '');
 			const chartCard = canvas.closest('.assessment-chart-card');
 			
@@ -4150,17 +4389,13 @@ if ( empty( $display_name ) ) {
 			
 			// Create the chart
 			try {
-				console.log('ENNU Dashboard: Creating chart for', assessmentKey, 'with config:', chartConfig);
 				new Chart(canvas, chartConfig);
-				console.log('ENNU Dashboard: Assessment chart initialized for', assessmentKey);
 				
 				// Hide fallback on success
 				if (fallback) {
 					fallback.style.display = 'none';
 				}
 			} catch (error) {
-				console.error('ENNU Dashboard: Error creating assessment chart for', assessmentKey, error);
-				console.error('ENNU Dashboard: Error details:', error.message);
 				
 				// Show error in fallback
 				if (fallback) {
@@ -4291,7 +4526,6 @@ if ( empty( $display_name ) ) {
 	
 	// Show biomarker details modal
 	function showBiomarkerDetails(biomarkerId) {
-		console.log('ENNU Dashboard: Showing details for biomarker:', biomarkerId);
 		
 		// Create modal content
 		const modalContent = `
@@ -4319,7 +4553,6 @@ if ( empty( $display_name ) ) {
 	
 			// Show biomarker flags modal
 		function showBiomarkerFlags(biomarkerId) {
-			console.log('ENNU Dashboard: Showing flags for biomarker:', biomarkerId);
 			
 			// Create modal content
 			const modalContent = `

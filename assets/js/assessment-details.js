@@ -12,38 +12,31 @@
 	function initializeTimelineChart() {
 		const ctx = document.getElementById('assessmentTimelineChart');
 		if (!ctx) {
-			console.warn('ENNU Chart: Canvas element not found');
 			return;
 		}
 		
 		if (typeof Chart === 'undefined') {
-			console.error('ENNU Chart: Chart.js library not loaded');
 			return;
 		}
 
 		// Check if we have the localized data
 		if (typeof assessmentDetailsData === 'undefined') {
-			console.error('ENNU Chart: assessmentDetailsData not found');
 			return;
 		}
 		
 		if (!assessmentDetailsData.scoreHistory) {
-			console.warn('ENNU Chart: No score history data available');
 			return;
 		}
 
-		console.log('ENNU Chart: Initializing with data:', assessmentDetailsData.scoreHistory);
 		
 		const chartData = assessmentDetailsData.scoreHistory.map(item => ({
 			x: new Date(item.date),
 			y: item.score
 		}));
 
-		console.log('ENNU Chart: Processed chart data:', chartData);
 
 		// Only render chart if we have data
 		if (chartData.length === 0) {
-			console.warn('ENNU Chart: No valid chart data available');
 			// Show a message instead of empty chart
 			const container = ctx.parentElement;
 			container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">Complete this assessment multiple times to see your progress over time.</p>';

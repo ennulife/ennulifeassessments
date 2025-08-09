@@ -17,11 +17,10 @@ class ENNU_Scoring_System {
 	private static $pillar_map      = array();
 
 	public static function get_all_definitions() {
-		// Force refresh for testing - remove this line after verification
-		delete_transient( 'ennu_assessment_definitions_v1' );
-		
-		// Clear static cache to force fresh load
-		self::$all_definitions = array();
+        // Use cached definitions when available for performance
+        if ( ! empty( self::$all_definitions ) ) {
+            return self::$all_definitions;
+        }
 		
 		if ( ! empty( self::$all_definitions ) ) {
 			return self::$all_definitions;
@@ -61,10 +60,7 @@ class ENNU_Scoring_System {
 	}
 
 	public static function get_health_pillar_map() {
-		// Force refresh for testing - remove this line after verification
-		delete_transient( 'ennu_pillar_map_v1' );
-		
-		if ( ! empty( self::$pillar_map ) ) {
+        if ( ! empty( self::$pillar_map ) ) {
 			return self::$pillar_map;
 		}
 
@@ -611,6 +607,7 @@ class ENNU_Scoring_System {
 			// Direct mappings for backward compatibility
 			'hair' => 'hair',
 			'weight_loss' => 'weight-loss',
+			'weight-loss' => 'weight-loss',
 			'ed-treatment' => 'ed-treatment',
 			'health' => 'health',
 			'skin' => 'skin',

@@ -12,7 +12,7 @@ return array(
 	'title'             => 'Health Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'health_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -42,13 +42,13 @@ return array(
 				),
 			),
 		),
-		'health_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-'health_q1'       => array(
+		'health_q1' => array(
 			'title'    => 'How would you rate your current overall health?',
 			'type'     => 'radio',
 			'options'  => array(

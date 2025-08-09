@@ -99,10 +99,11 @@
                         if (response.data && response.data.redirect_url) {
                             window.location.href = response.data.redirect_url;
                         } else {
-                            self.showMessage('Assessment completed successfully!', 'success');
-                            // Default redirect after 2 seconds
+                            // No redirect URL provided - show success and redirect to dashboard
+                            self.showMessage('Assessment completed successfully! Redirecting to dashboard...', 'success');
+                            // Redirect to dashboard as fallback (not hardcoded results page)
                             setTimeout(function() {
-                                window.location.href = '/?page_id=3732'; // Results page
+                                window.location.href = '/?page_id=3732'; // Dashboard page as safe fallback
                             }, 2000);
                         }
                     } else {
@@ -348,8 +349,6 @@
 
         // Debug logging
         log: function() {
-            if (this.config.debug && console && console.log) {
-                console.log('[ENNU Assessment]', ...arguments);
             }
         }
     };

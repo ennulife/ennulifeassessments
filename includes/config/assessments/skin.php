@@ -12,7 +12,7 @@ return array(
 	'title'             => 'Skin Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'skin_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -42,13 +42,13 @@ return array(
 				),
 			),
 		),
-		'skin_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'skin_q1'       => array(
+		'skin_q1' => array(
 			'title'    => 'What is your skin type?',
 			'type'     => 'radio',
 			'options'  => array(

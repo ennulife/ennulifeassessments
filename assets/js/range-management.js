@@ -9,7 +9,6 @@
  */
 
 jQuery(document).ready(function($) {
-    console.log('ENNU Range Management JavaScript loaded');
     
     // Tab switching functionality
     $('.nav-tab').on('click', function(e) {
@@ -61,10 +60,8 @@ jQuery(document).ready(function($) {
     function updatePanelCount(selectedPanel) {
         if (selectedPanel === '') {
             var totalBiomarkers = $('.ennu-biomarker-row').length;
-            console.log('Total biomarkers: ' + totalBiomarkers);
         } else {
             var panelBiomarkers = $('.ennu-biomarker-row[data-panel="' + selectedPanel + '"]').length;
-            console.log('Panel ' + selectedPanel + ' biomarkers: ' + panelBiomarkers);
         }
     }
     
@@ -107,7 +104,6 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function() {
-                console.log('Error loading biomarker range data');
                 setDefaultValues(biomarker);
             }
         });
@@ -232,7 +228,6 @@ jQuery(document).ready(function($) {
         autoSaveTimer = setTimeout(function() {
             // Auto-save after 2 seconds of inactivity
             // This could be implemented as an AJAX call
-            console.log('Auto-save triggered');
         }, 2000);
     });
     
@@ -276,7 +271,6 @@ jQuery(document).ready(function($) {
     $('.ennu-panel-filter-btn').on('click', function(e) {
         e.preventDefault();
         
-        console.log('Panel filter button clicked');
         
         // Remove active class from all filter buttons
         $('.ennu-panel-filter-btn').removeClass('active');
@@ -286,18 +280,14 @@ jQuery(document).ready(function($) {
         
         // Get the panel to filter by
         var selectedPanel = $(this).data('panel');
-        console.log('Selected panel:', selectedPanel);
         
         // Debug: Check if elements exist
-        console.log('Panel headers found:', $('.ennu-panel-header').length);
-        console.log('Biomarker rows found:', $('.ennu-biomarker-row').length);
         
         // Show/hide biomarker rows based on panel
         if (selectedPanel === '') {
             // Show all panels
             $('.ennu-panel-header').show();
             $('.ennu-biomarker-row').show();
-            console.log('Showing all panels');
         } else {
             // Hide all panel headers first
             $('.ennu-panel-header').hide();
@@ -307,12 +297,9 @@ jQuery(document).ready(function($) {
             var panelHeaders = $('.ennu-panel-header[data-panel="' + selectedPanel + '"]');
             var biomarkerRows = $('.ennu-biomarker-row[data-panel="' + selectedPanel + '"]');
             
-            console.log('Found panel headers for ' + selectedPanel + ':', panelHeaders.length);
-            console.log('Found biomarker rows for ' + selectedPanel + ':', biomarkerRows.length);
             
             panelHeaders.show();
             biomarkerRows.show();
-            console.log('Showing panel:', selectedPanel);
         }
     });
     
@@ -377,7 +364,6 @@ jQuery(document).ready(function($) {
     $('.ennu-commercial-panel-filter-btn').on('click', function(e) {
         e.preventDefault();
         
-        console.log('Commercial panel filter button clicked');
         
         // Remove active class from all commercial filter buttons
         $('.ennu-commercial-panel-filter-btn').removeClass('active');
@@ -387,7 +373,6 @@ jQuery(document).ready(function($) {
         
         // Get the commercial panel to filter by
         var selectedCommercialPanel = $(this).data('commercial-panel');
-        console.log('Selected commercial panel:', selectedCommercialPanel);
         
         // Debug: Log all available biomarkers in the system
         var allBiomarkers = [];
@@ -398,7 +383,6 @@ jQuery(document).ready(function($) {
                 allBiomarkers.push(biomarker + ' (panel: ' + panel + ')');
             }
         });
-        console.log('All available biomarkers in system:', allBiomarkers);
         
         // Remove any existing filter message
         $('#commercial-filter-message').remove();
@@ -408,7 +392,6 @@ jQuery(document).ready(function($) {
             // Show all panels when "All Commercial Panels" is selected
             $('.ennu-panel-header').show();
             $('.ennu-biomarker-row').show();
-            console.log('Showing all commercial panels');
         } else {
             // Hide all panel headers and biomarker rows first
             $('.ennu-panel-header').hide();
@@ -472,7 +455,6 @@ jQuery(document).ready(function($) {
             
             // Get biomarkers for the selected commercial panel
             var panelBiomarkers = commercialPanelBiomarkers[selectedCommercialPanel] || [];
-            console.log('Panel biomarkers for ' + selectedCommercialPanel + ':', panelBiomarkers);
             
             if (panelBiomarkers.length > 0) {
                 // Show only biomarkers that belong to the selected commercial panel
@@ -498,10 +480,6 @@ jQuery(document).ready(function($) {
                     }
                 });
                 
-                console.log('Filtered to show ' + foundBiomarkers.length + ' biomarkers for ' + selectedCommercialPanel);
-                console.log('Found biomarkers:', foundBiomarkers);
-                console.log('Missing biomarkers:', missingBiomarkers);
-                console.log('Shown panels:', Array.from(shownPanels));
                 
                 // Show a success message with found count
                 if (foundBiomarkers.length > 0) {
@@ -514,4 +492,3 @@ jQuery(document).ready(function($) {
         }
     });
     
-}); console.log('ENNU Range Management JavaScript loaded');

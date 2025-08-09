@@ -350,7 +350,7 @@ class ENNU_PDF_Processor {
 			'type' => $type,
 			'title' => $title,
 			'message' => $message,
-			'timestamp' => current_time( 'mysql' ),
+			'timestamp' => function_exists( 'current_time' ) ? current_time( 'mysql' ) : date( 'Y-m-d H:i:s' ),
 			'biomarkers' => $biomarkers,
 			'biomarker_count' => count( $biomarkers ),
 		);
@@ -585,7 +585,7 @@ class ENNU_PDF_Processor {
 					'value' => floatval( $value ),
 					'unit' => $this->get_biomarker_unit( $key ),
 					'reference_range' => '',
-					'test_date' => current_time( 'mysql' ),
+					'test_date' => function_exists( 'current_time' ) ? current_time( 'mysql' ) : date( 'Y-m-d H:i:s' ),
 					'lab_name' => 'LabCorp',
 				);
 			}
@@ -939,7 +939,7 @@ class ENNU_PDF_Processor {
 	 */
 	private function update_import_history( $user_id, $import_type, $records_count, $metadata ) {
 		$history_entry = array(
-			'timestamp' => current_time( 'mysql' ),
+			'timestamp' => function_exists( 'current_time' ) ? current_time( 'mysql' ) : date( 'Y-m-d H:i:s' ),
 			'import_type' => $import_type,
 			'records_count' => $records_count,
 			'metadata' => $metadata,

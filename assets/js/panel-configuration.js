@@ -83,7 +83,6 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function() {
-                console.log('Error loading panel data');
                 $('input[name="panel_biomarkers[]"]').prop('checked', false);
             }
         });
@@ -342,7 +341,6 @@ jQuery(document).ready(function($) {
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(function() {
             // Auto-save after 3 seconds of inactivity
-            console.log('Auto-save triggered for panel form');
         }, 3000);
     });
     

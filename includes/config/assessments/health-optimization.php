@@ -42,13 +42,13 @@ return array(
 				),
 			),
 		),
-		'health_opt_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-'symptom_q1'           => array(
+		'health_optimization_q1' => array(
 			'title'    => 'Please select any symptoms you are experiencing related to Heart Health.',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -81,7 +81,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q1_severity'  => array(
+		'health_optimization_q2'  => array(
 			'title'    => 'How severe are your Heart Health symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -102,7 +102,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q1_frequency' => array(
+		'health_optimization_q3' => array(
 			'title'    => 'How often do you experience these symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -125,7 +125,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q2'           => array(
+		'health_optimization_q4'           => array(
 			'title'    => 'Please select any symptoms you are experiencing related to Cognitive Health.',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -152,7 +152,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q2_severity'  => array(
+		'health_optimization_q5'  => array(
 			'title'    => 'How severe are your Cognitive Health symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -173,7 +173,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q2_frequency' => array(
+		'health_optimization_q6' => array(
 			'title'    => 'How often do you experience these symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -196,7 +196,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q3'           => array(
+		'health_optimization_q7'           => array(
 			'title'    => 'Please select any symptoms you are experiencing related to Metabolic Health.',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -223,7 +223,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q3_severity'  => array(
+		'health_optimization_q8'  => array(
 			'title'    => 'How severe are your Metabolic Health symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -244,7 +244,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q3_frequency' => array(
+		'health_optimization_q9' => array(
 			'title'    => 'How often do you experience these symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -267,7 +267,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q4'           => array(
+		'health_optimization_q10'           => array(
 			'title'    => 'Please select any symptoms you are experiencing related to Immune Health.',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -292,7 +292,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q4_severity'  => array(
+		'health_optimization_q11'  => array(
 			'title'    => 'How severe are your Immune Health symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -313,7 +313,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'symptom_q4_frequency' => array(
+		'health_optimization_q12' => array(
 			'title'    => 'How often do you experience these symptoms?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -336,7 +336,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'medical_history_q1' => array(
+		'health_optimization_q13' => array(
 			'title' => 'Do you have any of the following medical conditions?',
 			'type' => 'multiselect',
 			'options' => array(
@@ -377,7 +377,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'medication_q1' => array(
+		'health_optimization_q14' => array(
 			'title' => 'Are you currently taking any medications?',
 			'type' => 'multiselect',
 			'options' => array(
@@ -432,7 +432,7 @@ return array(
 			),
 			'required' => false,
 		),
-		'lifestyle_q1' => array(
+		'health_optimization_q15' => array(
 			'title' => 'Which of the following lifestyle factors apply to you?',
 			'type' => 'multiselect',
 			'options' => array(

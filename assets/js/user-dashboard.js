@@ -4,9 +4,6 @@
  */
 
 // TEST: Check if this file is loading
-console.log('=== ENNU DASHBOARD JS LOADED ===');
-console.log('Current timestamp:', new Date().toISOString());
-console.log('Script URL:', document.currentScript ? document.currentScript.src : 'Unknown');
 
 // Note: Toggle functions are now defined inline in the template for immediate availability
 
@@ -48,7 +45,6 @@ window.ENNUCharts = {
 	makePillarOrbsVisible: function() {
 		const pillarOrbs = document.querySelectorAll('.pillar-orb');
 		pillarOrbs.forEach(orb => orb.classList.add('visible'));
-		console.log('ENNU: Made', pillarOrbs.length, 'pillar orbs visible');
 	},
 	
 	// Trigger pillar orb animations (for testing)
@@ -56,19 +52,16 @@ window.ENNUCharts = {
 		const pillarOrbs = document.querySelectorAll('.pillar-orb');
 		const mainScoreOrb = document.querySelector('.main-score-orb');
 		
-		console.log('ENNU: Triggering pillar orb animations...');
 		
 		// Animate main score orb first
 		if (mainScoreOrb) {
 			mainScoreOrb.classList.add('loaded');
-			console.log('ENNU: Added loaded class to main score orb');
 		}
 		
 		// Animate pillar orbs with staggered delay
 		pillarOrbs.forEach((orb, index) => {
 			setTimeout(() => {
 				orb.classList.add('loaded');
-				console.log('ENNU: Added loaded class to pillar orb', index + 1);
 			}, index * 200 + 500);
 		});
 	}
@@ -76,13 +69,10 @@ window.ENNUCharts = {
 
 // Global function to manually make pillar orbs visible (for testing)
 window.makePillarOrbsVisible = function() {
-	console.log('ENNU Dashboard: Manually making pillar orbs visible...');
 	const pillarOrbs = document.querySelectorAll('.pillar-orb');
-	console.log('Found', pillarOrbs.length, 'pillar orbs');
 	
 	pillarOrbs.forEach((orb, index) => {
 		orb.classList.add('visible');
-		console.log('Made pillar orb', index + 1, 'visible');
 	});
 	
 	return pillarOrbs.length;
@@ -91,17 +81,57 @@ window.makePillarOrbsVisible = function() {
 // Prevent multiple initializations
 let dashboardInitialized = false;
 
+/**
+ * Initialize biomarker panel styles
+ * Adds visual feedback for biomarker panels
+ */
+function initializeBiomarkerPanelStyles() {
+    // Add visual feedback for clickable items
+    const existingStyle = document.getElementById('biomarker-panel-styles');
+    if (!existingStyle) {
+        const style = document.createElement('style');
+        style.id = 'biomarker-panel-styles';
+        style.textContent = `
+            .biomarker-list-item {
+                cursor: pointer !important;
+                transition: background-color 0.2s ease;
+                user-select: none;
+                position: relative !important;
+                z-index: 10 !important;
+                pointer-events: auto !important;
+            }
+            .biomarker-list-item:hover {
+                background-color: rgba(59, 130, 246, 0.1) !important;
+            }
+            .biomarker-list-item.expanded {
+                background-color: rgba(59, 130, 246, 0.05);
+            }
+            .biomarker-measurement-container {
+                transition: all 0.3s ease;
+            }
+            /* Ensure panel content doesn't block clicks */
+            .panel-content {
+                position: relative;
+                z-index: 1;
+            }
+            /* Make sure biomarker vectors don't block clicks */
+            .biomarker-vector-category {
+                position: relative;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('ENNU Dashboard: DOM Content Loaded');
     
     // Prevent multiple initializations
     if (dashboardInitialized) {
-        console.log('ENNU Dashboard: Already initialized, skipping...');
         return;
     }
     
     // Verify toggle functions are available
-    console.log('ENNU Dashboard: Toggle functions status:', {
+    console.log('Toggle functions available:', {
         togglePanel: typeof window.togglePanel,
         toggleBiomarkerMeasurements: typeof window.toggleBiomarkerMeasurements,
         toggleVectorCategory: typeof window.toggleVectorCategory
@@ -109,37 +139,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const dashboardEl = document.querySelector('.ennu-user-dashboard');
     if (dashboardEl) {
-        console.log('ENNU Dashboard: Dashboard element found, initializing...');
         
         // Check if user is logged in by looking for logged-out container
         const loggedOutContainer = dashboardEl.querySelector('.dashboard-logged-out-container');
         if (loggedOutContainer) {
-            console.log('ENNU Dashboard: User is not logged in - showing logged out state');
             // Don't initialize charts for logged out users
             return;
         }
         
         // Destroy existing dashboard instance if it exists
         if (dashboardEl.ennuDashboard) {
-            console.log('ENNU Dashboard: Destroying existing dashboard instance');
             dashboardEl.ennuDashboard.destroy();
         }
         
         new ENNUDashboard(dashboardEl);
         dashboardInitialized = true;
     } else {
-        console.log('ENNU Dashboard: Dashboard element not found');
     }
     
     // Initialize My Story Tabs only if dashboard exists
-    console.log('ENNU Dashboard: Checking for My Story Tabs...');
     const storyTabsContainer = document.querySelector('.my-story-tabs');
     if (storyTabsContainer) {
-        console.log('ENNU Dashboard: My Story Tabs found, initializing manager...');
         const storyTabsManager = new MyStoryTabsManager();
     } else {
-        console.log('ENNU Dashboard: My Story Tabs not found on this page, skipping initialization');
     }
+    
+    // Initialize biomarker panel styles
+    initializeBiomarkerPanelStyles();
 });
 
 
@@ -150,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 class MyStoryTabsManager {
     constructor() {
-        console.log('MyStoryTabsManager: Constructor called');
         this.activeTab = 'tab-my-assessments';
         this.tabContainer = null;
         this.tabLinks = [];
@@ -160,35 +185,27 @@ class MyStoryTabsManager {
     }
     
     init() {
-        console.log('MyStoryTabsManager: Init called');
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
-            console.log('MyStoryTabsManager: DOM still loading, adding event listener');
             document.addEventListener('DOMContentLoaded', () => this.initialize());
         } else {
-            console.log('MyStoryTabsManager: DOM ready, initializing immediately');
             this.initialize();
         }
     }
     
     initialize() {
-        console.log('MyStoryTabsManager: Initialize called');
         this.tabContainer = document.querySelector('.my-story-tabs');
         
         if (!this.tabContainer) {
-            console.log('MyStoryTabsManager: Tab container not found - this is expected on non-dashboard pages');
             return;
         }
         
-        console.log('MyStoryTabsManager: Tab container found');
         
         this.tabLinks = this.tabContainer.querySelectorAll('.my-story-tab-nav a');
         this.tabContents = this.tabContainer.querySelectorAll('.my-story-tab-content');
         
-        console.log('MyStoryTabsManager: Found', this.tabLinks.length, 'tab links and', this.tabContents.length, 'tab contents');
         
         if (this.tabLinks.length === 0 || this.tabContents.length === 0) {
-            console.error('MyStoryTabsManager: No tab links or contents found!');
             return;
         }
         
@@ -201,7 +218,6 @@ class MyStoryTabsManager {
     }
     
     activateFirstTab() {
-        console.log('MyStoryTabsManager: Activating first tab');
         // Hide all tab contents first
         this.tabContents.forEach(content => {
             content.classList.remove('my-story-tab-active');
@@ -220,9 +236,6 @@ class MyStoryTabsManager {
         const biomarkersLink = this.tabContainer.querySelector(`a[href="${biomarkersTabId}"]`);
         const biomarkersContent = document.querySelector(biomarkersTabId);
         
-        console.log('MyStoryTabsManager: Biomarkers tab ID:', biomarkersTabId);
-        console.log('MyStoryTabsManager: Biomarkers link element:', biomarkersLink);
-        console.log('MyStoryTabsManager: Biomarkers content element:', biomarkersContent);
         
         if (biomarkersLink && biomarkersContent) {
             biomarkersLink.classList.add('my-story-tab-active');
@@ -233,12 +246,13 @@ class MyStoryTabsManager {
             setTimeout(() => {
                 biomarkersContent.style.opacity = '1';
                 biomarkersContent.style.transform = 'translateY(0)';
+                
+                // Initialize biomarker panel styles since this tab is active by default
+                initializeBiomarkerPanelStyles();
             }, 50);
             
             this.activeTab = biomarkersTabId.substring(1);
-            console.log('MyStoryTabsManager: Biomarkers tab activated:', this.activeTab);
         } else {
-            console.error('MyStoryTabsManager: Biomarkers tab elements not found!');
             // Fallback to first tab if biomarkers tab not found
             if (this.tabLinks.length > 0) {
                 const firstLink = this.tabLinks[0];
@@ -256,20 +270,17 @@ class MyStoryTabsManager {
                     }, 50);
                     
                     this.activeTab = firstTabId.substring(1);
-                    console.log('MyStoryTabsManager: Fallback to first tab activated:', this.activeTab);
                 }
             }
         }
     }
     
     setupEventListeners() {
-        console.log('MyStoryTabsManager: Setting up event listeners');
         
         this.tabLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.getAttribute('href');
-                console.log('MyStoryTabsManager: Tab clicked:', targetId);
                 this.switchToTab(targetId);
             });
         });
@@ -307,22 +318,18 @@ class MyStoryTabsManager {
     }
     
     switchToTab(targetId) {
-        console.log('MyStoryTabsManager: switchToTab called with:', targetId);
         
         if (!targetId.startsWith('#')) {
             targetId = '#' + targetId;
         }
         
-        console.log('MyStoryTabsManager: Normalized targetId:', targetId);
         
         let targetContent = document.querySelector(targetId);
         if (!targetContent) {
-            console.error('MyStoryTabsManager: Target content not found for:', targetId);
             // Try alternative selector for symptoms tab
             if (targetId === '#tab-my-symptoms') {
                 const altContent = document.querySelector('.my-story-tab-content[id*="symptoms"]');
                 if (altContent) {
-                    console.log('MyStoryTabsManager: Found alternative symptoms content:', altContent);
                     targetContent = altContent;
                 }
             }
@@ -331,7 +338,6 @@ class MyStoryTabsManager {
             }
         }
         
-        console.log('MyStoryTabsManager: Target content found:', targetContent);
         
         // Remove active class from all tabs and contents
         this.tabLinks.forEach(link => {
@@ -351,19 +357,16 @@ class MyStoryTabsManager {
         // Add active class to selected tab and content
         const activeLink = this.tabContainer.querySelector(`a[href="${targetId}"]`);
         if (activeLink) {
-            console.log('MyStoryTabsManager: Active link found:', activeLink);
             activeLink.classList.add('my-story-tab-active');
             activeLink.setAttribute('aria-selected', 'true');
             activeLink.setAttribute('tabindex', '0');
         } else {
-            console.error('MyStoryTabsManager: Active link not found for:', targetId);
             // Try to find link by text content for symptoms
             if (targetId === '#tab-my-symptoms') {
                 const symptomsLink = Array.from(this.tabLinks).find(link => 
                     link.textContent.toLowerCase().includes('symptoms')
                 );
                 if (symptomsLink) {
-                    console.log('MyStoryTabsManager: Found symptoms link by text:', symptomsLink);
                     symptomsLink.classList.add('my-story-tab-active');
                     symptomsLink.setAttribute('aria-selected', 'true');
                     symptomsLink.setAttribute('tabindex', '0');
@@ -384,15 +387,20 @@ class MyStoryTabsManager {
         
         // Update active tab reference
         this.activeTab = targetId.substring(1);
-        console.log('MyStoryTabsManager: Tab switched to:', this.activeTab);
         
         // Trigger custom event
         this.triggerTabChangeEvent(targetId, activeLink, targetContent);
         
         // Special handling for symptoms tab
         if (targetId === '#tab-my-symptoms') {
-            console.log('MyStoryTabsManager: Symptoms tab activated, updating symptoms display');
             this.updateSymptomsDisplay();
+        }
+        
+        // Special handling for biomarkers tab - reinitialize click handlers
+        if (targetId === '#tab-my-biomarkers') {
+            setTimeout(() => {
+                initializeBiomarkerPanelStyles();
+            }, 100);
         }
     }
     
@@ -445,7 +453,6 @@ class MyStoryTabsManager {
     }
 
     updateSymptomsDisplay() {
-        console.log('MyStoryTabsManager: Updating symptoms display');
         
         // Update symptom counts
         const totalSymptomsEl = document.getElementById('total-symptoms-count');
@@ -473,7 +480,6 @@ class MyStoryTabsManager {
             trendingSymptomsEl.textContent = trendingItems.length;
         }
         
-        console.log('MyStoryTabsManager: Symptoms display updated');
     }
 }
 
@@ -847,14 +853,11 @@ class ENNUDashboard {
 	}
 
 	initPillarAnimation() {
-		console.log('ENNU Dashboard: Initializing pillar orb animations...');
 		
 		// Get all pillar orbs
 		const pillarOrbs = this.dashboard.querySelectorAll('.pillar-orb');
-		console.log('ENNU Dashboard: Found', pillarOrbs.length, 'pillar orbs');
 		
 		if (pillarOrbs.length === 0) {
-			console.warn('ENNU Dashboard: No pillar orbs found - they may not be rendered yet');
 			// Retry after a short delay
 			setTimeout(() => {
 				this.initPillarAnimation();
@@ -866,7 +869,6 @@ class ENNUDashboard {
 		pillarOrbs.forEach((orb, index) => {
 			setTimeout(() => {
 				orb.classList.add('visible');
-				console.log('ENNU Dashboard: Made pillar orb', index + 1, 'visible');
 			}, index * 200);
 		});
 		
@@ -875,7 +877,6 @@ class ENNUDashboard {
 			pillarOrbs.forEach((orb, index) => {
 				if (!orb.classList.contains('visible')) {
 					orb.classList.add('visible');
-					console.log('ENNU Dashboard: Fallback - Made pillar orb', index + 1, 'visible');
 				}
 			});
 		}, 3000);
@@ -885,35 +886,27 @@ class ENNUDashboard {
 			const invisibleOrbs = this.dashboard.querySelectorAll('.pillar-orb:not(.visible)');
 			if (invisibleOrbs.length === 0) {
 				clearInterval(visibilityCheck);
-				console.log('ENNU Dashboard: All pillar orbs are now visible');
 			} else {
-				console.log('ENNU Dashboard: Found', invisibleOrbs.length, 'invisible pillar orbs, making them visible');
 				invisibleOrbs.forEach(orb => orb.classList.add('visible'));
 			}
 		}, 2000);
 	}
 
 	initHistoricalCharts() {
-		console.log('ENNU Dashboard: Initializing historical charts...');
-		console.log('ENNU Dashboard: Chart.js available:', typeof Chart !== 'undefined');
-		console.log('ENNU Dashboard: Chart.js version:', typeof Chart !== 'undefined' ? Chart.version : 'Not loaded');
 		
 		// Check if Chart.js is available
 		if (typeof Chart === 'undefined') {
-			console.error('ENNU Dashboard: Chart.js is not loaded');
 			this.showChartError('Chart.js library is not available. Please refresh the page and try again.');
 			return;
 		}
 
 		// Check if time adapter is available
 		if (typeof Chart.adapters === 'undefined' || typeof Chart.adapters.date === 'undefined') {
-			console.warn('ENNU Dashboard: Chart.js time adapter not available, charts may not display correctly');
 		}
 
 		// Check if we're in a logged-in state by looking for chart containers
 		const chartContainers = document.querySelectorAll('.chart-wrapper');
 		if (chartContainers.length === 0) {
-			console.log('ENNU Dashboard: No chart containers found - user may not be logged in or dashboard not fully loaded');
 			return;
 		}
 
@@ -926,27 +919,22 @@ class ENNUDashboard {
 	}
 
 	initScoreHistoryChart() {
-		console.log('ENNU Dashboard: Initializing score history chart...');
 		const scoreCtx = this.dashboard.querySelector('#scoreHistoryChart');
 		if (!scoreCtx) {
-			console.error('ENNU Dashboard: Score history chart canvas not found - user may not be logged in');
 			this.showChartError('Score history chart not available. Please log in to view your health trends.');
 			return;
 		}
 
 		// Destroy existing chart instance if it exists
 		if (this.chartInstances.scoreHistory) {
-			console.log('ENNU Dashboard: Destroying existing score history chart');
 			this.chartInstances.scoreHistory.destroy();
 			this.chartInstances.scoreHistory = null;
 		}
 
 		// Get real user score data
 		const scoreData = this.getUserScoreData();
-		console.log('ENNU Dashboard: Score data received:', scoreData);
 
 		if (scoreData && scoreData.length > 0) {
-			console.log('ENNU Dashboard: Creating chart with data length:', scoreData.length);
 			try {
 				const chartConfig = {
 					type: 'line',
@@ -1032,40 +1020,32 @@ class ENNUDashboard {
 					}
 				};
 				
-				console.log('ENNU Dashboard: Chart config:', chartConfig);
 				
 				this.chartInstances.scoreHistory = new Chart(scoreCtx, chartConfig);
-				console.log('ENNU Dashboard: Score history chart initialized successfully');
 			} catch (error) {
-				console.error('ENNU Dashboard: Error initializing score history chart:', error);
 				this.showChartError('Failed to load score history chart');
 			}
 		} else {
-			console.log('ENNU Dashboard: No score data available, showing empty state');
 			// Show empty state for score chart
 			this.showEmptyChartState(scoreCtx, '📊', 'No Score Data', 'Complete assessments to see your score history');
 		}
 	}
 
 	initBMIHistoryChart() {
-		console.log('ENNU Dashboard: Initializing BMI history chart...');
 		const bmiCtx = this.dashboard.querySelector('#bmiHistoryChart');
 		if (!bmiCtx) {
-			console.error('ENNU Dashboard: BMI history chart canvas not found - user may not be logged in');
 			this.showChartError('BMI history chart not available. Please log in to view your health trends.');
 			return;
 		}
 
 		// Destroy existing chart instance if it exists
 		if (this.chartInstances.bmiHistory) {
-			console.log('ENNU Dashboard: Destroying existing BMI history chart');
 			this.chartInstances.bmiHistory.destroy();
 			this.chartInstances.bmiHistory = null;
 		}
 
 		// Get real user BMI data
 		const bmiData = this.getUserBMIData();
-		console.log('ENNU Dashboard: BMI data:', bmiData);
 
 		if (bmiData && bmiData.length > 0) {
 			try {
@@ -1152,13 +1132,10 @@ class ENNUDashboard {
 						}
 					}
 				});
-				console.log('ENNU Dashboard: BMI history chart initialized successfully');
 			} catch (error) {
-				console.error('ENNU Dashboard: Error initializing BMI history chart:', error);
 				this.showChartError('Failed to load BMI history chart');
 			}
 		} else {
-			console.log('ENNU Dashboard: No BMI data available, showing empty state');
 			// Show empty state for BMI chart
 			this.showEmptyChartState(bmiCtx, '⚖️', 'No BMI Data', 'Add your height and weight to see BMI trends');
 		}
@@ -1166,21 +1143,17 @@ class ENNUDashboard {
 
 	// Enhanced method to setup chart refresh when My Trends tab is shown
 	setupChartRefreshOnTabShow() {
-		console.log('ENNU Dashboard: Setting up chart refresh on tab show...');
 		
 		// Listen for tab changes to refresh charts
 		const trendsTab = document.querySelector('a[href="#tab-my-trends"]');
 		if (trendsTab) {
 			trendsTab.addEventListener('click', () => {
-				console.log('ENNU Dashboard: My Trends tab clicked, refreshing charts...');
 				setTimeout(() => {
 					// Check if charts exist and reinitialize if needed
 					if (!this.chartInstances.scoreHistory) {
-						console.log('ENNU Dashboard: Reinitializing score history chart...');
 						this.initScoreHistoryChart();
 					}
 					if (!this.chartInstances.bmiHistory) {
-						console.log('ENNU Dashboard: Reinitializing BMI history chart...');
 						this.initBMIHistoryChart();
 					}
 					
@@ -1193,7 +1166,6 @@ class ENNUDashboard {
 		// Also listen for tab changes via the tab manager
 		document.addEventListener('tabChanged', (event) => {
 			if (event.detail && event.detail.targetId === 'tab-my-trends') {
-				console.log('ENNU Dashboard: My Trends tab shown via tab manager, refreshing charts...');
 				setTimeout(() => {
 					this.reinitializeCharts();
 				}, 300);
@@ -1204,12 +1176,9 @@ class ENNUDashboard {
 	// Helper method to get real user score data
 	getUserScoreData() {
 		try {
-			console.log('ENNU Dashboard: getUserScoreData() called');
-			console.log('ENNU Dashboard: dashboardData available:', typeof dashboardData !== 'undefined');
 			
 			// Use data passed from PHP via wp_localize_script
 			if (typeof dashboardData !== 'undefined' && dashboardData.score_history && dashboardData.score_history.length > 0) {
-				console.log('ENNU Dashboard: Using server-provided score history data:', dashboardData.score_history);
 				
 				// Convert the data to the format expected by Chart.js
 				const scoreData = dashboardData.score_history.map(entry => ({
@@ -1218,15 +1187,12 @@ class ENNUDashboard {
 					originalDate: entry.date
 				}));
 				
-				console.log('ENNU Dashboard: Converted score data:', scoreData);
 				
 				// Sort by date
 				scoreData.sort((a, b) => new Date(a.date) - new Date(b.date));
 				
-				console.log('ENNU Dashboard: Final sorted score data:', scoreData);
 				return scoreData;
 			} else {
-				console.log('ENNU Dashboard: No server data available, dashboardData:', dashboardData);
 			}
 			
 			// Fallback: Get current user score from data attribute or fallback to page content
@@ -1242,14 +1208,12 @@ class ENNUDashboard {
 				}
 			}
 			
-			console.log('ENNU Dashboard: Current score from DOM:', currentScore);
 			
 			// Get assessment scores from the page data
 			const assessmentCards = document.querySelectorAll('.assessment-trend-card');
 			const scoreData = [];
 			let pointCounter = 0; // Counter to ensure unique timestamps
 			
-			console.log('ENNU Dashboard: Found assessment cards:', assessmentCards.length);
 			
 			assessmentCards.forEach((card, index) => {
 				const scoreElement = card.querySelector('.score-value');
@@ -1259,7 +1223,6 @@ class ENNUDashboard {
 					const score = parseFloat(scoreElement.textContent);
 					const dateText = dateElement.textContent;
 					
-					console.log(`ENNU Dashboard: Assessment ${index}: score=${score}, date=${dateText}`);
 					
 					// Convert date text to actual date
 					let date;
@@ -1285,7 +1248,6 @@ class ENNUDashboard {
 			
 			// If no assessment data, use current score
 			if (scoreData.length === 0 && currentScore > 0) {
-				console.log('ENNU Dashboard: Using current score as fallback');
 				scoreData.push({
 					date: new Date().toISOString(),
 					score: currentScore,
@@ -1295,17 +1257,14 @@ class ENNUDashboard {
 			
 			// If no data available, show empty state instead of sample data
 			if (scoreData.length === 0) {
-				console.log('ENNU Dashboard: No score data found - user needs to complete assessments');
 				return this.showEmptyScoreState();
 			}
 			
 			// Sort by timestamp (not original date)
 			scoreData.sort((a, b) => new Date(a.date) - new Date(b.date));
 			
-			console.log('ENNU Dashboard: Final score data:', scoreData);
 			return scoreData;
 		} catch (error) {
-			console.error('ENNU Dashboard: Error getting user score data:', error);
 			// Return empty array to show empty state
 			return [];
 		}
@@ -1316,7 +1275,6 @@ class ENNUDashboard {
 		try {
 			// Use data passed from PHP via wp_localize_script
 			if (typeof dashboardData !== 'undefined' && dashboardData.bmi_history && dashboardData.bmi_history.length > 0) {
-				console.log('ENNU Dashboard: Using server-provided BMI history data:', dashboardData.bmi_history);
 				
 				// Convert the data to the format expected by Chart.js
 				const bmiData = dashboardData.bmi_history.map(entry => ({
@@ -1394,7 +1352,6 @@ class ENNUDashboard {
 			
 			// If no data available, return empty array for empty state handling
 			if (bmiData.length === 0) {
-				console.log('ENNU Dashboard: No BMI data found - user needs to enter height/weight');
 				return [];
 			}
 			
@@ -1403,7 +1360,6 @@ class ENNUDashboard {
 			
 			return bmiData;
 		} catch (error) {
-			console.error('ENNU Dashboard: Error getting user BMI data:', error);
 			// Return empty array to show empty state instead of fake data
 			return [];
 		}
@@ -1425,7 +1381,6 @@ class ENNUDashboard {
 
 	// Helper method to show chart error
 	showChartError(message) {
-		console.error('ENNU Dashboard: Chart error:', message);
 		const chartWrappers = document.querySelectorAll('.chart-wrapper');
 		chartWrappers.forEach(wrapper => {
 			if (!wrapper.querySelector('.empty-state') && !wrapper.querySelector('.chart-error')) {
@@ -1456,7 +1411,6 @@ class ENNUDashboard {
 
 	// Method to update charts with new data
 	updateCharts() {
-		console.log('ENNU Dashboard: Updating charts with new data...');
 		
 		// Update score chart
 		if (this.chartInstances.scoreHistory) {
@@ -1477,7 +1431,6 @@ class ENNUDashboard {
 
 	// Method to add a new data point to charts
 	addDataPoint(type, value, timestamp = null) {
-		console.log('ENNU Dashboard: Adding new data point:', type, value, timestamp);
 		
 		const now = timestamp ? new Date(timestamp) : new Date();
 		const uniqueTimestamp = new Date(now.getTime() + Math.random() * 60000); // Add random milliseconds for uniqueness
@@ -1614,7 +1567,6 @@ class ENNUDashboard {
 
 	// Add method for progress bar animation
 	initProgressBarAnimation() {
-		console.log('ENNU Dashboard: Initializing progress bar animations...');
 		
 		// Handle regular progress bars
 		const progressFill = this.dashboard.querySelector('.progress-fill');
@@ -1630,13 +1582,11 @@ class ENNUDashboard {
 		// Handle pillar orb progress bars (for results page)
 		const pillarOrbs = this.dashboard.querySelectorAll('.pillar-orb');
 		if (pillarOrbs.length > 0) {
-			console.log('ENNU Dashboard: Found', pillarOrbs.length, 'pillar orbs to animate');
 			
 			// Add loaded class with staggered delay to trigger CSS animations
 			pillarOrbs.forEach((orb, index) => {
 				setTimeout(() => {
 					orb.classList.add('loaded');
-					console.log('ENNU Dashboard: Added loaded class to pillar orb', index + 1);
 				}, index * 200 + 500); // 500ms initial delay, then 200ms between each orb
 			});
 		}
@@ -1644,17 +1594,14 @@ class ENNUDashboard {
 		// Handle main score orb (center orb on results page)
 		const mainScoreOrb = this.dashboard.querySelector('.main-score-orb');
 		if (mainScoreOrb) {
-			console.log('ENNU Dashboard: Found main score orb to animate');
 			setTimeout(() => {
 				mainScoreOrb.classList.add('loaded');
-				console.log('ENNU Dashboard: Added loaded class to main score orb');
 			}, 300); // Slightly earlier than pillar orbs
 		}
 	}
 
 	// Enhanced initialization
 	init() {
-		console.log('ENNU Dashboard: Starting initialization...');
 		
 		// Wait for DOM to be fully ready
 		setTimeout(() => {
@@ -1674,13 +1621,11 @@ class ENNUDashboard {
 			this.initProgressBarAnimation();
 			this.initThemeToggle();
 			
-			console.log('ENNU Dashboard: Initialization complete');
 		}, 50);
 	}
 	
 	// Destroy method to clean up chart instances
 	destroy() {
-		console.log('ENNU Dashboard: Destroying dashboard instance');
 		
 		// Destroy all chart instances
 		if (this.chartInstances.scoreHistory) {
@@ -1699,7 +1644,6 @@ class ENNUDashboard {
 	
 	// Method to safely reinitialize charts
 	reinitializeCharts() {
-		console.log('ENNU Dashboard: Reinitializing charts...');
 		
 		// Destroy existing charts first
 		if (this.chartInstances.scoreHistory) {

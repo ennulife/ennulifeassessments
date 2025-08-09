@@ -54,23 +54,17 @@ class ENNUAssessmentForm {
 
     // Pre-fill global fields with existing data
     prefillGlobalFields() {
-        console.log('Prefilling global fields...');
         this.questions.forEach((question, index) => {
-            console.log('Question', index, 'is global?', question.hasAttribute('data-is-global'));
             if (question.hasAttribute('data-is-global')) {
-                console.log('Prefilling global field:', question.querySelector('.question-title')?.textContent);
                 this.prefillGlobalField(question);
                 
                 // Debug: Check what data is actually in the field after pre-filling
                 const inputs = question.querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
                     if (input.type === 'select-one') {
-                        console.log('Select input:', input.name, 'value:', input.value, 'selectedIndex:', input.selectedIndex);
                         if (input.selectedIndex >= 0) {
-                            console.log('Selected option:', input.options[input.selectedIndex].text, 'disabled:', input.options[input.selectedIndex].disabled);
                         }
                     } else if (input.type === 'radio') {
-                        console.log('Radio input:', input.name, 'value:', input.value, 'checked:', input.checked);
                     }
                 });
             }
@@ -146,26 +140,18 @@ class ENNUAssessmentForm {
     }
 
     bindEvents() {
-        console.log('ENNU REDIRECT DEBUG: bindEvents() called');
         
         // Next/Previous buttons
         this.form.addEventListener('click', (e) => {
-            console.log('ENNU REDIRECT DEBUG: Form click event triggered');
-            console.log('ENNU REDIRECT DEBUG: Clicked element:', e.target);
-            console.log('ENNU REDIRECT DEBUG: Element classes:', e.target.classList);
             
             if (e.target.classList.contains('next')) {
-                console.log('ENNU REDIRECT DEBUG: Next button clicked');
                 e.preventDefault();
                 if (e.target.classList.contains('submit')) {
-                    console.log('ENNU REDIRECT DEBUG: Submit button clicked - calling handleSubmitButton()');
                     this.handleSubmitButton();
                 } else {
-                    console.log('ENNU REDIRECT DEBUG: Next button clicked - calling nextQuestion()');
                     this.nextQuestion();
                 }
             } else if (e.target.classList.contains('prev')) {
-                console.log('ENNU REDIRECT DEBUG: Prev button clicked');
                 e.preventDefault();
                 this.prevQuestion();
             }
@@ -194,14 +180,11 @@ class ENNUAssessmentForm {
     }
     
     handleSubmitButton() {
-        console.log('ENNU REDIRECT DEBUG: handleSubmitButton() called');
-        console.log('ENNU REDIRECT DEBUG: currentStep:', this.currentStep, 'totalSteps:', this.totalSteps);
         
         const currentSlide = this.questions[this.currentStep];
         const isLastQuestion = this.currentStep >= this.totalSteps - 1;
         const isContactForm = currentSlide && currentSlide.hasAttribute('data-is-contact-form');
         
-        console.log('ENNU REDIRECT DEBUG: isLastQuestion:', isLastQuestion, 'isContactForm:', isContactForm);
         
         // If this is the last question and auto-submit is ready, submit immediately
         if (isLastQuestion && this.autoSubmitReady && !isContactForm) {
@@ -227,42 +210,33 @@ class ENNUAssessmentForm {
         // Smart skip logic: Skip global fields that already have data (only for logged-in users)
         let nextStep = this.currentStep + 1;
         
-        console.log('Smart skip: Starting from step', nextStep, 'of', this.totalSteps);
         
         // Only apply smart skip logic for logged-in users
         const isLoggedIn = this.form.querySelector('input[name="user_id"]')?.value || 
                           this.form.querySelector('input[name="email"]')?.value;
         
         if (isLoggedIn) {
-            console.log('Smart skip: User is logged in, applying smart skip logic');
             
             // Skip global fields that already have data
             while (nextStep < this.totalSteps) {
                 const nextQuestion = this.questions[nextStep];
-                console.log('Smart skip: Checking step', nextStep, 'is global?', nextQuestion?.hasAttribute('data-is-global'));
                 
                 if (nextQuestion && nextQuestion.hasAttribute('data-is-global')) {
                     // Check if this global field already has data
                     const hasData = this.globalFieldHasData(nextQuestion);
-                    console.log('Smart skip: Step', nextStep, 'has data?', hasData);
                     
                     if (hasData) {
-                        console.log('Smart skip: Skipping step', nextStep, 'because it has data');
                         nextStep++;
                         continue; // Skip this question
                     } else {
-                        console.log('Smart skip: Step', nextStep, 'is global but has no data, showing it');
                     }
                 } else {
-                    console.log('Smart skip: Step', nextStep, 'is not global, showing it');
                 }
                 break; // Found a question that needs to be shown
             }
         } else {
-            console.log('Smart skip: User is not logged in, showing all questions');
         }
         
-        console.log('Smart skip: Final step to show:', nextStep);
         
         // Check if we're at the last real question and auto-submit is ready
         if (nextStep >= this.totalSteps && this.autoSubmitReady) {
@@ -284,67 +258,42 @@ class ENNUAssessmentForm {
         const inputs = questionElement.querySelectorAll('input, select, textarea');
         let hasData = false;
         
-        console.log('=== Checking global field data ===');
-        console.log('Question title:', questionElement.querySelector('.question-title')?.textContent);
         
         // Special debugging for gender fields
         if (questionElement.querySelector('.question-title')?.textContent?.includes('gender')) {
-            console.log('🔍 This is a gender field - extra debugging enabled');
         }
         
         // Special debugging for DOB fields
         if (questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('date') || 
             questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('birth') ||
             questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('dob')) {
-            console.log('🔍 This is a DOB field - extra debugging enabled');
-            console.log('DOB container found:', !!questionElement.querySelector('.dob-dropdowns'));
-            console.log('DOB inputs found:', questionElement.querySelectorAll('.dob-dropdowns select').length);
         }
         
         for (let input of inputs) {
             // Skip hidden inputs
             if (input.type === 'hidden') {
-                console.log('Skipping hidden input:', input.name, input.value);
                 continue;
             }
             
-            console.log('Checking input:', input.name, 'type:', input.type, 'value:', input.value);
             
             if (input.type === 'radio' || input.type === 'checkbox') {
-                console.log('Checking radio/checkbox:', input.name, 'value:', input.value, 'checked:', input.checked);
                 
                 // Special debugging for gender fields
                 if (input.name && input.name.includes('gender')) {
-                    console.log('🔍 Gender field input details:');
-                    console.log('  - Name:', input.name);
-                    console.log('  - Value:', input.value);
-                    console.log('  - Checked:', input.checked);
-                    console.log('  - ID:', input.id);
-                    console.log('  - Required:', input.required);
                 }
                 
                 if (input.checked) {
-                    console.log('✅ Global field has data - checked input:', input.name, input.value);
                     hasData = true;
                 } else {
-                    console.log('❌ Radio/checkbox not checked:', input.name);
                 }
             } else if (input.type === 'select-one' || input.type === 'select-multiple') {
-                console.log('Select input details:');
-                console.log('  - Value:', input.value);
-                console.log('  - Selected index:', input.selectedIndex);
-                console.log('  - Options count:', input.options.length);
                 
                 if (input.selectedIndex >= 0) {
                     const selectedOption = input.options[input.selectedIndex];
-                    console.log('  - Selected option text:', selectedOption?.text);
-                    console.log('  - Selected option disabled:', selectedOption?.disabled);
-                    console.log('  - Selected option value:', selectedOption?.value);
                 }
                 
                 // Special handling for DOB dropdowns
                 if (input.name && input.name.includes('date_of_birth')) {
-                    console.log('🔍 This is a DOB dropdown');
                     // For DOB dropdowns, check if any of the three dropdowns have values
                     const dobContainer = questionElement.querySelector('.dob-dropdowns');
                     if (dobContainer) {
@@ -353,30 +302,24 @@ class ENNUAssessmentForm {
                         let allDobFieldsHaveData = true;
                         
                         dobInputs.forEach(dobInput => {
-                            console.log('Checking DOB input:', dobInput.name, 'value:', dobInput.value, 'selectedIndex:', dobInput.selectedIndex);
                             
                             // Check if this dropdown has a valid selection (not the disabled placeholder)
                             if (dobInput.selectedIndex > 0 && dobInput.value && dobInput.value !== '') {
                                 const selectedOption = dobInput.options[dobInput.selectedIndex];
                                 if (selectedOption && !selectedOption.disabled) {
-                                    console.log('✅ DOB dropdown has data:', dobInput.name, dobInput.value);
                                     dobHasData = true;
                                 } else {
-                                    console.log('❌ DOB dropdown has disabled option selected:', dobInput.name);
                                     allDobFieldsHaveData = false;
                                 }
                             } else {
-                                console.log('❌ DOB dropdown has no data:', dobInput.name);
                                 allDobFieldsHaveData = false;
                             }
                         });
                         
                         // For DOB, we need ALL three fields to have data to consider it complete
                         if (allDobFieldsHaveData) {
-                            console.log('✅ DOB field has complete data (all 3 fields filled)');
                             hasData = true;
                         } else {
-                            console.log('❌ DOB field is incomplete (missing some fields)');
                         }
                     }
                 } else {
@@ -385,26 +328,20 @@ class ENNUAssessmentForm {
                         // Additional check: make sure it's not the default disabled option
                         const selectedOption = input.options[input.selectedIndex];
                         if (selectedOption && !selectedOption.disabled) {
-                            console.log('✅ Global field has data - select input:', input.name, input.value);
                             hasData = true;
                         } else {
-                            console.log('❌ Select has value but option is disabled or invalid');
                         }
                     } else {
-                        console.log('❌ Select has no valid value');
                     }
                 }
             } else {
                 if (input.value && input.value.trim() !== '') {
-                    console.log('✅ Global field has data - text input:', input.name, input.value);
                     hasData = true;
                 } else {
-                    console.log('❌ Text input has no value:', input.name);
                 }
             }
         }
         
-        console.log('=== Final result: Global field has data =', hasData, '===');
         return hasData;
     }
 
@@ -418,7 +355,6 @@ class ENNUAssessmentForm {
                               this.form.querySelector('input[name="email"]')?.value;
             
             if (isLoggedIn) {
-                console.log('Smart skip (prev): User is logged in, applying smart skip logic');
                 
                 // Skip global fields that already have data
                 while (prevStep >= 0) {
@@ -433,7 +369,6 @@ class ENNUAssessmentForm {
                     break; // Found a question that needs to be shown
                 }
             } else {
-                console.log('Smart skip (prev): User is not logged in, showing all questions');
             }
             
             if (prevStep >= 0) {
@@ -579,12 +514,8 @@ class ENNUAssessmentForm {
     }
     
     submitForm() {
-        console.log('ENNU REDIRECT DEBUG: submitForm() called');
-        console.log('ENNU REDIRECT DEBUG: this.isSubmitting:', this.isSubmitting);
-        console.log('ENNU REDIRECT DEBUG: validateCurrentQuestion():', this.validateCurrentQuestion());
         
         if (this.isSubmitting || !this.validateCurrentQuestion()) {
-            console.log('ENNU REDIRECT DEBUG: Form submission blocked - isSubmitting:', this.isSubmitting, 'validation:', this.validateCurrentQuestion());
             return;
         }
         
@@ -595,9 +526,7 @@ class ENNUAssessmentForm {
         let nonce = this.form.dataset.nonce;
         if (!nonce && typeof ennu_ajax !== 'undefined' && ennu_ajax.nonce) {
             nonce = ennu_ajax.nonce;
-            console.warn('Form data-nonce missing, using ennu_ajax.nonce fallback:', nonce);
         } else {
-            console.log('Form nonce:', nonce);
         }
 
         if (!nonce) {
@@ -608,8 +537,6 @@ class ENNUAssessmentForm {
         }
         formData.append('nonce', nonce);
 
-        console.log('ENNU REDIRECT DEBUG: Starting AJAX request to:', ennu_ajax.ajax_url);
-        console.log('ENNU REDIRECT DEBUG: Form data being sent:', Object.fromEntries(formData));
         
         fetch(ennu_ajax.ajax_url, {
             method: 'POST',
@@ -618,9 +545,6 @@ class ENNUAssessmentForm {
             signal: AbortSignal.timeout(600000) // 600 seconds timeout for slow queries
         })
         .then(response => {
-            console.log('ENNU REDIRECT DEBUG: AJAX response received:', response);
-            console.log('ENNU REDIRECT DEBUG: Response status:', response.status);
-            console.log('ENNU REDIRECT DEBUG: Response ok:', response.ok);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -629,16 +553,9 @@ class ENNUAssessmentForm {
             return response.json();
         })
         .then(data => {
-            console.log('ENNU REDIRECT DEBUG: AJAX response received:', data);
-            console.log('ENNU REDIRECT DEBUG: Data type:', typeof data);
-            console.log('ENNU REDIRECT DEBUG: Data keys:', Object.keys(data));
-            console.log('ENNU REDIRECT DEBUG: Success property:', data.success);
-            			console.log('ENNU REDIRECT DEBUG: Data property:', data.data);
-			console.log('ENNU REDIRECT DEBUG: Full response structure:', JSON.stringify(data, null, 2));
 			
 			if (data && data.success === true) {
                 			if (data.data && data.data.redirect_url && data.data.redirect_url !== false) {
-				console.log('ENNU REDIRECT DEBUG: Redirect URL found:', data.data.redirect_url);
 				
 				// Update auth state if provided
 				if (data.data.auth_state) {
@@ -647,26 +564,19 @@ class ENNUAssessmentForm {
 				
 				// Single redirect method - no fallbacks
 				const redirectUrl = data.data.redirect_url;
-				console.log('ENNU REDIRECT DEBUG: Attempting redirect to:', redirectUrl);
 				
 				if (redirectUrl && redirectUrl !== 'false' && redirectUrl !== false) {
 					window.location.href = redirectUrl;
 				} else {
-					console.error('ENNU REDIRECT DEBUG: No valid redirect URL provided');
 					this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
 				}
 			} else {
-				console.error('ENNU REDIRECT DEBUG: No redirect_url in response');
 				this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
 			}
             } else {
-                console.error('ENNU REDIRECT DEBUG: AJAX response indicates failure');
-                console.error('ENNU REDIRECT DEBUG: Full response data:', data);
-                console.error('ENNU REDIRECT DEBUG: Data structure:', JSON.stringify(data, null, 2));
                 
                 // Handle specific error types
                 if (data && data.data && data.data.action === 'login_required') {
-                    console.log('ENNU REDIRECT DEBUG: Login required detected');
                     const message = data.data.message || 'An account with this email already exists. Please log in to continue.';
                     
                     // Show login required message with link
@@ -674,12 +584,10 @@ class ENNUAssessmentForm {
                 } else {
                     const message = data && data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
                     this.showError(this.form, message);
-                    console.error('AJAX error:', message);
                 }
             }
         })
                         .catch(error => {
-                    console.error('ENNU REDIRECT DEBUG: AJAX catch error:', error);
                     this.showError(this.form, 'Assessment submission failed. Please try again or contact support if the problem persists.');
                 })
         .finally(() => {

@@ -1347,23 +1347,24 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			function getWordPressFieldName(hubspotFieldName) {
 				const wpMapping = {
 					// Global Fields (Contact Properties)
-					'wl_q_gender': 'wl_q_gender',
-					'wl_q_dob': 'wl_q_dob', 
-					'wl_q1_height_weight': 'wl_q1',
+					'ennu_global_gender': 'ennu_global_gender',
+					'ennu_global_date_of_birth': 'ennu_global_date_of_birth', 
+					'ennu_global_height_weight': 'ennu_global_height_weight',
 					
-					// Assessment Questions (Contact Properties)
-					'wl_q2_weight_loss_goal': 'wl_q2',
-					'wl_q3_diet_description': 'wl_q3',
-					'wl_q4_exercise_frequency': 'wl_q4',
-					'wl_q5_sleep_hours': 'wl_q5',
-					'wl_q6_stress_level': 'wl_q6',
-					'wl_q7_weight_loss_history': 'wl_q7',
-					'wl_q8_emotional_eating': 'wl_q8',
-					'wl_q9_medical_conditions': 'wl_q9',
-					'wl_q10_motivation_level': 'wl_q10',
-					'wl_q11_body_composition_goal': 'wl_q11',
-					'wl_q12_support_system': 'wl_q12',
-					'wl_q13_confidence_level': 'wl_q13',
+					// Assessment Questions (Contact Properties) - Direct mapping
+					'weight_loss_q2': 'weight_loss_q2',
+					'weight_loss_q3': 'weight_loss_q3',
+					'weight_loss_q4': 'weight_loss_q4',
+					'weight_loss_q5': 'weight_loss_q5',
+					'weight_loss_q6': 'weight_loss_q6',
+					'weight_loss_q7': 'weight_loss_q7',
+					'weight_loss_q8': 'weight_loss_q8',
+					'weight_loss_q9': 'weight_loss_q9',
+					'weight_loss_q10': 'weight_loss_q10',
+					'weight_loss_q11': 'weight_loss_q11',
+					'weight_loss_q12': 'weight_loss_q12',
+					'weight_loss_q13': 'weight_loss_q13',
+					'weight_loss_symptoms': 'weight_loss_symptoms',
 					
 					// Assessment Scores (Contact Properties)
 					'wl_overall_score': 'wl_overall_score',
@@ -1408,18 +1409,18 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 					'assessment_version': 'assessment_version',
 					
 					// Assessment Questions (Custom Object Fields) - Same as contact but for historical tracking
-					'wl_q2_weight_loss_goal': 'wl_q2',
-					'wl_q3_diet_description': 'wl_q3',
-					'wl_q4_exercise_frequency': 'wl_q4',
-					'wl_q5_sleep_hours': 'wl_q5',
-					'wl_q6_stress_level': 'wl_q6',
-					'wl_q7_weight_loss_history': 'wl_q7',
-					'wl_q8_emotional_eating': 'wl_q8',
-					'wl_q9_medical_conditions': 'wl_q9',
-					'wl_q10_motivation_level': 'wl_q10',
-					'wl_q11_body_composition_goal': 'wl_q11',
-					'wl_q12_support_system': 'wl_q12',
-					'wl_q13_confidence_level': 'wl_q13',
+					'weight_loss_q2': 'weight_loss_q2',
+					'weight_loss_q3': 'weight_loss_q3',
+					'weight_loss_q4': 'weight_loss_q4',
+					'weight_loss_q5': 'weight_loss_q5',
+					'weight_loss_q6': 'weight_loss_q6',
+					'weight_loss_q7': 'weight_loss_q7',
+					'weight_loss_q8': 'weight_loss_q8',
+					'weight_loss_q9': 'weight_loss_q9',
+					'weight_loss_q10': 'weight_loss_q10',
+					'weight_loss_q11': 'weight_loss_q11',
+					'weight_loss_q12': 'weight_loss_q12',
+					'weight_loss_q13': 'weight_loss_q13',
 					
 					// Assessment Scores (Custom Object Fields) - Same as contact but for historical tracking
 					'wl_overall_score': 'wl_overall_score',
@@ -4237,7 +4238,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		return array(
 			// Assessment Questions (11) - Weight Loss Specific
 			array(
-				'name' => 'wl_q2',
+				'name' => 'weight_loss_q2',
 				'original_key' => 'wlQ2WeightLossGoal',
 				'label' => 'WL Q2 Weight Loss Goal - What is your primary weight loss goal?',
 				'type' => 'enumeration',
@@ -4251,7 +4252,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q3',
+				'name' => 'weight_loss_q3',
 				'original_key' => 'wlQ3DietDescription',
 				'label' => 'WL Q3 Diet Description - How would you describe your typical diet?',
 				'type' => 'enumeration',
@@ -4266,7 +4267,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q4',
+				'name' => 'weight_loss_q4',
 				'original_key' => 'wlQ4ExerciseFrequency',
 				'label' => 'WL Q4 Exercise Frequency - How often do you exercise?',
 				'type' => 'enumeration',
@@ -4280,7 +4281,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q5',
+				'name' => 'weight_loss_q5',
 				'original_key' => 'wlQ5SleepHours',
 				'label' => 'WL Q5 Sleep Hours - How many hours do you sleep per night?',
 				'type' => 'enumeration',
@@ -4294,7 +4295,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q6',
+				'name' => 'weight_loss_q6',
 				'original_key' => 'wlQ6StressLevel',
 				'label' => 'WL Q6 Stress Level - How would you rate your daily stress level?',
 				'type' => 'enumeration',
@@ -4308,7 +4309,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q7',
+				'name' => 'weight_loss_q7',
 				'original_key' => 'wlQ7WeightLossHistory',
 				'label' => 'WL Q7 Weight Loss History - What is your weight loss history?',
 				'type' => 'enumeration',
@@ -4322,7 +4323,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q8',
+				'name' => 'weight_loss_q8',
 				'original_key' => 'wlQ8EmotionalEating',
 				'label' => 'WL Q8 Emotional Eating - How often do you eat emotionally?',
 				'type' => 'enumeration',
@@ -4336,7 +4337,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q9',
+				'name' => 'weight_loss_q9',
 				'original_key' => 'wlQ9MedicalConditions',
 				'label' => 'WL Q9 Medical Conditions - Do you have any medical conditions affecting weight?',
 				'type' => 'enumeration',
@@ -4350,7 +4351,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q10',
+				'name' => 'weight_loss_q10',
 				'original_key' => 'wlQ10MotivationLevel',
 				'label' => 'WL Q10 Motivation Level - How motivated are you to make lifestyle changes?',
 				'type' => 'enumeration',
@@ -4364,7 +4365,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q11',
+				'name' => 'weight_loss_q11',
 				'original_key' => 'wlQ11BodyCompositionGoal',
 				'label' => 'WL Q11 Body Composition Goal - What is your primary body composition goal?',
 				'type' => 'enumeration',
@@ -4377,7 +4378,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q12',
+				'name' => 'weight_loss_q12',
 				'original_key' => 'wlQ12SupportSystem',
 				'label' => 'WL Q12 Support System - Do you have a support system?',
 				'type' => 'enumeration',
@@ -4390,7 +4391,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q13',
+				'name' => 'weight_loss_q13',
 				'original_key' => 'wlQ13ConfidenceLevel',
 				'label' => 'WL Q13 Confidence Level - How confident are you in achieving your goals?',
 				'type' => 'enumeration',
@@ -4695,8 +4696,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			
 			// Assessment Questions (11) - Same as contact properties but for custom object
 			array(
-				'name' => 'wl_q2',
-				'original_key' => 'wl_q2_weight_loss_goal',
+				'name' => 'weight_loss_q2',
+				'original_key' => 'weight_loss_q2',
 				'label' => 'WLQ2 - What is your primary weight loss goal?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4709,8 +4710,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q3',
-				'original_key' => 'wl_q3_diet_description',
+				'name' => 'weight_loss_q3',
+				'original_key' => 'weight_loss_q3',
 				'label' => 'WLQ3 - How would you describe your typical diet?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4724,8 +4725,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q4',
-				'original_key' => 'wl_q4_exercise_frequency',
+				'name' => 'weight_loss_q4',
+				'original_key' => 'weight_loss_q4',
 				'label' => 'WLQ4 - How often do you exercise?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4738,8 +4739,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q5',
-				'original_key' => 'wl_q5_sleep_hours',
+				'name' => 'weight_loss_q5',
+				'original_key' => 'weight_loss_q5',
 				'label' => 'WLQ5 - How many hours do you sleep per night?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4752,8 +4753,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q6',
-				'original_key' => 'wl_q6_stress_level',
+				'name' => 'weight_loss_q6',
+				'original_key' => 'weight_loss_q6',
 				'label' => 'WLQ6 - How would you rate your daily stress level?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4766,8 +4767,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q7',
-				'original_key' => 'wl_q7_weight_loss_history',
+				'name' => 'weight_loss_q7',
+				'original_key' => 'weight_loss_q7',
 				'label' => 'WLQ7 - What is your weight loss history?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4780,8 +4781,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q8',
-				'original_key' => 'wl_q8_emotional_eating',
+				'name' => 'weight_loss_q8',
+				'original_key' => 'weight_loss_q8',
 				'label' => 'WLQ8 - How often do you eat emotionally?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4794,8 +4795,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q9',
-				'original_key' => 'wl_q9_medical_conditions',
+				'name' => 'weight_loss_q9',
+				'original_key' => 'weight_loss_q9',
 				'label' => 'WLQ9 - Do you have any medical conditions affecting weight?',
 				'type' => 'enumeration',
 				'fieldType' => 'multiselect',
@@ -4808,8 +4809,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q10',
-				'original_key' => 'wl_q10_motivation_level',
+				'name' => 'weight_loss_q10',
+				'original_key' => 'weight_loss_q10',
 				'label' => 'WLQ10 - How motivated are you to make lifestyle changes?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4822,8 +4823,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q11',
-				'original_key' => 'wl_q11_body_composition_goal',
+				'name' => 'weight_loss_q11',
+				'original_key' => 'weight_loss_q11',
 				'label' => 'WLQ11 - What is your primary body composition goal?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4835,8 +4836,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q12',
-				'original_key' => 'wl_q12_support_system',
+				'name' => 'weight_loss_q12',
+				'original_key' => 'weight_loss_q12',
 				'label' => 'WLQ12 - Do you have a support system?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -4848,8 +4849,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				),
 			),
 			array(
-				'name' => 'wl_q13',
-				'original_key' => 'wl_q13_confidence_level',
+				'name' => 'weight_loss_q13',
+				'original_key' => 'weight_loss_q13',
 				'label' => 'WLQ13 - How confident are you in achieving your goals?',
 				'type' => 'enumeration',
 				'fieldType' => 'select',
@@ -5170,9 +5171,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		// Get assessment prefix to avoid conflicts with existing HubSpot properties
 		$assessment_prefix = $this->get_assessment_prefix( $assessment_name );
 		
-		// For question fields, they already have the assessment prefix (e.g., wl_q2, sleep_q1)
-		if ( preg_match( '/^[a-z]+_q\d+$/', $wordpress_field_key ) ) {
-			// Question fields already have the correct format (e.g., wl_q2, sleep_q1)
+		// For question fields with new standardized format (e.g., weight_loss_q2, sleep_q1)
+		if ( preg_match( '/^[a-z_]+_q\d+$/', $wordpress_field_key ) ) {
+			// Question fields already have the correct format (e.g., weight_loss_q2, sleep_q1)
 			$hubspot_id = $wordpress_field_key;
 		} else {
 			// For custom object fields, use generic names for specific fields only
@@ -6368,7 +6369,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$contact_properties['email'] = $form_data['email'] ?? $user->user_email;
 		$contact_properties['firstname'] = $form_data['first_name'] ?? get_user_meta( $user_id, 'first_name', true ) ?: '';
 		$contact_properties['lastname'] = $form_data['last_name'] ?? get_user_meta( $user_id, 'last_name', true ) ?: '';
-		$contact_properties['phone'] = $form_data['billing_phone'] ?? get_user_meta( $user_id, 'ennu_global_billing_phone', true ) ?: '';
+		$contact_properties['phone'] = $form_data['billing_phone'] ?? get_user_meta( $user_id, 'billing_phone', true ) ?: '';
 
 		// Global fields - prioritize form data for real-time sync
 		$contact_properties['ennu_global_gender'] = $form_data['gender'] ?? get_user_meta( $user_id, 'ennu_global_gender', true ) ?: '';

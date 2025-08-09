@@ -255,8 +255,6 @@
             };
             
             // Monitor console errors
-            const originalConsoleError = console.error;
-            console.error = function() {
                 self.logError('Console Error', Array.prototype.slice.call(arguments).join(' '));
                 originalConsoleError.apply(console, arguments);
             };

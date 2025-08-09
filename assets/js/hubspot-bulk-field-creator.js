@@ -6,20 +6,17 @@
 
 // Global functions for inline script calls - must be defined before jQuery ready
 window.loadCustomObjects = function() {
-    console.log('Loading custom objects...');
     // This function is called from inline script but doesn't need to do anything
     // as the custom objects are loaded via AJAX when needed
 };
 
 window.loadFieldStatistics = function() {
-    console.log('Loading field statistics...');
     if (typeof jQuery !== 'undefined') {
         jQuery('#refresh-all-stats').trigger('click');
     }
 };
 
 window.loadAssessments = function() {
-    console.log('Loading assessments...');
     // This function is called from inline script but doesn't need to do anything
     // as the assessments are loaded via AJAX when needed
 };

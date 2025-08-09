@@ -10,13 +10,13 @@ return array(
 	'title'             => 'Welcome Assessment',
 	'assessment_engine' => 'qualitative',
 	'questions'         => array(
-		'welcome_q1' => array(
+		'ennu_global_date_of_birth' => array(
 			'title'      => 'What is your date of birth?',
 			'type'       => 'dob_dropdowns',
 			'required'   => true,
 			'global_key' => 'date_of_birth',
 		),
-		'welcome_q2' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -26,13 +26,13 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'welcome_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'welcome_q3' => array(
+		'ennu_global_health_goals' => array(
 			'title'      => 'What are your primary health goals?',
 			'type'       => 'multiselect',
 			'options'    => array(

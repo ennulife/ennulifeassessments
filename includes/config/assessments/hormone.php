@@ -12,7 +12,7 @@ return array(
 	'title'             => 'Hormone Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'hormone_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -42,13 +42,13 @@ return array(
 				),
 			),
 		),
-		'hormone_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-'hormone_q1'       => array(
+		'hormone_q1' => array(
 			'title'    => 'Which of the following symptoms of hormonal imbalance are you experiencing?',
 			'type'     => 'multiselect',
 			'options'  => array(

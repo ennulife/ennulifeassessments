@@ -363,7 +363,6 @@ jQuery(document).ready(function($) {
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(function() {
             // Auto-save after 3 seconds of inactivity
-            console.log('Auto-save triggered for source form');
         }, 3000);
     });
     

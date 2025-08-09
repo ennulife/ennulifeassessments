@@ -17,8 +17,17 @@ class ENNU_Global_Fields_Processor {
     
     /**
      * Global field mappings
+     * Using native WordPress user fields where possible
      */
     private static $global_field_mappings = array(
+        // Native WordPress fields
+        'first_name' => 'first_name',
+        'last_name' => 'last_name',
+        'email' => 'user_email',
+        'billing_phone' => 'billing_phone',
+        'phone' => 'billing_phone',
+        
+        // Custom global fields
         'date_of_birth' => 'ennu_global_date_of_birth',
         'dob' => 'ennu_global_date_of_birth',
         'birth_date' => 'ennu_global_date_of_birth',
@@ -29,11 +38,7 @@ class ENNU_Global_Fields_Processor {
         'height_weight' => 'ennu_global_height_weight',
         'health_goals' => 'ennu_global_health_goals',
         'goals' => 'ennu_global_health_goals',
-        'first_name' => 'ennu_global_first_name',
-        'last_name' => 'ennu_global_last_name',
-        'email' => 'ennu_global_email',
-        'phone' => 'ennu_global_billing_phone',
-        'billing_phone' => 'ennu_global_billing_phone'
+        'age' => 'ennu_global_age'
     );
     
     /**

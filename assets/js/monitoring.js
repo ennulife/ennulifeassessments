@@ -171,10 +171,8 @@
                     url: errorData.url
                 },
                 success: function(response) {
-                    console.log('ENNU Error logged:', response);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to log ENNU error:', error);
                 }
             });
         },
@@ -196,10 +194,8 @@
                     url: performanceData.url
                 },
                 success: function(response) {
-                    console.log('ENNU Performance logged:', response);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to log ENNU performance:', error);
                 }
             });
         },
@@ -222,10 +218,8 @@
                     url: resourceData.url
                 },
                 success: function(response) {
-                    console.log('ENNU Resource timing logged:', response);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to log ENNU resource timing:', error);
                 }
             });
         },
@@ -247,10 +241,8 @@
                     activity_data: activityData
                 },
                 success: function(response) {
-                    console.log('ENNU Activity logged:', response);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to log ENNU activity:', error);
                 }
             });
         },
@@ -272,10 +264,8 @@
                     event_data: eventData
                 },
                 success: function(response) {
-                    console.log('ENNU Event tracked:', response);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Failed to track ENNU event:', error);
                 }
             });
         }

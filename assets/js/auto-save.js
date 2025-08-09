@@ -27,7 +27,6 @@
         const userId = $form.data('user-id') || ennuAutoSave.userId || 0;
         
         if (!assessmentType) {
-            console.warn('ENNU Auto-Save: Assessment type not found');
             return;
         }
         
@@ -123,7 +122,6 @@
                 saveToServer(formData);
             }
         } catch (e) {
-            console.error('ENNU Auto-Save: Failed to save data', e);
             updateAutoSaveIndicator('error');
         }
     }
@@ -186,7 +184,6 @@
             $form.trigger('ennu:autorestored', [formData]);
             
         } catch (e) {
-            console.error('ENNU Auto-Save: Failed to restore data', e);
         }
     }
     
@@ -197,7 +194,6 @@
         try {
             localStorage.removeItem(storageKey);
         } catch (e) {
-            console.error('ENNU Auto-Save: Failed to clear saved data', e);
         }
     }
     
@@ -217,11 +213,9 @@
             },
             success: function(response) {
                 if (response.success) {
-                    console.log('ENNU Auto-Save: Progress saved to server');
                 }
             },
             error: function() {
-                console.error('ENNU Auto-Save: Failed to save to server');
             }
         });
     }

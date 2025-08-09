@@ -514,13 +514,34 @@ class ENNU_AJAX_Handler_DISABLED {
 		$settings = get_option( 'ennu_life_settings', array() );
 		$page_mappings = $settings['page_mappings'] ?? array();
 		
-		// SIMPLE: Look for direct page_id mapping for this assessment type
-		$page_id_key = $assessment_type . '_results_page_id';
+		// Look for page_id mapping - try multiple key formats
+		// First normalize the assessment type (remove _assessment suffix if present)
+		$normalized_type = str_replace('_assessment', '', $assessment_type);
+		$normalized_type = str_replace('-', '_', $normalized_type); // Convert dashes to underscores
 		
-		// Check if we have a direct page_id configured
-		if ( isset( $page_mappings[ $page_id_key ] ) && ! empty( $page_mappings[ $page_id_key ] ) ) {
-			$page_id = $page_mappings[ $page_id_key ];
-			
+		// Try different key formats since naming is inconsistent
+		$possible_keys = array(
+			$normalized_type . '_details_page_id',  // Most common format
+			$normalized_type . '_results_page_id',  // Alternative format
+			$assessment_type . '_details_page_id',  // With full assessment suffix
+			$assessment_type . '_results_page_id',  // With full assessment suffix
+			str_replace('_', '-', $normalized_type) . '_details_page_id', // With dashes
+			str_replace('_', '-', $normalized_type) . '_results_page_id'  // With dashes
+		);
+		
+		// Check each possible key
+		$page_id = null;
+		$found_key = null;
+		foreach ( $possible_keys as $key ) {
+			if ( isset( $page_mappings[ $key ] ) && ! empty( $page_mappings[ $key ] ) ) {
+				$page_id = $page_mappings[ $key ];
+				$found_key = $key;
+				break;
+			}
+		}
+		
+		// Check if we found a page_id
+		if ( $page_id ) {
 			// Use the simple ?page_id= format with token parameter
 			$redirect_url = $base_url . '/?page_id=' . $page_id;
 			
@@ -529,12 +550,13 @@ class ENNU_AJAX_Handler_DISABLED {
 				$redirect_url .= '&token=' . urlencode( $response_data['results_token'] );
 			}
 			
-			$this->logger->log( 'ENNU REDIRECT DEBUG: Using simple page_id redirect for ' . $assessment_type . ' with page_id=' . $page_id );
+			$this->logger->log( 'ENNU REDIRECT DEBUG: Found page mapping with key: ' . $found_key );
+			$this->logger->log( 'ENNU REDIRECT DEBUG: Using page_id redirect for ' . $assessment_type . ' with page_id=' . $page_id );
 			return $redirect_url;
 		}
 		
 		// NO FALLBACKS - Return false if page not configured
-		$this->logger->log( 'ENNU REDIRECT DEBUG: No simple page_id configured for ' . $assessment_type . ' (key: ' . $page_id_key . ') - Redirect will fail' );
+		$this->logger->log( 'ENNU REDIRECT DEBUG: No page_id configured for ' . $assessment_type . ' (tried keys: ' . implode(', ', $possible_keys) . ') - Redirect will fail' );
 		return false;
 	}
 }

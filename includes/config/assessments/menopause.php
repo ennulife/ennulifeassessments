@@ -13,7 +13,7 @@ return array(
 	'assessment_engine' => 'quantitative',
 	'gender_filter'     => 'female',
 	'questions'         => array(
-		'menopause_q_dob' => array(
+		'ennu_global_date_of_birth' => array(
 			'title'      => 'What is your date of birth?',
 			'type'       => 'dob_dropdowns',
 			'required'   => true,
@@ -33,7 +33,7 @@ return array(
 				),
 			),
 		),
-		'menopause_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -43,13 +43,13 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'menopause_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'menopause_q1'    => array(
+		'menopause_q1' => array(
 			'title'    => 'Which of the following menopausal symptoms are you experiencing?',
 			'type'     => 'multiselect',
 			'options'  => array(

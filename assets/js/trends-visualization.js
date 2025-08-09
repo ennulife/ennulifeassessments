@@ -17,7 +17,6 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        console.log('Initializing Trends Visualization for user:', userId);
 
         // Initial data load
         fetchTrendData(userId, 90, 'all');
@@ -42,7 +41,6 @@ jQuery(document).ready(function($) {
     }
 
     function fetchTrendData(userId, timeRange, category) {
-        console.log(`Fetching data for range: ${timeRange} days, category: ${category}`);
         $.ajax({
             url: ennuTrends.ajaxUrl,
             type: 'POST',
@@ -55,15 +53,12 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    console.log('Data received:', response.data);
                     renderAllCharts(response.data);
                     renderInsights(response.data.insights);
                 } else {
-                    console.error('Error fetching trend data:', response.data);
                 }
             },
             error: function(error) {
-                console.error('AJAX error:', error);
             }
         });
     }

@@ -1,21 +1,324 @@
 {
-    "biomarker_weight": 0.7,
-    "symptom_weight": 0.3,
-    "biomarkers": {
-        "glucose": 0.1,
-        "hba1c": 0.15,
-        "testosterone": 0.1,
-        "cortisol": 0.1,
-        "vitamin_d": 0.1,
-        "tsh": 0.1,
-        "ldl": 0.1,
-        "hdl": 0.1
+    "version": "2.0.0",
+    "description": "Comprehensive scoring weights configuration for ENNU Life Assessments",
+    "last_updated": "2025-01-08",
+    
+    "pillar_distribution": {
+        "mind": 0.25,
+        "body": 0.35,
+        "lifestyle": 0.25,
+        "aesthetics": 0.15
     },
-    "symptoms": {
-        "fatigue": 0.2,
-        "anxiety": 0.2,
-        "depression": 0.2,
-        "insomnia": 0.2,
-        "brain_fog": 0.2
+    
+    "engine_weights": {
+        "quantitative": 0.40,
+        "qualitative": 0.20,
+        "objective": 0.30,
+        "intentionality": 0.10
+    },
+    
+    "biomarker_category_weights": {
+        "metabolic": 0.25,
+        "hormones": 0.20,
+        "lipids": 0.15,
+        "thyroid": 0.10,
+        "vitamins": 0.10,
+        "hematology": 0.05,
+        "inflammation": 0.05,
+        "cardiovascular": 0.05,
+        "kidney": 0.025,
+        "liver": 0.025
+    },
+    
+    "biomarker_weights": {
+        "critical_biomarkers": {
+            "glucose": 0.08,
+            "hba1c": 0.10,
+            "homa_ir": 0.08,
+            "testosterone": 0.08,
+            "cortisol": 0.07,
+            "tsh": 0.08,
+            "vitamin_d": 0.08,
+            "ldl_cholesterol": 0.07,
+            "hdl_cholesterol": 0.07,
+            "apob": 0.08,
+            "hscrp": 0.07,
+            "creatinine": 0.07,
+            "egfr": 0.07
+        },
+        "significant_biomarkers": {
+            "insulin": 0.05,
+            "free_testosterone": 0.05,
+            "estradiol": 0.05,
+            "free_t3": 0.05,
+            "free_t4": 0.05,
+            "vitamin_b12": 0.05,
+            "ferritin": 0.05,
+            "total_cholesterol": 0.04,
+            "triglycerides": 0.04,
+            "lpa": 0.04,
+            "homocysteine": 0.05,
+            "hemoglobin": 0.04,
+            "bun": 0.04,
+            "alt": 0.04,
+            "ast": 0.04,
+            "albumin": 0.04,
+            "igf1": 0.05,
+            "omega3_index": 0.05
+        },
+        "moderate_biomarkers": {
+            "dhea_s": 0.03,
+            "progesterone": 0.03,
+            "reverse_t3": 0.03,
+            "folate": 0.03,
+            "magnesium": 0.03,
+            "zinc": 0.03,
+            "wbc": 0.02,
+            "rbc": 0.02,
+            "hematocrit": 0.02,
+            "platelets": 0.02,
+            "mcv": 0.02,
+            "mch": 0.02,
+            "mchc": 0.02,
+            "rdw": 0.02,
+            "alp": 0.03,
+            "bilirubin_total": 0.03,
+            "leptin": 0.03,
+            "adiponectin": 0.03
+        }
+    },
+    
+    "symptom_weights": {
+        "critical_symptoms": {
+            "chest_pain": 0.25,
+            "shortness_of_breath": 0.25,
+            "severe_fatigue": 0.20,
+            "rapid_weight_loss": 0.20,
+            "severe_depression": 0.20
+        },
+        "significant_symptoms": {
+            "fatigue": 0.15,
+            "brain_fog": 0.15,
+            "anxiety": 0.15,
+            "depression": 0.15,
+            "insomnia": 0.15,
+            "weight_gain": 0.12,
+            "low_libido": 0.12,
+            "erectile_dysfunction": 0.12,
+            "hot_flashes": 0.12,
+            "hair_loss": 0.10
+        },
+        "moderate_symptoms": {
+            "digestive_issues": 0.08,
+            "joint_pain": 0.08,
+            "muscle_weakness": 0.08,
+            "dry_skin": 0.06,
+            "mood_swings": 0.08,
+            "memory_issues": 0.08,
+            "slow_metabolism": 0.08,
+            "poor_recovery": 0.06,
+            "frequent_illness": 0.08,
+            "headaches": 0.06
+        }
+    },
+    
+    "assessment_weights": {
+        "hair": {
+            "pillar_mapping": {
+                "mind": 0.15,
+                "body": 0.25,
+                "lifestyle": 0.20,
+                "aesthetics": 0.40
+            }
+        },
+        "weight_loss": {
+            "pillar_mapping": {
+                "mind": 0.20,
+                "body": 0.40,
+                "lifestyle": 0.30,
+                "aesthetics": 0.10
+            }
+        },
+        "health": {
+            "pillar_mapping": {
+                "mind": 0.25,
+                "body": 0.35,
+                "lifestyle": 0.25,
+                "aesthetics": 0.15
+            }
+        },
+        "skin": {
+            "pillar_mapping": {
+                "mind": 0.10,
+                "body": 0.20,
+                "lifestyle": 0.20,
+                "aesthetics": 0.50
+            }
+        },
+        "hormone": {
+            "pillar_mapping": {
+                "mind": 0.30,
+                "body": 0.40,
+                "lifestyle": 0.20,
+                "aesthetics": 0.10
+            }
+        },
+        "sleep": {
+            "pillar_mapping": {
+                "mind": 0.40,
+                "body": 0.20,
+                "lifestyle": 0.35,
+                "aesthetics": 0.05
+            }
+        },
+        "testosterone": {
+            "pillar_mapping": {
+                "mind": 0.25,
+                "body": 0.45,
+                "lifestyle": 0.20,
+                "aesthetics": 0.10
+            }
+        },
+        "menopause": {
+            "pillar_mapping": {
+                "mind": 0.30,
+                "body": 0.35,
+                "lifestyle": 0.25,
+                "aesthetics": 0.10
+            }
+        },
+        "ed_treatment": {
+            "pillar_mapping": {
+                "mind": 0.35,
+                "body": 0.40,
+                "lifestyle": 0.20,
+                "aesthetics": 0.05
+            }
+        },
+        "health_optimization": {
+            "pillar_mapping": {
+                "mind": 0.25,
+                "body": 0.35,
+                "lifestyle": 0.25,
+                "aesthetics": 0.15
+            }
+        }
+    },
+    
+    "goal_boost_mappings": {
+        "weight_loss": {
+            "primary_pillar": "body",
+            "boost_percentage": 0.05
+        },
+        "muscle_gain": {
+            "primary_pillar": "body",
+            "boost_percentage": 0.05
+        },
+        "energy_boost": {
+            "primary_pillar": "lifestyle",
+            "boost_percentage": 0.05
+        },
+        "better_sleep": {
+            "primary_pillar": "lifestyle",
+            "boost_percentage": 0.05
+        },
+        "stress_reduction": {
+            "primary_pillar": "mind",
+            "boost_percentage": 0.05
+        },
+        "mental_clarity": {
+            "primary_pillar": "mind",
+            "boost_percentage": 0.05
+        },
+        "libido_enhancement": {
+            "primary_pillar": "body",
+            "boost_percentage": 0.05
+        },
+        "skin_improvement": {
+            "primary_pillar": "aesthetics",
+            "boost_percentage": 0.05
+        },
+        "hair_restoration": {
+            "primary_pillar": "aesthetics",
+            "boost_percentage": 0.05
+        },
+        "longevity": {
+            "primary_pillar": "body",
+            "boost_percentage": 0.05
+        },
+        "hormone_balance": {
+            "primary_pillar": "body",
+            "boost_percentage": 0.05
+        }
+    },
+    
+    "scoring_thresholds": {
+        "excellent": {
+            "min": 9.0,
+            "max": 10.0,
+            "label": "Excellent",
+            "color": "#22c55e"
+        },
+        "good": {
+            "min": 7.0,
+            "max": 8.9,
+            "label": "Good",
+            "color": "#84cc16"
+        },
+        "fair": {
+            "min": 5.0,
+            "max": 6.9,
+            "label": "Fair",
+            "color": "#eab308"
+        },
+        "needs_improvement": {
+            "min": 3.0,
+            "max": 4.9,
+            "label": "Needs Improvement",
+            "color": "#f97316"
+        },
+        "poor": {
+            "min": 0.0,
+            "max": 2.9,
+            "label": "Poor",
+            "color": "#ef4444"
+        }
+    },
+    
+    "penalty_matrix": {
+        "mild": {
+            "multiplier": 0.95,
+            "description": "5% reduction in affected pillars"
+        },
+        "moderate": {
+            "multiplier": 0.90,
+            "description": "10% reduction in affected pillars"
+        },
+        "severe": {
+            "multiplier": 0.85,
+            "description": "15% reduction in affected pillars"
+        },
+        "critical": {
+            "multiplier": 0.75,
+            "description": "25% reduction in affected pillars"
+        }
+    },
+    
+    "adjustment_matrix": {
+        "optimal": {
+            "critical": 0.05,
+            "significant": 0.025,
+            "moderate": 0.01
+        },
+        "suboptimal": {
+            "critical": -0.10,
+            "significant": -0.05,
+            "moderate": -0.025
+        },
+        "poor": {
+            "critical": -0.15,
+            "significant": -0.10,
+            "moderate": -0.05
+        }
     }
 }

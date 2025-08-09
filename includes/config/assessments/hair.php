@@ -16,7 +16,7 @@ return array(
 			'required'   => true,
 			'global_key' => 'date_of_birth',
 		),
-		'hair_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -26,13 +26,13 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'hair_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'hair_q3'  => array(
+		'hair_q3' => array(
 			'title'    => 'What are your main hair concerns?',
 			'type'     => 'multiselect',
 			'options'  => array(

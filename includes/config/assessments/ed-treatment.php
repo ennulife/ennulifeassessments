@@ -13,7 +13,7 @@ return array(
 	'assessment_engine' => 'quantitative',
 	'gender_filter'     => 'male',
 	'questions'         => array(
-		'ed_q_dob' => array(
+		'ennu_global_date_of_birth' => array(
 			'title'      => 'What is your date of birth?',
 			'type'       => 'dob_dropdowns',
 			'required'   => true,
@@ -33,7 +33,7 @@ return array(
 				),
 			),
 		),
-		'ed_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -43,13 +43,13 @@ return array(
 			'required'   => true,
 			'global_key' => 'gender',
 		),
-		'ed_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'ed_q1'    => array(
+		'ed_treatment_q1' => array(
 			'title'    => 'How would you describe your ability to achieve and maintain an erection sufficient for satisfactory sexual performance?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -70,7 +70,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q2'    => array(
+		'ed_treatment_q2'    => array(
 			'title'    => 'How would you rate your sexual desire and libido?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -93,7 +93,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q3'    => array(
+		'ed_treatment_q3'    => array(
 			'title'    => 'Have you been diagnosed with any of the following medical conditions?',
 			'type'     => 'multiselect',
 			'options'  => array(
@@ -122,7 +122,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q4'    => array(
+		'ed_treatment_q4'    => array(
 			'title'    => 'How would you describe your current stress levels?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -145,7 +145,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q5'    => array(
+		'ed_treatment_q5'    => array(
 			'title'    => 'How would you describe your relationship satisfaction?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -168,7 +168,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q6'    => array(
+		'ed_treatment_q6'    => array(
 			'title'    => 'How would you describe your sleep quality?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -191,7 +191,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q7'    => array(
+		'ed_treatment_q7'    => array(
 			'title'    => 'How would you describe your overall cardiovascular health?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -214,7 +214,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_q8'    => array(
+		'ed_treatment_q8'    => array(
 			'title'    => 'How would you rate your overall ED treatment readiness?',
 			'type'     => 'radio',
 			'options'  => array(
@@ -237,7 +237,7 @@ return array(
 			),
 			'required' => true,
 		),
-		'ed_symptoms' => array(
+		'ed_treatment_symptoms' => array(
 			'title'    => 'Select any symptoms you are experiencing:',
 			'type'     => 'multiselect',
 			'options'  => array(

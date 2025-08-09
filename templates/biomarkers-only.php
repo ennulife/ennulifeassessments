@@ -17,7 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Debug: Confirm template is loading
-error_log( 'ENNU Biomarkers Template: Template is loading for user ' . get_current_user_id() );
 
 // Ensure user_id is available
 if ( ! isset( $user_id ) ) {
@@ -26,9 +25,7 @@ if ( ! isset( $user_id ) ) {
 
 // Debug: Check if biomarkers manager is available
 if ( ! class_exists( 'ENNU_Biomarker_Manager' ) ) {
-	error_log( 'ENNU Biomarkers Template: ENNU_Biomarker_Manager lookclass not found' );
 } else {
-	error_log( 'ENNU Biomarkers Template: ENNU_Biomarker_Manager class found' );
 }
 
 // Debug: Add a simple test output to confirm template is executing
@@ -104,20 +101,16 @@ if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
 <script type="text/javascript">
 // Inline toggle functions - available immediately (shared with user-dashboard.php)
 window.togglePanel = function(panelKey) {
-    console.log('togglePanel called with:', panelKey);
     const panelContent = document.getElementById('panel-content-' + panelKey);
     if (!panelContent) {
-        console.error('Panel content not found for:', panelKey);
         return;
     }
     const panelHeader = panelContent.previousElementSibling;
     if (!panelHeader) {
-        console.error('Panel header not found for:', panelKey);
         return;
     }
     const expandIcon = panelHeader.querySelector('.panel-expand-icon');
     if (!expandIcon) {
-        console.error('Panel expand icon not found for:', panelKey);
         return;
     }
     
@@ -133,21 +126,17 @@ window.togglePanel = function(panelKey) {
 };
 
 window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarkerKey) {
-    console.log('toggleBiomarkerMeasurements called with:', panelKey, vectorCategory, biomarkerKey);
     const containerId = 'biomarker-measurement-' + panelKey + '-' + vectorCategory + '-' + biomarkerKey;
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error('Biomarker container not found for:', containerId);
         return;
     }
     const listItem = container.previousElementSibling;
     if (!listItem) {
-        console.error('Biomarker list item not found for:', containerId);
         return;
     }
     const expandIcon = listItem.querySelector('.biomarker-list-expand');
     if (!expandIcon) {
-        console.error('Biomarker expand icon not found for:', containerId);
         return;
     }
     
@@ -163,10 +152,8 @@ window.toggleBiomarkerMeasurements = function(panelKey, vectorCategory, biomarke
 };
 
 window.toggleVectorCategory = function(panelKey, vectorCategory) {
-    console.log('toggleVectorCategory called with:', panelKey, vectorCategory);
     const vectorContainer = document.querySelector('[data-panel="' + panelKey + '"][data-vector="' + vectorCategory + '"]');
     if (!vectorContainer) {
-        console.error('Vector container not found for:', panelKey, vectorCategory);
         return;
     }
     const biomarkerItems = vectorContainer.querySelectorAll('.biomarker-list-item');
@@ -191,7 +178,6 @@ window.toggleVectorCategory = function(panelKey, vectorCategory) {
     });
 };
 
-console.log('Inline toggle functions loaded successfully');
 </script>
 <?php
 
@@ -1117,21 +1103,16 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 		// Debug: Check if biomarker panels config exists
 		$panels_config_path = ENNU_LIFE_PLUGIN_PATH . 'includes/config/biomarker-panels.php';
 		if ( ! file_exists( $panels_config_path ) ) {
-			error_log( 'ENNU Biomarkers Template: Biomarker panels config not found at: ' . $panels_config_path );
 			$panels = array();
 		} else {
-			error_log( 'ENNU Biomarkers Template: Loading biomarker panels config from: ' . $panels_config_path );
 			$panels_config = include $panels_config_path;
 			$panels = $panels_config['panels'];
-			error_log( 'ENNU Biomarkers Template: Loaded ' . count( $panels ) . ' biomarker panels' );
 		}
 		
 		// Debug: Check if Recommended Range Manager is available
 		if ( ! class_exists( 'ENNU_Recommended_Range_Manager' ) ) {
-			error_log( 'ENNU Biomarkers Template: ENNU_Recommended_Range_Manager class not found' );
 			$core_biomarkers = array();
 		} else {
-			error_log( 'ENNU Biomarkers Template: ENNU_Recommended_Range_Manager class found' );
 			
 			// Get user demographic data to personalize ranges
 			$user_biomarkers = ENNU_Biomarker_Manager::get_user_biomarkers( $user_id );

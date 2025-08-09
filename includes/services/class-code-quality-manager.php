@@ -59,10 +59,38 @@ class ENNU_Code_Quality_Manager {
 		// Add code quality hooks
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		
-		// Add code quality checks
-		add_action( 'admin_init', array( $this, 'run_code_quality_checks' ) );
+		// Only evaluate code quality in the admin UI on the Code Quality page, never during AJAX/front-end
+		add_action( 'admin_init', array( $this, 'maybe_run_code_quality_checks' ) );
 		
 		error_log( 'ENNU Code Quality Manager: Initialized successfully' );
+	}
+
+	/**
+	 * Conditionally run code quality checks to avoid heavy processing on AJAX or front-end.
+	 */
+	public function maybe_run_code_quality_checks() {
+		// Never run during AJAX to prevent excessive memory usage on admin-ajax.php
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return;
+		}
+
+		// Only run in wp-admin
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Require admin capability
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// Only run automatically when viewing our Code Quality admin page
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'ennu-code-quality' !== $page ) {
+			return;
+		}
+
+		$this->run_code_quality_checks();
 	}
 	
 	/**
@@ -80,16 +108,19 @@ class ENNU_Code_Quality_Manager {
 	 * Run code quality checks
 	 */
 	public function run_code_quality_checks() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Double-guard: if somehow called outside admin page or during AJAX, bail out
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return;
+		}
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		
 		$metrics = $this->analyze_codebase();
 		$this->quality_metrics = $metrics;
 		
-		// Log quality metrics
-		error_log( 'ENNU Code Quality Manager: Code quality analysis completed' );
-		error_log( 'ENNU Code Quality Manager: Metrics: ' . json_encode( $metrics ) );
+		// Log summary only to avoid excessive debug log growth
+		error_log( 'ENNU Code Quality Manager: Code quality analysis completed (files: ' . (int) $metrics['total_files'] . ', lines: ' . (int) $metrics['total_lines'] . ', psr12_violations: ' . (int) $metrics['psr12_violations'] . ')' );
 	}
 	
 	/**

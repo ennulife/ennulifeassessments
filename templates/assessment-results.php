@@ -81,22 +81,22 @@ if ( empty( $assessment_type ) ) {
 		$custom_cta_text = $headline_data['cta_text'] ?? 'Book Consultation';
 		?>
 		
-		<div class="ennu-custom-headline-section" style="margin-bottom: 2rem; text-align: center; padding: 2rem; background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); border-radius: 12px; color: white;">
-			<h2 class="ennu-custom-headline" style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		<div class="ennu-custom-headline-section">
+			<h2 class="ennu-custom-headline">
 				<?php echo esc_html( $custom_headline ); ?>
 			</h2>
-			<p class="ennu-custom-subheadline" style="font-size: 1.2rem; margin-bottom: 1.5rem; color: rgba(255,255,255,0.9); line-height: 1.6;">
+			<p class="ennu-custom-subheadline">
 				<?php echo esc_html( $custom_subheadline ); ?>
 			</p>
-			<div class="ennu-custom-cta" style="margin-bottom: 1rem;">
-				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary" style="background: white; color: var(--accent-primary); font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; transition: all 0.3s ease;">
+			<div class="ennu-custom-cta">
+				<a href="<?php echo esc_url( $shortcode_instance->get_assessment_cta_url( $assessment_type ) ); ?>" class="ennu-btn ennu-btn-primary">
 					<?php echo esc_html( $custom_cta_text ); ?>
 				</a>
 			</div>
 		</div>
 
 		<!-- HubSpot Booking Calendar Embed -->
-		<div class="ennu-hubspot-embed" style="margin-bottom: 2rem; text-align: center;">
+		<div class="ennu-hubspot-embed">
 			<!-- Start of Meetings Embed Script -->
 			<div class="meetings-iframe-container" data-src="https://meetings.hubspot.com/lescobar2/ennulife?embed=true"></div>
 			<script type="text/javascript" src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"></script>
@@ -364,13 +364,11 @@ if ( empty( $assessment_type ) ) {
 			<?php endif; ?>
 
 			<!-- Biomarkers Section -->
-			<?php error_log( 'ENNU Results: Reaching biomarkers section' ); ?>
 			<div class="ennu-card ennu-animate-in ennu-animate-delay-5">
 				<h2 class="ennu-section-title">Related Biomarkers</h2>
 				<div class="ennu-biomarkers-section">
 					<?php
 					// Debug: Check if biomarkers template is loading
-					error_log( 'ENNU Results: Loading biomarkers template for user ' . get_current_user_id() );
 					
 					// Load the biomarkers-only template content
 					$biomarkers_data = array(
@@ -382,7 +380,6 @@ if ( empty( $assessment_type ) ) {
 					// Load the biomarkers template
 					ennu_load_template( 'biomarkers-only', $biomarkers_data );
 					
-					error_log( 'ENNU Results: Biomarkers template loaded successfully' );
 					?>
 				</div>
 			</div>

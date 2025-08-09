@@ -1658,7 +1658,7 @@ class ENNU_Enhanced_Admin {
 			'ennu_global_date_of_birth' => 'Date of Birth',
 			'ennu_global_gender' => 'Gender',
 			'ennu_global_height_weight' => 'Height & Weight',
-			'ennu_global_billing_phone' => 'Phone Number',
+			'billing_phone' => 'Phone Number',
 			'ennu_global_email' => 'Email',
 		);
 		
@@ -1970,7 +1970,7 @@ class ENNU_Enhanced_Admin {
 		
 		// Save global fields (excluding name and email)
 		$global_fields = array(
-			'ennu_global_billing_phone',
+			'billing_phone',
 			'ennu_global_gender',
 			'ennu_global_date_of_birth'
 		);
@@ -2926,7 +2926,7 @@ class ENNU_Enhanced_Admin {
 				'ennu_global_age_category',
 				'ennu_global_height_weight',
 				'ennu_global_health_goals',
-				'ennu_global_billing_phone',
+				'billing_phone',
 				'ennu_global_email',
 				
 				// Assessment-specific fields
@@ -2939,10 +2939,10 @@ class ENNU_Enhanced_Admin {
 				'ennu_hair_assessment_type',
 				'ennu_hair_last_updated',
 				'ennu_hair_score_calculated_at',
-				'ennu_hair_ennu_global_date_of_birth',
-				'ennu_hair_ennu_global_date_of_birth_month',
-				'ennu_hair_ennu_global_date_of_birth_day',
-				'ennu_hair_ennu_global_date_of_birth_year',
+				'ennu_global_date_of_birth',
+				'ennu_global_date_of_birth_month',
+				'ennu_global_date_of_birth_day',
+				'ennu_global_date_of_birth_year',
 				'ennu_hair_first_name',
 				'ennu_hair_last_name',
 				'ennu_hair_hair_q2',
@@ -2966,14 +2966,14 @@ class ENNU_Enhanced_Admin {
 				'ennu_weight-loss_first_name',
 				'ennu_weight-loss_last_name',
 				'ennu_weight-loss_billing_phone',
-				'ennu_weight-loss_ennu_global_gender',
-				'ennu_weight-loss_ennu_global_date_of_birth_month',
-				'ennu_weight-loss_ennu_global_date_of_birth_day',
-				'ennu_weight-loss_ennu_global_date_of_birth_year',
-				'ennu_weight-loss_ennu_global_date_of_birth',
-				'ennu_weight-loss_ennu_global_height_weight_ft',
-				'ennu_weight-loss_ennu_global_height_weight_in',
-				'ennu_weight-loss_ennu_global_height_weight_lbs',
+				'ennu_global_gender',
+				'ennu_global_date_of_birth_month',
+				'ennu_global_date_of_birth_day',
+				'ennu_global_date_of_birth_year',
+				'ennu_global_date_of_birth',
+				'ennu_global_height_weight_ft',
+				'ennu_global_height_weight_in',
+				'ennu_global_height_weight_lbs',
 				
 				'ennu_health-optimization_completed',
 				'ennu_health-optimization_calculated_score',

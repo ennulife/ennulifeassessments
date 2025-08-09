@@ -1,28 +1,588 @@
 {
     "biomarkers": {
         "glucose": {
-            "normal": [
-                70,
-                100
-            ],
-            "unit": "mg\/dL",
-            "category": "metabolic"
+            "optimal": [70, 85],
+            "normal": [70, 100],
+            "suboptimal": [100, 125],
+            "poor": [126, 999],
+            "unit": "mg/dL",
+            "category": "metabolic",
+            "impact_weight": "critical"
         },
         "hba1c": {
-            "normal": [
-                4,
-                5.7
-            ],
+            "optimal": [4.0, 5.4],
+            "normal": [4.0, 5.7],
+            "suboptimal": [5.7, 6.4],
+            "poor": [6.5, 999],
             "unit": "%",
-            "category": "metabolic"
+            "category": "metabolic",
+            "impact_weight": "critical"
+        },
+        "insulin": {
+            "optimal": [2, 5],
+            "normal": [2, 8],
+            "suboptimal": [8, 15],
+            "poor": [15, 999],
+            "unit": "uIU/mL",
+            "category": "metabolic",
+            "impact_weight": "significant"
+        },
+        "homa_ir": {
+            "optimal": [0.5, 1.0],
+            "normal": [0.5, 1.4],
+            "suboptimal": [1.4, 2.5],
+            "poor": [2.5, 999],
+            "unit": "ratio",
+            "category": "metabolic",
+            "impact_weight": "critical"
         },
         "testosterone": {
-            "normal": [
-                300,
-                1000
-            ],
-            "unit": "ng\/dL",
-            "category": "hormones"
+            "optimal": [600, 900],
+            "normal": [300, 1000],
+            "suboptimal": [250, 300],
+            "poor": [0, 250],
+            "unit": "ng/dL",
+            "category": "hormones",
+            "gender_specific": true,
+            "male": {
+                "optimal": [600, 900],
+                "normal": [300, 1000],
+                "suboptimal": [250, 300],
+                "poor": [0, 250]
+            },
+            "female": {
+                "optimal": [15, 70],
+                "normal": [8, 70],
+                "suboptimal": [5, 8],
+                "poor": [0, 5]
+            },
+            "impact_weight": "critical"
+        },
+        "free_testosterone": {
+            "optimal": [15, 25],
+            "normal": [9, 30],
+            "suboptimal": [6, 9],
+            "poor": [0, 6],
+            "unit": "pg/mL",
+            "category": "hormones",
+            "gender_specific": true,
+            "male": {
+                "optimal": [15, 25],
+                "normal": [9, 30],
+                "suboptimal": [6, 9],
+                "poor": [0, 6]
+            },
+            "female": {
+                "optimal": [1.5, 2.5],
+                "normal": [0.5, 3.5],
+                "suboptimal": [0.3, 0.5],
+                "poor": [0, 0.3]
+            },
+            "impact_weight": "significant"
+        },
+        "estradiol": {
+            "optimal": [20, 40],
+            "normal": [10, 50],
+            "suboptimal": [5, 10],
+            "poor": [0, 5],
+            "unit": "pg/mL",
+            "category": "hormones",
+            "gender_specific": true,
+            "male": {
+                "optimal": [20, 40],
+                "normal": [10, 50],
+                "suboptimal": [50, 60],
+                "poor": [60, 999]
+            },
+            "female": {
+                "optimal": [50, 200],
+                "normal": [30, 400],
+                "suboptimal": [20, 30],
+                "poor": [0, 20]
+            },
+            "impact_weight": "significant"
+        },
+        "cortisol": {
+            "optimal": [10, 15],
+            "normal": [6, 23],
+            "suboptimal": [23, 30],
+            "poor": [30, 999],
+            "unit": "ug/dL",
+            "category": "hormones",
+            "time_dependent": true,
+            "morning": {
+                "optimal": [10, 15],
+                "normal": [6, 23],
+                "suboptimal": [23, 30],
+                "poor": [30, 999]
+            },
+            "evening": {
+                "optimal": [2, 5],
+                "normal": [2, 10],
+                "suboptimal": [10, 15],
+                "poor": [15, 999]
+            },
+            "impact_weight": "critical"
+        },
+        "dhea_s": {
+            "optimal": [200, 400],
+            "normal": [100, 500],
+            "suboptimal": [75, 100],
+            "poor": [0, 75],
+            "unit": "ug/dL",
+            "category": "hormones",
+            "age_dependent": true,
+            "impact_weight": "moderate"
+        },
+        "progesterone": {
+            "optimal": [0.5, 1.5],
+            "normal": [0.2, 2.0],
+            "suboptimal": [0.1, 0.2],
+            "poor": [0, 0.1],
+            "unit": "ng/mL",
+            "category": "hormones",
+            "gender_specific": true,
+            "impact_weight": "moderate"
+        },
+        "tsh": {
+            "optimal": [1.0, 2.0],
+            "normal": [0.4, 4.5],
+            "suboptimal": [4.5, 10],
+            "poor": [10, 999],
+            "unit": "mIU/L",
+            "category": "thyroid",
+            "impact_weight": "critical"
+        },
+        "free_t3": {
+            "optimal": [3.0, 3.5],
+            "normal": [2.3, 4.2],
+            "suboptimal": [2.0, 2.3],
+            "poor": [0, 2.0],
+            "unit": "pg/mL",
+            "category": "thyroid",
+            "impact_weight": "significant"
+        },
+        "free_t4": {
+            "optimal": [1.0, 1.5],
+            "normal": [0.8, 1.8],
+            "suboptimal": [0.6, 0.8],
+            "poor": [0, 0.6],
+            "unit": "ng/dL",
+            "category": "thyroid",
+            "impact_weight": "significant"
+        },
+        "reverse_t3": {
+            "optimal": [10, 15],
+            "normal": [9, 24],
+            "suboptimal": [24, 30],
+            "poor": [30, 999],
+            "unit": "ng/dL",
+            "category": "thyroid",
+            "impact_weight": "moderate"
+        },
+        "vitamin_d": {
+            "optimal": [40, 60],
+            "normal": [30, 100],
+            "suboptimal": [20, 30],
+            "poor": [0, 20],
+            "unit": "ng/mL",
+            "category": "vitamins",
+            "impact_weight": "critical"
+        },
+        "vitamin_b12": {
+            "optimal": [600, 900],
+            "normal": [200, 1100],
+            "suboptimal": [150, 200],
+            "poor": [0, 150],
+            "unit": "pg/mL",
+            "category": "vitamins",
+            "impact_weight": "significant"
+        },
+        "folate": {
+            "optimal": [15, 25],
+            "normal": [5, 40],
+            "suboptimal": [3, 5],
+            "poor": [0, 3],
+            "unit": "ng/mL",
+            "category": "vitamins",
+            "impact_weight": "moderate"
+        },
+        "ferritin": {
+            "optimal": [50, 150],
+            "normal": [20, 300],
+            "suboptimal": [10, 20],
+            "poor": [0, 10],
+            "unit": "ng/mL",
+            "category": "vitamins",
+            "gender_specific": true,
+            "male": {
+                "optimal": [50, 150],
+                "normal": [20, 300],
+                "suboptimal": [10, 20],
+                "poor": [0, 10]
+            },
+            "female": {
+                "optimal": [30, 100],
+                "normal": [15, 200],
+                "suboptimal": [10, 15],
+                "poor": [0, 10]
+            },
+            "impact_weight": "significant"
+        },
+        "magnesium": {
+            "optimal": [2.0, 2.4],
+            "normal": [1.7, 2.4],
+            "suboptimal": [1.5, 1.7],
+            "poor": [0, 1.5],
+            "unit": "mg/dL",
+            "category": "vitamins",
+            "impact_weight": "moderate"
+        },
+        "zinc": {
+            "optimal": [90, 120],
+            "normal": [70, 150],
+            "suboptimal": [60, 70],
+            "poor": [0, 60],
+            "unit": "ug/dL",
+            "category": "vitamins",
+            "impact_weight": "moderate"
+        },
+        "ldl_cholesterol": {
+            "optimal": [60, 100],
+            "normal": [0, 130],
+            "suboptimal": [130, 160],
+            "poor": [160, 999],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "impact_weight": "critical"
+        },
+        "hdl_cholesterol": {
+            "optimal": [60, 100],
+            "normal": [40, 999],
+            "suboptimal": [35, 40],
+            "poor": [0, 35],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "gender_specific": true,
+            "male": {
+                "optimal": [50, 100],
+                "normal": [40, 999],
+                "suboptimal": [35, 40],
+                "poor": [0, 35]
+            },
+            "female": {
+                "optimal": [60, 100],
+                "normal": [50, 999],
+                "suboptimal": [40, 50],
+                "poor": [0, 40]
+            },
+            "impact_weight": "critical"
+        },
+        "total_cholesterol": {
+            "optimal": [150, 200],
+            "normal": [0, 200],
+            "suboptimal": [200, 240],
+            "poor": [240, 999],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "impact_weight": "significant"
+        },
+        "triglycerides": {
+            "optimal": [50, 100],
+            "normal": [0, 150],
+            "suboptimal": [150, 200],
+            "poor": [200, 999],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "impact_weight": "significant"
+        },
+        "apob": {
+            "optimal": [60, 90],
+            "normal": [0, 100],
+            "suboptimal": [100, 130],
+            "poor": [130, 999],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "impact_weight": "critical"
+        },
+        "lpa": {
+            "optimal": [0, 30],
+            "normal": [0, 50],
+            "suboptimal": [50, 75],
+            "poor": [75, 999],
+            "unit": "mg/dL",
+            "category": "lipids",
+            "impact_weight": "significant"
+        },
+        "hscrp": {
+            "optimal": [0, 1.0],
+            "normal": [0, 3.0],
+            "suboptimal": [3.0, 10],
+            "poor": [10, 999],
+            "unit": "mg/L",
+            "category": "inflammation",
+            "impact_weight": "critical"
+        },
+        "homocysteine": {
+            "optimal": [5, 8],
+            "normal": [0, 10],
+            "suboptimal": [10, 15],
+            "poor": [15, 999],
+            "unit": "umol/L",
+            "category": "cardiovascular",
+            "impact_weight": "significant"
+        },
+        "wbc": {
+            "optimal": [4.5, 7.5],
+            "normal": [4.0, 11.0],
+            "suboptimal": [3.5, 4.0],
+            "poor": [0, 3.5],
+            "unit": "10^3/uL",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "rbc": {
+            "optimal": [4.5, 5.5],
+            "normal": [4.0, 6.0],
+            "suboptimal": [3.5, 4.0],
+            "poor": [0, 3.5],
+            "unit": "10^6/uL",
+            "category": "hematology",
+            "gender_specific": true,
+            "male": {
+                "optimal": [4.7, 5.5],
+                "normal": [4.5, 6.0],
+                "suboptimal": [4.0, 4.5],
+                "poor": [0, 4.0]
+            },
+            "female": {
+                "optimal": [4.2, 5.0],
+                "normal": [4.0, 5.5],
+                "suboptimal": [3.5, 4.0],
+                "poor": [0, 3.5]
+            },
+            "impact_weight": "moderate"
+        },
+        "hemoglobin": {
+            "optimal": [14, 16],
+            "normal": [12, 17],
+            "suboptimal": [10, 12],
+            "poor": [0, 10],
+            "unit": "g/dL",
+            "category": "hematology",
+            "gender_specific": true,
+            "male": {
+                "optimal": [14, 17],
+                "normal": [13, 18],
+                "suboptimal": [11, 13],
+                "poor": [0, 11]
+            },
+            "female": {
+                "optimal": [13, 15],
+                "normal": [12, 16],
+                "suboptimal": [10, 12],
+                "poor": [0, 10]
+            },
+            "impact_weight": "significant"
+        },
+        "hematocrit": {
+            "optimal": [40, 48],
+            "normal": [36, 52],
+            "suboptimal": [32, 36],
+            "poor": [0, 32],
+            "unit": "%",
+            "category": "hematology",
+            "gender_specific": true,
+            "male": {
+                "optimal": [42, 50],
+                "normal": [39, 54],
+                "suboptimal": [35, 39],
+                "poor": [0, 35]
+            },
+            "female": {
+                "optimal": [38, 46],
+                "normal": [36, 48],
+                "suboptimal": [32, 36],
+                "poor": [0, 32]
+            },
+            "impact_weight": "moderate"
+        },
+        "platelets": {
+            "optimal": [200, 350],
+            "normal": [150, 450],
+            "suboptimal": [100, 150],
+            "poor": [0, 100],
+            "unit": "10^3/uL",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "mcv": {
+            "optimal": [85, 95],
+            "normal": [80, 100],
+            "suboptimal": [75, 80],
+            "poor": [0, 75],
+            "unit": "fL",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "mch": {
+            "optimal": [28, 32],
+            "normal": [26, 34],
+            "suboptimal": [24, 26],
+            "poor": [0, 24],
+            "unit": "pg",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "mchc": {
+            "optimal": [33, 36],
+            "normal": [31, 37],
+            "suboptimal": [29, 31],
+            "poor": [0, 29],
+            "unit": "g/dL",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "rdw": {
+            "optimal": [11.5, 13.5],
+            "normal": [11.5, 14.5],
+            "suboptimal": [14.5, 16],
+            "poor": [16, 999],
+            "unit": "%",
+            "category": "hematology",
+            "impact_weight": "moderate"
+        },
+        "creatinine": {
+            "optimal": [0.7, 1.1],
+            "normal": [0.6, 1.3],
+            "suboptimal": [1.3, 2.0],
+            "poor": [2.0, 999],
+            "unit": "mg/dL",
+            "category": "kidney",
+            "gender_specific": true,
+            "male": {
+                "optimal": [0.8, 1.2],
+                "normal": [0.7, 1.3],
+                "suboptimal": [1.3, 2.0],
+                "poor": [2.0, 999]
+            },
+            "female": {
+                "optimal": [0.6, 1.0],
+                "normal": [0.5, 1.1],
+                "suboptimal": [1.1, 1.8],
+                "poor": [1.8, 999]
+            },
+            "impact_weight": "critical"
+        },
+        "bun": {
+            "optimal": [10, 20],
+            "normal": [7, 25],
+            "suboptimal": [25, 40],
+            "poor": [40, 999],
+            "unit": "mg/dL",
+            "category": "kidney",
+            "impact_weight": "significant"
+        },
+        "egfr": {
+            "optimal": [90, 120],
+            "normal": [60, 999],
+            "suboptimal": [45, 60],
+            "poor": [0, 45],
+            "unit": "mL/min/1.73m2",
+            "category": "kidney",
+            "impact_weight": "critical"
+        },
+        "alt": {
+            "optimal": [10, 30],
+            "normal": [7, 56],
+            "suboptimal": [56, 100],
+            "poor": [100, 999],
+            "unit": "U/L",
+            "category": "liver",
+            "impact_weight": "significant"
+        },
+        "ast": {
+            "optimal": [10, 30],
+            "normal": [10, 40],
+            "suboptimal": [40, 100],
+            "poor": [100, 999],
+            "unit": "U/L",
+            "category": "liver",
+            "impact_weight": "significant"
+        },
+        "alp": {
+            "optimal": [40, 100],
+            "normal": [20, 140],
+            "suboptimal": [140, 200],
+            "poor": [200, 999],
+            "unit": "U/L",
+            "category": "liver",
+            "impact_weight": "moderate"
+        },
+        "bilirubin_total": {
+            "optimal": [0.3, 1.0],
+            "normal": [0.1, 1.2],
+            "suboptimal": [1.2, 2.0],
+            "poor": [2.0, 999],
+            "unit": "mg/dL",
+            "category": "liver",
+            "impact_weight": "moderate"
+        },
+        "albumin": {
+            "optimal": [4.0, 5.0],
+            "normal": [3.5, 5.5],
+            "suboptimal": [3.0, 3.5],
+            "poor": [0, 3.0],
+            "unit": "g/dL",
+            "category": "liver",
+            "impact_weight": "significant"
+        },
+        "igf1": {
+            "optimal": [150, 250],
+            "normal": [100, 300],
+            "suboptimal": [75, 100],
+            "poor": [0, 75],
+            "unit": "ng/mL",
+            "category": "hormones",
+            "age_dependent": true,
+            "impact_weight": "significant"
+        },
+        "leptin": {
+            "optimal": [3, 10],
+            "normal": [1, 15],
+            "suboptimal": [15, 30],
+            "poor": [30, 999],
+            "unit": "ng/mL",
+            "category": "metabolic",
+            "gender_specific": true,
+            "impact_weight": "moderate"
+        },
+        "adiponectin": {
+            "optimal": [10, 20],
+            "normal": [5, 30],
+            "suboptimal": [3, 5],
+            "poor": [0, 3],
+            "unit": "ug/mL",
+            "category": "metabolic",
+            "impact_weight": "moderate"
+        },
+        "omega3_index": {
+            "optimal": [8, 12],
+            "normal": [4, 12],
+            "suboptimal": [2, 4],
+            "poor": [0, 2],
+            "unit": "%",
+            "category": "cardiovascular",
+            "impact_weight": "significant"
+        },
+        "apoE_genotype": {
+            "optimal": ["E3/E3"],
+            "normal": ["E2/E3", "E3/E3", "E3/E4"],
+            "suboptimal": ["E2/E4", "E4/E4"],
+            "poor": ["E4/E4"],
+            "unit": "genotype",
+            "category": "genetic",
+            "impact_weight": "significant"
         }
     },
     "categories": {
@@ -30,6 +590,29 @@
         "hormones": "Hormonal Health",
         "lipids": "Lipid Profile",
         "thyroid": "Thyroid Function",
-        "vitamins": "Vitamin Status"
+        "vitamins": "Vitamin & Mineral Status",
+        "hematology": "Blood Health",
+        "inflammation": "Inflammatory Markers",
+        "cardiovascular": "Cardiovascular Health",
+        "kidney": "Kidney Function",
+        "liver": "Liver Function",
+        "genetic": "Genetic Markers"
+    },
+    "impact_weights": {
+        "critical": 0.15,
+        "significant": 0.10,
+        "moderate": 0.05
+    },
+    "age_adjustments": {
+        "enabled": true,
+        "biomarkers": ["testosterone", "dhea_s", "igf1", "egfr"],
+        "age_ranges": {
+            "20-29": 1.0,
+            "30-39": 0.95,
+            "40-49": 0.90,
+            "50-59": 0.85,
+            "60-69": 0.80,
+            "70+": 0.75
+        }
     }
 }

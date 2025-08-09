@@ -455,20 +455,21 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_assessment_data_for_symptom( $user_id, $assessment_type, $symptom_key ) {
 		$data = array();
 
-		// Get all user meta for this assessment using batch retrieval
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $data;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$user_meta = $db_optimizer->get_user_meta_batch( $user_id, array() );
+		// Get all user meta for this assessment using WordPress functions
+		global $wpdb;
 		$assessment_prefix = 'ennu_' . $assessment_type . '_';
+		
+		// Get all meta keys for this assessment
+		$user_meta = $wpdb->get_results( $wpdb->prepare(
+			"SELECT meta_key, meta_value FROM {$wpdb->usermeta} 
+			WHERE user_id = %d AND meta_key LIKE %s",
+			$user_id,
+			$assessment_prefix . '%'
+		), ARRAY_A );
 
-		foreach ( $user_meta as $key => $value ) {
-			if ( strpos( $key, $assessment_prefix ) === 0 ) {
-				$field_name = str_replace( $assessment_prefix, '', $key );
-				$data[ $field_name ] = $value;
-			}
+		foreach ( $user_meta as $meta ) {
+			$field_name = str_replace( $assessment_prefix, '', $meta['meta_key'] );
+			$data[ $field_name ] = maybe_unserialize( $meta['meta_value'] );
 		}
 
 		return $data;
@@ -549,29 +550,62 @@ class ENNU_Centralized_Symptoms_Manager {
 			return 0;
 		}
 
-		// Symptom to biomarker mapping
+		// Symptom to biomarker mapping - comprehensive list
 		$symptom_biomarker_mapping = array(
+			// Energy & Fatigue
 			'fatigue' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
-			'low_libido' => array( 'testosterone_total', 'testosterone_free', 'estradiol', 'prolactin' ),
+			'low_energy' => array( 'vitamin_b12', 'ferritin', 'thyroid_tsh', 'cortisol', 'testosterone_total' ),
+			'tired_all_the_time' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
+			
+			// Weight Related
+			'weight_gain' => array( 'insulin', 'cortisol', 'thyroid_tsh', 'testosterone_total', 'leptin' ),
+			'weight_loss' => array( 'thyroid_tsh', 'cortisol', 'insulin', 'glucose' ),
+			'difficulty_losing_weight' => array( 'thyroid_tsh', 'insulin', 'cortisol', 'leptin', 'testosterone_total' ),
+			'increased_appetite' => array( 'leptin', 'ghrelin', 'insulin', 'cortisol' ),
+			'cravings' => array( 'insulin', 'cortisol', 'serotonin', 'dopamine' ),
+			
+			// Mood & Mental
 			'mood_swings' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'brain_fog' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'magnesium', 'homocysteine' ),
 			'anxiety' => array( 'cortisol', 'magnesium', 'vitamin_d', 'thyroid_tsh' ),
 			'depression' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'cortisol', 'serotonin' ),
+			'irritability' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+			'brain_fog' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'magnesium', 'homocysteine' ),
+			'poor_concentration' => array( 'vitamin_b12', 'omega_3', 'magnesium', 'thyroid_tsh' ),
+			
+			// Sleep
 			'insomnia' => array( 'melatonin', 'cortisol', 'magnesium', 'thyroid_tsh' ),
+			'poor_sleep' => array( 'melatonin', 'cortisol', 'magnesium', 'vitamin_d' ),
+			'difficulty_falling_asleep' => array( 'melatonin', 'cortisol', 'magnesium' ),
+			'waking_up_tired' => array( 'cortisol', 'thyroid_tsh', 'testosterone_total', 'vitamin_d' ),
+			
+			// Hormonal
+			'low_libido' => array( 'testosterone_total', 'testosterone_free', 'estradiol', 'prolactin' ),
 			'hot_flashes' => array( 'estradiol', 'fsh', 'lh', 'progesterone' ),
 			'night_sweats' => array( 'estradiol', 'cortisol', 'thyroid_tsh', 'progesterone' ),
-			'acne' => array( 'testosterone_total', 'estradiol', 'insulin', 'cortisol' ),
-			'diabetes' => array( 'glucose', 'hba1c', 'insulin', 'homa_ir' ),
-			'high_blood_pressure' => array( 'sodium', 'potassium', 'aldosterone', 'cortisol' ),
-			'thyroid_issues' => array( 'tsh', 't3', 't4', 'thyroid_antibodies' ),
-			'weight_gain' => array( 'insulin', 'cortisol', 'thyroid_tsh', 'testosterone_total' ),
-			'weight_loss' => array( 'thyroid_tsh', 'cortisol', 'insulin', 'glucose' ),
-			'irritability' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+			'irregular_periods' => array( 'estradiol', 'progesterone', 'fsh', 'lh', 'prolactin' ),
+			
+			// Physical Symptoms
 			'headaches' => array( 'magnesium', 'vitamin_d', 'cortisol', 'estradiol' ),
 			'joint_pain' => array( 'vitamin_d', 'omega_3', 'cortisol', 'estradiol' ),
 			'muscle_weakness' => array( 'testosterone_total', 'vitamin_d', 'magnesium', 'cortisol' ),
+			'muscle_pain' => array( 'vitamin_d', 'magnesium', 'cortisol' ),
+			'bloating' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+			'constipation' => array( 'thyroid_tsh', 'magnesium', 'vitamin_d' ),
+			
+			// Skin & Hair
+			'acne' => array( 'testosterone_total', 'estradiol', 'insulin', 'cortisol' ),
+			'hair_loss' => array( 'ferritin', 'thyroid_tsh', 'vitamin_d', 'testosterone_total' ),
+			'dry_skin' => array( 'thyroid_tsh', 'omega_3', 'vitamin_d' ),
+			
+			// Metabolic
+			'diabetes' => array( 'glucose', 'hba1c', 'insulin', 'homa_ir' ),
+			'high_blood_pressure' => array( 'sodium', 'potassium', 'aldosterone', 'cortisol' ),
+			'thyroid_issues' => array( 'tsh', 't3', 't4', 'thyroid_antibodies' ),
+			
+			// Immune
 			'frequent_illness' => array( 'vitamin_d', 'vitamin_c', 'zinc', 'wbc' ),
-			'slow_healing' => array( 'vitamin_d', 'zinc', 'vitamin_c', 'glucose' )
+			'slow_healing' => array( 'vitamin_d', 'zinc', 'vitamin_c', 'glucose' ),
+			'allergies' => array( 'vitamin_d', 'omega_3', 'histamine' )
 		);
 
 		$flag_manager = new ENNU_Biomarker_Flag_Manager();
@@ -1009,17 +1043,12 @@ class ENNU_Centralized_Symptoms_Manager {
 		}
 		$meta_keys[] = 'ennu_health_optimization_assessment_score_calculated_at';
 
-		// Get all meta data in one batch query
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, $meta_keys );
+		// Get score date
+		$score_date = get_user_meta( $user_id, 'ennu_health_optimization_assessment_score_calculated_at', true );
 
 		foreach ( $symptom_questions as $q_id ) {
 			$symptom_key = 'ennu_health_optimization_assessment_' . $q_id;
-			$symptom_value = $meta_data[ $symptom_key ] ?? '';
+			$symptom_value = get_user_meta( $user_id, $symptom_key, true );
 			$severity_key  = str_replace( '_q', '_severity_q', $q_id );
 			$frequency_key = str_replace( '_q', '_frequency_q', $q_id );
 
@@ -1027,9 +1056,9 @@ class ENNU_Centralized_Symptoms_Manager {
 				$symptoms[] = array(
 					'name'      => $symptom_value,
 					'category'  => 'Health Optimization',
-					'severity'  => $meta_data[ 'ennu_health_optimization_assessment_' . $severity_key ] ?? '',
-					'frequency' => $meta_data[ 'ennu_health_optimization_assessment_' . $frequency_key ] ?? '',
-					'date'      => $meta_data[ 'ennu_health_optimization_assessment_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'severity'  => get_user_meta( $user_id, 'ennu_health_optimization_assessment_' . $severity_key, true ),
+					'frequency' => get_user_meta( $user_id, 'ennu_health_optimization_assessment_' . $frequency_key, true ),
+					'date'      => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1043,25 +1072,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_hormone_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get hormone data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_hormone_hormone_q1',
-			'ennu_hormone_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_hormone_hormone_q1' ] ?? array();
+		// Get hormone data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_hormone_hormone_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_hormone_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Hormone',
-					'date'     => $meta_data[ 'ennu_hormone_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1075,25 +1095,15 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_testosterone_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get testosterone data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_testosterone_testosterone_q1',
-			'ennu_testosterone_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_testosterone_testosterone_q1' ] ?? array();
+		// Get testosterone data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_testosterone_testosterone_q1', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Testosterone',
-					'date'     => $meta_data[ 'ennu_testosterone_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1107,25 +1117,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_menopause_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get menopause data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_menopause_menopause_q1',
-			'ennu_menopause_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_menopause_menopause_q1' ] ?? array();
+		// Get menopause data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_menopause_menopause_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_menopause_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Menopause',
-					'date'     => $meta_data[ 'ennu_menopause_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1139,25 +1140,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_ed_treatment_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get ED treatment data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_ed_treatment_ed_treatment_q1',
-			'ennu_ed_treatment_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_ed_treatment_ed_treatment_q1' ] ?? array();
+		// Get ED treatment data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_ed_treatment_ed_treatment_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_ed_treatment_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'ED Treatment',
-					'date'     => $meta_data[ 'ennu_ed_treatment_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1171,25 +1163,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_skin_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get skin data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_skin_skin_q1',
-			'ennu_skin_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_skin_skin_q1' ] ?? array();
+		// Get skin data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_skin_skin_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_skin_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Skin',
-					'date'     => $meta_data[ 'ennu_skin_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1203,25 +1186,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_hair_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get hair data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_hair_hair_q1',
-			'ennu_hair_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_hair_hair_q1' ] ?? array();
+		// Get hair data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_hair_hair_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_hair_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Hair',
-					'date'     => $meta_data[ 'ennu_hair_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1235,25 +1209,16 @@ class ENNU_Centralized_Symptoms_Manager {
 	private static function get_sleep_symptoms( $user_id ) {
 		$symptoms = array();
 		
-		// Get sleep data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_sleep_sleep_q1',
-			'ennu_sleep_score_calculated_at'
-		) );
-
-		$symptom_selections = $meta_data[ 'ennu_sleep_sleep_q1' ] ?? array();
+		// Get sleep data directly using WordPress functions
+		$symptom_selections = get_user_meta( $user_id, 'ennu_sleep_sleep_q1', true );
+		$score_date = get_user_meta( $user_id, 'ennu_sleep_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
 				$symptoms[] = array(
 					'name'     => $symptom,
 					'category' => 'Sleep',
-					'date'     => $meta_data[ 'ennu_sleep_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
@@ -1268,75 +1233,66 @@ class ENNU_Centralized_Symptoms_Manager {
 		error_log( "ENNU Centralized Symptoms: Getting weight loss symptoms for user {$user_id}" );
 		$symptoms = array();
 
-		// Get all weight loss data in batch
-		if ( ! class_exists( 'ENNU_Database_Optimizer' ) ) {
-			error_log( 'ENNU Centralized Symptoms: FATAL ERROR - ENNU_Database_Optimizer class not found.' );
-			return $symptoms;
-		}
-		$db_optimizer = ENNU_Database_Optimizer::get_instance();
-		$meta_data = $db_optimizer->get_user_meta_batch( $user_id, array(
-			'ennu_weight-loss_wl_q9',
-			'ennu_weight-loss_wl_q10',
-			'ennu_weight-loss_wl_q5',
-			'ennu_weight-loss_wl_q6',
-			'ennu_weight-loss_wl_q8',
-			'ennu_weight-loss_score_calculated_at'
-		) );
+		// Get all weight loss data directly using WordPress functions
+		$medical_conditions = get_user_meta( $user_id, 'ennu_weight-loss_wl_q9', true );
+		$energy_level = get_user_meta( $user_id, 'ennu_weight-loss_wl_q10', true );
+		$sleep_hours = get_user_meta( $user_id, 'ennu_weight-loss_wl_q5', true );
+		$stress_level = get_user_meta( $user_id, 'ennu_weight-loss_wl_q6', true );
+		$exercise_freq = get_user_meta( $user_id, 'ennu_weight-loss_wl_q8', true );
+		$score_date = get_user_meta( $user_id, 'ennu_weight-loss_score_calculated_at', true );
 
 		// Check for medical conditions that could be symptoms
-		$medical_conditions = $meta_data[ 'ennu_weight-loss_wl_q9' ] ?? array();
 		error_log( "ENNU Centralized Symptoms: Medical conditions for user {$user_id}: " . print_r( $medical_conditions, true ) );
 		if ( is_array( $medical_conditions ) ) {
 			foreach ( $medical_conditions as $condition ) {
 				$symptoms[] = array(
 					'name'     => $condition,
 					'category' => 'Weight Loss - Medical Condition',
-					'date'     => $meta_data[ 'ennu_weight-loss_score_calculated_at' ] ?: current_time( 'mysql' ),
+					'date'     => $score_date ?: current_time( 'mysql' ),
 				);
 			}
 		}
 
 		// Check for low energy levels (could indicate underlying health issues)
-		$energy_level = $meta_data[ 'ennu_weight-loss_wl_q10' ] ?? '';
 		error_log( "ENNU Centralized Symptoms: Energy level for user {$user_id}: {$energy_level}" );
 		if ( $energy_level === 'very' || $energy_level === 'somewhat' ) {
 			$symptoms[] = array(
 				'name'     => 'Low Energy Level',
 				'category' => 'Weight Loss - Energy',
-				'date'     => $meta_data[ 'ennu_weight-loss_score_calculated_at' ] ?: current_time( 'mysql' ),
+				'date'     => $score_date ?: current_time( 'mysql' ),
 			);
 		}
 
 		// Check for poor sleep quality (could be a symptom)
-		$sleep_quality = $meta_data[ 'ennu_weight-loss_wl_q5' ] ?? '';
+		$sleep_quality = $sleep_hours;
 		error_log( "ENNU Centralized Symptoms: Sleep quality for user {$user_id}: {$sleep_quality}" );
 		if ( $sleep_quality === 'less_than_5' || $sleep_quality === 'poor' ) {
 			$symptoms[] = array(
 				'name'     => 'Poor Sleep Quality',
 				'category' => 'Weight Loss - Sleep',
-				'date'     => $meta_data[ 'ennu_weight-loss_score_calculated_at' ] ?: current_time( 'mysql' ),
+				'date'     => $score_date ?: current_time( 'mysql' ),
 			);
 		}
 
 		// Check for high stress levels (could be a symptom)
-		$stress_level = $meta_data[ 'ennu_weight-loss_wl_q6' ] ?? '';
+		// Stress level already retrieved
 		error_log( "ENNU Centralized Symptoms: Stress level for user {$user_id}: {$stress_level}" );
 		if ( $stress_level === 'very' || $stress_level === 'high' ) {
 			$symptoms[] = array(
 				'name'     => 'High Stress Level',
 				'category' => 'Weight Loss - Stress',
-				'date'     => $meta_data[ 'ennu_weight-loss_score_calculated_at' ] ?: current_time( 'mysql' ),
+				'date'     => $score_date ?: current_time( 'mysql' ),
 			);
 		}
 
 		// Check for frequent cravings (could indicate hormonal issues)
-		$cravings_frequency = $meta_data[ 'ennu_weight-loss_wl_q8' ] ?? '';
+		$cravings_frequency = $exercise_freq;
 		error_log( "ENNU Centralized Symptoms: Cravings frequency for user {$user_id}: {$cravings_frequency}" );
 		if ( $cravings_frequency === 'daily' || $cravings_frequency === 'multiple_times' ) {
 			$symptoms[] = array(
 				'name'     => 'Frequent Food Cravings',
 				'category' => 'Weight Loss - Cravings',
-				'date'     => $meta_data[ 'ennu_weight-loss_score_calculated_at' ] ?: current_time( 'mysql' ),
+				'date'     => $score_date ?: current_time( 'mysql' ),
 			);
 		}
 

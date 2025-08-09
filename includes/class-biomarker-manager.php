@@ -13,6 +13,96 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ENNU_Biomarker_Manager {
 
+    /**
+     * Convenience: upsert core physical biomarkers derived from assessment globals
+     * - weight (lbs)
+     * - height (in)
+     * - bmi (kg/m²)
+     * Optionally a target_weight when provided by assessment answers (e.g., desired loss)
+     */
+    public static function upsert_physical_biomarkers_from_globals( $user_id, $maybe_target_weight_lbs = null, $source = 'auto_sync' ) {
+        if ( empty( $user_id ) ) {
+            return false;
+        }
+
+        $hw = get_user_meta( $user_id, 'ennu_global_height_weight', true );
+        if ( ! is_array( $hw ) ) {
+            $hw = array();
+        }
+
+        $ft  = isset( $hw['ft'] ) ? floatval( $hw['ft'] ) : 0;
+        $in  = isset( $hw['in'] ) ? floatval( $hw['in'] ) : 0;
+        $lbs = isset( $hw['lbs'] ) ? floatval( $hw['lbs'] ) : ( isset( $hw['weight'] ) ? floatval( $hw['weight'] ) : 0 );
+        $total_inches = max( 0, ( $ft * 12.0 ) + $in );
+
+        $biomarkers = array();
+        $now = current_time( 'mysql' );
+
+        if ( $lbs > 0 ) {
+            $biomarkers['weight'] = array(
+                'value' => $lbs,
+                'unit'  => 'lbs',
+                'date'  => $now,
+                'notes' => 'Auto-synced from global height/weight',
+            );
+        }
+
+        if ( $total_inches > 0 ) {
+            $biomarkers['height'] = array(
+                'value' => $total_inches,
+                'unit'  => 'inches',
+                'date'  => $now,
+                'notes' => 'Auto-synced from global height/weight',
+            );
+        }
+
+        $bmi = get_user_meta( $user_id, 'ennu_calculated_bmi', true );
+        if ( $bmi ) {
+            $biomarkers['bmi'] = array(
+                'value' => floatval( $bmi ),
+                'unit'  => 'kg/m²',
+                'date'  => $now,
+                'notes' => 'Auto-synced from calculated BMI',
+            );
+        }
+
+        // Age biomarker from DOB
+        $dob = get_user_meta( $user_id, 'ennu_global_date_of_birth', true );
+        if ( $dob ) {
+            try {
+                $birth = new DateTime( $dob );
+                $nowDt = new DateTime();
+                $ageYears = (int) $nowDt->diff( $birth )->y;
+                if ( $ageYears > 0 ) {
+                    $biomarkers['age'] = array(
+                        'value' => $ageYears,
+                        'unit'  => 'years',
+                        'date'  => $now,
+                        'notes' => 'Auto-synced from date of birth',
+                    );
+                }
+            } catch ( Exception $e ) {
+                // ignore
+            }
+        }
+
+        if ( $maybe_target_weight_lbs && is_numeric( $maybe_target_weight_lbs ) ) {
+            $biomarkers['target_weight'] = array(
+                'value' => floatval( $maybe_target_weight_lbs ),
+                'unit'  => 'lbs',
+                'date'  => $now,
+                'notes' => 'Target derived from assessment submission',
+            );
+        }
+
+        if ( empty( $biomarkers ) ) {
+            return false;
+        }
+
+        // Persist to auto-sync store so UI pulls these by default
+        return self::save_user_biomarkers( $user_id, $biomarkers, $source );
+    }
+
 	public static function import_lab_results( $user_id, $lab_data, $source = 'manual' ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;

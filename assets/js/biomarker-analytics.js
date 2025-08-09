@@ -32,7 +32,6 @@ jQuery(document).ready(function($) {
     function initializeTrendCharts() {
         // Check if Chart.js is available
         if (typeof Chart === 'undefined') {
-            console.warn('Chart.js not loaded');
             return;
         }
         
@@ -63,7 +62,6 @@ jQuery(document).ready(function($) {
         this.fetchUserBiomarkerTrends()
             .then(data => this.renderTrendChart(canvas, data))
             .catch(error => {
-                console.error('Failed to load biomarker trends:', error);
                 this.showEmptyBiomarkerState(canvas, 'trend');
             });
     }
@@ -82,7 +80,6 @@ jQuery(document).ready(function($) {
         this.fetchUserBiomarkerDistribution()
             .then(data => this.renderDistributionChart(canvas, data))
             .catch(error => {
-                console.error('Failed to load biomarker distribution:', error);
                 this.showEmptyBiomarkerState(canvas, 'distribution');
             });
     }
@@ -125,7 +122,6 @@ jQuery(document).ready(function($) {
     // Initialize correlation matrix
     function initializeCorrelationMatrix() {
         // Placeholder for correlation matrix functionality
-        console.log('Correlation matrix initialized');
     }
     
     // Trend analysis form submission
@@ -410,7 +406,6 @@ jQuery(document).ready(function($) {
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(function() {
             // Auto-save form data
-            console.log('Auto-saving form data...');
         }, 2000);
     });
     
@@ -475,21 +470,17 @@ jQuery(document).ready(function($) {
     
     // Initialize analytics dashboard
     function initializeDashboard() {
-        console.log('ENNU Biomarker Analytics Dashboard initialized');
         
         // Set up event listeners for dynamic content
         $(document).on('click', '.metric-card', function() {
             var metricLabel = $(this).find('.metric-label').text();
-            console.log('Metric clicked:', metricLabel);
             // Add drill-down functionality here
         });
         
         // Initialize charts if Chart.js is available
         if (typeof Chart !== 'undefined') {
             // Chart.js is loaded, initialize charts
-            console.log('Chart.js detected, initializing charts...');
         } else {
-            console.warn('Chart.js not loaded, charts will not be available');
         }
     }
     

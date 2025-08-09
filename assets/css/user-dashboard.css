@@ -4,6 +4,10 @@ Author: The World's Greatest Developer
 Version: 2.0.0
 */
 
+details.health-scores-accordion {
+    padding-bottom: 40px;
+}
+
 .empty-state-message {
     color: #ffc12b !important;
 }
@@ -215,7 +219,7 @@ details:not([open]) > *:not(summary) {
 
 /* MY HEALTH GOALS Accordion Styles */
 .health-goals-accordion {
-    margin: 2rem 0;
+    margin: 0;
     background: none !important;
     border: none;
     border-radius: 1rem;
@@ -1975,7 +1979,7 @@ a:hover {
 .scores-title-container {
 	grid-column: 1 / -1;
 	text-align: center;
-	margin-bottom: 10px;
+	margin: 30px;
 }
 
 /* Add 20px margin above MY LIFE SCORES title */
@@ -2493,7 +2497,7 @@ a:hover {
 	padding: var(--spacing-6);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
 	backface-visibility: hidden;
 	transform: translateZ(0);
 }
@@ -2557,7 +2561,7 @@ a:hover {
 	font-weight: 600;
 	color: var(--text-dark);
 	margin: 0 0 4px 0;
-	max-width: 200px;
+	max-width: 250px;
 	line-height: 1.3;
 	word-wrap: break-word;
 	margin-bottom: 7px !important;
@@ -2576,7 +2580,7 @@ a:hover {
 }
 
 .completed .assessment-status {
-	padding-left: 70px;
+	padding-left: 0;
 }
 .status-completed-container {
 	display: flex;
@@ -4372,7 +4376,7 @@ a:hover {
 }
 
 .my-story-tab-content h3 {
-    margin: 0 0 1rem 0;
+    margin: 0 0 0rem 0;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-dark);
@@ -4744,6 +4748,153 @@ a:hover {
 	box-shadow: none !important;
 	transform: none !important;
 } 
+
+/* Recommendations List Styling */
+.recommendations-list {
+	list-style: none;
+	padding: 0;
+	margin: 1rem 0;
+}
+
+.recommendations-list li {
+	padding: 0.75rem 0;
+	padding-left: 2rem;
+	position: relative;
+	border-bottom: 1px solid var(--border-color);
+	color: var(--text-secondary);
+	line-height: 1.6;
+}
+
+.recommendations-list li:last-child {
+	border-bottom: none;
+}
+
+.recommendations-list li:before {
+	content: "✓";
+	position: absolute;
+	left: 0;
+	color: var(--accent-primary);
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+/* Ensure assessment sections are visible when shown */
+.assessment-section {
+	transition: all 0.3s ease;
+}
+
+.assessment-section.hidden {
+	display: none !important;
+	opacity: 0 !important;
+	visibility: hidden !important;
+	max-height: 0 !important;
+}
+
+.assessment-section:not(.hidden) {
+	display: block !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	max-height: 2000px !important;
+	overflow: visible !important;
+}
+
+.recommendations-section:not(.hidden),
+.breakdown-section:not(.hidden) {
+	display: block !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	padding: 20px !important;
+	margin: 15px 0 !important;
+	background: rgba(16, 185, 129, 0.05) !important;
+	border: 1px solid rgba(16, 185, 129, 0.3) !important;
+	border-radius: 8px !important;
+	min-height: 100px !important;
+}
+
+/* Ensure recommendations content is visible */
+.recommendations-content,
+.category-scores {
+	opacity: 1 !important;
+	visibility: visible !important;
+	display: block !important;
+}
+
+/* Fix Category Scores Display - 1 per row with readable labels */
+.breakdown-section .category-scores {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 1rem !important;
+	padding: 1rem 0;
+}
+
+/* No category data empty state */
+.no-category-data {
+	padding: 2rem;
+	text-align: center;
+	color: #6b7280;
+	background: rgba(249, 250, 251, 0.5);
+	border-radius: 8px;
+	margin: 1rem 0;
+}
+
+.no-category-data p {
+	margin: 0 0 0.5rem 0;
+	font-size: 1rem;
+	color: #4b5563;
+}
+
+.no-category-data small {
+	font-size: 0.875rem;
+	color: #9ca3af;
+}
+
+.breakdown-section .category-score-item {
+	display: flex !important;
+	align-items: center !important;
+	gap: 1rem !important;
+	width: 100% !important;
+	padding: 0.75rem !important;
+	background: rgba(255, 255, 255, 0.03) !important;
+	border-radius: 8px !important;
+	border: 1px solid var(--border-color) !important;
+}
+
+.breakdown-section .category-name {
+	flex: 0 0 35% !important;
+	min-width: 150px !important;
+	font-weight: 500 !important;
+	color: var(--text-secondary) !important;
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow: visible !important;
+	text-overflow: clip !important;
+	line-height: 1.4 !important;
+}
+
+.breakdown-section .category-score-bar {
+	flex: 1 !important;
+	height: 10px !important;
+	background: var(--border-color) !important;
+	border-radius: 5px !important;
+	overflow: hidden !important;
+	margin: 0 1rem !important;
+}
+
+.breakdown-section .category-score-fill {
+	height: 100% !important;
+	background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)) !important;
+	border-radius: 5px !important;
+	transition: width 0.8s ease !important;
+}
+
+.breakdown-section .category-score-value {
+	flex: 0 0 auto !important;
+	min-width: 40px !important;
+	text-align: right !important;
+	font-weight: 700 !important;
+	font-size: 1rem !important;
+	color: var(--accent-primary) !important;
+}
 
 /* Assessment timestamp display */
 .assessment-timestamp {
@@ -9420,12 +9571,12 @@ a:hover {
 
 .my-story-tab-nav a:hover {
     background: var(--glass-bg);
-    color: var(--accent-primary);
+    color: #323232;
 }
 
 .my-story-tab-nav a.my-story-tab-active {
     background: #3e3e3e;
-    color: white !important;
+    color: #000000 !important;
     box-shadow: 0 2px 8px rgb(173 204 194 / 30%);
 }
 
@@ -12520,7 +12671,7 @@ a:hover {
 
 /* Main Measurement Container */
 .biomarker-measurement {
-	margin-top: 0.75rem;
+	margin-top: 0;
 	padding: 0 1rem 1rem;
 	background: rgb(255 255 255 / 5%);
 	border-radius: 8px;
@@ -12544,7 +12695,7 @@ a:hover {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 1.8rem;
+	margin: 1rem 0;
 }
 
 .biomarker-measurement-title {
@@ -14044,7 +14195,7 @@ a:hover {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
-	padding: 1.5rem;
+	padding: 1rem 1.5rem;
 	border-bottom: 1px solid var(--border-color);
 }
 
@@ -14073,7 +14224,7 @@ a:hover {
 .biomarker-panel-description {
 	font-size: 0.95rem;
 	color: var(--text-light);
-	margin: 0 0 1rem 0;
+	margin: 0 0 0rem 0;
 	line-height: 1.5;
 }
 
@@ -14090,7 +14241,7 @@ a:hover {
 	.biomarker-panel-addon {
 		font-size: 0.85rem;
 		font-weight: 600;
-		padding: 0.25rem 0.75rem;
+		padding: 0.25rem 0;
 		border-radius: var(--rounded-full);
 		background: rgba(255, 255, 255, 0.1);
 		color: var(--text-dark);
@@ -14121,7 +14272,7 @@ a:hover {
 
 	.panel-expand-icon {
 		font-size: 14px;
-		color: var(--text-primary);
+		color: #525252;
 		transition: transform 0.3s ease;
 	}
 
@@ -17435,6 +17586,6 @@ html {
 }
 
 .my-story-tab-nav a.my-story-tab-active {
-    border-color: #007cba !important;
+    border-color: #424242 !important;
     background-color: rgba(0, 124, 186, 0.2) !important;
 }

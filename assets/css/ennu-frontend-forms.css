@@ -390,12 +390,18 @@
 .answer-option input[type="checkbox"]:checked + label {
     background: linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #1a202c 100%);
     border-color: #2d3748;
-    color: #ffffff;
+    color: #ffffff !important;
     transform: translateY(-3px);
     box-shadow: 
         0 12px 35px rgba(45, 55, 72, 0.25),
         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     position: relative;
+}
+
+/* Ensure all text inside selected options is white */
+.answer-option input[type="radio"]:checked + label *,
+.answer-option input[type="checkbox"]:checked + label * {
+    color: #ffffff !important;
 }
 
 .answer-option input[type="radio"]:checked + label::after,

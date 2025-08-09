@@ -1,5 +1,4 @@
 jQuery(document).ready(function($) {
-    console.log('ENNU Admin Enhanced JS Loaded');
 
     // Generic function to display admin notices
     function showAdminNotice(message, type = 'success') {

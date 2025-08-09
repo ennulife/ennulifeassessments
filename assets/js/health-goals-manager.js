@@ -12,11 +12,9 @@ jQuery(document).ready(function($) {
 
     // Check if the health goals container exists on the page
     if ($('.health-goals-grid').length === 0) {
-        console.log('ENNU Health Goals: Health goals grid not found on page');
         return;
     }
 
-    console.log('ENNU Health Goals: Initializing health goals manager');
 
     // --- State Management ---
     let originalGoals = new Set();
@@ -27,20 +25,15 @@ jQuery(document).ready(function($) {
         const goalId = $(this).data('goal-id');
         originalGoals.add(goalId);
         currentGoals.add(goalId);
-        console.log('ENNU Health Goals: Initial goal selected:', goalId);
     });
 
-    console.log('ENNU Health Goals: Original goals:', Array.from(originalGoals));
-    console.log('ENNU Health Goals: Current goals:', Array.from(currentGoals));
 
     // --- UI Elements ---
     const updateButton = $('.update-health-goals-btn');
     if (updateButton.length === 0) {
-        console.error('ENNU Health Goals: Update button not found in template');
         return;
     }
 
-    console.log('ENNU Health Goals: Found update button:', updateButton.length);
 
     const notificationArea = $('<div>', {
         id: 'ennu-notification-area',
@@ -56,7 +49,6 @@ jQuery(document).ready(function($) {
         const pill = $(this);
         const goalId = pill.data('goal-id');
 
-        console.log('ENNU Health Goals: Goal pill clicked:', goalId);
 
         // Toggle visual state immediately
         pill.toggleClass('selected');
@@ -69,13 +61,10 @@ jQuery(document).ready(function($) {
         // Update the current set of selected goals
         if (currentGoals.has(goalId)) {
             currentGoals.delete(goalId);
-            console.log('ENNU Health Goals: Goal removed:', goalId);
         } else {
             currentGoals.add(goalId);
-            console.log('ENNU Health Goals: Goal added:', goalId);
         }
 
-        console.log('ENNU Health Goals: Current goals after change:', Array.from(currentGoals));
 
         // Check if the current selection is different from the original
         checkForChanges();
@@ -86,10 +75,6 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         const goalsArray = Array.from(currentGoals);
         
-        console.log('ENNU Health Goals: Update button clicked');
-        console.log('ENNU Health Goals: Goals to save:', goalsArray);
-        console.log('ENNU Health Goals: AJAX URL:', ennuHealthGoalsAjax.ajax_url);
-        console.log('ENNU Health Goals: Nonce:', ennuHealthGoalsAjax.nonce);
         
         // Show loading state
         const $btn = $(this);
@@ -110,7 +95,6 @@ jQuery(document).ready(function($) {
                 health_goals: goalsArray
             },
             success: function(response) {
-                console.log('ENNU Health Goals: AJAX success response:', response);
                 if (response.success) {
                     showNotification(ennuHealthGoalsAjax.messages.success, 'success');
                     // Reload the page after a short delay to show the updated scores
@@ -118,7 +102,6 @@ jQuery(document).ready(function($) {
                         location.reload();
                     }, 1500);
                 } else {
-                    console.log('ENNU Health Goals: AJAX error response:', response);
                     showNotification(response.data.message || ennuHealthGoalsAjax.messages.error, 'error');
                     $btn.prop('disabled', false);
                     $btnText.show();
@@ -126,7 +109,6 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function(xhr, status, error) {
-                console.log('ENNU Health Goals: AJAX error:', {xhr: xhr, status: status, error: error});
                 showNotification(ennuHealthGoalsAjax.messages.network_error, 'error');
                 $btn.prop('disabled', false);
                 $btnText.show();
@@ -143,15 +125,10 @@ jQuery(document).ready(function($) {
      */
     function checkForChanges() {
         const hasChanges = !setsAreEqual(originalGoals, currentGoals);
-        console.log('ENNU Health Goals: Checking for changes - hasChanges:', hasChanges);
-        console.log('ENNU Health Goals: Original goals:', Array.from(originalGoals));
-        console.log('ENNU Health Goals: Current goals:', Array.from(currentGoals));
         
         if (hasChanges) {
-            console.log('ENNU Health Goals: Changes detected, showing update button');
             updateButton.fadeIn();
         } else {
-            console.log('ENNU Health Goals: No changes, hiding update button');
             updateButton.fadeOut();
             $('.goal-pill.changed').removeClass('changed');
         }

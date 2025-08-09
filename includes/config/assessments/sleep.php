@@ -12,7 +12,7 @@ return array(
 	'title'             => 'Sleep Assessment',
 	'assessment_engine' => 'quantitative',
 	'questions'         => array(
-		'sleep_q_gender' => array(
+		'ennu_global_gender' => array(
 			'title'      => 'What is your gender?',
 			'type'       => 'radio',
 			'options'    => array(
@@ -42,13 +42,13 @@ return array(
 				),
 			),
 		),
-		'sleep_q_height_weight' => array(
+		'ennu_global_height_weight' => array(
 			'title'      => 'What is your height and weight?',
 			'type'       => 'height_weight',
 			'required'   => true,
 			'global_key' => 'height_weight',
 		),
-		'sleep_q1'       => array(
+		'sleep_q1' => array(
 			'title'    => 'On average, how many hours of sleep do you get per night?',
 			'type'     => 'radio',
 			'options'  => array(
