@@ -23,6 +23,8 @@ This document is the single, canonical source of truth for the entire ENNU Life 
 
 This section details the assessments that measure a user's health *potential*.
 
+*Updated in v76.0.0: Added Peptide Therapy Assessment*
+
 ### 2.1 Welcome Assessment (Global Data Collection)
 *Note: This assessment is primarily for gathering foundational user data and does not contribute significantly to the overall score.*
 

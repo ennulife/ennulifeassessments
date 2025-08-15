@@ -81,7 +81,7 @@ class ENNU_Unified_Import_Service {
 		// Register shortcode
 		$this->register_shortcode();
 		
-		error_log( 'ENNU Unified Import Service: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Unified Import Service: Initialized successfully' );
 	}
 	
 	/**
@@ -564,7 +564,7 @@ class ENNU_Unified_Import_Service {
 			'timestamp' => current_time( 'mysql' ),
 		);
 		
-		error_log( 'ENNU Unified Import Service: ' . json_encode( $log_data ) );
+		// REMOVED: error_log( 'ENNU Unified Import Service: ' . json_encode( $log_data ) );
 	}
 	
 	/**

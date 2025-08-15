@@ -47,13 +47,13 @@ class ENNU_Centralized_Symptoms_Manager {
 		// --- TRANSACTIONAL LOCKING: Prevent race conditions ---
 		$lock_key = self::SYMPTOM_LOCK_KEY . $user_id;
 		if ( get_transient( $lock_key ) ) {
-			error_log( "ENNU Centralized Symptoms: Update process for user {$user_id} is already locked. Aborting." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Update process for user {$user_id} is already locked. Aborting." );
 			return false; // Already processing for this user.
 		}
 		set_transient( $lock_key, true, 30 ); // Set a 30-second lock
 
 		try {
-			error_log( "ENNU Centralized Symptoms: Starting update for user {$user_id}, assessment_type: " . ($assessment_type ?: 'all') );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Starting update for user {$user_id}, assessment_type: " . ($assessment_type ?: 'all') );
 			
 			// Get current symptoms
 			$current_symptoms = self::get_centralized_symptoms( $user_id );
@@ -66,7 +66,7 @@ class ENNU_Centralized_Symptoms_Manager {
 			
 			// Save centralized symptoms
 			update_user_meta( $user_id, self::CENTRALIZED_SYMPTOMS_KEY, $merged_symptoms );
-			error_log( "ENNU Centralized Symptoms: Saved symptoms to database for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Centralized Symptoms: Saved symptoms to database for user {$user_id}" );
 
 			// Auto-flag biomarkers based on symptoms
 			if ( ! empty( $merged_symptoms['symptoms'] ) ) {
@@ -80,7 +80,7 @@ class ENNU_Centralized_Symptoms_Manager {
 				if ( ! empty( $symptoms_list ) ) {
 					$flags_created = self::auto_flag_biomarkers_from_symptoms( $user_id, $symptoms_list );
 					if ( $flags_created > 0 ) {
-						error_log( "ENNU Centralized Symptoms: Created {$flags_created} biomarker flags for user {$user_id}" );
+						// REMOVED: error_log( "ENNU Centralized Symptoms: Created {$flags_created} biomarker flags for user {$user_id}" );
 					}
 				}
 			}
@@ -88,7 +88,7 @@ class ENNU_Centralized_Symptoms_Manager {
 			// Clear any caches
 			wp_cache_delete( $user_id, 'user_meta' );
 
-			error_log( "ENNU Centralized Symptoms: Update completed successfully for user {$user_id}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Update completed successfully for user {$user_id}" );
 			return true;
 		} catch ( Exception $e ) {
 			error_log( 'ENNU Centralized Symptoms: Error updating symptoms for user ' . $user_id . ': ' . $e->getMessage() );
@@ -230,7 +230,7 @@ class ENNU_Centralized_Symptoms_Manager {
 
 				if ( $was_triggered_by_this_assessment && ! $is_in_new_list ) {
 					// This symptom has been resolved in the new assessment. Do not include it in the merged list.
-					error_log( "ENNU Centralized Symptoms: Resolving symptom '{$symptom_key}' for user {$user_id} as it is no longer present in assessment {$assessment_type}" );
+					// REMOVED: error_log( "ENNU Centralized Symptoms: Resolving symptom '{$symptom_key}' for user {$user_id} as it is no longer present in assessment {$assessment_type}" );
 					unset( $current_symptoms['symptoms'][ $symptom_key ] );
 				}
 			}
@@ -242,7 +242,7 @@ class ENNU_Centralized_Symptoms_Manager {
 			foreach ( $current_symptoms['symptoms'] as $symptom_key => $symptom_data ) {
 				// Check if this symptom should be resolved based on new assessment data
 				if ( self::should_resolve_symptom( $symptom_key, $symptom_data, $user_id, $assessment_type ) ) {
-					error_log( "ENNU Centralized Symptoms: Resolving symptom '{$symptom_key}' for user {$user_id} based on assessment {$assessment_type}" );
+					// REMOVED: error_log( "ENNU Centralized Symptoms: Resolving symptom '{$symptom_key}' for user {$user_id} based on assessment {$assessment_type}" );
 					continue; // Skip this symptom - it's resolved
 				}
 
@@ -315,7 +315,7 @@ class ENNU_Centralized_Symptoms_Manager {
 		// Check if the current assessment provides data that resolves the trigger conditions
 		foreach ( $trigger_conditions as $condition ) {
 			if ( self::check_condition_resolution( $condition, $user_id, $assessment_type ) ) {
-				error_log( "ENNU Centralized Symptoms: Condition resolved for symptom '{$symptom_key}': " . print_r( $condition, true ) );
+				// REMOVED: error_log( "ENNU Centralized Symptoms: Condition resolved for symptom '{$symptom_key}': " . print_r( $condition, true ) );
 				return true; // This condition is resolved, so the symptom should be removed
 			}
 		}
@@ -543,70 +543,15 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @return int Number of flags created
 	 */
 	public static function auto_flag_biomarkers_from_symptoms( $user_id, $symptoms ) {
-		error_log( "ENNU Centralized Symptoms: Starting auto_flag_biomarkers_from_symptoms for user {$user_id} with " . count($symptoms) . " symptoms" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Starting auto_flag_biomarkers_from_symptoms for user {$user_id} with " . count($symptoms) . " symptoms" );
 		
 		if ( empty( $symptoms ) ) {
-			error_log( "ENNU Centralized Symptoms: No symptoms provided for biomarker flagging" );
+			// REMOVED: error_log( "ENNU Centralized Symptoms: No symptoms provided for biomarker flagging" );
 			return 0;
 		}
 
-		// Symptom to biomarker mapping - comprehensive list
-		$symptom_biomarker_mapping = array(
-			// Energy & Fatigue
-			'fatigue' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
-			'low_energy' => array( 'vitamin_b12', 'ferritin', 'thyroid_tsh', 'cortisol', 'testosterone_total' ),
-			'tired_all_the_time' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
-			
-			// Weight Related
-			'weight_gain' => array( 'insulin', 'cortisol', 'thyroid_tsh', 'testosterone_total', 'leptin' ),
-			'weight_loss' => array( 'thyroid_tsh', 'cortisol', 'insulin', 'glucose' ),
-			'difficulty_losing_weight' => array( 'thyroid_tsh', 'insulin', 'cortisol', 'leptin', 'testosterone_total' ),
-			'increased_appetite' => array( 'leptin', 'ghrelin', 'insulin', 'cortisol' ),
-			'cravings' => array( 'insulin', 'cortisol', 'serotonin', 'dopamine' ),
-			
-			// Mood & Mental
-			'mood_swings' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'anxiety' => array( 'cortisol', 'magnesium', 'vitamin_d', 'thyroid_tsh' ),
-			'depression' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'cortisol', 'serotonin' ),
-			'irritability' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'brain_fog' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'magnesium', 'homocysteine' ),
-			'poor_concentration' => array( 'vitamin_b12', 'omega_3', 'magnesium', 'thyroid_tsh' ),
-			
-			// Sleep
-			'insomnia' => array( 'melatonin', 'cortisol', 'magnesium', 'thyroid_tsh' ),
-			'poor_sleep' => array( 'melatonin', 'cortisol', 'magnesium', 'vitamin_d' ),
-			'difficulty_falling_asleep' => array( 'melatonin', 'cortisol', 'magnesium' ),
-			'waking_up_tired' => array( 'cortisol', 'thyroid_tsh', 'testosterone_total', 'vitamin_d' ),
-			
-			// Hormonal
-			'low_libido' => array( 'testosterone_total', 'testosterone_free', 'estradiol', 'prolactin' ),
-			'hot_flashes' => array( 'estradiol', 'fsh', 'lh', 'progesterone' ),
-			'night_sweats' => array( 'estradiol', 'cortisol', 'thyroid_tsh', 'progesterone' ),
-			'irregular_periods' => array( 'estradiol', 'progesterone', 'fsh', 'lh', 'prolactin' ),
-			
-			// Physical Symptoms
-			'headaches' => array( 'magnesium', 'vitamin_d', 'cortisol', 'estradiol' ),
-			'joint_pain' => array( 'vitamin_d', 'omega_3', 'cortisol', 'estradiol' ),
-			'muscle_weakness' => array( 'testosterone_total', 'vitamin_d', 'magnesium', 'cortisol' ),
-			'muscle_pain' => array( 'vitamin_d', 'magnesium', 'cortisol' ),
-			'bloating' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
-			'constipation' => array( 'thyroid_tsh', 'magnesium', 'vitamin_d' ),
-			
-			// Skin & Hair
-			'acne' => array( 'testosterone_total', 'estradiol', 'insulin', 'cortisol' ),
-			'hair_loss' => array( 'ferritin', 'thyroid_tsh', 'vitamin_d', 'testosterone_total' ),
-			'dry_skin' => array( 'thyroid_tsh', 'omega_3', 'vitamin_d' ),
-			
-			// Metabolic
-			'diabetes' => array( 'glucose', 'hba1c', 'insulin', 'homa_ir' ),
-			'high_blood_pressure' => array( 'sodium', 'potassium', 'aldosterone', 'cortisol' ),
-			'thyroid_issues' => array( 'tsh', 't3', 't4', 'thyroid_antibodies' ),
-			
-			// Immune
-			'frequent_illness' => array( 'vitamin_d', 'vitamin_c', 'zinc', 'wbc' ),
-			'slow_healing' => array( 'vitamin_d', 'zinc', 'vitamin_c', 'glucose' ),
-			'allergies' => array( 'vitamin_d', 'omega_3', 'histamine' )
-		);
+		// Symptom to biomarker mapping - retrieved from single source of truth
+		$symptom_biomarker_mapping = self::get_symptom_biomarker_mapping();
 
 		$flag_manager = new ENNU_Biomarker_Flag_Manager();
 		$flags_created = 0;
@@ -615,11 +560,11 @@ class ENNU_Centralized_Symptoms_Manager {
 			$symptom_name = is_array( $symptom_data ) ? $symptom_data['name'] : $symptom_data;
 			$symptom_key = self::_sanitize_symptom_key( $symptom_name );
 			
-			error_log( "ENNU Centralized Symptoms: Processing symptom '{$symptom_name}' with key '{$symptom_key}'" );
+			// REMOVED: error_log( "ENNU Centralized Symptoms: Processing symptom '{$symptom_name}' with key '{$symptom_key}'" );
 			
 			if ( isset( $symptom_biomarker_mapping[$symptom_key] ) ) {
 				$biomarkers = $symptom_biomarker_mapping[$symptom_key];
-				error_log( "ENNU Centralized Symptoms: Found biomarkers for symptom '{$symptom_name}': " . implode(', ', $biomarkers) );
+				// REMOVED: error_log( "ENNU Centralized Symptoms: Found biomarkers for symptom '{$symptom_name}': " . implode(', ', $biomarkers) );
 				
 				foreach ( $biomarkers as $biomarker ) {
 					$flag_created = $flag_manager->flag_biomarker(
@@ -635,17 +580,82 @@ class ENNU_Centralized_Symptoms_Manager {
 					
 					if ( $flag_created ) {
 						$flags_created++;
-						error_log( "ENNU Centralized Symptoms: Created flag for biomarker '{$biomarker}' due to symptom '{$symptom_name}'" );
+						// REMOVED: error_log( "ENNU Centralized Symptoms: Created flag for biomarker '{$biomarker}' due to symptom '{$symptom_name}'" );
 					}
 				}
 			} else {
-				error_log( "ENNU Centralized Symptoms: No biomarker mapping found for symptom '{$symptom_name}'" );
+				// REMOVED: error_log( "ENNU Centralized Symptoms: No biomarker mapping found for symptom '{$symptom_name}'" );
 			}
 		}
 
-		error_log( "ENNU Centralized Symptoms: Auto-flagging complete. Created {$flags_created} flags for user {$user_id}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Auto-flagging complete. Created {$flags_created} flags for user {$user_id}" );
 		return $flags_created;
 	}
+
+    /**
+     * Public accessor for the symptom → biomarker mapping used for auto-flagging.
+     * Exposed so admin documentation can render accurate mapping from code.
+     *
+     * @return array Mapping of sanitized symptom keys to arrays of biomarker keys
+     */
+    public static function get_symptom_biomarker_mapping() {
+        return array(
+            // Energy & Fatigue
+            'fatigue' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
+            'low_energy' => array( 'vitamin_b12', 'ferritin', 'thyroid_tsh', 'cortisol', 'testosterone_total' ),
+            'tired_all_the_time' => array( 'vitamin_d', 'vitamin_b12', 'ferritin', 'tsh', 'cortisol' ),
+
+            // Weight Related
+            'weight_gain' => array( 'insulin', 'cortisol', 'thyroid_tsh', 'testosterone_total', 'leptin' ),
+            'weight_loss' => array( 'thyroid_tsh', 'cortisol', 'insulin', 'glucose' ),
+            'difficulty_losing_weight' => array( 'thyroid_tsh', 'insulin', 'cortisol', 'leptin', 'testosterone_total' ),
+            'increased_appetite' => array( 'leptin', 'ghrelin', 'insulin', 'cortisol' ),
+            'cravings' => array( 'insulin', 'cortisol', 'serotonin', 'dopamine' ),
+
+            // Mood & Mental
+            'mood_swings' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+            'anxiety' => array( 'cortisol', 'magnesium', 'vitamin_d', 'thyroid_tsh' ),
+            'depression' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'cortisol', 'serotonin' ),
+            'irritability' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+            'brain_fog' => array( 'vitamin_d', 'vitamin_b12', 'omega_3', 'magnesium', 'homocysteine' ),
+            'poor_concentration' => array( 'vitamin_b12', 'omega_3', 'magnesium', 'thyroid_tsh' ),
+
+            // Sleep
+            'insomnia' => array( 'melatonin', 'cortisol', 'magnesium', 'thyroid_tsh' ),
+            'poor_sleep' => array( 'melatonin', 'cortisol', 'magnesium', 'vitamin_d' ),
+            'difficulty_falling_asleep' => array( 'melatonin', 'cortisol', 'magnesium' ),
+            'waking_up_tired' => array( 'cortisol', 'thyroid_tsh', 'testosterone_total', 'vitamin_d' ),
+
+            // Hormonal
+            'low_libido' => array( 'testosterone_total', 'testosterone_free', 'estradiol', 'prolactin' ),
+            'hot_flashes' => array( 'estradiol', 'fsh', 'lh', 'progesterone' ),
+            'night_sweats' => array( 'estradiol', 'cortisol', 'thyroid_tsh', 'progesterone' ),
+            'irregular_periods' => array( 'estradiol', 'progesterone', 'fsh', 'lh', 'prolactin' ),
+
+            // Physical Symptoms
+            'headaches' => array( 'magnesium', 'vitamin_d', 'cortisol', 'estradiol' ),
+            'joint_pain' => array( 'vitamin_d', 'omega_3', 'cortisol', 'estradiol' ),
+            'muscle_weakness' => array( 'testosterone_total', 'vitamin_d', 'magnesium', 'cortisol' ),
+            'muscle_pain' => array( 'vitamin_d', 'magnesium', 'cortisol' ),
+            'bloating' => array( 'cortisol', 'estradiol', 'progesterone', 'thyroid_tsh' ),
+            'constipation' => array( 'thyroid_tsh', 'magnesium', 'vitamin_d' ),
+
+            // Skin & Hair
+            'acne' => array( 'testosterone_total', 'estradiol', 'insulin', 'cortisol' ),
+            'hair_loss' => array( 'ferritin', 'thyroid_tsh', 'vitamin_d', 'testosterone_total' ),
+            'dry_skin' => array( 'thyroid_tsh', 'omega_3', 'vitamin_d' ),
+
+            // Metabolic
+            'diabetes' => array( 'glucose', 'hba1c', 'insulin', 'homa_ir' ),
+            'high_blood_pressure' => array( 'sodium', 'potassium', 'aldosterone', 'cortisol' ),
+            'thyroid_issues' => array( 'tsh', 't3', 't4', 'thyroid_antibodies' ),
+
+            // Immune
+            'frequent_illness' => array( 'vitamin_d', 'vitamin_c', 'zinc', 'wbc' ),
+            'slow_healing' => array( 'vitamin_d', 'zinc', 'vitamin_c', 'glucose' ),
+            'allergies' => array( 'vitamin_d', 'omega_3', 'histamine' ),
+        );
+    }
 
 	/**
 	 * Get symptom analytics for a user
@@ -774,7 +784,7 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @param string $assessment_type Assessment type
 	 */
 	public static function on_assessment_completed( $user_id, $assessment_type ) {
-		error_log( "ENNU Centralized Symptoms: Assessment completed for user {$user_id}, type: {$assessment_type}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Assessment completed for user {$user_id}, type: {$assessment_type}" );
 		self::update_centralized_symptoms( $user_id, $assessment_type );
 	}
 
@@ -786,13 +796,13 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @param string $removal_reason Removal reason
 	 */
 	public static function on_biomarker_flag_removed( $user_id, $biomarker_name, $removal_reason ) {
-		error_log( "ENNU Centralized Symptoms: Biomarker flag removed for user {$user_id}, biomarker: {$biomarker_name}, reason: {$removal_reason}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Biomarker flag removed for user {$user_id}, biomarker: {$biomarker_name}, reason: {$removal_reason}" );
 		
 		// Check if any symptoms should be resolved due to this biomarker being unflagged
 		$symptoms_resolved = self::resolve_symptoms_for_unflagged_biomarker( $user_id, $biomarker_name );
 		
 		if ( $symptoms_resolved > 0 ) {
-			error_log( "ENNU Centralized Symptoms: Resolved {$symptoms_resolved} symptoms for user {$user_id} due to biomarker '{$biomarker_name}' being unflagged" );
+			// REMOVED: error_log( "ENNU Centralized Symptoms: Resolved {$symptoms_resolved} symptoms for user {$user_id} due to biomarker '{$biomarker_name}' being unflagged" );
 		}
 	}
 
@@ -874,7 +884,7 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @return array Aggregated symptoms
 	 */
 	private static function aggregate_all_symptoms( $user_id, $assessment_type = null ) {
-		error_log( "ENNU Centralized Symptoms: Starting aggregate_all_symptoms for user {$user_id}, assessment_type: " . ($assessment_type ?: 'all') );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Starting aggregate_all_symptoms for user {$user_id}, assessment_type: " . ($assessment_type ?: 'all') );
 		
 		$all_symptoms = array(
 			'symptoms'      => array(),
@@ -901,9 +911,9 @@ class ENNU_Centralized_Symptoms_Manager {
 		);
 
 		foreach ( $assessment_types as $type ) {
-			error_log( "ENNU Centralized Symptoms: Processing assessment type: {$type}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Processing assessment type: {$type}" );
 			$assessment_symptoms = self::get_assessment_symptoms( $user_id, $type );
-			error_log( "ENNU Centralized Symptoms: Found " . count($assessment_symptoms) . " symptoms for {$type}" );
+			// REMOVED: error_log( "ENNU Centralized Symptoms: Found " . count($assessment_symptoms) . " symptoms for {$type}" );
 
 			if ( ! empty( $assessment_symptoms ) ) {
 				$all_symptoms['by_assessment'][ $type ] = $assessment_symptoms;
@@ -975,7 +985,7 @@ class ENNU_Centralized_Symptoms_Manager {
 			}
 		}
 
-		error_log( "ENNU Centralized Symptoms: Aggregation complete. Total symptoms: {$all_symptoms['total_count']}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Aggregation complete. Total symptoms: {$all_symptoms['total_count']}" );
 		return $all_symptoms;
 	}
 
@@ -987,7 +997,7 @@ class ENNU_Centralized_Symptoms_Manager {
 	 * @return array Assessment symptoms
 	 */
 	private static function get_assessment_symptoms( $user_id, $assessment_type ) {
-		error_log( "ENNU Centralized Symptoms: Getting symptoms for assessment type: {$assessment_type}, user: {$user_id}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Getting symptoms for assessment type: {$assessment_type}, user: {$user_id}" );
 		
 		$symptoms = array();
 
@@ -1019,9 +1029,12 @@ class ENNU_Centralized_Symptoms_Manager {
 			case 'weight_loss':
 				$symptoms = self::get_weight_loss_symptoms( $user_id );
 				break;
+			case 'peptide-therapy':
+				$symptoms = self::get_peptide_therapy_symptoms( $user_id );
+				break;
 		}
 
-		error_log( "ENNU Centralized Symptoms: Found " . count($symptoms) . " symptoms for {$assessment_type}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Found " . count($symptoms) . " symptoms for {$assessment_type}" );
 		return $symptoms;
 	}
 
@@ -1097,6 +1110,7 @@ class ENNU_Centralized_Symptoms_Manager {
 		
 		// Get testosterone data directly using WordPress functions
 		$symptom_selections = get_user_meta( $user_id, 'ennu_testosterone_testosterone_q1', true );
+        $score_date = get_user_meta( $user_id, 'ennu_testosterone_score_calculated_at', true );
 
 		if ( is_array( $symptom_selections ) ) {
 			foreach ( $symptom_selections as $symptom ) {
@@ -1227,10 +1241,50 @@ class ENNU_Centralized_Symptoms_Manager {
 	}
 
 	/**
+	 * Get peptide therapy symptoms
+	 */
+	private static function get_peptide_therapy_symptoms( $user_id ) {
+		$symptoms = array();
+		$assessment_data = get_user_meta( $user_id, 'ennu_assessment_responses_peptide-therapy', true );
+		
+		if ( ! empty( $assessment_data['responses'] ) ) {
+			// Check for hormonal symptoms (Q9)
+			if ( isset( $assessment_data['responses']['pep_q9'] ) && is_array( $assessment_data['responses']['pep_q9'] ) ) {
+				$hormonal_symptoms = $assessment_data['responses']['pep_q9'];
+				foreach ( $hormonal_symptoms as $symptom ) {
+					if ( $symptom !== 'none' ) {
+						$symptoms[] = array(
+							'symptom' => $symptom,
+							'severity' => 'moderate',
+							'frequency' => 'frequently'
+						);
+					}
+				}
+			}
+			
+			// Check for chronic conditions (Q21)
+			if ( isset( $assessment_data['responses']['pep_q21'] ) && is_array( $assessment_data['responses']['pep_q21'] ) ) {
+				$conditions = $assessment_data['responses']['pep_q21'];
+				foreach ( $conditions as $condition ) {
+					if ( $condition !== 'none' ) {
+						$symptoms[] = array(
+							'symptom' => $condition,
+							'severity' => 'moderate',
+							'frequency' => 'always'
+						);
+					}
+				}
+			}
+		}
+		
+		return $symptoms;
+	}
+
+	/**
 	 * Get weight loss symptoms and health indicators
 	 */
 	private static function get_weight_loss_symptoms( $user_id ) {
-		error_log( "ENNU Centralized Symptoms: Getting weight loss symptoms for user {$user_id}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Getting weight loss symptoms for user {$user_id}" );
 		$symptoms = array();
 
 		// Get all weight loss data directly using WordPress functions
@@ -1242,7 +1296,7 @@ class ENNU_Centralized_Symptoms_Manager {
 		$score_date = get_user_meta( $user_id, 'ennu_weight-loss_score_calculated_at', true );
 
 		// Check for medical conditions that could be symptoms
-		error_log( "ENNU Centralized Symptoms: Medical conditions for user {$user_id}: " . print_r( $medical_conditions, true ) );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Medical conditions for user {$user_id}: " . print_r( $medical_conditions, true ) );
 		if ( is_array( $medical_conditions ) ) {
 			foreach ( $medical_conditions as $condition ) {
 				$symptoms[] = array(
@@ -1254,7 +1308,7 @@ class ENNU_Centralized_Symptoms_Manager {
 		}
 
 		// Check for low energy levels (could indicate underlying health issues)
-		error_log( "ENNU Centralized Symptoms: Energy level for user {$user_id}: {$energy_level}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Energy level for user {$user_id}: {$energy_level}" );
 		if ( $energy_level === 'very' || $energy_level === 'somewhat' ) {
 			$symptoms[] = array(
 				'name'     => 'Low Energy Level',
@@ -1265,7 +1319,7 @@ class ENNU_Centralized_Symptoms_Manager {
 
 		// Check for poor sleep quality (could be a symptom)
 		$sleep_quality = $sleep_hours;
-		error_log( "ENNU Centralized Symptoms: Sleep quality for user {$user_id}: {$sleep_quality}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Sleep quality for user {$user_id}: {$sleep_quality}" );
 		if ( $sleep_quality === 'less_than_5' || $sleep_quality === 'poor' ) {
 			$symptoms[] = array(
 				'name'     => 'Poor Sleep Quality',
@@ -1276,7 +1330,7 @@ class ENNU_Centralized_Symptoms_Manager {
 
 		// Check for high stress levels (could be a symptom)
 		// Stress level already retrieved
-		error_log( "ENNU Centralized Symptoms: Stress level for user {$user_id}: {$stress_level}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Stress level for user {$user_id}: {$stress_level}" );
 		if ( $stress_level === 'very' || $stress_level === 'high' ) {
 			$symptoms[] = array(
 				'name'     => 'High Stress Level',
@@ -1287,7 +1341,7 @@ class ENNU_Centralized_Symptoms_Manager {
 
 		// Check for frequent cravings (could indicate hormonal issues)
 		$cravings_frequency = $exercise_freq;
-		error_log( "ENNU Centralized Symptoms: Cravings frequency for user {$user_id}: {$cravings_frequency}" );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Cravings frequency for user {$user_id}: {$cravings_frequency}" );
 		if ( $cravings_frequency === 'daily' || $cravings_frequency === 'multiple_times' ) {
 			$symptoms[] = array(
 				'name'     => 'Frequent Food Cravings',
@@ -1296,7 +1350,7 @@ class ENNU_Centralized_Symptoms_Manager {
 			);
 		}
 
-		error_log( "ENNU Centralized Symptoms: Total weight loss symptoms found for user {$user_id}: " . count( $symptoms ) );
+		// REMOVED: error_log( "ENNU Centralized Symptoms: Total weight loss symptoms found for user {$user_id}: " . count( $symptoms ) );
 		return $symptoms;
 	}
 

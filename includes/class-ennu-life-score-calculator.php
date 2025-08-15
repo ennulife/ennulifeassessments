@@ -27,16 +27,16 @@ class ENNU_Life_Score_Calculator {
 		$this->all_definitions    = $all_definitions;
 		$this->health_goals       = $health_goals;
 		$this->goal_definitions   = $goal_definitions;
-		error_log( "EnnuLifeScoreCalculator: Instantiated for user ID {$user_id}." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "EnnuLifeScoreCalculator: Instantiated for user ID {$user_id}." );
 	}
 
 	public function calculate() {
-		error_log( 'EnnuLifeScoreCalculator: Starting calculation.' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'EnnuLifeScoreCalculator: Starting calculation.' );
 		// 1. Calculate Pillar Integrity Penalties
 		$health_opt_defs       = $this->all_definitions['health_optimization_assessment'] ?? array();
 		$health_opt_calculator = new ENNU_Health_Optimization_Calculator( $this->user_id, array( 'health_optimization_assessment' => $health_opt_defs ) );
 		$pillar_penalties      = $health_opt_calculator->calculate_pillar_penalties();
-		error_log( 'EnnuLifeScoreCalculator: Calculated pillar penalties: ' . print_r( $pillar_penalties, true ) );
+		// REMOVED: error_log( 'EnnuLifeScoreCalculator: Calculated pillar penalties: ' . print_r( $pillar_penalties, true ) );
 
 		// 2. Apply Penalties to get the Final Adjusted Pillar Scores
 		$final_pillar_scores = array();
@@ -52,7 +52,7 @@ class ENNU_Life_Score_Calculator {
 				'final'   => round( $final_score, 1 ),
 			);
 		}
-		error_log( 'EnnuLifeScoreCalculator: Calculated final adjusted pillar scores: ' . print_r( $final_pillar_scores, true ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'EnnuLifeScoreCalculator: Calculated final adjusted pillar scores: ' . print_r( $final_pillar_scores, true ) );
 
 		// 3. Apply strategic weights to the FINAL scores
 		$weights = array(
@@ -68,7 +68,7 @@ class ENNU_Life_Score_Calculator {
 				$ennu_life_score += $final_score * $weights[ $pillar_name ];
 			}
 		}
-		error_log( 'EnnuLifeScoreCalculator: Final ENNU LIFE SCORE calculated: ' . round( $ennu_life_score, 1 ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'EnnuLifeScoreCalculator: Final ENNU LIFE SCORE calculated: ' . round( $ennu_life_score, 1 ) );
 
 		// The calculator should only calculate. It should not save.
 		// The orchestrator will be responsible for saving this data.

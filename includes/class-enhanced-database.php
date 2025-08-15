@@ -184,8 +184,12 @@ class ENNU_Life_Enhanced_Database {
 			// Cache the results
 			ENNU_Score_Cache::cache_score( $user_id, $assessment_type, $score_data );
 
-			// Update overall health metrics
+			// Store assessment history for progress tracking
+			$this->store_assessment_history( $user_id, $assessment_type, $score_data );
+
+			// Update overall health metrics and BMI history
 			$this->update_overall_health_metrics( $user_id );
+			$this->update_bmi_history( $user_id );
 
 			// Log performance
 			$execution_time = microtime( true ) - $start_time;
@@ -501,6 +505,64 @@ class ENNU_Life_Enhanced_Database {
 	}
 
 	/**
+	 * Update BMI history for dashboard charts
+	 * @param int $user_id User ID
+	 */
+	private function update_bmi_history( $user_id ) {
+		try {
+			// Get current BMI
+			$current_bmi = get_user_meta( $user_id, 'ennu_calculated_bmi', true );
+			
+			if ( empty( $current_bmi ) || ! is_numeric( $current_bmi ) ) {
+				return; // No BMI to store
+			}
+			
+			// Get existing BMI history
+			$bmi_history_key = 'ennu_bmi_history';
+			$bmi_history = get_user_meta( $user_id, $bmi_history_key, true );
+			
+			if ( ! is_array( $bmi_history ) ) {
+				$bmi_history = array();
+			}
+			
+			// Check if we already have an entry for today (to avoid duplicates)
+			$today = current_time( 'Y-m-d' );
+			$has_today_entry = false;
+			
+			foreach ( $bmi_history as $entry ) {
+				if ( isset( $entry['date'] ) && strpos( $entry['date'], $today ) === 0 ) {
+					$has_today_entry = true;
+					break;
+				}
+			}
+			
+			// Add new entry only if we don't have one for today
+			if ( ! $has_today_entry ) {
+				$bmi_entry = array(
+					'date' => current_time( 'Y-m-d H:i:s' ),
+					'timestamp' => time(),
+					'bmi' => (float) $current_bmi,
+				);
+				
+				// Add to history (newest first)
+				array_unshift( $bmi_history, $bmi_entry );
+				
+				// Keep only last 100 entries for performance
+				if ( count( $bmi_history ) > 100 ) {
+					$bmi_history = array_slice( $bmi_history, 0, 100 );
+				}
+				
+				// Save updated history
+				update_user_meta( $user_id, $bmi_history_key, $bmi_history );
+				
+				// REMOVED: error_log( "ENNU Database: Updated BMI history for user {$user_id}. Total entries: " . count( $bmi_history ) );
+			}
+		} catch ( Exception $e ) {
+			// No error logging needed here for production
+		}
+	}
+
+	/**
 	 * Get score interpretation
 	 */
 	private function get_score_interpretation( $score ) {
@@ -533,6 +595,82 @@ class ENNU_Life_Enhanced_Database {
 		if ( $execution_time > 1.0 ) {
 			// Intentionally empty for production. Performance issues should be monitored via other tools.
 		}
+	}
+
+	/**
+	 * Store assessment history for progress tracking
+	 * @param int $user_id User ID
+	 * @param string $assessment_type Assessment type
+	 * @param array $score_data Score data including overall_score, category_scores, etc.
+	 */
+	private function store_assessment_history( $user_id, $assessment_type, $score_data ) {
+		// Get existing history
+		$history_key = "ennu_{$assessment_type}_score_history";
+		$existing_history = get_user_meta( $user_id, $history_key, true );
+		
+		if ( ! is_array( $existing_history ) ) {
+			$existing_history = array();
+		}
+		
+		// Create new history entry
+		$history_entry = array(
+			'date' => current_time( 'Y-m-d H:i:s' ),
+			'timestamp' => time(),
+			'score' => (float) $score_data['overall_score'],
+			'category_scores' => $score_data['category_scores'] ?? array(),
+			'pillar_scores' => $score_data['pillar_scores'] ?? array(),
+			'interpretation' => $score_data['interpretation'] ?? '',
+		);
+		
+		// Add to history (newest first)
+		array_unshift( $existing_history, $history_entry );
+		
+		// Keep only last 50 entries for performance
+		if ( count( $existing_history ) > 50 ) {
+			$existing_history = array_slice( $existing_history, 0, 50 );
+		}
+		
+		// Save updated history
+		update_user_meta( $user_id, $history_key, $existing_history );
+		
+		// Also update global score history for dashboard charts
+		$this->update_global_score_history( $user_id, $score_data );
+		
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Database: Stored {$assessment_type} history for user {$user_id}. Total entries: " . count( $existing_history ) );
+	}
+	
+	/**
+	 * Update global score history for dashboard charts
+	 * @param int $user_id User ID
+	 * @param array $score_data Score data
+	 */
+	private function update_global_score_history( $user_id, $score_data ) {
+		// Get existing global history
+		$global_history_key = 'ennu_global_score_history';
+		$global_history = get_user_meta( $user_id, $global_history_key, true );
+		
+		if ( ! is_array( $global_history ) ) {
+			$global_history = array();
+		}
+		
+		// Create new global entry
+		$global_entry = array(
+			'date' => current_time( 'Y-m-d H:i:s' ),
+			'timestamp' => time(),
+			'score' => (float) $score_data['overall_score'],
+			'assessment_type' => $score_data['assessment_type'],
+		);
+		
+		// Add to global history (newest first)
+		array_unshift( $global_history, $global_entry );
+		
+		// Keep only last 100 entries for performance
+		if ( count( $global_history ) > 100 ) {
+			$global_history = array_slice( $global_history, 0, 100 );
+		}
+		
+		// Save updated global history
+		update_user_meta( $user_id, $global_history_key, $global_history );
 	}
 
 	/**
@@ -594,7 +732,7 @@ class ENNU_Life_Enhanced_Database {
 			
 			if ( empty( $check_constraint ) ) {
 				$wpdb->query( "ALTER TABLE {$wpdb->users} ADD CONSTRAINT unique_user_email UNIQUE (user_email)" );
-				error_log( 'ENNU Database: Added unique constraint to user_email' );
+				// REMOVED: error_log( 'ENNU Database: Added unique constraint to user_email' );
 			}
 			
 			// Create rate limiting table if it doesn't exist
@@ -614,7 +752,7 @@ class ENNU_Life_Enhanced_Database {
 						INDEX idx_last_attempt (last_attempt)
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 				" );
-				error_log( 'ENNU Database: Created rate limiting table' );
+				// REMOVED: error_log( 'ENNU Database: Created rate limiting table' );
 			}
 			
 			return true;
@@ -782,7 +920,7 @@ class ENNU_Life_Enhanced_Database {
 		dbDelta( $sql_score_cache );
 		
 		// Log table creation
-		error_log( 'ENNU Life: Database tables created/verified' );
+		// REMOVED: error_log( 'ENNU Life: Database tables created/verified' );
 	}
 }
 

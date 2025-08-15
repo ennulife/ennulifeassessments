@@ -1037,14 +1037,14 @@ class ENNU_Advanced_Analytics {
 	 */
 	public function process_analytics_data() {
 		// Process and aggregate analytics data
-		error_log( 'ENNU Analytics: Processing analytics data' );
+		// REMOVED: error_log( 'ENNU Analytics: Processing analytics data' );
 	}
 
 	/**
 	 * Generate scheduled reports
 	 */
 	public function generate_scheduled_reports() {
-		error_log( 'ENNU Analytics: Generating scheduled reports' );
+		// REMOVED: error_log( 'ENNU Analytics: Generating scheduled reports' );
 	}
 
 	/**
@@ -1071,7 +1071,7 @@ class ENNU_Advanced_Analytics {
 
 		$deleted_ab_tests = $wpdb->query( $wpdb->prepare( "DELETE FROM $ab_testing_table WHERE assigned_at < %s", $cutoff_date ) );
 
-		error_log( "ENNU Analytics Cleanup: Deleted {$deleted_events} events, {$deleted_sessions} sessions, {$deleted_ab_tests} A/B test records older than {$retention_days} days" );
+		// REMOVED: error_log( "ENNU Analytics Cleanup: Deleted {$deleted_events} events, {$deleted_sessions} sessions, {$deleted_ab_tests} A/B test records older than {$retention_days} days" );
 	}
 
 	/**

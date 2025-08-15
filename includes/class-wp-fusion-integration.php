@@ -109,7 +109,7 @@ class ENNU_WP_Fusion_Integration {
 				wp_fusion()->user->apply_tags( array( $assessment_tag ), $user_id );
 			}
 
-			error_log( "WP Fusion Integration: Contact synced for user {$user_id}, contact ID: {$contact_id}" );
+			// REMOVED: error_log( "WP Fusion Integration: Contact synced for user {$user_id}, contact ID: {$contact_id}" );
 		}
 	}
 
@@ -118,7 +118,7 @@ class ENNU_WP_Fusion_Integration {
 			return;
 		}
 
-		error_log( "WP Fusion Integration: Triggering biomarker workflow for user {$user_id}" );
+		// REMOVED: error_log( "WP Fusion Integration: Triggering biomarker workflow for user {$user_id}" );
 
 		$biomarker_tag = get_option( 'ennu_wp_fusion_biomarker_tag', 'ennu-biomarker-results' );
 		if ( $biomarker_tag && function_exists( 'wp_fusion' ) ) {
@@ -134,7 +134,7 @@ class ENNU_WP_Fusion_Integration {
 			return;
 		}
 
-		error_log( "WP Fusion Integration: Triggering booking workflow for user {$user_id}" );
+		// REMOVED: error_log( "WP Fusion Integration: Triggering booking workflow for user {$user_id}" );
 
 		$booking_tag = get_option( 'ennu_wp_fusion_booking_tag', 'ennu-consultation-booked' );
 		if ( $booking_tag && function_exists( 'wp_fusion' ) ) {
@@ -262,7 +262,7 @@ class ENNU_WP_Fusion_Integration {
 		$tag = $workflow_tags[ $workflow_type ] ?? null;
 		if ( $tag ) {
 			wp_fusion()->user->apply_tags( array( $tag ), $user_id );
-			error_log( "WP Fusion Integration: Applied workflow tag '{$tag}' for user {$user_id}" );
+			// REMOVED: error_log( "WP Fusion Integration: Applied workflow tag '{$tag}' for user {$user_id}" );
 		}
 
 		do_action( 'ennu_wp_fusion_workflow_triggered', $workflow_type, $user_id, $data );

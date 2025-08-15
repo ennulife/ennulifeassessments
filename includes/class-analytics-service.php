@@ -63,6 +63,11 @@ class ENNU_Analytics_Service {
 			'ennu_health_calculated_score',
 			'ennu_skin_calculated_score',
 			'ennu_sleep_calculated_score',
+			'ennu_hormone_calculated_score',
+			'ennu_testosterone_calculated_score',
+			'ennu_menopause_calculated_score',
+			'ennu_weight_loss_calculated_score',
+			'ennu_peptide-therapy_calculated_score',
 		);
 
 		$placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
@@ -98,7 +103,7 @@ class ENNU_Analytics_Service {
 	 * Get completion rates by assessment type
 	 */
 	private function get_completion_rates() {
-		$assessments = array( 'welcome', 'hair', 'health', 'skin', 'sleep', 'hormone', 'menopause', 'testosterone', 'weight_loss', 'health_optimization' );
+		$assessments = array( 'welcome', 'hair', 'health', 'skin', 'sleep', 'hormone', 'menopause', 'testosterone', 'weight_loss', 'health_optimization', 'peptide-therapy' );
 		$rates       = array();
 
 		foreach ( $assessments as $assessment ) {

@@ -5,7 +5,7 @@ Tags: health, assessment, biomarkers, wellness, scoring, healthcare, medical, sy
 Requires at least: 5.0
 Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 64.68.0
+Stable tag: 79.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,13 @@ Yes, the plugin includes a comprehensive configuration system that allows custom
 5. Admin interface for system configuration
 
 == Changelog ==
+
+= 79.0.0 =
+* ENHANCED: Assessment submission modal with dynamic messaging for logged-in vs logged-out users
+* FIXED: Target score consistency - each pillar now has individual targets based on current scores
+* IMPROVED: Progress modal text now shows appropriate messaging for existing users vs new account creation
+* OPTIMIZED: Redirect logic ensures modal completion before navigation to results
+* REFINED: Individual target calculation algorithm for personalized goal setting per pillar
 
 = 64.68.0 =
 * CRITICAL FIX: Biomarker Statistics Calculation Logic

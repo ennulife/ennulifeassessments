@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Chart Lines</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .test-container {
+            width: 300px;
+            height: 60px;
+            background: white;
+            padding: 10px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        svg {
+            border: 1px solid #e5e7eb;
+        }
+        h2 {
+            color: #374151;
+            margin-top: 30px;
+        }
+        .description {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chart Line Test</h1>
+    <p>Testing SVG line rendering to diagnose the issue</p>
+    
+    <h2>Test 1: Basic Line</h2>
+    <div class="description">Simple line with explicit stroke and fill attributes</div>
+    <div class="test-container">
+        <svg width="280" height="50" viewBox="0 0 280 50">
+            <path d="M 10 25 L 70 15 L 130 20 L 190 10 L 250 18" 
+                  fill="none" 
+                  stroke="#6366f1" 
+                  stroke-width="2"/>
+            <circle cx="10" cy="25" r="3" fill="#6366f1"/>
+            <circle cx="70" cy="15" r="3" fill="#6366f1"/>
+            <circle cx="130" cy="20" r="3" fill="#6366f1"/>
+            <circle cx="190" cy="10" r="3" fill="#6366f1"/>
+            <circle cx="250" cy="18" r="3" fill="#6366f1"/>
+        </svg>
+    </div>
+    
+    <h2>Test 2: Line with CSS Class</h2>
+    <div class="description">Line styled with CSS class (may not work if CSS is missing)</div>
+    <div class="test-container">
+        <svg width="280" height="50" viewBox="0 0 280 50">
+            <style>
+                .chart-line-test {
+                    fill: none;
+                    stroke: #10b981;
+                    stroke-width: 2;
+                }
+            </style>
+            <path d="M 10 30 L 70 20 L 130 25 L 190 15 L 250 22" 
+                  class="chart-line-test"/>
+            <circle cx="10" cy="30" r="3" fill="#10b981"/>
+            <circle cx="70" cy="20" r="3" fill="#10b981"/>
+            <circle cx="130" cy="25" r="3" fill="#10b981"/>
+            <circle cx="190" cy="15" r="3" fill="#10b981"/>
+            <circle cx="250" cy="22" r="3" fill="#10b981"/>
+        </svg>
+    </div>
+    
+    <h2>Test 3: Dashed Line to Target</h2>
+    <div class="description">Solid line with dashed extension to target</div>
+    <div class="test-container">
+        <svg width="280" height="50" viewBox="0 0 280 50">
+            <!-- Main line -->
+            <path d="M 10 35 L 70 25 L 130 30 L 190 20" 
+                  fill="none" 
+                  stroke="#6b7280" 
+                  stroke-width="2"/>
+            <!-- Dashed to target -->
+            <path d="M 190 20 L 250 25" 
+                  fill="none" 
+                  stroke="#6b7280" 
+                  stroke-width="2"
+                  stroke-dasharray="5,5"
+                  opacity="0.5"/>
+            <!-- Dots -->
+            <circle cx="10" cy="35" r="3" fill="#6b7280"/>
+            <circle cx="70" cy="25" r="3" fill="#6b7280"/>
+            <circle cx="130" cy="30" r="3" fill="#6b7280"/>
+            <circle cx="190" cy="20" r="3" fill="#6b7280"/>
+            <circle cx="250" cy="25" r="4" fill="#10b981" stroke="white" stroke-width="2"/>
+        </svg>
+    </div>
+    
+    <h2>Test 4: Weight Chart Style</h2>
+    <div class="description">Mimics the actual weight chart rendering</div>
+    <div class="test-container" id="weight-chart-test">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    
+    <h2>Console Output</h2>
+    <p>Open browser console to see debugging information</p>
+
+<script>
+// Test 4: Programmatic generation like score-mini-charts.js
+(function() {
+    const container = document.getElementById('weight-chart-test');
+    const width = 280;
+    const height = 50;
+    const padding = 5;
+    
+    // Create SVG
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    
+    // Sample data points
+    const dataPoints = [
+        { value: 175, date: '2 months ago' },
+        { value: 173, date: '1 month ago' },
+        { value: 172, date: 'Today' },
+        { value: 170, date: 'Target', isTarget: true }
+    ];
+    
+    // Calculate positions
+    const xStep = (width - padding * 2) / (dataPoints.length - 1);
+    const minValue = 168;
+    const maxValue = 177;
+    
+    function getY(value) {
+        return padding + (height - padding * 2) - ((value - minValue) / (maxValue - minValue)) * (height - padding * 2);
+    }
+    
+    // Build path
+    let pathData = "";
+    dataPoints.forEach((point, index) => {
+        const x = padding + (index * xStep);
+        const y = getY(point.value);
+        
+        if (index === 0) {
+            pathData += `M ${x} ${y}`;
+        } else if (!point.isTarget) {
+            pathData += ` L ${x} ${y}`;
+        }
+    });
+    
+    console.log('Path data:', pathData);
+    
+    // Draw main line
+    if (pathData) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", pathData);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#6b7280");
+        path.setAttribute("stroke-width", "2");
+        svg.appendChild(path);
+        console.log('Added main path to SVG');
+    }
+    
+    // Draw dashed line to target
+    const targetIndex = dataPoints.length - 1;
+    const prevIndex = targetIndex - 1;
+    const dashPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    dashPath.setAttribute("d", 
+        `M ${padding + (prevIndex * xStep)} ${getY(dataPoints[prevIndex].value)} ` +
+        `L ${padding + (targetIndex * xStep)} ${getY(dataPoints[targetIndex].value)}`
+    );
+    dashPath.setAttribute("fill", "none");
+    dashPath.setAttribute("stroke", "#6b7280");
+    dashPath.setAttribute("stroke-width", "2");
+    dashPath.setAttribute("stroke-dasharray", "5,5");
+    dashPath.setAttribute("opacity", "0.5");
+    svg.appendChild(dashPath);
+    console.log('Added dashed path to target');
+    
+    // Draw dots
+    dataPoints.forEach((point, index) => {
+        const x = padding + (index * xStep);
+        const y = getY(point.value);
+        
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        
+        if (point.isTarget) {
+            circle.setAttribute("r", "4");
+            circle.setAttribute("fill", "#10b981");
+            circle.setAttribute("stroke", "white");
+            circle.setAttribute("stroke-width", "2");
+        } else {
+            circle.setAttribute("r", "3");
+            circle.setAttribute("fill", "#6b7280");
+        }
+        
+        svg.appendChild(circle);
+    });
+    
+    // Add to container
+    container.appendChild(svg);
+    console.log('Chart rendering complete');
+})();
+</script>
+
+</body>
+</html>

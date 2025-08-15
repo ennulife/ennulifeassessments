@@ -77,6 +77,47 @@ return array(
         'folate'
     ),
     
+    // Peptide Therapy Related Symptoms
+    'slow_recovery' => array(
+        'growth_hormone',
+        'igf1',
+        'testosterone_total',
+        'cortisol',
+        'inflammation_crp'
+    ),
+    
+    'poor_healing' => array(
+        'growth_hormone',
+        'igf1',
+        'vitamin_d',
+        'zinc',
+        'inflammation_crp'
+    ),
+    
+    'muscle_loss' => array(
+        'testosterone_total',
+        'growth_hormone',
+        'igf1',
+        'dhea_s',
+        'cortisol'
+    ),
+    
+    'low_libido' => array(
+        'testosterone_total',
+        'testosterone_free',
+        'estradiol',
+        'dhea_s',
+        'prolactin'
+    ),
+    
+    'cognitive_decline' => array(
+        'vitamin_b12',
+        'thyroid_tsh',
+        'testosterone_total',
+        'growth_hormone',
+        'inflammation_crp'
+    ),
+    
     // Sleep-Related Symptoms
     'insomnia' => array(
         'cortisol',

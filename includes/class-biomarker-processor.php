@@ -23,7 +23,7 @@ class ENNU_Biomarker_Processor {
 	 * Process uploaded PDF file
 	 */
 	public function process_pdf( $file_path, $user_id ) {
-		error_log( 'ENNU: Processing PDF file: ' . $file_path );
+		// REMOVED: error_log( 'ENNU: Processing PDF file: ' . $file_path );
 		
 		// Extract text from PDF
 		$text = $this->extract_text_from_pdf( $file_path );

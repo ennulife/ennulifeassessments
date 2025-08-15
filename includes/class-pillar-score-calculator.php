@@ -21,17 +21,17 @@ class ENNU_Pillar_Score_Calculator {
 	public function __construct( $category_scores, $pillar_map ) {
 		$this->category_scores = $category_scores;
 		$this->pillar_map      = $pillar_map;
-		error_log( 'PillarScoreCalculator: Instantiated.' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'PillarScoreCalculator: Instantiated.' );
 	}
 
 	public function calculate() {
-		error_log( 'PillarScoreCalculator: Starting calculation.' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'PillarScoreCalculator: Starting calculation.' );
 		$pillar_scores = array();
 		$pillar_totals = array();
 		$pillar_counts = array();
 
 		if ( empty( $this->category_scores ) ) {
-			error_log( 'PillarScoreCalculator: No category scores provided. Returning empty array.' );
+			// REMOVED: error_log( 'PillarScoreCalculator: No category scores provided. Returning empty array.' );
 			return $pillar_scores;
 		}
 
@@ -41,7 +41,7 @@ class ENNU_Pillar_Score_Calculator {
 		}
 
 		foreach ( $this->category_scores as $category => $score ) {
-			error_log( "PillarScoreCalculator: Processing category '{$category}' with score {$score}." );
+			// REMOVED: error_log( "PillarScoreCalculator: Processing category '{$category}' with score {$score}." );
 			foreach ( $this->pillar_map as $pillar_name => $pillar_data ) {
 				// Handle both old format (direct array) and new format (with categories key)
 				$categories = is_array( $pillar_data ) && isset( $pillar_data['categories'] )
@@ -49,7 +49,7 @@ class ENNU_Pillar_Score_Calculator {
 					: $pillar_data;
 
 				if ( is_array( $categories ) && in_array( $category, $categories ) ) {
-					error_log( "PillarScoreCalculator: Category '{$category}' maps to pillar '{$pillar_name}'." );
+					// REMOVED: error_log( "PillarScoreCalculator: Category '{$category}' maps to pillar '{$pillar_name}'." );
 					$pillar_totals[ $pillar_name ] += $score;
 					$pillar_counts[ $pillar_name ]++;
 					break;
@@ -65,7 +65,7 @@ class ENNU_Pillar_Score_Calculator {
 			}
 		}
 
-		error_log( 'PillarScoreCalculator: Final pillar scores: ' . print_r( $pillar_scores, true ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'PillarScoreCalculator: Final pillar scores: ' . print_r( $pillar_scores, true ) );
 		return $pillar_scores;
 	}
 }

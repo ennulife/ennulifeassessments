@@ -1,0 +1,2468 @@
+/**
+ * Modern Scoring UI - Complete Redesign
+ * 
+ * Card-based design with interactive elements and smooth animations
+ * 
+ * @package ENNU_Life
+ * @since 64.57.0
+ */
+
+/* ==========================================================================
+   CONTAINER AND WRAPPER
+   ========================================================================== */
+
+.modern-scores-section {
+  background: #f3f4f6 !important;
+  padding: 40px 20px;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Mobile responsive padding */
+@media (max-width: 768px) {
+  .modern-scores-section {
+    padding: 20px 10px;
+  }
+}
+
+/* Override any parent dark backgrounds */
+.ennu-5-score-container,
+.five-score-container,
+.assessment-score-display,
+.assessment-results {
+  background: #f3f4f6 !important;
+}
+
+/* CRITICAL: Override ALL legacy white text styles with maximum specificity */
+body .modern-scores-section,
+body .modern-scores-section *,
+/* Commented out - was overriding pillar score colors
+body .hero-row,
+body .hero-row *,
+body .hero-row .pillar-card,
+body .hero-row .pillar-card *,
+body .pillars-row,
+body .pillars-row *,
+body .pillars-row .pillar-card,
+body .pillars-row .pillar-card * {
+  color: #111827 !important;
+}
+*/
+
+/* Specific text colors with high specificity */
+body .hero-row .pillar-score-value,
+body .pillars-row .pillar-score-value {
+  color: var(--pillar-primary, #14b8a6) !important;
+  font-weight: 900 !important;
+}
+
+body .hero-row .detail-label,
+body .hero-row .coach-specialty,
+body .hero-row .health-score-description,
+body .pillars-row .pillar-card-footer {
+  color: #6b7280 !important; /* Medium gray for secondary text */
+}
+
+body .hero-row .member-greeting h3,
+body .hero-row .coach-name,
+body .hero-row .pillar-card-title,
+body .pillars-row .pillar-card-title {
+  color: #111827 !important; /* Very dark for headings */
+  font-weight: 700 !important;
+}
+
+body .hero-row .coach-action-btn {
+  color: var(--pillar-primary, #ec4899) !important;
+  background: white !important;
+  border-color: var(--pillar-primary, #ec4899) !important;
+}
+
+body .hero-row .coach-action-btn:hover {
+  color: white !important;
+  background: var(--pillar-primary, #ec4899) !important;
+}
+
+/* ==========================================================================
+   MODERN DESIGN VARIABLES
+   ========================================================================== */
+
+   :root {
+    /* Layout */
+    --card-width: 280px;
+    --card-height: 200px;
+    --card-gap: 20px;
+    --border-radius: 16px;
+    --border-radius-sm: 12px;
+    
+    /* Mobile layout variables */
+    --mobile-card-gap: 12px;
+    --mobile-padding: 12px;
+    
+    /* Colors - Light theme palette */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f9fafb;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --border-light: #d1d5db;
+    
+    /* Scoring colors - Matched to pillar images */
+    --mind-primary: #5c6bc0;
+    --mind-secondary: #7986cb;
+    --mind-light: #e8eaf6;
+    --mind-glow: rgba(92, 107, 192, 0.15);
+    
+    --body-primary: #ff6b6b;
+    --body-secondary: #ff8787;
+    --body-light: #ffe0e0;
+    --body-glow: rgba(255, 107, 107, 0.15);
+    
+    --lifestyle-primary: #00bcd4;
+    --lifestyle-secondary: #4dd0e1;
+    --lifestyle-light: #e0f7fa;
+    --lifestyle-glow: rgba(0, 188, 212, 0.15);
+    
+    --aesthetics-primary: #f59e0b;
+    --aesthetics-secondary: #fbbf24;
+    --aesthetics-light: #fef3c7;
+    --aesthetics-glow: rgba(245, 158, 11, 0.15);
+    
+    --health-primary: #14b8a6;
+    --health-secondary: #2dd4bf;
+    --health-light: #ccfbf1;
+    --health-glow: rgba(20, 184, 166, 0.15);
+    
+    /* Typography */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    /* Chart colors */
+    --chart-grid: #e2e8f0;
+    --chart-line: currentColor;
+    --chart-goal: #94a3b8;
+    
+    /* Effects */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
+    --shadow-colored: 0 10px 30px var(--pillar-glow);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* ==========================================================================
+     MAIN SCORING LAYOUT
+     ========================================================================== */
+  
+  /* Ensure light background */
+  body {
+    background-color: var(--bg-secondary) !important;
+  }
+  
+  .modern-scores-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--card-gap);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 24px;
+    position: relative;
+    background: transparent;
+    border-radius: var(--border-radius);
+  }
+  
+  /* Mobile responsive layout */
+  @media (max-width: 768px) {
+    .modern-scores-layout {
+      padding: var(--mobile-padding);
+      gap: var(--mobile-card-gap);
+    }
+  }
+  
+  /* Hero Row - Three columns */
+  .hero-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--card-gap);
+    margin-bottom: 30px;
+    width: 100%;
+  }
+  
+  /* Mobile responsive hero row */
+  @media (max-width: 992px) {
+    .hero-row {
+      grid-template-columns: 1fr;
+      gap: var(--mobile-card-gap);
+      margin-bottom: 20px;
+    }
+  }
+  
+  /* EnnuLife Score Card - Greyscale styling */
+  .pillar-card.ennulife {
+    --pillar-primary: #4b5563;
+    --pillar-secondary: #6b7280;
+    --pillar-light: #e5e7eb;
+    --pillar-glow: rgba(75, 85, 99, 0.15);
+    position: relative;
+    overflow: visible;
+  }
+  
+  /* Add subtle glow animation to EnnuLife card */
+  .pillar-card.ennulife::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+      #3b82f6, #ef4444, #10b981, #f59e0b, #3b82f6
+    );
+    border-radius: 12px;
+    opacity: 0;
+    z-index: -1;
+    animation: ennulifeGlow 3s ease-in-out infinite;
+  }
+  
+  @keyframes ennulifeGlow {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.15; }
+  }
+  
+  /* Gradient animation will be added after generic rules */
+  
+  @keyframes pulsateGlow {
+    0%, 100% {
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3),
+                  0 1px 4px rgba(239, 68, 68, 0.2),
+                  0 1px 4px rgba(16, 185, 129, 0.2),
+                  0 1px 4px rgba(245, 158, 11, 0.2),
+                  inset 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    25% {
+      box-shadow: 0 2px 12px rgba(239, 68, 68, 0.4),
+                  0 1px 6px rgba(59, 130, 246, 0.3),
+                  0 1px 4px rgba(16, 185, 129, 0.2),
+                  0 1px 4px rgba(245, 158, 11, 0.2),
+                  inset 0 0 15px rgba(239, 68, 68, 0.1);
+    }
+    50% {
+      box-shadow: 0 2px 12px rgba(16, 185, 129, 0.4),
+                  0 1px 4px rgba(59, 130, 246, 0.2),
+                  0 1px 6px rgba(239, 68, 68, 0.3),
+                  0 1px 4px rgba(245, 158, 11, 0.2),
+                  inset 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+    75% {
+      box-shadow: 0 2px 12px rgba(245, 158, 11, 0.4),
+                  0 1px 4px rgba(59, 130, 246, 0.2),
+                  0 1px 4px rgba(239, 68, 68, 0.2),
+                  0 1px 6px rgba(16, 185, 129, 0.3),
+                  inset 0 0 15px rgba(245, 158, 11, 0.1);
+    }
+  }
+  
+  .pillar-card.ennulife .pillar-score-value {
+    font-size: 42px !important;
+  }
+  
+  @media (max-width: 768px) {
+    .pillar-card.ennulife .pillar-score-value {
+      font-size: 36px !important;
+    }
+  }
+  
+  .health-score-description {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  /* Member Info Card Styles - Greyscale */
+  .member-info-card {
+    --pillar-primary: #374151;
+    --pillar-secondary: #6b7280;
+    --pillar-light: #f3f4f6;
+    --pillar-glow: rgba(55, 65, 81, 0.15);
+  }
+  
+  .member-greeting h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 6px 0 4px 0;
+  }
+  
+  .member-details {
+    margin-top: 8px;
+  }
+  
+  .member-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .member-detail-item:last-child {
+    border-bottom: none;
+  }
+  
+  .member-detail-item.no-border {
+    border-bottom: none !important;
+  }
+  
+  /* Member Divider with tapered fading edges */
+  .member-divider {
+    margin: 15px 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(0, 0, 0, 0.08) 20%,
+      rgba(0, 0, 0, 0.12) 50%,
+      rgba(0, 0, 0, 0.08) 80%,
+      transparent
+    );
+  }
+  
+  .detail-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  .detail-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  
+  /* Coach Info Card Styles - Greyscale */
+  .coach-info-card {
+    --pillar-primary: #4b5563;
+    --pillar-secondary: #9ca3af;
+    --pillar-light: #f9fafb;
+    --pillar-glow: rgba(75, 85, 99, 0.15);
+  }
+  
+  .coach-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 2px 0;
+  }
+  
+  .coach-specialty {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  .coach-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    .coach-actions {
+      flex-direction: column;
+      gap: 6px;
+    }
+  }
+  
+  .coach-action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--pillar-primary);
+    background: transparent;
+    color: var(--pillar-primary);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .coach-action-btn:hover {
+    background: var(--pillar-primary);
+    color: var(--bg-card);
+  }
+  
+  .coach-availability {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+  
+  .availability-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Inline Weight Editing Styles */
+  .editable-weight {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: 40px;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+  
+  .editable-weight:hover {
+    border-color: var(--pillar-primary);
+    background: rgba(99, 102, 241, 0.05);
+  }
+  
+  .editable-weight[contenteditable="true"] {
+    border-color: var(--pillar-primary);
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+  
+  .editable-weight.saving {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .weight-divider {
+    margin: 0 12px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+  
+  .target-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+  }
+  
+  /* Weight/BMI Chart Container */
+  /* Updated weight/BMI chart container to use unified system */
+  .weight-bmi-mini-chart-container {
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+  
+  .weight-bmi-mini-chart-container .chart-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 8px 0 4px 0;
+  }
+  
+  .weight-bmi-mini-chart-container .pillar-mini-chart {
+    margin-bottom: 4px;
+  }
+  
+  /* Greyscale colors for weight and BMI charts */
+  .weight-bmi-mini-chart-container .weight-chart svg {
+    --chart-color: #6b7280;
+  }
+  
+  .weight-bmi-mini-chart-container .bmi-chart svg {
+    --chart-color: #9ca3af;
+  }
+  
+  /* Weight and BMI line styles */
+  .chart-line-weight {
+    fill: none;
+    stroke: #4b5563;
+    stroke-width: 2;
+    opacity: 0.9;
+  }
+  
+  .chart-line-bmi {
+    fill: none;
+    stroke: #9ca3af;
+    stroke-width: 2;
+    stroke-dasharray: 5, 3;
+    opacity: 0.8;
+  }
+  
+  /* Removed old chart line styles - now using unified system */
+  
+  /* Chart dot styles for all charts */
+  .chart-dot {
+    cursor: pointer;
+    pointer-events: all;
+  }
+  
+  /* No hover effects to prevent twitching */
+  
+  .chart-dot-current {
+    stroke: white;
+    stroke-width: 2;
+  }
+  
+  .chart-dot-target {
+    opacity: 0.8;
+  }
+  
+  /* Responsive adjustments for hero row */
+  @media (max-width: 1024px) {
+    .hero-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    .pillar-card.ennulife .pillar-score-value {
+      font-size: 36px !important;
+    }
+  }
+  
+  .health-score-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--health-primary), var(--health-secondary));
+  }
+  
+  .health-score-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--health-primary);
+  }
+  
+  .health-score-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .health-score-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .health-score-value {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--health-primary);
+    margin: 0;
+    line-height: 1;
+  }
+  
+  .health-score-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 8px 0 0 0;
+  }
+  
+  /* Hero mini chart - centered and prominent */
+  .hero-mini-chart {
+    width: 200px;
+    height: 70px;
+    margin-left: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .hero-mini-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .health-score-visual {
+    position: relative;
+    width: 120px;
+    height: 120px;
+  }
+  
+  /* ==========================================================================
+     PILLAR SCORE CARDS
+     ========================================================================== */
+  
+  .pillar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--pillar-light, #e2e8f0);
+    border-radius: var(--border-radius);
+    padding: 16px 20px;
+    min-height: var(--card-height);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: visible;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--pillar-primary), var(--pillar-secondary));
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+  
+  .pillar-card:hover {
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-colored);
+    border-color: var(--pillar-primary);
+  }
+  
+  /* Pillar-specific colors */
+  .pillar-card.mind {
+    --pillar-primary: var(--mind-primary);
+    --pillar-secondary: var(--mind-secondary);
+    --pillar-light: var(--mind-light);
+    --pillar-glow: var(--mind-glow);
+    background-image: url('../img/mind-score.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60%;
+    background-blend-mode: normal;
+  }
+  
+  .pillar-card.mind::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .pillar-card.mind > * {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .pillar-card.body {
+    --pillar-primary: var(--body-primary);
+    --pillar-secondary: var(--body-secondary);
+    --pillar-light: var(--body-light);
+    --pillar-glow: var(--body-glow);
+    background-image: url('../img/body-score.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60%;
+    background-blend-mode: normal;
+  }
+  
+  .pillar-card.body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .pillar-card.body > * {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .pillar-card.lifestyle {
+    --pillar-primary: var(--lifestyle-primary);
+    --pillar-secondary: var(--lifestyle-secondary);
+    --pillar-light: var(--lifestyle-light);
+    --pillar-glow: var(--lifestyle-glow);
+    background-image: url('../img/lifestyle-score.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60%;
+    background-blend-mode: normal;
+  }
+  
+  .pillar-card.lifestyle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .pillar-card.lifestyle > * {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .pillar-card.aesthetics {
+    --pillar-primary: var(--aesthetics-primary);
+    --pillar-secondary: var(--aesthetics-secondary);
+    --pillar-light: var(--aesthetics-light);
+    --pillar-glow: var(--aesthetics-glow);
+    background-image: url('../img/aesthetics-score.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 60%;
+    background-blend-mode: normal;
+  }
+  
+  .pillar-card.aesthetics::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .pillar-card.aesthetics > * {
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* Mini chart container - now prominent and centered */
+  .pillar-mini-chart {
+    width: 100%;
+    height: 60px;
+    margin: 12px 0 4px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  .pillar-mini-chart svg,
+  .hero-mini-chart svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  
+  /* Ensure paths don't interfere with dot hovering */
+  .pillar-mini-chart path,
+  .hero-mini-chart path {
+    pointer-events: none;
+  }
+  
+  /* Tooltip for chart points */
+  #chart-tooltip,
+  .chart-tooltip {
+    position: fixed;
+    background: rgba(17, 24, 39, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    z-index: 99999;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .chart-tooltip .tooltip-score {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2px;
+    display: block;
+  }
+  
+  .chart-tooltip .tooltip-date {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 2px;
+    display: block;
+  }
+  
+  .chart-tooltip .tooltip-label {
+    font-size: 10px;
+    font-weight: 400;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+  }
+  
+  /* Removed tooltip arrow to prevent positioning issues */
+  
+  .chart-line-history {
+    fill: none;
+    stroke: var(--chart-color, #6366f1);
+    stroke-width: 2.5;
+    opacity: 1;
+  }
+  
+  /* Default chart color for all charts */
+  .pillar-mini-chart svg,
+  .hero-mini-chart svg {
+    --chart-color: #6366f1;
+  }
+  
+  /* Specific colors for each pillar - matched to images */
+  .pillar-card.mind svg { --chart-color: #5c6bc0; }
+  .pillar-card.body svg { --chart-color: #ff6b6b; }
+  .pillar-card.lifestyle svg { --chart-color: #00bcd4; }
+  .pillar-card.aesthetics svg { --chart-color: #f59e0b; }
+  /* EnnuLife chart uses greyscale */
+  .pillar-card.ennulife svg { 
+    --chart-color: #6b7280;
+  }
+  
+  .pillar-card.ennulife .chart-line-history,
+  .pillar-card.ennulife .chart-line-target {
+    stroke: #6b7280 !important;
+  }
+  
+  .pillar-card.ennulife .chart-dot {
+    fill: #6b7280 !important;
+    stroke: white !important;
+    stroke-width: 1px !important;
+  }
+  
+  .pillar-card.ennulife .chart-dot-current {
+    fill: #4b5563 !important;
+    stroke: white !important;
+    stroke-width: 2px !important;
+  }
+  
+  .pillar-card.ennulife .chart-dot-target {
+    fill: #374151 !important;
+    stroke: white !important;
+    stroke-width: 2px !important;
+  }
+  
+  .pillar-card.ennulife .chart-line-goal {
+    stroke: #9ca3af !important;
+    stroke-dasharray: 5, 5 !important;
+    opacity: 0.5 !important;
+  }
+  
+  .chart-line-goal {
+    fill: none;
+    stroke: var(--chart-goal);
+    stroke-width: 1.5;
+    opacity: 0.6;
+    stroke-dasharray: 3,3;
+    opacity: 0.5;
+  }
+  
+  .chart-dot {
+    fill: var(--pillar-primary);
+    stroke: white;
+    stroke-width: 2.5;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    transition: all 0.2s ease;
+    transform-origin: center;
+    transform-box: fill-box;
+    pointer-events: all;
+  }
+  
+  .chart-dot-current {
+    fill: var(--pillar-primary);
+    stroke: white;
+    stroke-width: 3;
+    r: 5.5;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  
+  .chart-dot-target {
+    fill: var(--pillar-secondary);
+    stroke: white;
+    stroke-width: 3;
+    r: 5;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+    animation: targetPulse 3s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  
+  @keyframes targetPulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 0.85;
+    }
+    50% { 
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+  
+  /* Disable transform on hover to prevent movement */
+  .chart-dot:hover {
+    /* transform: scale(1.3); - Disabled to prevent movement */
+    filter: brightness(1.3) drop-shadow(0 3px 10px rgba(0, 0, 0, 0.5));
+    stroke-width: 3.5;
+    fill-opacity: 1;
+  }
+  
+  /* Card header */
+  .pillar-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .pillar-card-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--pillar-primary), var(--pillar-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--bg-card);
+    font-weight: 600;
+  }
+  
+  .pillar-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+  
+  /* Score display - more compact */
+  .pillar-card-score {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  
+  /* Spacer to push target to the right */
+  .score-spacer {
+    flex-grow: 1;
+  }
+  
+  .pillar-score-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--pillar-primary);
+    line-height: 1;
+    margin: 0;
+  }
+  
+  .pillar-score-max {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  
+  /* Target score value - more brilliant than current */
+  .pillar-target-value,
+  .hero-row .pillar-target-value,
+  .pillars-row .pillar-target-value {
+    font-size: 32px !important;
+    font-weight: 900 !important;
+    color: var(--pillar-primary, #14b8a6) !important;
+    opacity: 1 !important; /* Full opacity for brilliance */
+    text-shadow: 0 2px 8px var(--pillar-glow, rgba(20, 184, 166, 0.3)), 0 0 20px var(--pillar-glow, rgba(20, 184, 166, 0.2)) !important; /* Add glow effect */
+    line-height: 1 !important;
+    margin: 0 !important;
+    margin-right: 0 !important; /* Remove spacing - flush to right edge */
+    filter: brightness(1.2) !important; /* Slightly brighter */
+  }
+  
+  /* Larger target for EnnuLife card */
+  .pillar-card.ennulife .pillar-target-value {
+    font-size: 42px !important;
+  }
+  
+  /* Hide the /10 suffix */
+  .pillar-score-max {
+    display: none !important;
+  }
+  
+  /* Target label and value styling */
+  .pillar-target-label {
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    text-align: center !important;
+    margin: 4px 0 !important;
+  }
+  
+  .target-value-small {
+    font-weight: 600 !important;
+    color: #374151 !important;
+  }
+  
+  /* Target values within score section - aligned right */
+  .pillar-card-score .pillar-target-value {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 24px !important;
+    color: #374151 !important;
+    font-weight: 700 !important;
+    text-align: right !important;
+    margin-left: auto !important;
+  }
+  
+  /* Biomarker Divider with tapered fading edges */
+  .biomarker-divider {
+    margin: 20px 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(0, 0, 0, 0.1) 20%,
+      rgba(0, 0, 0, 0.15) 50%,
+      rgba(0, 0, 0, 0.1) 80%,
+      transparent
+    );
+  }
+  
+  /* Clinician and Coach Sections */
+  .clinician-section,
+  .health-coach-section {
+    padding: 0;
+    width: 100%;
+  }
+  
+  .coach-info-card .pillar-card-header {
+    margin-bottom: 4px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .coach-info-card .pillar-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    flex: 1;
+  }
+  
+  .coach-info-card .coach-info-content {
+    width: 100%;
+  }
+  
+  .coach-info-card .coach-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  .coach-info-card .coach-action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .coach-info-card .coach-action-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--pillar-primary);
+    color: var(--pillar-primary);
+  }
+  
+  .coach-info-card .coach-availability {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  
+  /* Profile Picture Styles */
+  .coach-profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .coach-profile-pic {
+    flex-shrink: 0;
+  }
+  
+  .coach-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .profile-pic-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .coach-info-card .availability-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Biomarker Progress Bars Section */
+  .biomarker-bars-section {
+    margin-top: 15px;
+    padding: 0;
+  }
+  
+  .biomarker-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .biomarker-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+  
+  .biomarker-bar-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    min-width: 120px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .biomarker-progress-bar {
+    flex: 1;
+    height: 8px !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+    position: relative;
+    border: none !important;
+  }
+  
+  .biomarker-bar-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 25px;
+    text-align: right;
+  }
+  
+  /* Biomarker bar fill colors - progress bar fills */
+  .biomarker-progress-bar .pillar-progress-fill {
+    height: 100% !important;
+    width: 0% !important;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 4px !important;
+  }
+  
+  /* Biomarker progress bar fill colors - Muted but distinguishable shades */
+  .biomarker-progress-bar .biomarker-flagged-fill,
+  .biomarker-flagged-fill.pillar-progress-fill {
+    background: linear-gradient(90deg, #a8714a, #b8815a) !important; /* Brighter Muted Orange - Needs attention */
+  }
+  
+  .biomarker-progress-bar .biomarker-data-fill,
+  .biomarker-data-fill.pillar-progress-fill {
+    background: linear-gradient(90deg, #4a5568, #5a657d) !important; /* Dark Muted Blue-Grey - Has Data */
+  }
+  
+  .biomarker-progress-bar .biomarker-optimal-fill,
+  .biomarker-optimal-fill.pillar-progress-fill {
+    background: linear-gradient(90deg, #48564a, #58665a) !important; /* Dark Muted Green-Grey - Within Optimal */
+  }
+  
+  .biomarker-progress-bar .biomarker-outside-fill,
+  .biomarker-outside-fill.pillar-progress-fill {
+    background: linear-gradient(90deg, #a85454, #b86464) !important; /* Brighter Muted Red - Outside Optimal */
+  }
+  
+  
+  /* Progress bar */
+  /* Removed duplicate .pillar-progress-bar - using version with !important below */
+  
+  /* Removed duplicate .pillar-progress-fill - using version with !important below */
+  
+  /* Removed shimmer effect - conflicts with main progress animation */
+  
+  /* Card footer */
+  .pillar-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  
+  .pillar-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+  }
+  
+  .pillar-trend.up {
+    color: #22c55e;
+  }
+  
+  .pillar-trend.down {
+    color: #ef4444;
+  }
+  
+  .pillar-trend.neutral {
+    color: var(--text-muted);
+  }
+  
+  /* ==========================================================================
+     CIRCULAR PROGRESS (for health score)
+     ========================================================================== */
+  
+  .circular-progress {
+    position: relative;
+    width: 120px;
+    height: 120px;
+  }
+  
+  .circular-progress svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .progress-circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+  
+  .progress-bg {
+    stroke: rgba(255, 255, 255, 0.2);
+  }
+  
+  .progress-bar {
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-dasharray: 283;
+    stroke-dashoffset: calc(283 - (283 * var(--progress, 0) / 100));
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  }
+  
+  /* ==========================================================================
+     RESPONSIVE DESIGN
+     ========================================================================== */
+  
+  @media (max-width: 1200px) {
+    .modern-scores-layout {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 20px;
+    }
+    
+    .health-score-hero {
+      height: 160px;
+      padding: 24px;
+    }
+    
+    .health-score-value {
+      font-size: 48px;
+    }
+    
+    :root {
+      --card-width: 200px;
+      --card-height: 140px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .modern-scores-layout {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+    
+    .health-score-hero {
+      height: 120px;
+      padding: 20px;
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .health-score-value {
+      font-size: 36px;
+    }
+    
+    .health-score-visual {
+      width: 80px;
+      height: 80px;
+      margin-top: 12px;
+    }
+    
+    .pillar-card {
+      padding: 20px;
+      height: auto;
+      min-height: 120px;
+    }
+    
+    .pillar-score-value {
+      font-size: 28px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .health-score-hero {
+      height: 100px;
+      padding: 16px;
+    }
+    
+    .health-score-value {
+      font-size: 28px;
+    }
+    
+    .pillar-card {
+      padding: 16px;
+      height: auto;
+      min-height: 100px;
+    }
+    
+    .pillar-score-value {
+      font-size: 24px;
+    }
+    
+    .pillar-card-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+    }
+    
+    /* Weight/BMI chart on mobile */
+    .weight-bmi-mini-chart-container {
+      height: 50px;
+    }
+    
+    /* Profile images on mobile */
+    .coach-profile-image,
+    .clinician-profile-image {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  
+  /* ==========================================================================
+     ANIMATIONS & INTERACTIONS
+     ========================================================================== */
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .pillar-card {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .pillar-card:nth-child(1) { animation-delay: 0.1s; }
+  .pillar-card:nth-child(2) { animation-delay: 0.2s; }
+  .pillar-card:nth-child(3) { animation-delay: 0.3s; }
+  .pillar-card:nth-child(4) { animation-delay: 0.4s; }
+  
+  .health-score-hero {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Hover effects */
+  .pillar-card:hover .pillar-card-icon {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+  }
+  
+  .pillar-card:hover .pillar-score-value {
+    color: var(--pillar-primary);
+    text-shadow: 0 2px 8px var(--pillar-glow);
+  }
+  
+  .pillar-card:hover .pillar-progress-fill {
+    filter: brightness(1.2);
+  }
+  
+  /* ==========================================================================
+     DASHBOARD SECONDARY CONTENT LAYOUT (From Template)
+     ========================================================================== */
+  
+  /* === Dashboard Secondary Content Layout === */
+  .dashboard-secondary-content {
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 24px !important;
+    position: relative !important;
+    z-index: 1 !important;
+    contain: layout style paint !important;
+  }
+  
+  .health-goals-accordion,
+  .my-story-section {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    overflow: visible !important;
+    position: relative !important;
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    padding: 16px 20px !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .health-goals-accordion:hover,
+  .my-story-section:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06) !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  .health-goals-accordion summary,
+  .my-story-section .scores-title-container {
+    display: block !important;
+    position: relative !important;
+    z-index: 2 !important;
+    transform: none !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    margin: 0 0 16px 0 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+  }
+  
+  /* Override any conflicting styles */
+  .ennu-user-dashboard .my-story-section .scores-title-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+  
+  .health-goals-accordion summary::-webkit-details-marker {
+    display: none !important;
+  }
+  
+  .health-goals-accordion summary::before {
+    content: '▼' !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    font-size: 12px !important;
+    color: var(--text-secondary) !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .health-goals-accordion[open] summary::before {
+    transform: rotate(-180deg) !important;
+  }
+  
+  .health-goals-accordion .scores-title,
+  .my-story-section .scores-title {
+    display: block !important;
+    visibility: visible !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important; /* Dark grey */
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 0 16px 0 !important;
+    opacity: 1 !important;
+    padding: 0 !important;
+    line-height: 1.4 !important;
+  }
+  
+  .health-goals-accordion summary:focus,
+  .my-story-section .scores-title-container:focus-within {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Ensure proper containment */
+  .dashboard-main-content {
+    overflow: visible !important;
+    position: relative !important;
+  }
+  
+  .my-story-tabs {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  .my-story-tab-content {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  /* ==========================================================================
+     ENHANCED SCORING LAYOUT (From Template - Override existing styles)
+     ========================================================================== */
+  
+  :root {
+    --card-gap: 16px;
+    --border-radius: 20px;
+    --bg-card: rgba(255, 255, 255, 0.08);
+    --bg-card-hover: rgba(255, 255, 255, 0.12);
+    --mind-primary: #5c6bc0; --mind-glow: rgba(92, 107, 192, 0.3);
+    --body-primary: #ff6b6b; --body-glow: rgba(255, 107, 107, 0.3);
+    --lifestyle-primary: #00bcd4; --lifestyle-glow: rgba(0, 188, 212, 0.3);
+    --aesthetics-primary: #f59e0b; --aesthetics-glow: rgba(245, 158, 11, 0.3);
+    --health-primary: #14b8a6; --health-glow: rgba(20, 184, 166, 0.4);
+    --text-primary: #f8fafc; --text-secondary: #cbd5e1; --text-muted: #94a3b8;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .modern-scores-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: var(--card-gap) !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 24px !important;
+  }
+  
+  .pillars-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: var(--card-gap) !important;
+  }
+  
+  .health-score-hero {
+    grid-column: 1 / -1 !important;
+    height: auto !important;
+    background: var(--bg-card) !important;
+    border-radius: 24px !important;
+    padding: 32px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 32px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border: 2px solid var(--health-light) !important;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 8px 32px rgba(0, 0, 0, 0.08),
+      0 24px 64px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin-bottom: 20px !important;
+    cursor: pointer !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+  
+  .health-score-hero::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(107, 114, 128, 0.15), transparent 50%),
+      linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%) !important;
+    pointer-events: none !important;
+    animation: shimmerGlow 3s ease-in-out infinite !important;
+  }
+  
+  .health-score-hero::after {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important; left: -2px !important; right: -2px !important; bottom: -2px !important;
+    background: linear-gradient(45deg, #4b5563, #6b7280, #4b5563, #6b7280) !important;
+    border-radius: 26px !important;
+    z-index: -1 !important;
+    opacity: 0 !important;
+    transition: opacity 0.6s ease !important;
+  }
+  
+  .health-score-hero:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 16px 48px rgba(75, 85, 99, 0.3),
+      0 32px 80px rgba(75, 85, 99, 0.15),
+      inset 0 1px 0 rgba(0, 0, 0, 0.02) !important;
+  }
+  
+  .health-score-hero:hover::after {
+    opacity: 1 !important;
+  }
+  
+  .health-score-content { 
+    position: relative !important; 
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 12px !important;
+  }
+  
+  .health-score-display {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    justify-content: center !important;
+  }
+  
+  /* User Bio Section (Left) */
+  .user-bio-section {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 0 !important;
+  }
+  
+  .hero-logo-container {
+    margin-bottom: 8px !important;
+  }
+  
+  .hero-logo {
+    height: 40px !important;
+    opacity: 0.9 !important;
+  }
+  
+  .user-bio-greeting {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.2 !important;
+  }
+  
+  .user-bio-details {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+  
+  .user-bio-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    font-size: 14px !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.3 !important;
+  }
+  
+  .user-bio-label {
+    font-weight: 500 !important;
+    min-width: 60px !important;
+  }
+  
+  .user-bio-value {
+    font-weight: 400 !important;
+    color: var(--text-primary) !important;
+  }
+  
+  /* Health Coach Section (Right) */
+  .health-coach-section {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 0 !important;
+  }
+  
+  .health-coach-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    text-align: center !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  .health-coach-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: center !important;
+  }
+  
+  .health-coach-btn {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px) !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-width: 140px !important;
+  }
+  
+  .health-coach-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--border-light) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .health-coach-btn.primary {
+    background: rgba(107, 114, 128, 0.8) !important;
+    border-color: rgba(107, 114, 128, 0.9) !important;
+  }
+  
+  .health-coach-btn.primary:hover {
+    background: rgba(107, 114, 128, 0.9) !important;
+    border-color: rgba(107, 114, 128, 1) !important;
+  }
+  
+  .health-score-title {
+    font-size: 14px !important; 
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+    text-transform: uppercase !important; 
+    letter-spacing: 2px !important;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(6, 255, 165, 0.8)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+  }
+  
+  .health-score-value {
+    font-size: 72px !important; 
+    font-weight: 900 !important;
+    color: var(--health-primary) !important; 
+    margin: 0 !important; 
+    line-height: 0.9 !important;
+    text-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.4),
+      0 0 32px rgba(255, 255, 255, 0.3),
+      0 0 48px rgba(6, 255, 165, 0.2) !important;
+    background: linear-gradient(135deg, #ffffff, #f8fafc, #06ffa5) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    animation: scoreGlow 2s ease-in-out infinite alternate !important;
+  }
+  
+  .health-score-subtitle {
+    font-size: 12px !important; 
+    color: var(--text-secondary) !important;
+    margin: 0 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .health-score-visual { 
+    position: relative !important; 
+    width: 120px !important; 
+    height: 120px !important;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2)) !important;
+  }
+  
+  @keyframes shimmerGlow {
+    0%, 100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    50% {
+      opacity: 0.8;
+      transform: translateX(10px);
+    }
+  }
+  
+  @keyframes scoreGlow {
+    0% {
+      filter: brightness(1) drop-shadow(0 0 16px rgba(6, 255, 165, 0.3));
+    }
+    100% {
+      filter: brightness(1.1) drop-shadow(0 0 24px rgba(6, 255, 165, 0.5));
+    }
+  }
+  
+  @keyframes pulseRing {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
+  }
+  
+  .pillar-card {
+    background: var(--bg-card) !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    position: relative !important;
+    overflow: visible !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 2px solid var(--pillar-light, #e2e8f0) !important;
+    transition: var(--transition) !important;
+    cursor: pointer !important;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 8px 32px rgba(75, 85, 99, 0.2),
+      0 24px 64px rgba(75, 85, 99, 0.1),
+      inset 0 1px 0 rgba(0, 0, 0, 0.02) !important;
+    overflow: hidden !important;
+  }
+  
+  .pillar-card::before {
+    content: '' !important; position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; height: 4px !important;
+    background: linear-gradient(90deg, var(--pillar-primary), var(--pillar-secondary)) !important;
+    border-radius: 12px 12px 0 0 !important;
+    transform: scaleX(calc(var(--progress, 0) / 100)) !important;
+    transform-origin: left !important; transition: var(--transition) !important;
+  }
+  
+  .pillar-card:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.05),
+      0 16px 48px rgba(75, 85, 99, 0.3),
+      0 32px 80px rgba(75, 85, 99, 0.15),
+      inset 0 1px 0 rgba(0, 0, 0, 0.02) !important;
+  }
+  
+  .pillar-card.mind { --pillar-primary: #5c6bc0; --pillar-secondary: var(--mind-secondary); --pillar-glow: rgba(92, 107, 192, 0.3); }
+  .pillar-card.body { --pillar-primary: #ff6b6b; --pillar-secondary: var(--body-secondary); --pillar-glow: rgba(255, 107, 107, 0.3); }
+  .pillar-card.lifestyle { --pillar-primary: #00bcd4; --pillar-secondary: var(--lifestyle-secondary); --pillar-glow: rgba(0, 188, 212, 0.3); }
+  .pillar-card.aesthetics { --pillar-primary: #f59e0b; --pillar-secondary: var(--aesthetics-secondary); --pillar-glow: rgba(245, 158, 11, 0.3); }
+  
+  .pillar-card-header {
+    display: flex !important; align-items: center !important; justify-content: flex-start !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .pillar-card-title {
+    font-size: 11px !important; font-weight: 700 !important; color: var(--text-secondary) !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important; margin: 0 !important;
+  }
+  
+  .pillar-card-score {
+    display: flex !important;
+    align-items: baseline !important;
+    gap: 4px !important;
+    margin-bottom: 0;
+  }
+  
+  .pillar-score-value,
+  .hero-row .pillar-score-value,
+  .pillars-row .pillar-score-value {
+    font-size: 32px !important; 
+    font-weight: 900 !important; 
+    color: var(--pillar-primary) !important;
+    opacity: 0.7 !important; /* Make current score more faded */
+    line-height: 1 !important; 
+    margin: 0 !important;
+  }
+  
+  .pillar-score-max {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #ccc;
+    margin: 0 !important;
+  }
+  
+  .pillar-progress-bar {
+    width: 100% !important; 
+    height: 10px !important;
+    background: rgba(0, 0, 0, 0.1) !important; 
+    border-radius: 5px !important;
+    overflow: visible !important; 
+    position: relative !important;
+    margin-top: 8px !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    display: block !important;
+    z-index: 10 !important;
+    min-height: 10px !important;
+  }
+  
+  .pillar-progress-fill {
+    height: 8px !important;
+    min-height: 8px !important;
+    width: 0% !important;
+    background: linear-gradient(90deg, var(--pillar-primary), var(--pillar-secondary, var(--pillar-primary))) !important;
+    border-radius: 4px !important;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px var(--pillar-glow, rgba(0, 0, 0, 0.3)) !important;
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 15 !important;
+  }
+  
+  /* Special greyscale gradient with pulsating effect for EnnuLife Score - MUST come after generic rule */
+  .pillar-card.ennulife > .pillar-progress-bar:not(.biomarker-progress-bar) > .pillar-progress-fill {
+    background: linear-gradient(90deg, 
+      #4b5563 0%,    /* Dark grey */
+      #6b7280 25%,   /* Medium grey */
+      #9ca3af 50%,   /* Light grey */
+      #6b7280 75%,   /* Medium grey */
+      #4b5563 100%   /* Dark grey */
+    ) !important;
+    background-size: 100% 100% !important;
+    animation: ennulifePulse 1.5s ease-in-out infinite !important;
+  }
+  
+  @keyframes ennulifePulse {
+    0%, 100% { 
+      opacity: 0.85;
+      filter: brightness(1.0);
+      box-shadow: 0 0 8px rgba(107, 114, 128, 0.3);
+    }
+    50% { 
+      opacity: 1;
+      filter: brightness(1.2);
+      box-shadow: 0 0 20px rgba(107, 114, 128, 0.6),
+                  inset 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  .pillar-card-footer {
+    display: flex !important; align-items: center !important; justify-content: space-between !important;
+    font-size: 9px !important; color: var(--text-muted) !important;
+  }
+  
+  .pillar-trend {
+    display: flex !important; align-items: center !important; gap: 4px !important; font-weight: 600 !important;
+  }
+  .pillar-trend.up { color: #22c55e !important; }
+  .pillar-trend.down { color: #ef4444 !important; }
+  .pillar-trend.neutral { color: var(--text-muted) !important; }
+  
+  .circular-progress { 
+    position: relative !important; 
+    width: 120px !important; 
+    height: 120px !important;
+  }
+  
+  .circular-progress::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -8px !important; left: -8px !important; right: -8px !important; bottom: -8px !important;
+    border-radius: 50% !important;
+    background: conic-gradient(from 0deg, transparent, rgba(6, 255, 165, 0.4), transparent) !important;
+    animation: pulseRing 2s ease-in-out infinite !important;
+    z-index: 0 !important;
+  }
+  
+  .circular-progress svg { 
+    transform: rotate(-90deg) !important; 
+    width: 100% !important; 
+    height: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  .progress-circle { 
+    fill: none !important; 
+    stroke-width: 6 !important; 
+    stroke-linecap: round !important; 
+  }
+  
+  .progress-bg { 
+    stroke: rgba(255, 255, 255, 0.15) !important;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2)) !important;
+  }
+  
+  .progress-bar {
+    stroke: url(#progressGradient) !important;
+    stroke-dasharray: 283 !important;
+    stroke-dashoffset: calc(283 - (283 * var(--progress, 0) / 100)) !important;
+    transition: all 2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    filter: 
+      drop-shadow(0 0 8px rgba(6, 255, 165, 0.6))
+      drop-shadow(0 0 16px rgba(6, 255, 165, 0.3))
+      drop-shadow(0 0 24px rgba(255, 255, 255, 0.2)) !important;
+    animation: progressPulse 3s ease-in-out infinite !important;
+  }
+  
+  @keyframes progressPulse {
+    0%, 100% {
+      stroke-width: 6;
+      filter: 
+        drop-shadow(0 0 8px rgba(6, 255, 165, 0.6))
+        drop-shadow(0 0 16px rgba(6, 255, 165, 0.3));
+    }
+    50% {
+      stroke-width: 8;
+      filter: 
+        drop-shadow(0 0 12px rgba(6, 255, 165, 0.8))
+        drop-shadow(0 0 24px rgba(6, 255, 165, 0.4))
+        drop-shadow(0 0 32px rgba(255, 255, 255, 0.3));
+    }
+  }
+  
+  @media (max-width: 1200px) {
+    .modern-scores-layout { gap: 16px !important; padding: 20px !important; }
+    .pillars-row { gap: 12px !important; }
+    .health-score-hero { 
+      height: 150px !important; 
+      padding: 24px !important;
+      border-radius: 20px !important;
+    }
+    .health-score-value { font-size: 56px !important; }
+    .health-score-visual { width: 100px !important; height: 100px !important; }
+    .pillar-card { padding: 14px !important; height: 90px !important; }
+    .pillar-score-value { font-size: 20px !important; }
+  }
+  
+  @media (max-width: 900px) {
+    .pillars-row { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .health-score-hero { height: 120px !important; padding: 20px !important; }
+    .health-score-value { font-size: 48px !important; }
+    .health-score-visual { width: 80px !important; height: 80px !important; }
+    .pillar-card { height: 85px !important; padding: 12px !important; }
+    .pillar-score-value { font-size: 18px !important; }
+  }
+  
+  @media (max-width: 768px) {
+    .modern-scores-layout { gap: 12px !important; padding: 16px !important; }
+    .dashboard-secondary-content { padding: 16px !important; }
+    .pillars-row { grid-template-columns: 1fr !important; gap: 10px !important; }
+    .health-score-hero {
+      height: auto !important; 
+      min-height: 200px !important;
+      padding: 20px !important;
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto auto auto !important;
+      gap: 16px !important;
+      text-align: center !important;
+      border-radius: 16px !important;
+    }
+    
+    .user-bio-section {
+      align-items: center !important;
+      text-align: center !important;
+    }
+    
+    .user-bio-greeting {
+      font-size: 16px !important;
+      text-align: center !important;
+    }
+    
+    .user-bio-details {
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      gap: 8px 16px !important;
+    }
+    
+    .user-bio-row {
+      font-size: 12px !important;
+      gap: 6px !important;
+    }
+    
+    .health-score-value { font-size: 36px !important; }
+    .health-score-visual { width: 60px !important; height: 60px !important; }
+    
+    .health-coach-buttons {
+      flex-direction: row !important;
+      gap: 8px !important;
+    }
+    
+    .health-coach-btn {
+      padding: 8px 14px !important;
+      font-size: 12px !important;
+      min-width: 110px !important;
+    }
+    
+    .pillar-card { padding: 12px !important; height: 75px !important; }
+    .pillar-score-value { font-size: 16px !important; }
+  }
+  
+  /* ==========================================================================
+     UTILITY CLASSES
+     ========================================================================== */
+  
+  .hidden {
+    display: none !important;
+  }
+  
+  /* CSS Custom Properties Support for Progress Values */
+  .health-score-hero[data-progress] {
+    --progress: attr(data-progress);
+  }
+  
+  .pillar-card[data-progress] {
+    --progress: attr(data-progress);
+  }
+  
+  .progress-circle[data-progress] {
+    --progress: attr(data-progress);
+  }
+
+/* Biomarker Section Header with Upload Button */
+.biomarker-section-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.upload-labs-btn {
+	padding: 4px 8px;
+	background: #ffffff;
+	color: #6b7280;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.upload-labs-btn:hover {
+	background: #000000;
+	border-color: #000000;
+	color: #ffffff !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.upload-labs-btn:active {
+	background: #f3f4f6;
+}
+
+/* LabCorp Upload Tab Styling */
+#tab-pdf-upload {
+	padding: 0;
+}
+
+.pdf-upload-container {
+	border-radius: 12px;
+	padding: 32px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+	max-width: 100%;
+}
+
+.pdf-upload-section {
+	margin-top: 24px;
+}
+
+.pdf-upload-description {
+	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+	border-left: 4px solid #0ea5e9;
+	padding: 20px;
+	border-radius: 8px;
+	margin-bottom: 32px;
+}
+
+.pdf-upload-description p {
+	color: #0c4a6e;
+	font-size: 15px;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.pdf-upload-form-container {
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 28px;
+	margin-bottom: 24px;
+}
+
+#ennu-pdf-upload-form {
+	margin: 0;
+}
+
+.ennu-form-group {
+	margin-bottom: 24px;
+}
+
+.ennu-form-group label {
+	display: block;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 8px;
+	font-size: 14px;
+}
+
+.ennu-form-group input[type="file"] {
+	display: block;
+	width: 100%;
+	padding: 12px 16px;
+	border: 2px dashed #d1d5db;
+	border-radius: 8px;
+	background: #ffffff;
+	color: #4b5563;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.ennu-form-group input[type="file"]:hover {
+	border-color: #9ca3af;
+	background: #f9fafb;
+}
+
+.ennu-form-group input[type="file"]:focus {
+	outline: none;
+	border-color: #6b7280;
+	box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+}
+
+.ennu-form-group small {
+	display: block;
+	margin-top: 6px;
+	color: #6b7280;
+	font-size: 13px;
+}
+
+.ennu-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 24px;
+	border: none;
+	border-radius: 8px;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+	outline: none;
+}
+
+.ennu-button-primary {
+	background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+	color: white;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ennu-button-primary:hover {
+	background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ennu-button-primary:active {
+	transform: translateY(0);
+}
+
+.ennu-feedback {
+	padding: 16px;
+	border-radius: 8px;
+	margin-top: 16px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.ennu-feedback.success {
+	background: #dcfce7;
+	border: 1px solid #86efac;
+	color: #166534;
+}
+
+.ennu-feedback.error {
+	background: #fee2e2;
+	border: 1px solid #fca5a5;
+	color: #991b1b;
+}
+
+.ennu-progress {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px;
+	background: #f0f9ff;
+	border: 1px solid #bae6fd;
+	border-radius: 8px;
+	margin-top: 16px;
+}
+
+.ennu-spinner {
+	width: 20px;
+	height: 20px;
+	border: 3px solid #e0f2fe;
+	border-top-color: #0ea5e9;
+	border-radius: 50%;
+	animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+	to { transform: rotate(360deg); }
+}
+
+.ennu-progress p {
+	margin: 0;
+	color: #0c4a6e;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.pdf-upload-instructions {
+	background: #fafafa;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 24px;
+}
+
+.pdf-upload-instructions h4 {
+	margin: 0 0 16px 0;
+	color: #1f2937;
+	font-size: 16px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.pdf-upload-instructions h4::before {
+	content: "📋";
+	font-size: 20px;
+}
+
+.pdf-upload-instructions ul {
+	margin: 0;
+	padding-left: 0;
+	list-style: none;
+}
+
+.pdf-upload-instructions li {
+	position: relative;
+	padding-left: 28px;
+	margin-bottom: 12px;
+	color: #4b5563;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.pdf-upload-instructions li::before {
+	content: "✓";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 20px;
+	height: 20px;
+	background: #dcfce7;
+	color: #166534;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.pdf-upload-instructions li:last-child {
+	margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.pdf-upload-container {
+		padding: 20px;
+	}
+	
+	.pdf-upload-form-container {
+		padding: 20px;
+	}
+	
+	.pdf-upload-instructions {
+		padding: 20px;
+	}
+}

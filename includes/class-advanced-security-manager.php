@@ -375,7 +375,7 @@ class ENNU_Advanced_Security_Manager {
 		);
 
 		if ( in_array( $event_type, array( 'threat_detected', 'ip_blocked', 'rate_limit_exceeded' ) ) ) {
-			error_log( "ENNU Security Event [{$event_type}]: " . json_encode( $log_entry ) );
+			// REMOVED: error_log( "ENNU Security Event [{$event_type}]: " . json_encode( $log_entry ) );
 		}
 	}
 

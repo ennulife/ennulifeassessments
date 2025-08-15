@@ -187,8 +187,11 @@
         
         // Upload PDF handler
         uploadPDF: function() {
-            const fileInput = document.getElementById('pdf-file-input');
-            if (!fileInput) return;
+            const fileInput = document.getElementById('labcorp_pdf');
+            if (!fileInput) {
+                console.error('File input not found');
+                return;
+            }
             
             const file = fileInput.files[0];
             if (!file) {
@@ -202,16 +205,25 @@
             }
             
             const formData = new FormData();
-            formData.append('action', 'ennu_upload_lab_pdf');
+            formData.append('action', 'ennu_upload_pdf');  // Fixed to match PHP handler
             formData.append('nonce', ennuDashboard.nonce);
-            formData.append('pdf_file', file);
+            formData.append('labcorp_pdf', file);  // Fixed to match PHP handler field name
             
             // Show upload progress
-            const progressBar = document.getElementById('upload-progress');
-            const statusMessage = document.getElementById('upload-status');
+            const progressBar = document.getElementById('ennu-pdf-progress');
+            const statusMessage = document.getElementById('ennu-pdf-feedback');
             
             if (progressBar) progressBar.style.display = 'block';
-            if (statusMessage) statusMessage.textContent = 'Uploading...';
+            if (statusMessage) {
+                statusMessage.style.display = 'block';
+                statusMessage.textContent = 'Uploading...';
+                statusMessage.className = 'ennu-feedback ennu-feedback-info';
+            }
+            
+            // Debug logging
+            console.log('Uploading PDF to:', ennuDashboard.ajax_url);
+            console.log('Action:', 'ennu_upload_pdf');
+            console.log('Nonce:', ennuDashboard.nonce);
             
             $.ajax({
                 url: ennuDashboard.ajax_url,
@@ -225,49 +237,109 @@
                         if (evt.lengthComputable) {
                             const percentComplete = (evt.loaded / evt.total) * 100;
                             if (progressBar) {
-                                progressBar.value = percentComplete;
+                                // Update progress display (since it's a div, not a progress element)
+                                const progressText = progressBar.querySelector('p');
+                                if (progressText) {
+                                    progressText.textContent = 'Processing PDF... ' + Math.round(percentComplete) + '%';
+                                }
                             }
                         }
                     }, false);
                     return xhr;
                 },
                 success: function(response) {
+                    if (progressBar) progressBar.style.display = 'none';
+                    
                     if (response.success) {
+                        // Hide feedback temporarily while modal shows
                         if (statusMessage) {
-                            statusMessage.textContent = 'Upload successful! Processing...';
+                            statusMessage.style.display = 'none';
                         }
                         
-                        // Show notification
-                        ENNUDashboardFunctions.showNotification({
-                            success: true,
-                            notification: {
-                                type: 'success',
-                                title: 'Lab Results Uploaded',
-                                message: response.data.message || 'Your lab results have been successfully uploaded and processed.',
-                                biomarker_count: response.data.biomarker_count,
-                                biomarker_details: response.data.biomarker_details
+                        // Show modal if available
+                        if (window.ENNUModalManager) {
+                            window.ENNUModalManager.showModal('labcorp_upload', function() {
+                                // After modal completes, show success message briefly
+                                if (statusMessage) {
+                                    statusMessage.textContent = 'Upload successful! Your biomarkers have been imported.';
+                                    statusMessage.className = 'ennu-feedback success';
+                                    statusMessage.style.display = 'block';
+                                }
+                                
+                                // Reset form
+                                fileInput.value = '';
+                                
+                                // Reload page after a short delay to show updated biomarkers
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 2000);
+                            });
+                        } else {
+                            // Fallback if modal manager not available
+                            if (statusMessage) {
+                                statusMessage.textContent = 'Upload successful! Your biomarkers have been imported.';
+                                statusMessage.className = 'ennu-feedback ennu-feedback-success';
+                                statusMessage.style.display = 'block';
                             }
-                        });
-                        
-                        // Reset form
-                        fileInput.value = '';
-                        if (progressBar) progressBar.style.display = 'none';
-                        
-                        // Refresh biomarkers section if needed
-                        if (response.data.refresh_biomarkers) {
-                            ENNUDashboardFunctions.refreshBiomarkers();
+                            
+                            // Show notification
+                            ENNUDashboardFunctions.showNotification({
+                                success: true,
+                                notification: {
+                                    type: 'success',
+                                    title: 'Lab Results Uploaded',
+                                    message: response.data.message || 'Your lab results have been successfully uploaded and processed.',
+                                    biomarker_count: response.data.biomarker_count,
+                                    biomarker_details: response.data.biomarker_details
+                                }
+                            });
+                            
+                            // Reset form
+                            fileInput.value = '';
+                            
+                            // Refresh biomarkers section if needed
+                            if (response.data.refresh_biomarkers) {
+                                ENNUDashboardFunctions.refreshBiomarkers();
+                            }
+                            
+                            // Hide success message after 5 seconds
+                            setTimeout(function() {
+                                if (statusMessage) statusMessage.style.display = 'none';
+                            }, 5000);
                         }
                     } else {
                         if (statusMessage) {
                             statusMessage.textContent = 'Upload failed: ' + (response.data || 'Unknown error');
+                            statusMessage.className = 'ennu-feedback ennu-feedback-error';
                         }
                     }
                 },
-                error: function() {
-                    if (statusMessage) {
-                        statusMessage.textContent = 'Upload failed. Please try again.';
-                    }
+                error: function(xhr, status, error) {
+                    console.error('PDF Upload Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        statusCode: xhr.status
+                    });
+                    
                     if (progressBar) progressBar.style.display = 'none';
+                    
+                    let errorMessage = 'Upload failed: ';
+                    if (xhr.status === 0) {
+                        errorMessage += 'Network error - please check your connection';
+                    } else if (xhr.status === 404) {
+                        errorMessage += 'Upload endpoint not found';
+                    } else if (xhr.status === 500) {
+                        errorMessage += 'Server error';
+                    } else {
+                        errorMessage += error || 'Unknown error';
+                    }
+                    
+                    if (statusMessage) {
+                        statusMessage.textContent = errorMessage;
+                        statusMessage.className = 'ennu-feedback ennu-feedback-error';
+                        statusMessage.style.display = 'block';
+                    }
                 }
             });
         },
@@ -483,6 +555,15 @@
             
             // Initialize biomarker events
             this.initBiomarkerEvents();
+            
+            // Initialize PDF upload form handler
+            const pdfUploadForm = document.getElementById('ennu-pdf-upload-form');
+            if (pdfUploadForm) {
+                pdfUploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    ENNUDashboardFunctions.uploadPDF();
+                });
+            }
             
             // Make functions globally available
             window.togglePanel = this.togglePanel;

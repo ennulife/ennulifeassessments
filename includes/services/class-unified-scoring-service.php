@@ -328,7 +328,7 @@ class ENNU_Unified_Scoring_Service {
 		$adjusted_scores = $objective_scores;
 
 		// Get user health goals
-		$health_goals = get_user_meta( $user_id, 'ennu_health_goals', true );
+		$health_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
 		if ( is_array( $health_goals ) ) {
 			foreach ( $health_goals as $goal ) {
 				$boost = $this->get_goal_alignment_boost( $goal );

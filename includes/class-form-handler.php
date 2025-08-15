@@ -664,7 +664,7 @@ class ENNU_Notification_Manager {
 			$this->send_email( $email_data );
 
 		} catch ( Exception $e ) {
-			error_log( 'ENNU: Email notification failed: ' . $e->getMessage() );
+			// REMOVED: error_log( 'ENNU: Email notification failed: ' . $e->getMessage() );
 		}
 	}
 
@@ -681,7 +681,7 @@ class ENNU_Notification_Manager {
 	private function send_email( $email_data ) {
 		// Email sending logic would go here
 		// For now, just log
-		error_log( 'ENNU: Email notification prepared for ' . $email_data['contact_email'] );
+		// REMOVED: error_log( 'ENNU: Email notification prepared for ' . $email_data['contact_email'] );
 	}
 }
 
@@ -695,7 +695,7 @@ class ENNU_Logger {
 		if ( $data ) {
 			$log_entry .= ' - ' . json_encode( $data );
 		}
-		error_log( 'ENNU: ' . $log_entry );
+		// REMOVED: error_log( 'ENNU: ' . $log_entry );
 	}
 
 	public function log_error( $message, $error ) {

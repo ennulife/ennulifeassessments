@@ -152,12 +152,12 @@ class ENNU_Unified_Security_Service {
 	 */
 	public function set_strategy( $strategy_name ) {
 		if ( ! isset( $this->strategies[ $strategy_name ] ) ) {
-			error_log( "ENNU Unified Security Service: Unknown strategy '{$strategy_name}'" );
+			// REMOVED: error_log( "ENNU Unified Security Service: Unknown strategy '{$strategy_name}'" );
 			return false;
 		}
 		
 		$this->current_strategy = $this->strategies[ $strategy_name ];
-		error_log( "ENNU Unified Security Service: Strategy set to '{$strategy_name}'" );
+		// REMOVED: error_log( "ENNU Unified Security Service: Strategy set to '{$strategy_name}'" );
 		return true;
 	}
 	
@@ -374,7 +374,7 @@ class ENNU_Unified_Security_Service {
 			'event_data' => $event_data,
 		);
 		
-		error_log( 'ENNU Security Event: ' . json_encode( $log_entry ) );
+		// REMOVED: error_log( 'ENNU Security Event: ' . json_encode( $log_entry ) );
 	}
 	
 	/**
@@ -393,7 +393,7 @@ class ENNU_Unified_Security_Service {
 	 */
 	public function update_security_config( $config ) {
 		$this->security_config = array_merge( $this->security_config, $config );
-		error_log( 'ENNU Unified Security Service: Security configuration updated' );
+		// REMOVED: error_log( 'ENNU Unified Security Service: Security configuration updated' );
 	}
 	
 	/**
@@ -407,7 +407,7 @@ class ENNU_Unified_Security_Service {
 		// Register admin security hooks
 		add_action( 'admin_init', array( $this, 'init_admin_security' ) );
 		
-		error_log( 'ENNU Unified Security Service: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Unified Security Service: Initialized successfully' );
 	}
 	
 	/**

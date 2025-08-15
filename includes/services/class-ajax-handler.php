@@ -62,7 +62,7 @@ class ENNU_AJAX_Service_Handler {
 		// Initialize security
 		$this->init_security();
 		
-		error_log( 'ENNU AJAX Service Handler: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU AJAX Service Handler: Initialized successfully' );
 	}
 	
 	/**
@@ -79,7 +79,7 @@ class ENNU_AJAX_Service_Handler {
 			$this->security_validator = ENNU_Security_Validator::get_instance();
 		}
 		
-		error_log( 'ENNU AJAX Service Handler: Security initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU AJAX Service Handler: Security initialized' );
 	}
 	
 	/**
@@ -101,7 +101,7 @@ class ENNU_AJAX_Service_Handler {
 		add_action( 'wp_ajax_test_manual_save', array( $this, 'test_manual_save' ) );
 		add_action( 'wp_ajax_test_scoring_system', array( $this, 'test_scoring_system' ) );
 		
-		error_log( 'ENNU AJAX Service Handler: Registered AJAX actions (assessment submission disabled to prevent conflicts)' );
+		// REMOVED: error_log( 'ENNU AJAX Service Handler: Registered AJAX actions (assessment submission disabled to prevent conflicts)' );
 	}
 	
 	/**
@@ -567,7 +567,7 @@ class ENNU_AJAX_Service_Handler {
 	 * Handle assessment form submission via AJAX
 	 */
 	public function handle_assessment_submission() {
-		error_log( 'ENNU AJAX Service Handler: Assessment submission started' );
+		// REMOVED: error_log( 'ENNU AJAX Service Handler: Assessment submission started' );
 
 		try {
 			// 1. Verify nonce
@@ -671,7 +671,7 @@ class ENNU_AJAX_Service_Handler {
 			$token = null;
 			if ( $this->is_quantitative_assessment( $form_data['assessment_type'] ) ) {
 				$token = $this->generate_results_token( $user_id, $form_data );
-				error_log( 'ENNU REDIRECT DEBUG: Generated token: ' . $token );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU REDIRECT DEBUG: Generated token: ' . $token );
 			}
 
 			// 7. Generate redirect URL using the correct logic from assessment shortcodes
@@ -711,7 +711,7 @@ class ENNU_AJAX_Service_Handler {
 	 * Test manual data save (for debugging)
 	 */
 	public function test_manual_save() {
-		error_log( 'ENNU AJAX Service Handler: Testing manual data save' );
+		// REMOVED: error_log( 'ENNU AJAX Service Handler: Testing manual data save' );
 
 		try {
 			// Get test data
@@ -759,7 +759,7 @@ class ENNU_AJAX_Service_Handler {
 	 * Test scoring system (for debugging)
 	 */
 	public function test_scoring_system() {
-		error_log( 'ENNU AJAX Service Handler: Testing scoring system' );
+		// REMOVED: error_log( 'ENNU AJAX Service Handler: Testing scoring system' );
 
 		try {
 			$assessment_type = sanitize_text_field( $_POST['assessment_type'] ?? '' );
@@ -841,7 +841,7 @@ class ENNU_AJAX_Service_Handler {
 		$transient_key = 'ennu_results_' . $token;
 		set_transient( $transient_key, $results_data, 3600 );
 		
-		error_log( 'ENNU REDIRECT DEBUG: Stored results data with token: ' . $token );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU REDIRECT DEBUG: Stored results data with token: ' . $token );
 		
 		return $token;
 	}

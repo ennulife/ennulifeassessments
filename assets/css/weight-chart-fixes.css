@@ -1,0 +1,140 @@
+/**
+ * Weight Chart Styling Fixes
+ * Ensures consistent styling for weight/BMI charts
+ */
+
+/* Weight chart container styling */
+.weight-bmi-mini-chart-container {
+    padding: 12px 0;
+    margin: 0;
+    background: transparent;
+}
+
+/* Chart label styling */
+.weight-bmi-mini-chart-container .chart-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 0;
+    opacity: 0.8;
+}
+
+/* Mini chart container */
+.weight-bmi-mini-chart-container .pillar-mini-chart {
+    height: 50px;
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+/* Weight chart specific styling */
+.weight-bmi-mini-chart-container .weight-chart svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Line styling for weight chart */
+.weight-bmi-mini-chart-container .chart-line {
+    fill: none;
+    stroke: #6b7280;
+    stroke-width: 2;
+    opacity: 0.9;
+}
+
+/* Dot styling for weight chart */
+.weight-bmi-mini-chart-container .chart-dot {
+    fill: #6b7280;
+    stroke: #fff;
+    stroke-width: 1;
+}
+
+/* Current weight dot (larger) */
+.weight-bmi-mini-chart-container .chart-dot-current {
+    r: 4;
+    fill: #374151;
+}
+
+/* Target weight dot (green) */
+.weight-bmi-mini-chart-container .chart-dot-target {
+    r: 4;
+    fill: #10b981;
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+/* Grid lines */
+.weight-bmi-mini-chart-container .chart-grid-line {
+    stroke: #e5e7eb;
+    stroke-width: 0.5;
+    opacity: 0.5;
+}
+
+/* Tooltip styling */
+.weight-bmi-mini-chart-container .chart-tooltip {
+    position: absolute;
+    background: rgba(31, 41, 55, 0.95);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover effects */
+.weight-bmi-mini-chart-container .chart-dot:hover {
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+/* Animation for chart rendering */
+.weight-bmi-mini-chart-container .chart-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 1.5s ease-out forwards;
+}
+
+@keyframes drawLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .weight-bmi-mini-chart-container {
+        padding: 8px 0;
+    }
+    
+    .weight-bmi-mini-chart-container .pillar-mini-chart {
+        height: 40px;
+    }
+    
+    .weight-bmi-mini-chart-container .chart-label {
+        font-size: 10px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .weight-bmi-mini-chart-container .chart-label {
+        color: #9ca3af;
+    }
+    
+    .weight-bmi-mini-chart-container .chart-line {
+        stroke: #9ca3af;
+    }
+    
+    .weight-bmi-mini-chart-container .chart-dot {
+        fill: #9ca3af;
+        stroke: #1f2937;
+    }
+    
+    .weight-bmi-mini-chart-container .chart-grid-line {
+        stroke: #374151;
+    }
+}

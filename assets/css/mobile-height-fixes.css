@@ -1,0 +1,354 @@
+/**
+ * Mobile Height Fixes
+ * Ensures all content is visible on mobile devices
+ * 
+ * @package ENNU_Life
+ * @since 64.57.0
+ */
+
+/* ==========================================================================
+   GLOBAL MOBILE OVERRIDES - Remove all fixed heights
+   ========================================================================== */
+@media (max-width: 992px) {
+  /* Remove all fixed heights and allow natural flow */
+  .pillar-card,
+  .member-info-card,
+  .coach-info-card,
+  .health-score-hero,
+  .hero-row .pillar-card,
+  .pillars-row .pillar-card {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Ensure overflow is visible for all content */
+  .pillar-card * {
+    overflow: visible !important;
+  }
+  
+  /* Fix pillar card content spacing */
+  .pillar-card-header {
+    margin-bottom: 12px !important;
+  }
+  
+  .pillar-score {
+    margin-bottom: 12px !important;
+  }
+  
+  .pillar-mini-chart {
+    margin: 12px 0 !important;
+    height: auto !important;
+    min-height: 50px !important;
+  }
+  
+  .pillar-progress-bar {
+    margin: 12px 0 !important;
+  }
+  
+  .pillar-card-footer {
+    margin-top: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   TABLET SPECIFIC (max-width: 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Hero cards on tablet */
+  .hero-row .pillar-card {
+    padding: 16px !important;
+    min-height: auto !important;
+  }
+  
+  /* Member info card */
+  .member-info-card {
+    padding: 16px !important;
+  }
+  
+  .member-info-card .member-details {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .member-detail-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 8px 0 !important;
+  }
+  
+  /* Coach info card */
+  .coach-info-card {
+    padding: 16px !important;
+  }
+  
+  .coach-info-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .coach-details {
+    flex: 1 !important;
+  }
+  
+  /* Weight/BMI chart container */
+  .weight-bmi-mini-chart-container {
+    height: auto !important;
+    min-height: 60px !important;
+    margin: 12px 0 !important;
+  }
+  
+  /* Biomarker sections */
+  .biomarker-bar-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;
+  }
+  
+  .biomarker-bar-label {
+    width: 100% !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .biomarker-progress-bar {
+    width: 100% !important;
+    height: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   PHONE SPECIFIC (max-width: 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  /* Ensure minimum padding on small screens */
+  .pillar-card,
+  .member-info-card,
+  .coach-info-card {
+    padding: 12px !important;
+  }
+  
+  /* Stack profile info vertically on phones */
+  .coach-info-wrapper {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  .coach-profile-image,
+  .clinician-profile-image {
+    margin-bottom: 8px !important;
+  }
+  
+  /* Ensure text is readable */
+  .pillar-card-title {
+    font-size: 12px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .pillar-score-value {
+    font-size: 24px !important;
+  }
+  
+  .pillar-score-label {
+    font-size: 10px !important;
+  }
+  
+  /* Mini charts on phones */
+  .pillar-mini-chart,
+  .hero-mini-chart,
+  .weight-bmi-mini-chart-container {
+    min-height: 40px !important;
+    height: auto !important;
+  }
+  
+  /* Ensure progress bars are visible */
+  .pillar-progress-bar {
+    height: 10px !important;
+    margin: 8px 0 !important;
+  }
+  
+  /* Target score positioning */
+  .pillar-target-score {
+    position: relative !important;
+    margin-top: 8px !important;
+    padding: 8px !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* ==========================================================================
+   SPECIFIC COMPONENT FIXES
+   ========================================================================== */
+
+/* EnnuLife Score Card Mobile */
+@media (max-width: 768px) {
+  .pillar-card.ennulife {
+    min-height: auto !important;
+    padding: 16px !important;
+  }
+  
+  .pillar-card.ennulife .health-score-description {
+    display: block !important;
+    margin-top: 8px !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Health Goals Section Mobile */
+@media (max-width: 768px) {
+  .health-goals-accordion {
+    padding: 16px !important;
+  }
+  
+  .health-goals-accordion[open] .health-goals-form {
+    display: block !important;
+    padding: 12px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  
+  .health-goals-checkbox-wrapper {
+    margin-bottom: 12px !important;
+  }
+}
+
+/* My Story Tabs Mobile */
+@media (max-width: 768px) {
+  .my-story-section {
+    padding: 16px !important;
+  }
+  
+  .my-story-tabs {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .my-story-tab-content {
+    display: none !important;
+    padding: 12px !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  
+  .my-story-tab-content.active {
+    display: block !important;
+  }
+}
+
+/* LabCorp Upload Tab Mobile */
+@media (max-width: 768px) {
+  #tab-pdf-upload {
+    padding: 0 !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  
+  .pdf-upload-container {
+    padding: 16px !important;
+    min-height: auto !important;
+  }
+  
+  .pdf-upload-form-container {
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .pdf-upload-instructions {
+    padding: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   CRITICAL OVERFLOW FIXES
+   ========================================================================== */
+@media (max-width: 992px) {
+  /* Override any overflow hidden that might clip content */
+  .modern-scores-section,
+  .modern-scores-layout,
+  .hero-row,
+  .pillars-row,
+  .dashboard-secondary-content,
+  .health-goals-accordion,
+  .my-story-section {
+    overflow: visible !important;
+  }
+  
+  /* Ensure background images don't affect layout */
+  .pillar-card.mind,
+  .pillar-card.body,
+  .pillar-card.lifestyle,
+  .pillar-card.aesthetics {
+    background-size: 50% !important;
+    background-position: right center !important;
+  }
+  
+  /* Z-index fixes for overlapping content */
+  .pillar-card > * {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+}
+
+/* ==========================================================================
+   FLEXBOX LAYOUT FIXES
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Ensure proper flex layout */
+  .pillar-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
+  
+  .pillar-card > * {
+    flex-shrink: 0 !important;
+  }
+  
+  /* Allow content to grow as needed */
+  .pillar-card-header,
+  .pillar-score,
+  .pillar-mini-chart,
+  .pillar-progress-bar,
+  .pillar-card-footer {
+    flex: 0 0 auto !important;
+  }
+}
+
+/* ==========================================================================
+   FINAL OVERRIDES - Maximum specificity
+   ========================================================================== */
+@media (max-width: 992px) {
+  body .modern-scores-section .pillar-card {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  
+  body .modern-scores-section .hero-row .pillar-card,
+  body .modern-scores-section .pillars-row .pillar-card {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Remove any absolute positioning that might cause issues */
+  body .modern-scores-section .pillar-card .pillar-target-score {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+  }
+}

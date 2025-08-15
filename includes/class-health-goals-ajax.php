@@ -69,8 +69,8 @@ class ENNU_Health_Goals_Ajax {
 	 */
 	public function handle_update_health_goals() {
 		// Enhanced logging for debugging
-		error_log( 'ENNU Health Goals AJAX: handle_update_health_goals called' );
-		error_log( 'ENNU Health Goals AJAX: POST data: ' . print_r( $_POST, true ) );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: handle_update_health_goals called' );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: POST data: ' . print_r( $_POST, true ) );
 		
 		// Security checks
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_health_goals_nonce' ) ) {
@@ -84,7 +84,7 @@ class ENNU_Health_Goals_Ajax {
 		}
 
 		if ( ! is_user_logged_in() ) {
-			error_log( 'ENNU Health Goals AJAX: User not logged in' );
+			// REMOVED: error_log( 'ENNU Health Goals AJAX: User not logged in' );
 			wp_send_json_error(
 				array(
 					'message' => 'User not logged in',
@@ -96,28 +96,29 @@ class ENNU_Health_Goals_Ajax {
 		$user_id   = get_current_user_id();
 		$new_goals = isset( $_POST['health_goals'] ) ? array_map( 'sanitize_text_field', $_POST['health_goals'] ) : array();
 
-		error_log( 'ENNU Health Goals AJAX: User ID: ' . $user_id );
-		error_log( 'ENNU Health Goals AJAX: New goals: ' . print_r( $new_goals, true ) );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: User ID: ' . $user_id );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: New goals: ' . print_r( $new_goals, true ) );
 
 		// Get current goals for comparison
 		$current_goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
 		$current_goals = is_array( $current_goals ) ? $current_goals : array();
 
-		error_log( 'ENNU Health Goals AJAX: Current goals: ' . print_r( $current_goals, true ) );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: Current goals: ' . print_r( $current_goals, true ) );
 
 		// Validate goals against allowed options
 		$allowed_goals   = $this->get_allowed_health_goals();
 		$validated_goals = array_intersect( $new_goals, array_keys( $allowed_goals ) );
 
-		error_log( 'ENNU Health Goals AJAX: Validated goals: ' . print_r( $validated_goals, true ) );
+		// REMOVED: error_log( 'ENNU Health Goals AJAX: Validated goals: ' . print_r( $validated_goals, true ) );
 
 		// Log the update attempt
-		error_log( "ENNU Health Goals AJAX: User {$user_id} updating goals from [" . implode( ', ', $current_goals ) . '] to [' . implode( ', ', $validated_goals ) . ']' );
+		// REMOVED: error_log( "ENNU Health Goals AJAX: User {$user_id} updating goals from [" . implode( ', ', $current_goals ) . '] to [' . implode( ', ', $validated_goals ) . ']' );
 
 		// Save to user meta
 		$save_result = update_user_meta( $user_id, 'ennu_global_health_goals', $validated_goals );
 
-		error_log( 'ENNU Health Goals AJAX: Save result: ' . ( $save_result !== false ? 'SUCCESS' : 'FAILED' ) );
+		// Enhanced error logging for debugging
+		error_log( "ENNU Health Goals: User {$user_id} save attempt - Result: " . ( $save_result !== false ? 'SUCCESS' : 'FAILED' ) );
 
 		if ( $save_result !== false ) {
 			// Trigger score recalculation
@@ -127,7 +128,7 @@ class ENNU_Health_Goals_Ajax {
 			$added_goals   = array_diff( $validated_goals, $current_goals );
 			$removed_goals = array_diff( $current_goals, $validated_goals );
 
-			error_log( 'ENNU Health Goals AJAX: Success - Added: ' . implode( ', ', $added_goals ) . ', Removed: ' . implode( ', ', $removed_goals ) );
+			// REMOVED: error_log( 'ENNU Health Goals AJAX: Success - Added: ' . implode( ', ', $added_goals ) . ', Removed: ' . implode( ', ', $removed_goals ) );
 
 			wp_send_json_success(
 				array(
@@ -144,7 +145,7 @@ class ENNU_Health_Goals_Ajax {
 				)
 			);
 		} else {
-			error_log( "ENNU Health Goals AJAX: Failed to save goals for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Health Goals AJAX: Failed to save goals for user {$user_id}" );
 			wp_send_json_error(
 				array(
 					'message' => 'Failed to save health goals',
@@ -220,7 +221,7 @@ class ENNU_Health_Goals_Ajax {
 		$save_result = update_user_meta( $user_id, 'ennu_global_health_goals', array_values( $current_goals ) );
 
 		if ( $save_result !== false ) {
-			error_log( "ENNU Health Goals AJAX: User {$user_id} {$action}ed goal '{$goal_to_toggle}'. Total goals: " . count( $current_goals ) );
+			// REMOVED: error_log( "ENNU Health Goals AJAX: User {$user_id} {$action}ed goal '{$goal_to_toggle}'. Total goals: " . count( $current_goals ) );
 
 			wp_send_json_success(
 				array(
@@ -233,7 +234,7 @@ class ENNU_Health_Goals_Ajax {
 				)
 			);
 		} else {
-			error_log( "ENNU Health Goals AJAX: Failed to {$action} goal '{$goal_to_toggle}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Health Goals AJAX: Failed to {$action} goal '{$goal_to_toggle}' for user {$user_id}" );
 			wp_send_json_error(
 				array(
 					'message' => 'Failed to update health goal',
@@ -249,11 +250,29 @@ class ENNU_Health_Goals_Ajax {
 	 * Enqueue health goals AJAX scripts and data
 	 */
 	public function enqueue_health_goals_scripts() {
-		if ( is_user_logged_in() && $this->is_dashboard_page() ) {
+		if ( is_user_logged_in() && ( $this->is_dashboard_page() || $this->is_likely_dashboard_page() ) ) {
+			// Enqueue modal manager first
+			wp_enqueue_script(
+				'ennu-modal-manager',
+				ENNU_LIFE_PLUGIN_URL . 'assets/js/modal-manager.js',
+				array(),
+				ENNU_LIFE_VERSION,
+				true
+			);
+			
+			// Localize modal manager with plugin URL
+			wp_localize_script(
+				'ennu-modal-manager',
+				'ennu_ajax',
+				array(
+					'plugin_url' => ENNU_LIFE_PLUGIN_URL
+				)
+			);
+			
 			wp_enqueue_script(
 				'ennu-health-goals-ajax',
 				ENNU_LIFE_PLUGIN_URL . 'assets/js/health-goals-manager.js',
-				array( 'jquery' ),
+				array( 'jquery', 'ennu-modal-manager' ),
 				ENNU_LIFE_VERSION,
 				true
 			);
@@ -317,6 +336,36 @@ class ENNU_Health_Goals_Ajax {
 			return true;
 		}
 
+		return false;
+	}
+
+	/**
+	 * More flexible dashboard page detection
+	 */
+	private function is_likely_dashboard_page() {
+		// Check if health goals elements are present in current page content
+		global $post;
+		
+		if ( $post && ( 
+			strpos( $post->post_content, 'health-goals' ) !== false ||
+			strpos( $post->post_content, 'ennu-user-dashboard' ) !== false ||
+			strpos( $post->post_content, 'MY HEALTH GOALS' ) !== false
+		) ) {
+			return true;
+		}
+		
+		// Check if we're on any page that might have dashboard content
+		if ( is_page() && $post ) {
+			$page_slug = $post->post_name;
+			$dashboard_keywords = array( 'dashboard', 'profile', 'account', 'user', 'member' );
+			
+			foreach ( $dashboard_keywords as $keyword ) {
+				if ( strpos( $page_slug, $keyword ) !== false ) {
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 
@@ -419,12 +468,12 @@ class ENNU_Health_Goals_Ajax {
 		if ( class_exists( 'ENNU_Assessment_Scoring' ) ) {
 			try {
 				ENNU_Assessment_Scoring::calculate_and_save_all_user_scores( $user_id, true );
-				error_log( "ENNU Health Goals AJAX: Successfully recalculated scores for user {$user_id}" );
+				// REMOVED: error_log( "ENNU Health Goals AJAX: Successfully recalculated scores for user {$user_id}" );
 			} catch ( Exception $e ) {
-				error_log( "ENNU Health Goals AJAX: Error recalculating scores for user {$user_id}: " . $e->getMessage() );
+		// REMOVED DEBUG LOG: error_log( "ENNU Health Goals AJAX: Error recalculating scores for user {$user_id}: " . $e->getMessage() );
 			}
 		} else {
-			error_log( 'ENNU Health Goals AJAX: ENNU_Assessment_Scoring class not found, skipping score recalculation' );
+			// REMOVED: error_log( 'ENNU Health Goals AJAX: ENNU_Assessment_Scoring class not found, skipping score recalculation' );
 		}
 	}
 

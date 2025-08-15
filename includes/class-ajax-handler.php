@@ -24,7 +24,7 @@ class ENNU_AJAX_Handler_DISABLED {
 
 	public function __construct() {
 		// This class is deprecated and disabled - ENNU_Assessment_Shortcodes handles AJAX now
-		error_log( 'ENNU: ENNU_AJAX_Handler is disabled. ENNU_Assessment_Shortcodes handles AJAX submissions.' );
+		// REMOVED: error_log( 'ENNU: ENNU_AJAX_Handler is disabled. ENNU_Assessment_Shortcodes handles AJAX submissions.' );
 		return;
 		
 		$this->form_handler = new ENNU_Form_Handler();
@@ -321,7 +321,7 @@ class ENNU_AJAX_Handler_DISABLED {
 		// Store for 24 hours (86400 seconds) using manual transient storage
 		$transient_key = 'ennu_results_' . $token;
 		$this->_set_manual_transient( $transient_key, $results_data, 86400 );
-		error_log( 'ENNU AJAX Debug: Stored manual transient with key: ' . $transient_key . ', Assessment type: ' . ( $results_data['assessment_type'] ?? 'unknown' ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU AJAX Debug: Stored manual transient with key: ' . $transient_key . ', Assessment type: ' . ( $results_data['assessment_type'] ?? 'unknown' ) );
 
 		return $token;
 	}

@@ -25,7 +25,7 @@ class ENNU_REST_API {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 		add_filter( 'rest_authentication_errors', array( __CLASS__, 'authenticate_request' ) );
 
-		error_log( 'ENNU REST API: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU REST API: Initialized' );
 	}
 
 	/**
@@ -449,7 +449,7 @@ class ENNU_REST_API {
 			'assessment_scores' => array(),
 		);
 
-		$assessment_types = array( 'testosterone', 'menopause', 'ed_treatment', 'weight_loss', 'longevity', 'hair', 'skin', 'health', 'sleep' );
+		$assessment_types = array( 'testosterone', 'menopause', 'ed_treatment', 'weight_loss', 'longevity', 'hair', 'skin', 'health', 'sleep', 'peptide-therapy' );
 
 		foreach ( $assessment_types as $type ) {
 			$assessment_scores = get_user_meta( $user_id, "ennu_{$type}_scores", true );

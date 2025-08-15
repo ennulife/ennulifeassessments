@@ -65,7 +65,7 @@ class ENNU_Deployment_Manager {
 			add_action( 'admin_init', array( $this, 'run_health_checks' ) );
 		}
 		
-		error_log( 'ENNU Deployment Manager: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Deployment Manager: Initialized successfully' );
 	}
 	
 	/**
@@ -105,7 +105,7 @@ class ENNU_Deployment_Manager {
 			'last_check' => current_time( 'mysql' ),
 		) );
 		
-		error_log( 'ENNU Deployment Manager: Health checks completed - Status: ' . $overall_status );
+		// REMOVED: error_log( 'ENNU Deployment Manager: Health checks completed - Status: ' . $overall_status );
 	}
 	
 	/**

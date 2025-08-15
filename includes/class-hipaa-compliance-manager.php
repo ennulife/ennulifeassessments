@@ -81,7 +81,7 @@ class ENNU_HIPAA_Compliance_Manager {
 		$this->encryption_key = $this->get_or_create_encryption_key();
 
 		if ( ! $this->encryption_key ) {
-			error_log( 'HIPAA Compliance: Failed to initialize encryption key' );
+			// REMOVED: error_log( 'HIPAA Compliance: Failed to initialize encryption key' );
 			$this->compliance_enabled = false;
 			return;
 		}
@@ -202,7 +202,7 @@ class ENNU_HIPAA_Compliance_Manager {
 		$encrypted = openssl_encrypt( $data, self::ENCRYPTION_METHOD, base64_decode( $this->encryption_key ), 0, $iv );
 
 		if ( $encrypted === false ) {
-			error_log( 'HIPAA Compliance: Encryption failed for context: ' . $context );
+			// REMOVED: error_log( 'HIPAA Compliance: Encryption failed for context: ' . $context );
 			return $data;
 		}
 
@@ -234,7 +234,7 @@ class ENNU_HIPAA_Compliance_Manager {
 		$decrypted = openssl_decrypt( $encrypted, self::ENCRYPTION_METHOD, base64_decode( $this->encryption_key ), 0, $iv );
 
 		if ( $decrypted === false ) {
-			error_log( 'HIPAA Compliance: Decryption failed for context: ' . $context );
+			// REMOVED: error_log( 'HIPAA Compliance: Decryption failed for context: ' . $context );
 			return $encrypted_data;
 		}
 

@@ -100,6 +100,19 @@ class ENNU_Quantitative_Engine {
 					'cortisol' => array( 'low' => 6, 'high' => 20 )
 				);
 				break;
+			case 'peptide-therapy':
+			case 'peptide_therapy':
+				$ranges = array(
+					'testosterone' => array( 'low' => 300, 'high' => 1000 ),
+					'growth_hormone' => array( 'low' => 0.05, 'high' => 3.0 ),
+					'igf1' => array( 'low' => 100, 'high' => 300 ),
+					'cortisol' => array( 'low' => 6, 'high' => 20 ),
+					'tsh' => array( 'low' => 0.4, 'high' => 4.0 ),
+					'glucose' => array( 'low' => 70, 'high' => 100 ),
+					'hba1c' => array( 'low' => 4.0, 'high' => 5.7 ),
+					'crp' => array( 'low' => 0, 'high' => 3.0 )
+				);
+				break;
 		}
 		
 		return $ranges;

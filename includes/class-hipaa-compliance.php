@@ -40,7 +40,7 @@ class ENNU_HIPAA_Compliance {
 			}
 		}
 		
-		error_log( 'ENNU HIPAA Compliance: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU HIPAA Compliance: Initialized' );
 	}
 	
 	/**
@@ -121,7 +121,7 @@ class ENNU_HIPAA_Compliance {
 		update_option( 'ennu_audit_log', $existing_logs );
 		
 		// Also log to WordPress error log for immediate visibility
-		error_log( 'ENNU HIPAA Audit: ' . $action . ' - User: ' . $user_id . ' - Details: ' . json_encode( $details ) );
+		// REMOVED: error_log( 'ENNU HIPAA Audit: ' . $action . ' - User: ' . $user_id . ' - Details: ' . json_encode( $details ) );
 	}
 	
 	/**
@@ -318,7 +318,7 @@ class ENNU_HIPAA_Compliance {
 		
 		update_option( 'ennu_audit_log', $filtered_logs );
 		
-		error_log( 'ENNU HIPAA Compliance: Cleaned up ' . ( count( $audit_logs ) - count( $filtered_logs ) ) . ' old audit log entries' );
+		// REMOVED: error_log( 'ENNU HIPAA Compliance: Cleaned up ' . ( count( $audit_logs ) - count( $filtered_logs ) ) . ' old audit log entries' );
 	}
 	
 	/**

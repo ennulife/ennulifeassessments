@@ -1,0 +1,531 @@
+/**
+ * ENNU LabCorp Locator Styles
+ * Integrated within ENNU Life Assessments plugin
+ * 
+ * @package ENNU_Life
+ * @since 78.1.0
+ */
+
+/* Two Column Layout */
+.labcorp-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.labcorp-left-column,
+.labcorp-right-column {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e5e7eb;
+}
+
+/* LabCorp Locator Styles */
+.labcorp-locator-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.locator-header {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.locator-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff !important;
+    margin: 0 0 8px 0;
+}
+
+.locator-icon {
+    color: #2998E3;
+}
+
+.locator-subtitle {
+    color: #e5e7eb;
+    font-size: 14px;
+    margin: 0;
+}
+
+.locator-notice {
+    background: #fef3cd;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 15px;
+    color: #92400e;
+    text-align: center;
+}
+
+.locator-notice a {
+    color: #d97706;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.locator-notice a:hover {
+    text-decoration: underline;
+}
+
+/* Search Form */
+.locator-search {
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.locator-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1f2937;
+    transition: border-color 0.2s ease;
+}
+
+.locator-input:focus {
+    outline: none;
+    border-color: #2998E3;
+    box-shadow: 0 0 0 3px rgba(41, 152, 227, 0.1);
+}
+
+.locator-input::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2998E3, #4CD5F7);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(41, 152, 227, 0.3);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #2998E3;
+    border: 1px solid #2998E3;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-outline:hover {
+    background: #2998E3;
+    color: white;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Map */
+.locator-map {
+    width: 100%;
+    height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    margin-bottom: 20px;
+}
+
+.locator-map.loaded {
+    opacity: 1;
+}
+
+/* Loading State */
+.locator-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    color: #e5e7eb;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #2998E3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.locator-error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.error-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #dc2626;
+}
+
+/* Results */
+.locator-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.results-header h4 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #d1d5db;
+    font-style: italic;
+}
+
+.location-card {
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.location-card:hover {
+    border-color: #2998E3;
+    box-shadow: 0 4px 12px rgba(41, 152, 227, 0.1);
+    transform: translateY(-1px);
+}
+
+.location-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.location-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff !important;
+    margin: 0;
+}
+
+.location-distance {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.location-details {
+    margin-bottom: 12px;
+}
+
+.location-address,
+.location-phone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #d1d5db;
+}
+
+.location-phone a {
+    color: #2998E3;
+    text-decoration: none;
+}
+
+.location-phone a:hover {
+    text-decoration: underline;
+}
+
+.location-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.rating-stars {
+    color: #fbbf24;
+    font-size: 14px;
+}
+
+.rating-score {
+    font-size: 13px;
+    color: #d1d5db;
+    font-weight: 500;
+}
+
+.location-hours {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #f3f4f6;
+}
+
+.location-hours strong {
+    color: #f9fafb;
+}
+
+.hours-content {
+    margin-top: 6px;
+    line-height: 1.4;
+    color: #e5e7eb;
+}
+
+.location-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Upload Section Styles */
+.upload-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.upload-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff !important;
+    margin: 0 0 8px 0;
+}
+
+.upload-icon {
+    color: #059669;
+}
+
+.upload-subtitle {
+    color: #e5e7eb;
+    font-size: 14px;
+    margin: 0;
+}
+
+.upload-benefits {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.pdf-upload-form-container {
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px dashed #6b7280;
+    text-align: center;
+}
+
+.ennu-form-group {
+    margin-bottom: 20px;
+}
+
+.ennu-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #f9fafb;
+}
+
+.ennu-form-group input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.ennu-form-group small {
+    display: block;
+    color: #d1d5db;
+    font-size: 12px;
+}
+
+.ennu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ennu-button-primary {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+}
+
+.ennu-button-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* Map Info Window */
+.map-info-window h6 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.map-info-window p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.info-actions {
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .labcorp-two-column {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .search-buttons {
+        flex-direction: column;
+    }
+    
+    .locator-map {
+        height: 250px;
+    }
+    
+    .location-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .location-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .labcorp-left-column,
+    .labcorp-right-column {
+        padding: 15px;
+    }
+    
+    .locator-title,
+    .upload-title {
+        font-size: 20px;
+    }
+    
+    .locator-map {
+        height: 200px;
+    }
+    
+    .location-card {
+        padding: 15px;
+    }
+}
+
+/* Dark mode support (if applicable) */
+@media (prefers-color-scheme: dark) {
+    .labcorp-left-column,
+    .labcorp-right-column {
+        background: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .location-card {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .location-card:hover {
+        border-color: #2998E3;
+    }
+    
+    .location-hours {
+        background: #4b5563;
+    }
+    
+    .pdf-upload-form-container {
+        border-color: #4b5563;
+    }
+}

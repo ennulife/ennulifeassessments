@@ -1,0 +1,446 @@
+/**
+ * Modern Scoring UI - Mobile Optimizations
+ * 
+ * Comprehensive mobile responsive styles for all dashboard components
+ * 
+ * @package ENNU_Life
+ * @since 64.57.0
+ */
+
+/* ==========================================================================
+   TABLET RESPONSIVE (max-width: 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+	/* PDF Upload Mobile */
+	.pdf-upload-container {
+		padding: 20px;
+	}
+	
+	.pdf-upload-form-container {
+		padding: 20px;
+	}
+	
+	.pdf-upload-instructions {
+		padding: 20px;
+	}
+	
+	/* Member info card mobile */
+	.member-greeting .logo-container {
+		margin-bottom: 10px;
+	}
+	
+	.member-greeting .logo-container img {
+		max-height: 28px !important;
+	}
+	
+	.member-greeting h3 {
+		font-size: 13px;
+	}
+	
+	/* Coach info mobile */
+	.coach-info-wrapper {
+		flex-direction: column;
+		gap: 8px;
+	}
+	
+	.coach-profile-image,
+	.clinician-profile-image {
+		width: 50px;
+		height: 50px;
+	}
+	
+	/* Upload Labs button mobile */
+	.biomarker-section-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+	
+	.upload-labs-mini-btn {
+		width: 100%;
+		justify-content: center;
+	}
+	
+	/* Health goals mobile */
+	.health-goals-form {
+		padding: 12px;
+	}
+	
+	.health-goals-form .checkbox-list {
+		grid-template-columns: 1fr;
+	}
+	
+	/* My Story tabs mobile */
+	.my-story-tabs {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	
+	.my-story-tab-link {
+		flex: 1 1 calc(50% - 4px);
+		min-width: 120px;
+		font-size: 12px;
+		padding: 8px 12px;
+	}
+	
+	/* Modal mobile */
+	.ennu-progress-content {
+		max-width: 90%;
+		padding: 20px;
+		margin: 20px;
+	}
+	
+	.progress-logo img {
+		max-height: 30px;
+	}
+	
+	.progress-header h2 {
+		font-size: 20px;
+	}
+	
+	.progress-steps {
+		padding: 0 10px;
+	}
+	
+	.progress-step {
+		padding: 10px;
+	}
+	
+	.step-text h3 {
+		font-size: 14px;
+	}
+	
+	.step-text p {
+		font-size: 12px;
+	}
+}
+
+/* ==========================================================================
+   SMALL MOBILE DEVICES (max-width: 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+	/* Pillars row mobile */
+	.pillars-row {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+	
+	/* Pillar cards mobile */
+	.pillar-card {
+		min-height: auto;
+	}
+	
+	.pillar-card-header {
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+	}
+	
+	.pillar-card-title {
+		font-size: 14px;
+	}
+	
+	.pillar-score {
+		flex-direction: row;
+		align-items: baseline;
+		gap: 8px;
+	}
+	
+	.pillar-score-value {
+		font-size: 22px !important;
+	}
+	
+	.pillar-score-label {
+		font-size: 11px;
+	}
+	
+	/* Mini charts mobile */
+	.pillar-mini-chart,
+	.hero-mini-chart {
+		height: 45px;
+	}
+	
+	/* Weight/BMI mobile */
+	.weight-bmi-mini-chart-container {
+		height: 45px;
+	}
+	
+	/* Biomarker bars mobile */
+	.biomarker-bar-label {
+		font-size: 11px;
+	}
+	
+	.biomarker-count {
+		font-size: 10px;
+	}
+	
+	/* PDF upload mobile */
+	.pdf-upload-description {
+		padding: 15px;
+	}
+	
+	.pdf-upload-description p {
+		font-size: 13px;
+	}
+	
+	.ennu-button {
+		width: 100%;
+		padding: 10px 20px;
+		font-size: 14px;
+	}
+	
+	/* LabCorp upload mobile */
+	#ennu-pdf-upload-form {
+		width: 100%;
+	}
+	
+	.ennu-form-group input[type="file"] {
+		padding: 10px;
+		font-size: 13px;
+	}
+}
+
+/* ==========================================================================
+   LANDSCAPE MOBILE (max-width: 768px and orientation: landscape)
+   ========================================================================== */
+@media (max-width: 768px) and (orientation: landscape) {
+	.hero-row {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 12px;
+	}
+	
+	.pillars-row {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+	}
+	
+	.pillar-card {
+		min-height: 100px;
+	}
+}
+
+/* ==========================================================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ========================================================================== */
+@media (hover: none) and (pointer: coarse) {
+	/* Increase touch targets */
+	.coach-action-btn,
+	.upload-labs-mini-btn,
+	.ennu-button,
+	.my-story-tab-link {
+		min-height: 44px;
+		min-width: 44px;
+	}
+	
+	/* Remove hover effects on touch */
+	.pillar-card:hover {
+		transform: none !important;
+	}
+	
+	/* Better touch feedback */
+	.coach-action-btn:active,
+	.upload-labs-mini-btn:active,
+	.ennu-button:active {
+		transform: scale(0.98);
+		opacity: 0.9;
+	}
+	
+	/* Larger checkbox targets */
+	.health-goals-form input[type="checkbox"] {
+		min-width: 20px;
+		min-height: 20px;
+	}
+	
+	/* Better scrolling on touch devices */
+	.my-story-tab-content,
+	.health-goals-form,
+	.pdf-upload-container {
+		-webkit-overflow-scrolling: touch;
+	}
+}
+
+/* ==========================================================================
+   HIGH DPI SCREENS
+   ========================================================================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+	/* Sharper borders */
+	.pillar-card,
+	.member-info-card,
+	.coach-info-card {
+		border-width: 1px;
+	}
+	
+	/* Crisper text */
+	.pillar-score-value,
+	.health-score-value {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+}
+
+/* ==========================================================================
+   MODAL MOBILE OPTIMIZATIONS
+   ========================================================================== */
+@media (max-width: 768px) {
+	.ennu-progress-modal {
+		z-index: 999999 !important;
+	}
+	
+	.ennu-progress-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	
+	.ennu-progress-content {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: calc(100% - 40px);
+		max-width: 400px;
+	}
+}
+
+/* ==========================================================================
+   WEIGHT EDITING MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+	.editable-weight {
+		min-width: 60px;
+	}
+	
+	.weight-input {
+		width: 60px;
+		font-size: 12px;
+		padding: 2px 4px;
+	}
+	
+	.save-weight-btn,
+	.cancel-weight-btn {
+		padding: 4px 8px;
+		font-size: 11px;
+	}
+}
+
+/* ==========================================================================
+   BIOMARKERS MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+	.biomarker-section-header {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 12px;
+	}
+	
+	.biomarker-section-header h3 {
+		margin: 0;
+	}
+	
+	.upload-labs-mini-btn {
+		width: 100%;
+		text-align: center;
+	}
+	
+	.biomarker-bar-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+	}
+	
+	.biomarker-bar-label {
+		width: 100%;
+		text-align: left;
+	}
+	
+	.biomarker-progress-bar {
+		width: 100%;
+	}
+}
+
+/* ==========================================================================
+   DASHBOARD SECONDARY CONTENT MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+	.dashboard-secondary-content {
+		padding: 12px !important;
+	}
+	
+	.health-goals-accordion,
+	.my-story-section {
+		padding: 12px !important;
+		margin-bottom: 12px !important;
+	}
+	
+	.scores-title {
+		font-size: 16px !important;
+	}
+	
+	.health-goals-checkbox-wrapper {
+		margin-bottom: 12px;
+	}
+	
+	.health-goals-checkbox-wrapper label {
+		padding: 10px;
+		font-size: 13px;
+	}
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+	/* Disable animations for users who prefer reduced motion */
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	
+	/* Keep essential visual feedback */
+	.ennu-button:active,
+	.coach-action-btn:active {
+		transform: scale(0.98);
+	}
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+@media print {
+	/* Hide interactive elements */
+	.coach-action-btn,
+	.upload-labs-mini-btn,
+	.ennu-button,
+	.my-story-tabs,
+	.editable-weight,
+	.health-goals-form,
+	.pdf-upload-form-container {
+		display: none !important;
+	}
+	
+	/* Optimize for print */
+	.modern-scores-section {
+		background: white !important;
+	}
+	
+	.pillar-card,
+	.member-info-card,
+	.coach-info-card {
+		box-shadow: none !important;
+		border: 1px solid #ddd !important;
+		page-break-inside: avoid;
+	}
+	
+	/* Show all content */
+	.health-goals-accordion[open],
+	.my-story-tab-content {
+		display: block !important;
+	}
+}

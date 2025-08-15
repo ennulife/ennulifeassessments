@@ -40,7 +40,7 @@ class ENNU_Memory_Optimizer {
             }
             
             // Log the attempt
-            error_log( "ENNU Memory Optimizer: Attempted to increase memory limit from {$current_limit} to {$new_limit}" );
+            // REMOVED: error_log( "ENNU Memory Optimizer: Attempted to increase memory limit from {$current_limit} to {$new_limit}" );
         }
         
         // Set WordPress memory limits
@@ -68,11 +68,11 @@ class ENNU_Memory_Optimizer {
         $current_bytes = self::convert_to_bytes( $current_limit );
         
         // Log memory status
-        error_log( "ENNU Memory Status: Limit: {$current_limit}, Usage: " . size_format( $current_usage ) . ", Peak: " . size_format( $current_peak ) );
+        // REMOVED: error_log( "ENNU Memory Status: Limit: {$current_limit}, Usage: " . size_format( $current_usage ) . ", Peak: " . size_format( $current_peak ) );
         
         // Warn if usage is high
         if ( $current_usage > ( $current_bytes * 0.8 ) ) {
-            error_log( "ENNU Memory Warning: High memory usage detected. Usage: " . size_format( $current_usage ) . " / {$current_limit}" );
+            // REMOVED: error_log( "ENNU Memory Warning: High memory usage detected. Usage: " . size_format( $current_usage ) . " / {$current_limit}" );
         }
     }
     
@@ -102,7 +102,7 @@ class ENNU_Memory_Optimizer {
     public static function force_garbage_collection() {
         if ( function_exists( 'gc_collect_cycles' ) ) {
             $collected = gc_collect_cycles();
-            error_log( "ENNU Memory Optimizer: Garbage collection freed {$collected} cycles" );
+            // REMOVED: error_log( "ENNU Memory Optimizer: Garbage collection freed {$collected} cycles" );
             return $collected;
         }
         return 0;

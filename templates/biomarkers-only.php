@@ -822,7 +822,44 @@ if ( ! function_exists( 'render_biomarker_measurement' ) ) {
 			<span class="stat-label">Core Biomarkers</span>
 		</div>
 		<div class="stat-item">
-			<span class="stat-number">0</span>
+			<span class="stat-number"><?php 
+				// Calculate actual tested biomarkers count based on user data
+				$tested_count = 0;
+				
+				// Check biomarker data in user meta
+				$biomarker_data = get_user_meta($user_id, 'ennu_biomarker_data', true);
+				if (is_array($biomarker_data) && !empty($biomarker_data)) {
+					foreach ($biomarker_data as $biomarker_key => $data) {
+						if (!empty($data['value']) && is_numeric($data['value'])) {
+							$tested_count++;
+						}
+					}
+				}
+				
+				// Check auto-sync biomarkers
+				$auto_sync_data = get_user_meta($user_id, 'ennu_user_biomarkers', true);
+				if (is_array($auto_sync_data) && !empty($auto_sync_data)) {
+					foreach ($auto_sync_data as $biomarker_key => $data) {
+						if (!empty($data['value']) && is_numeric($data['value'])) {
+							// Only count if not already counted in biomarker_data
+							if (!isset($biomarker_data[$biomarker_key]) || empty($biomarker_data[$biomarker_key]['value'])) {
+								$tested_count++;
+							}
+						}
+					}
+				}
+				
+				// Check physical measurements (height, weight, BMI)
+				$physical_biomarkers = array('ennu_global_height', 'ennu_global_weight', 'ennu_global_bmi', 'ennu_global_exact_age');
+				foreach ($physical_biomarkers as $field) {
+					$value = get_user_meta($user_id, $field, true);
+					if (!empty($value) && is_numeric($value)) {
+						$tested_count++;
+					}
+				}
+				
+				echo $tested_count;
+			?></span>
 			<span class="stat-label">Tested</span>
 		</div>
 		<div class="stat-item">

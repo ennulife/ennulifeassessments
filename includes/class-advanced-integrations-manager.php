@@ -335,7 +335,7 @@ public function handle_slack_webhook( $payload ) {
 			break;
 		default:
 			// Log unknown event type
-			error_log( 'ENNU Slack Webhook: Unknown event type: ' . $event_type );
+			// REMOVED: error_log( 'ENNU Slack Webhook: Unknown event type: ' . $event_type );
 	}
 
 	return array(
@@ -469,7 +469,7 @@ private function send_slack_message( $message ) {
  */
 private function mark_assessment_reviewed( $item, $user ) {
 	// Implementation for marking assessment as reviewed
-	error_log( 'ENNU Slack: Assessment marked as reviewed by user: ' . $user );
+	// REMOVED: error_log( 'ENNU Slack: Assessment marked as reviewed by user: ' . $user );
 }
 
 /**
@@ -480,7 +480,7 @@ private function mark_assessment_reviewed( $item, $user ) {
  */
 private function mark_assessment_attention_needed( $item, $user ) {
 	// Implementation for marking assessment as requiring attention
-	error_log( 'ENNU Slack: Assessment marked as requiring attention by user: ' . $user );
+	// REMOVED: error_log( 'ENNU Slack: Assessment marked as requiring attention by user: ' . $user );
 }
 
 /**

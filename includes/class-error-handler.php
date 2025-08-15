@@ -187,7 +187,7 @@ class ENNU_Error_Handler {
 	/**
 	 * Clear error log
 	 */
-	public function clear_error_log() {
+	// REMOVED: public function clear_error_log() {
 		$this->error_log = array();
 	}
 } 

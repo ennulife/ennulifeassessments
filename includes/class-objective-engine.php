@@ -23,7 +23,6 @@ class ENNU_Objective_Engine {
 		$this->load_biomarker_config();
 		$this->adjustment_log = array();
 
-		error_log( 'ENNU Objective Engine: Initialized with ' . count( $this->user_biomarkers ) . ' biomarkers' );
 	}
 
 	private function load_biomarker_config() {
@@ -38,7 +37,6 @@ class ENNU_Objective_Engine {
 
 	public function apply_biomarker_actuality_adjustments( $base_pillar_scores ) {
 		if ( empty( $this->user_biomarkers ) || empty( $this->biomarker_config ) ) {
-			error_log( 'ENNU Objective Engine: No biomarkers or config available' );
 			return $base_pillar_scores;
 		}
 
@@ -66,7 +64,6 @@ class ENNU_Objective_Engine {
 				$original_score             = $adjusted_scores[ $pillar ];
 				$adjusted_scores[ $pillar ] = min( $original_score * $multiplier, 10.0 );
 
-				error_log( "ENNU Objective Engine: Applied {$multiplier}x multiplier to {$pillar} pillar ({$original_score} -> {$adjusted_scores[$pillar]})" );
 			}
 		}
 

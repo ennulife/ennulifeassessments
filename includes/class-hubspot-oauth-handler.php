@@ -47,7 +47,7 @@ class ENNU_HubSpot_OAuth_Handler {
         // add_action( 'wp_ajax_ennu_test_hubspot_connection', array( $this, 'test_connection' ) );
         // add_action( 'wp_ajax_ennu_revoke_hubspot_access', array( $this, 'revoke_access' ) );
         
-        error_log( 'ENNU Life Plugin: OAuth flow disabled - using direct API token instead to prevent connection errors' );
+        // REMOVED: error_log( 'ENNU Life Plugin: OAuth flow disabled - using direct API token instead to prevent connection errors' );
     }
 
     /**
@@ -239,7 +239,7 @@ class ENNU_HubSpot_OAuth_Handler {
             update_option( 'ennu_hubspot_refresh_token', $body['refresh_token'] );
             update_option( 'ennu_hubspot_token_expires', time() + $body['expires_in'] );
             
-            error_log( 'ENNU Life Plugin: OAuth tokens saved successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Life Plugin: OAuth tokens saved successfully' );
             
             // Redirect to remove the code parameter
             wp_redirect( admin_url( 'admin.php?page=ennu-hubspot-oauth&oauth_success=1' ) );
@@ -320,7 +320,7 @@ class ENNU_HubSpot_OAuth_Handler {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            error_log( 'ENNU Life: Failed to get refresh token from HubSpot - ' . $response->get_error_message() );
+            // REMOVED: error_log( 'ENNU Life: Failed to get refresh token from HubSpot - ' . $response->get_error_message() );
             return false;
         }
 
@@ -328,11 +328,11 @@ class ENNU_HubSpot_OAuth_Handler {
         $data = json_decode( $body, true );
 
         if ( $data && isset( $data['refresh_token'] ) ) {
-            error_log( 'ENNU Life: Found refresh token from HubSpot API' );
+            // REMOVED: error_log( 'ENNU Life: Found refresh token from HubSpot API' );
             return $data['refresh_token'];
         }
 
-        error_log( 'ENNU Life: No refresh token found in HubSpot API response' );
+        // REMOVED: error_log( 'ENNU Life: No refresh token found in HubSpot API response' );
         return false;
     }
 

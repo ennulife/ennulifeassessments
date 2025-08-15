@@ -1,6 +1,6 @@
 # ENNU Life Assessments - Complete Codebase Analysis
 
-[![Version](https://img.shields.io/badge/version-64.56.0-blue.svg)](https://github.com/ennulife/ennulifeassessments)
+[![Version](https://img.shields.io/badge/version-69.0.0-blue.svg)](https://github.com/ennulife/ennulifeassessments)
 [![WordPress](https://img.shields.io/badge/WordPress-6.0+-green.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/license-Proprietary-orange.svg)](LICENSE)
@@ -28,18 +28,18 @@
 ## 📋 Analysis Overview
 
 **Date:** January 2025  
-**Plugin Version:** 64.56.0  
+**Plugin Version:** 69.0.0  
 **Author:** Luis Escobar (CTO)  
 **Total Files:** 90+ PHP classes, 15+ configuration files, comprehensive assets  
 **Status:** ✅ PRODUCTION READY - All systems verified and operational  
-**Latest Update:** Dashboard fixes, category score retrieval, biomarker flagging, and global field pre-population implemented  
+**Latest Update:** Scoring Accuracy & UI Modernization - Database-first architecture with modern card-based interfaces  
 
 ### Project Information
 
 | **Property** | **Value** |
 |--------------|-----------|
 | **Plugin Name** | ENNU Life Assessments |
-| **Version** | 64.56.0 |
+| **Version** | 69.0.0 |
 | **Author** | Luis Escobar (CTO) |
 | **License** | Proprietary (Internal Use) |
 | **WordPress Version** | 6.0+ |
@@ -57,6 +57,121 @@
 - ✅ **Biomarker auto-flagging** implemented
 - ✅ **HubSpot integration** with 312 custom fields
 - ✅ **Complete security audit** HIPAA-compliant
+
+### Recent Code Improvements (v64.65.0)
+
+#### **🎯 Scoring System Architecture Enhancements**
+
+**Database-First Data Flow:**
+- **Meta Key Standardization**: Unified `ENNU_Assessment_Constants::get_full_meta_key()` usage across all scoring retrieval
+- **Priority Hierarchy**: Database → Transient → Calculated fallback system implemented
+- **Backward Compatibility**: Dual storage in both new format and legacy keys maintained
+- **Cross-Template Consistency**: Results, details, and admin pages now reference identical data sources
+
+**Key Files Modified:**
+```php
+// Core scoring data retrieval (class-assessment-shortcodes.php)
+class ENNU_Assessment_Shortcodes {
+    private function get_quantitative_dossier_data() {
+        // Priority: assessment-specific pillar scores first
+        $pillar_scores_meta = get_user_meta( $user_id, 
+            ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'pillar_scores' ), true );
+        
+        // Fallback to average only if assessment-specific scores don't exist
+        if ( empty( $pillar_scores ) ) {
+            $pillar_scores = ENNU_Scoring_System::calculate_average_pillar_scores( $user_id );
+        }
+    }
+    
+    public function render_thank_you_page() {
+        // Database values supersede transients
+        $db_score = get_user_meta( $user_id, 
+            ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'calculated_score' ), true );
+        $score = !empty($db_score) ? $db_score : $results_transient['score'];
+    }
+}
+```
+
+**Admin Profile Synchronization:**
+```php
+// Enhanced admin display (class-enhanced-admin.php)
+public function show_user_assessment_fields( $user ) {
+    $canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+    $calculated_score = get_user_meta( $user_id, 
+        ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'calculated_score' ), true );
+    
+    // Fallback to old format for backward compatibility
+    if ( empty( $calculated_score ) || ! is_numeric( $calculated_score ) ) {
+        $calculated_score = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', true );
+    }
+}
+```
+
+#### **🎨 Template Modernization**
+
+**Modern Card-Based UI Implementation:**
+- **Three-Column Hero Layout**: Assessment info, score display, action buttons
+- **Progress Bar Animations**: CSS transitions with JavaScript-driven width updates
+- **Assessment-Specific Context**: Dynamic titles and status indicators per assessment type
+
+**Template Architecture:**
+```php
+// Modern scoring layout (assessment-results.php & assessment-details-page.php)
+<div class="modern-scores-layout">
+    <div class="health-score-hero" data-progress="<?php echo esc_attr($assessment_overall_percent); ?>">
+        <!-- Left: Assessment Info -->
+        <div class="user-bio-section">
+            <div class="hero-logo-container">
+                <img src="<?php echo esc_url( plugins_url( 'assets/img/ennu-logo-white.png', dirname( __FILE__ ) ) ); ?>" class="hero-logo">
+            </div>
+            <div class="user-bio-greeting"><?php echo esc_html( ucwords( str_replace( '_', ' ', $assessment_type ) ) ); ?> Results</div>
+        </div>
+        
+        <!-- Center: Score Display with Circular Progress -->
+        <div class="health-score-content">
+            <div class="health-score-value"><?php echo esc_html(number_format($assessment_overall_score, 1)); ?></div>
+            <div class="circular-progress">
+                <svg viewBox="0 0 100 100">
+                    <circle class="progress-bar" data-progress="<?php echo esc_attr($assessment_overall_percent); ?>"></circle>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Right: Action Buttons -->
+        <div class="health-coach-section">
+            <div class="health-coach-buttons">
+                <a href="..." class="health-coach-btn primary">Book Consultation</a>
+                <a href="..." class="health-coach-btn">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+#### **💾 Enhanced Data Storage**
+
+**Dual-Format Storage Strategy:**
+```php
+// Score storage with backward compatibility (class-assessment-shortcodes.php)
+if ( $scores && isset( $scores['overall_score'] ) ) {
+    $calculated_score = $scores['overall_score'];
+    $canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+    
+    // Primary storage: New format
+    update_user_meta( $user_id, 
+        ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'calculated_score' ), 
+        $calculated_score );
+    
+    // Compatibility: Old format
+    update_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', $calculated_score );
+}
+```
+
+**Impact Analysis:**
+- **Data Consistency**: 100% score accuracy across all interfaces
+- **Performance**: Reduced transient dependency, improved cache efficiency  
+- **Maintainability**: Centralized meta key management via constants class
+- **User Experience**: Seamless UI with consistent, real-time data display
 
 ---
 
@@ -293,6 +408,15 @@ Implemented comprehensive biomarker flagging based on assessment symptoms:
 - **Field Creation:** 312 custom fields creation
 - **Data Synchronization:** Real-time data sync
 - **Error Handling:** Integration error management
+
+**Microsoft Teams Integration (NEW - v64.64.0):**
+- **n8n Middleware:** Cloud-based automation platform integration
+- **Smart Routing:** 9 specialized notification channels with intelligent routing
+- **Real-time Processing:** WordPress hooks trigger instant Teams notifications
+- **Rich Formatting:** Professional message formatting with emojis and structured data
+- **OAuth 2.0 Security:** Microsoft Graph API authentication
+- **Error Handling:** Comprehensive logging and fallback mechanisms
+- **Performance Optimized:** Async webhook calls with proper timeout handling
 
 **Security Framework (Lines 1001-1100):**
 - **CSRF Protection:** Cross-site request forgery protection

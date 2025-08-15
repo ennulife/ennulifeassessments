@@ -52,23 +52,48 @@ $size_class = $size_classes[ $size ] ?? 'ennu-score-medium';
 	<!-- Main Score Display -->
 	<div class="ennu-score-main">
 		<div class="ennu-score-orb-container">
-			<div class="ennu-score-orb" data-score="<?php echo esc_attr( $score ); ?>">
-				<svg viewBox="0 0 36 36" class="ennu-score-svg">
+			<div class="ennu-score-orb center orb-tile ennu-life-score-center" 
+			     data-score="<?php echo esc_attr( $score ); ?>" 
+			     style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;" 
+			     role="progressbar" 
+			     aria-valuemin="0" 
+			     aria-valuemax="100" 
+			     aria-valuenow="<?php echo esc_attr( $score * 10 ); ?>" 
+			     aria-label="<?php echo esc_attr( $title . ' score ' . number_format( $score, 1 ) . ' out of 10' ); ?>">
+			     
+				<!-- Glass panel with effects -->
+				<div class="glass">
+					<div class="blobs">
+						<span class="blob"></span>
+						<span class="blob"></span>
+					</div>
+					<div class="shine"></div>
+				</div>
+				
+				<!-- Progress indicator -->
+				<svg class="pillar-orb-progress" viewBox="0 0 100 100" preserveAspectRatio="none">
 					<defs>
-						<linearGradient id="scoreGradient-<?php echo esc_attr( $type ); ?>" x1="0%" y1="0%" x2="100%" y2="100%">
-							<stop offset="0%" stop-color="<?php echo esc_attr( $interpretation['color'] ?? '#667eea' ); ?>"/>
-							<stop offset="100%" stop-color="<?php echo esc_attr( $interpretation['color'] ?? '#764ba2' ); ?>"/>
+						<linearGradient id="grad-<?php echo esc_attr( $type ); ?>" x1="0%" y1="0%" x2="100%" y2="0%">
+							<stop offset="0%" stop-color="<?php echo esc_attr( $interpretation['color'] ?? '#2dd4bf' ); ?>"/>
+							<stop offset="50%" stop-color="<?php echo esc_attr( $interpretation['color'] ?? '#14b8a6' ); ?>"/>
+							<stop offset="100%" stop-color="<?php echo esc_attr( $interpretation['color'] ?? '#0d9488' ); ?>"/>
 						</linearGradient>
+						<clipPath id="clip-<?php echo esc_attr( $type ); ?>">
+							<rect x="2" y="2" width="96" height="96" rx="10" ry="10" />
+						</clipPath>
 					</defs>
-					<circle class="ennu-score-orb-bg" cx="18" cy="18" r="15.9155"></circle>
-					<circle class="ennu-score-orb-progress" 
-					        cx="18" cy="18" r="15.9155" 
-					        style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>%;"
-					        stroke="url(#scoreGradient-<?php echo esc_attr( $type ); ?>)"></circle>
+					<rect x="2" y="2" width="96" height="96" rx="10" ry="10" class="pillar-orb-progress-bg"></rect>
+					<rect x="2" y="2" width="96" height="96" rx="10" ry="10" class="pillar-orb-progress-bar" 
+					      stroke="url(#grad-<?php echo esc_attr( $type ); ?>)" 
+					      clip-path="url(#clip-<?php echo esc_attr( $type ); ?>)"></rect>
 				</svg>
-				<div class="ennu-score-text">
-					<div class="ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
-					<div class="ennu-score-label"><?php echo esc_html( $title ); ?></div>
+				
+				<!-- Content -->
+				<div class="main-score-orb" data-score="<?php echo esc_attr( number_format( $score, 1 ) ); ?>">
+					<div class="main-score-text ennu-score-text">
+						<div class="main-score-value ennu-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></div>
+						<div class="main-score-label ennu-score-label"><?php echo esc_html( $title ); ?></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -148,17 +173,45 @@ $size_class = $size_classes[ $size ] ?? 'ennu-score-medium';
 					}
 					?>
 					<div class="ennu-pillar-item" data-pillar="<?php echo esc_attr( $pillar ); ?>">
-						<div class="ennu-pillar-orb">
-							<svg viewBox="0 0 24 24" class="ennu-pillar-svg">
-								<circle class="ennu-pillar-bg" cx="12" cy="12" r="10"></circle>
-								<circle class="ennu-pillar-progress" 
-								        cx="12" cy="12" r="10" 
-								        style="--pillar-percent: <?php echo esc_attr( $pillar_score * 10 ); ?>%;"
-								        stroke="<?php echo esc_attr( $pillar_interpretation['color'] ); ?>"></circle>
+						<div class="pillar-orb <?php echo esc_attr( strtolower( $pillar ) ); ?> orb-tile orb-rect" 
+						     role="progressbar" 
+						     aria-valuemin="0" 
+						     aria-valuemax="100" 
+						     aria-valuenow="<?php echo esc_attr( $pillar_score * 10 ); ?>" 
+						     style="--score-percent: <?php echo esc_attr( $pillar_score * 10 ); ?>;" 
+						     aria-label="<?php echo esc_attr( ucfirst( $pillar ) . ' score ' . number_format( $pillar_score, 1 ) . ' out of 10' ); ?>">
+						     
+							<!-- Glass panel with effects -->
+							<div class="glass">
+								<div class="blobs">
+									<span class="blob"></span>
+									<span class="blob"></span>
+								</div>
+								<div class="shine"></div>
+							</div>
+							
+							<!-- Progress indicator -->
+							<svg class="pillar-orb-progress" viewBox="0 0 100 200" preserveAspectRatio="none">
+								<defs>
+									<linearGradient id="grad-<?php echo esc_attr( $pillar ); ?>" x1="0%" y1="0%" x2="100%" y2="0%">
+										<stop offset="0%" stop-color="<?php echo esc_attr( $pillar_interpretation['color'] ); ?>"/>
+										<stop offset="50%" stop-color="<?php echo esc_attr( $pillar_interpretation['color'] ); ?>"/>
+										<stop offset="100%" stop-color="<?php echo esc_attr( $pillar_interpretation['color'] ); ?>"/>
+									</linearGradient>
+									<clipPath id="clip-<?php echo esc_attr( $pillar ); ?>">
+										<rect x="2" y="2" width="96" height="196" rx="16" ry="16" />
+									</clipPath>
+								</defs>
+								<rect x="2" y="2" width="96" height="196" rx="16" ry="16" class="pillar-orb-progress-bg"></rect>
+								<rect x="2" y="2" width="96" height="196" rx="16" ry="16" class="pillar-orb-progress-bar" 
+								      stroke="url(#grad-<?php echo esc_attr( $pillar ); ?>)" 
+								      clip-path="url(#clip-<?php echo esc_attr( $pillar ); ?>)"></rect>
 							</svg>
-							<div class="ennu-pillar-content">
-								<div class="ennu-pillar-score"><?php echo esc_html( number_format( $pillar_score, 1 ) ); ?></div>
-								<div class="ennu-pillar-name"><?php echo esc_html( ucfirst( $pillar ) ); ?></div>
+							
+							<!-- Content -->
+							<div class="pillar-orb-content ennu-pillar-content">
+								<div class="pillar-orb-label ennu-pillar-name"><?php echo esc_html( ucfirst( $pillar ) ); ?></div>
+								<div class="pillar-orb-score ennu-pillar-score"><?php echo esc_html( number_format( $pillar_score, 1 ) ); ?></div>
 							</div>
 						</div>
 					</div>

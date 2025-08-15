@@ -56,7 +56,7 @@ class ENNU_Advanced_Database_Optimizer {
 		// Add admin menu
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		
-		error_log( 'ENNU Advanced Database Optimizer: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Advanced Database Optimizer: Initialized successfully' );
 	}
 	
 	/**
@@ -115,7 +115,7 @@ class ENNU_Advanced_Database_Optimizer {
 		$slow_queries = $this->identify_slow_queries();
 		
 		if ( ! empty( $slow_queries ) ) {
-			error_log( 'ENNU Database Optimizer: Found ' . count( $slow_queries ) . ' slow queries' );
+			// REMOVED: error_log( 'ENNU Database Optimizer: Found ' . count( $slow_queries ) . ' slow queries' );
 			$this->optimize_slow_queries( $slow_queries );
 		}
 		
@@ -123,14 +123,14 @@ class ENNU_Advanced_Database_Optimizer {
 		$duplicate_queries = $this->identify_duplicate_queries();
 		
 		if ( ! empty( $duplicate_queries ) ) {
-			error_log( 'ENNU Database Optimizer: Found ' . count( $duplicate_queries ) . ' duplicate queries' );
+			// REMOVED: error_log( 'ENNU Database Optimizer: Found ' . count( $duplicate_queries ) . ' duplicate queries' );
 			$this->optimize_duplicate_queries( $duplicate_queries );
 		}
 		
 		// Check database size
 		$db_size = $this->get_database_size();
 		if ( $db_size > 100 * 1024 * 1024 ) { // 100MB
-			error_log( 'ENNU Database Optimizer: Database size is ' . round( $db_size / 1024 / 1024, 2 ) . 'MB' );
+			// REMOVED: error_log( 'ENNU Database Optimizer: Database size is ' . round( $db_size / 1024 / 1024, 2 ) . 'MB' );
 			$this->suggest_database_cleanup();
 		}
 	}
@@ -179,7 +179,7 @@ class ENNU_Advanced_Database_Optimizer {
 			$optimization = $this->suggest_query_optimization( $metrics['query'] );
 			
 			if ( $optimization ) {
-				error_log( "ENNU Database Optimizer: Query optimization suggested for query: {$optimization}" );
+				// REMOVED: error_log( "ENNU Database Optimizer: Query optimization suggested for query: {$optimization}" );
 			}
 		}
 	}
@@ -194,7 +194,7 @@ class ENNU_Advanced_Database_Optimizer {
 			$caching_suggestion = $this->suggest_caching_strategy( $metrics['query'] );
 			
 			if ( $caching_suggestion ) {
-				error_log( "ENNU Database Optimizer: Caching suggested for query: {$caching_suggestion}" );
+				// REMOVED: error_log( "ENNU Database Optimizer: Caching suggested for query: {$caching_suggestion}" );
 			}
 		}
 	}
@@ -272,7 +272,7 @@ class ENNU_Advanced_Database_Optimizer {
 			'Remove unused user meta',
 		);
 		
-		error_log( 'ENNU Database Optimizer: Database cleanup suggestions: ' . implode( ', ', $suggestions ) );
+		// REMOVED: error_log( 'ENNU Database Optimizer: Database cleanup suggestions: ' . implode( ', ', $suggestions ) );
 	}
 	
 	/**
@@ -298,7 +298,7 @@ class ENNU_Advanced_Database_Optimizer {
 			}
 		}
 		
-		error_log( 'ENNU Database Optimizer: Optimized tables: ' . implode( ', ', $optimized_tables ) );
+		// REMOVED: error_log( 'ENNU Database Optimizer: Optimized tables: ' . implode( ', ', $optimized_tables ) );
 		
 		return $optimized_tables;
 	}
@@ -323,7 +323,7 @@ class ENNU_Advanced_Database_Optimizer {
 		$orphaned_meta_deleted = $wpdb->query( "DELETE pm FROM {$wpdb->postmeta} pm LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID WHERE p.ID IS NULL" );
 		$cleanup_results['orphaned_meta'] = $orphaned_meta_deleted;
 		
-		error_log( 'ENNU Database Optimizer: Cleanup results: ' . json_encode( $cleanup_results ) );
+		// REMOVED: error_log( 'ENNU Database Optimizer: Cleanup results: ' . json_encode( $cleanup_results ) );
 		
 		return $cleanup_results;
 	}

@@ -22,7 +22,7 @@ add_action( "init", function() {
 // Enhanced user meta saving with better error handling
 add_action( "ennu_assessment_completed", function( $user_id, $assessment_data ) {
     if ( ! $user_id || ! is_array( $assessment_data ) ) {
-        error_log( "ENNU Assessment Fix: Invalid user_id or assessment_data" );
+        // REMOVED: error_log( "ENNU Assessment Fix: Invalid user_id or assessment_data" );
         return;
     }
 
@@ -37,12 +37,12 @@ add_action( "ennu_assessment_completed", function( $user_id, $assessment_data ) 
                 $result = update_user_meta( $user_id, $meta_key, $value );
 
                 if ( ! $result ) {
-                    error_log( "ENNU Assessment Fix: Failed to save meta key: " . $meta_key );
+                    // REMOVED: error_log( "ENNU Assessment Fix: Failed to save meta key: " . $meta_key );
                 }
             }
         }
 
-        error_log( "ENNU Assessment Fix: Completed saving user meta for user " . $user_id );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Assessment Fix: Completed saving user meta for user " . $user_id );
     }
 }, 10, 2 );
 
@@ -76,12 +76,12 @@ add_action( "init", function() {
         if ( ! method_exists( "ENNU_Centralized_Symptoms_Manager", "safe_log" ) ) {
             add_action( "ennu_assessment_completed", function( $user_id, $assessment_type ) {
                 // Use a safer logging approach
-                error_log( "ENNU Centralized Symptoms: Assessment completed for user {$user_id}, type: " . ( is_string( $assessment_type ) ? $assessment_type : 'unknown' ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Assessment completed for user {$user_id}, type: " . ( is_string( $assessment_type ) ? $assessment_type : 'unknown' ) );
                 
                 // Safely update centralized symptoms
                 try {
                     $result = ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $assessment_type );
-                    error_log( "ENNU Centralized Symptoms: Update result for user {$user_id}: " . ( $result ? 'success' : 'failed' ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Centralized Symptoms: Update result for user {$user_id}: " . ( $result ? 'success' : 'failed' ) );
                 } catch ( Exception $e ) {
                     error_log( "ENNU Centralized Symptoms: Error updating symptoms for user {$user_id}: " . $e->getMessage() );
                 }
@@ -121,4 +121,4 @@ add_action( "init", function() {
     }
 }, 20 );
 
-error_log( "ENNU Symptom Logging Fix: Loaded successfully" ); 
+// REMOVED: error_log( "ENNU Symptom Logging Fix: Loaded successfully" );

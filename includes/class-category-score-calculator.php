@@ -22,20 +22,20 @@ class ENNU_Category_Score_Calculator {
 		$this->assessment_type = $assessment_type;
 		$this->responses       = $responses;
 		$this->all_definitions = $all_definitions;
-		error_log( "CategoryScoreCalculator: Instantiated for assessment type '{$assessment_type}'." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "CategoryScoreCalculator: Instantiated for assessment type '{$assessment_type}'." );
 	}
 
 	public function calculate() {
-		error_log( "CategoryScoreCalculator: Starting calculation for '{$this->assessment_type}'." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "CategoryScoreCalculator: Starting calculation for '{$this->assessment_type}'." );
 		$assessment_questions = $this->all_definitions[ $this->assessment_type ] ?? array();
 		if ( empty( $assessment_questions ) ) {
-			error_log( "CategoryScoreCalculator: No questions found for '{$this->assessment_type}'. Returning empty array." );
+			// REMOVED: error_log( "CategoryScoreCalculator: No questions found for '{$this->assessment_type}'. Returning empty array." );
 			return array();
 		}
 
 		$category_scores      = array();
 		$questions_to_iterate = isset( $assessment_questions['questions'] ) ? $assessment_questions['questions'] : $assessment_questions;
-		error_log( 'CategoryScoreCalculator: Found ' . count( $questions_to_iterate ) . ' questions to iterate.' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'CategoryScoreCalculator: Found ' . count( $questions_to_iterate ) . ' questions to iterate.' );
 
 		foreach ( $questions_to_iterate as $question_key => $question_def ) {
 			if ( ! isset( $this->responses[ $question_key ] ) ) {
@@ -52,7 +52,7 @@ class ENNU_Category_Score_Calculator {
 
 				foreach ( $answers_to_process as $single_answer ) {
 					$score = $scoring_rules['answers'][ $single_answer ] ?? 0;
-					 error_log( "CategoryScoreCalculator: Processing '{$question_key}' - Answer '{$single_answer}' in category '{$category}' gets score of {$score}." );
+					 // REMOVED: error_log( "CategoryScoreCalculator: Processing '{$question_key}' - Answer '{$single_answer}' in category '{$category}' gets score of {$score}." );
 
 					if ( ! isset( $category_scores[ $category ] ) ) {
 						$category_scores[ $category ] = array(
@@ -76,7 +76,7 @@ class ENNU_Category_Score_Calculator {
 			}
 		}
 
-		error_log( "CategoryScoreCalculator: Final category scores for '{$this->assessment_type}': " . print_r( $final_category_scores, true ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "CategoryScoreCalculator: Final category scores for '{$this->assessment_type}': " . print_r( $final_category_scores, true ) );
 		return $final_category_scores;
 	}
 }

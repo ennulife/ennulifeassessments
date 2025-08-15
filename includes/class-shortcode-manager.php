@@ -31,18 +31,18 @@ class ENNU_Shortcode_Manager {
 	 */
 	private function init_shortcodes() {
 		if ( ! $this->renderer ) {
-			error_log( 'ENNU Shortcode Manager: Renderer not available' );
+			// REMOVED: error_log( 'ENNU Shortcode Manager: Renderer not available' );
 			return;
 		}
 
 		$definitions = $this->renderer->get_all_assessment_definitions();
-		error_log( 'ENNU Shortcode Manager: Registering ' . count( $definitions ) . ' assessment shortcodes' );
+		// REMOVED: error_log( 'ENNU Shortcode Manager: Registering ' . count( $definitions ) . ' assessment shortcodes' );
 
 		foreach ( $definitions as $assessment_key => $config ) {
 			add_shortcode( "ennu-{$assessment_key}", array( $this, 'render_assessment_shortcode_dynamic' ) );
 			add_shortcode( "ennu-{$assessment_key}-results", array( $this, 'render_results_shortcode_dynamic' ) );
 			add_shortcode( "ennu-{$assessment_key}-assessment-details", array( $this, 'render_details_shortcode_dynamic' ) );
-			error_log( "ENNU Shortcode Manager: Registered shortcodes for {$assessment_key}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Shortcode Manager: Registered shortcodes for {$assessment_key}" );
 		}
 
 		// Core shortcodes
@@ -52,7 +52,7 @@ class ENNU_Shortcode_Manager {
 		add_shortcode( 'scorepresentation', array( $this->renderer, 'render_score_presentation' ) );
 		add_shortcode( 'ennu-biomarkers', array( $this->renderer, 'render_biomarkers_only' ) );
 
-		error_log( 'ENNU Shortcode Manager: All shortcodes registered successfully' );
+		// REMOVED: error_log( 'ENNU Shortcode Manager: All shortcodes registered successfully' );
 	}
 
 	/**

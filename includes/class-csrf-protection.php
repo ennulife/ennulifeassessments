@@ -53,7 +53,7 @@ class ENNU_CSRF_Protection {
 
 	public function verify_nonce( $nonce, $action ) {
 		if ( ! isset( $this->nonce_actions[ $action ] ) ) {
-			error_log( 'ENNU CSRF: Unknown nonce action: ' . $action );
+			// REMOVED: error_log( 'ENNU CSRF: Unknown nonce action: ' . $action );
 			return false;
 		}
 
@@ -105,7 +105,7 @@ class ENNU_CSRF_Protection {
 			'referer'    => $_SERVER['HTTP_REFERER'] ?? 'unknown',
 		);
 
-		error_log( 'ENNU CSRF Failure: ' . wp_json_encode( $log_entry ) );
+		// REMOVED: error_log( 'ENNU CSRF Failure: ' . wp_json_encode( $log_entry ) );
 
 		do_action( 'ennu_csrf_failure', $log_entry );
 	}

@@ -106,7 +106,7 @@ class ENNU_AI_ML_Manager {
 				$log_message .= ' - Data: ' . print_r( $data, true );
 			}
 
-			error_log( $log_message );
+			// REMOVED: error_log( $log_message );
 		}
 
 		// Store in database for admin review

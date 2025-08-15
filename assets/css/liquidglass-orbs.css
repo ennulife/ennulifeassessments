@@ -1,0 +1,330 @@
+/**
+ * LiquidGlass Orbs - Optimized 5-Orb System
+ * 
+ * High-performance glass morphism with perfect visual hierarchy
+ * 
+ * @package ENNU_Life
+ * @since 64.56.0
+ */
+
+/* ==========================================================================
+   CORE VARIABLES
+   ========================================================================== */
+
+:root {
+  /* Layout */
+  --orb-size: 220px;
+  --orb-size-center: 280px;
+  --orb-radius: 16px;
+  --orb-gap: 24px;
+  
+  /* Colors */
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-shadow: rgba(0, 0, 0, 0.1);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  
+  /* Effects */
+  --blur-amount: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Pillar Colors */
+  --mind-color: #3b82f6;
+  --body-color: #10b981;
+  --lifestyle-color: #f59e0b;
+  --aesthetics-color: #ef4444;
+  --center-color: #14b8a6;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+
+.ennu-score-orb-container,
+.ennu-score-orb,
+.ennu-pillar-orb,
+.ennu-score-presentation,
+.ennu-pillar-scores,
+.ennu-pillar-grid,
+.ennu-pillar-item {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Temporarily disable hiding old elements to test 
+.ennu-score-svg,
+.ennu-pillar-svg,
+.pillar-orb-progress {
+  display: none !important;
+}
+*/
+
+/* ==========================================================================
+   5-ORB LAYOUT SYSTEM
+   ========================================================================== */
+
+.scores-layout {
+  display: grid;
+  grid-template-areas: 
+    "mind body center lifestyle aesthetics";
+  grid-template-columns: 1fr 1fr 1.4fr 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: var(--orb-gap);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* ==========================================================================
+   ORB COMPONENTS
+   ========================================================================== */
+
+.orb-tile {
+  position: relative;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: var(--orb-radius);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 
+    0 8px 32px var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* Center orb - larger and prominent */
+.orb-tile.center {
+  width: var(--orb-size-center);
+  height: var(--orb-size-center);
+  grid-area: center;
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.15),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Pillar positioning */
+.orb-tile.mind { 
+  grid-area: mind; 
+  --accent-color: var(--mind-color);
+}
+.orb-tile.body { 
+  grid-area: body; 
+  --accent-color: var(--body-color);
+}
+.orb-tile.lifestyle { 
+  grid-area: lifestyle; 
+  --accent-color: var(--lifestyle-color);
+}
+.orb-tile.aesthetics { 
+  grid-area: aesthetics; 
+  --accent-color: var(--aesthetics-color);
+}
+.orb-tile.center { 
+  --accent-color: var(--center-color);
+}
+
+/* ==========================================================================
+   PROGRESS INDICATORS
+   ========================================================================== */
+
+.orb-progress {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--accent-color) 0deg,
+    var(--accent-color) calc(var(--progress, 0) * 3.6deg),
+    rgba(255, 255, 255, 0.1) calc(var(--progress, 0) * 3.6deg)
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 75%,
+    black 78%,
+    black 92%,
+    transparent 95%
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 75%,
+    black 78%,
+    black 92%,
+    transparent 95%
+  );
+}
+
+/* ==========================================================================
+   CONTENT
+   ========================================================================== */
+
+.orb-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.orb-score {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  line-height: 1;
+}
+
+.orb-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Center orb - larger content */
+.orb-tile.center .orb-score {
+  font-size: 48px;
+  font-weight: 800;
+}
+
+.orb-tile.center .orb-label {
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   EFFECTS & ANIMATIONS
+   ========================================================================== */
+
+.orb-tile::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.3),
+    transparent 70%
+  );
+  border-radius: 50%;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.orb-tile:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 16px 64px rgba(0, 0, 0, 0.15),
+    inset 0 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+.orb-tile:hover .orb-progress {
+  filter: brightness(1.1);
+}
+
+.orb-tile:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .scores-layout {
+    grid-template-areas: 
+      "mind body"
+      "center center"
+      "lifestyle aesthetics";
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 32px 16px;
+  }
+  
+  :root {
+    --orb-size: 180px;
+    --orb-size-center: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .scores-layout {
+    grid-template-areas: 
+      "center"
+      "mind"
+      "body"
+      "lifestyle"
+      "aesthetics";
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  :root {
+    --orb-size: 200px;
+    --orb-size-center: 240px;
+  }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+.orb-tile {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.orb-progress {
+  will-change: filter;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-tile {
+    transition: none;
+  }
+  
+  .orb-tile:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .orb-tile {
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+  
+  .orb-content {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* ==========================================================================
+   DEBUG HELPER
+   ========================================================================== */
+
+.orb-tile[data-debug="true"] {
+  outline: 2px dashed red;
+  outline-offset: 4px;
+}

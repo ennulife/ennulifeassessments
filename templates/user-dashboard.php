@@ -31,6 +31,501 @@ if ( class_exists( 'ENNU_Biomarker_Auto_Sync' ) && is_user_logged_in() ) {
 
 // Add enhanced inline JavaScript with UX improvements
 ?>
+<!-- Load Modern Scoring UI CSS with cache busting - MUST load after other styles -->
+<style>
+/* IMMEDIATE OVERRIDE: Force dark text on light backgrounds */
+.hero-row .pillar-card,
+.hero-row .pillar-card *,
+.pillars-row .pillar-card,
+.pillars-row .pillar-card * {
+    color: #111827 !important;
+}
+.hero-row .pillar-score-value,
+.pillars-row .pillar-score-value {
+    color: var(--pillar-primary, #14b8a6) !important;
+}
+</style>
+<link rel="stylesheet" href="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/css/modern-scoring-ui.css?ver=' . time() ); ?>" />
+<link rel="stylesheet" href="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/css/modern-scoring-mobile.css?ver=' . time() ); ?>" />
+<link rel="stylesheet" href="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/css/mobile-height-fixes.css?ver=' . time() ); ?>" />
+<link rel="stylesheet" href="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/css/ennu-frontend-forms.css?ver=' . time() ); ?>" />
+
+<!-- Include Modal Manager -->
+<script src="<?php echo esc_url( ENNU_LIFE_PLUGIN_URL . 'assets/js/modal-manager.js?ver=' . time() ); ?>"></script>
+
+<script>
+// Ensure plugin URL is available for modal manager
+if (typeof ennu_ajax === 'undefined') {
+    window.ennu_ajax = {
+        plugin_url: '<?php echo esc_js( ENNU_LIFE_PLUGIN_URL ); ?>'
+    };
+}
+
+// Mobile viewport optimization
+(function() {
+    // Ensure proper viewport meta tag
+    var viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) {
+        viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        document.head.appendChild(viewport);
+    }
+    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes';
+    
+    // Detect mobile device
+    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        document.documentElement.classList.add('is-mobile');
+    }
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            window.scrollTo(0, 1);
+        }, 100);
+    });
+})();
+</script>
+
+<script>
+// Inline Weight Editing System
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Weight editing system initializing...');
+    console.log('Modal Manager available?', typeof window.ENNUModalManager !== 'undefined');
+    
+    // Define saveWeight function at the top level
+    function saveWeight(field, originalValue) {
+        const newValue = field.textContent.trim();
+        console.log('Saving weight - original:', originalValue, 'new:', newValue);
+        
+        // If empty or invalid, restore original
+        if (!newValue || isNaN(newValue)) {
+            console.log('Invalid value, restoring original');
+            field.textContent = originalValue;
+            field.contentEditable = 'false';
+            return;
+        }
+        
+        // If value hasn't changed, just disable editing
+        if (newValue === originalValue) {
+            console.log('Value unchanged, disabling edit');
+            field.contentEditable = 'false';
+            return;
+        }
+        
+        // Add saving state
+        field.classList.add('saving');
+        field.contentEditable = 'false';
+        console.log('Sending AJAX request...');
+        
+        // Prepare data for AJAX
+        const data = new FormData();
+        data.append('action', 'ennu_save_weight');
+        data.append('nonce', '<?php echo wp_create_nonce("ennu_save_weight"); ?>');
+        data.append('user_id', field.dataset.userId);
+        data.append('field', field.dataset.field);
+        data.append('value', newValue);
+        console.log('AJAX data prepared - field:', field.dataset.field, 'value:', newValue);
+        
+        // Send AJAX request
+        fetch('<?php echo admin_url("admin-ajax.php"); ?>', {
+            method: 'POST',
+            body: data
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log('AJAX response received:', result);
+            field.classList.remove('saving');
+            if (result.success) {
+                console.log('Weight saved successfully, showing modal...');
+                // Show progress modal with field-specific message
+                if (window.ENNUModalManager) {
+                    console.log('Modal manager available, showing modal');
+                    // Determine modal type based on field
+                    const modalType = field.dataset.field === 'current_weight' ? 'current_weight_update' : 'target_weight_update';
+                    console.log('Using modal type:', modalType, 'for field:', field.dataset.field);
+                    
+                    window.ENNUModalManager.showModal(modalType, function() {
+                        console.log('Modal complete, refreshing page...');
+                        // Refresh page after modal completes
+                        location.reload();
+                    });
+                } else {
+                    console.log('Modal manager not available, refreshing immediately');
+                    // Fallback: refresh immediately if modal manager not loaded
+                    location.reload();
+                }
+            } else {
+                // Restore original value on error
+                field.textContent = originalValue;
+                if (window.ENNUModalManager) {
+                    window.ENNUModalManager.showError('Failed to save weight. Please try again.');
+                } else {
+                    alert('Failed to save weight. Please try again.');
+                }
+            }
+        })
+        .catch(error => {
+            field.classList.remove('saving');
+            field.textContent = originalValue;
+            console.error('Error saving weight:', error);
+            if (window.ENNUModalManager) {
+                window.ENNUModalManager.showError('An error occurred while saving.');
+            }
+        });
+    }
+    
+    // Initialize editable weight fields with a small delay
+    setTimeout(function() {
+        const editableWeights = document.querySelectorAll('.editable-weight');
+        console.log('Found editable weight fields:', editableWeights.length);
+        
+        if (editableWeights.length === 0) {
+            console.error('No editable weight fields found! Check if elements with class "editable-weight" exist.');
+            return;
+        }
+        
+        editableWeights.forEach(field => {
+            let originalValue = field.textContent;
+            
+            // Enable editing on click
+            field.addEventListener('click', function() {
+                console.log('Weight field clicked, contentEditable:', this.contentEditable);
+                if (this.contentEditable === 'false') {
+                    originalValue = this.textContent;
+                    this.contentEditable = 'true';
+                    this.focus();
+                    console.log('Editing enabled for weight field');
+                    
+                    // Select all text
+                    const range = document.createRange();
+                    range.selectNodeContents(this);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            });
+            
+            // Save on blur
+            field.addEventListener('blur', function() {
+                saveWeight(this, originalValue);
+            });
+            
+            // Save on Enter, cancel on Escape
+            field.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                } else if (e.key === 'Escape') {
+                    this.textContent = originalValue;
+                    this.contentEditable = 'false';
+                }
+            });
+            
+            // Only allow numbers and decimal point
+            field.addEventListener('input', function() {
+                let value = this.textContent;
+                value = value.replace(/[^0-9.]/g, '');
+                if (value !== this.textContent) {
+                    this.textContent = value;
+                    
+                    // Move cursor to end
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+                    range.selectNodeContents(this);
+                    range.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            });
+        });
+    }, 100);
+    
+    // Initialize Weight/BMI Chart (detailed version)
+    // Note: The mini chart is handled by score-mini-charts.js
+    initializeWeightBMIChart();
+    
+    function initializeWeightBMIChart() {
+        // Look for dedicated detailed chart container only
+        const chartContainer = document.querySelector('.weight-bmi-detailed-chart');
+        
+        // If no detailed chart container, skip (mini chart will be handled by score-mini-charts.js)
+        if (!chartContainer) {
+            console.log('Detailed weight chart container not found - using mini chart only');
+            return;
+        }
+        
+        // Get current values from data attributes (handle both naming conventions)
+        const currentWeight = parseFloat(chartContainer.dataset.currentWeight || chartContainer.dataset.weight) || 0;
+        const currentBMI = parseFloat(chartContainer.dataset.currentBmi || chartContainer.dataset.bmi) || 0;
+        const targetWeight = parseFloat(chartContainer.dataset.targetWeight) || 0;
+        const targetBMI = parseFloat(chartContainer.dataset.targetBmi) || 0;
+        
+        console.log('Chart data:', { currentWeight, currentBMI, targetWeight, targetBMI });
+        
+        // Get real historical data from PHP
+        let weightHistory = [];
+        try {
+            weightHistory = <?php 
+                $weight_history = get_user_meta($current_user->ID, 'weight_history', true);
+                
+                // Always ensure we have valid data
+                if (is_array($weight_history) && !empty($weight_history)) {
+                    // Validate and clean the history
+                    $clean_history = array();
+                    foreach ($weight_history as $entry) {
+                        if (isset($entry['weight']) && is_numeric($entry['weight'])) {
+                            $clean_entry = array(
+                                'weight' => floatval($entry['weight']),
+                                'bmi' => isset($entry['bmi']) ? floatval($entry['bmi']) : 0,
+                                'date' => isset($entry['date']) ? $entry['date'] : date('Y-m-d')
+                            );
+                            $clean_history[] = $clean_entry;
+                        }
+                    }
+                    
+                    if (!empty($clean_history)) {
+                        echo json_encode($clean_history);
+                    } else {
+                        echo '[]';
+                    }
+                } else {
+                    echo '[]';
+                }
+            ?>;
+        } catch (e) {
+            console.error('Error parsing weight history:', e);
+            weightHistory = [];
+        }
+        
+        // If no history exists or it's empty, initialize it properly
+        if (!weightHistory || weightHistory.length === 0) {
+            console.log('No weight history found, initializing...');
+            
+            // Try to get current weight from PHP
+            const phpWeight = <?php echo json_encode(floatval(str_replace(' lbs', '', $weight ?? '0'))); ?>;
+            const phpBMI = <?php echo json_encode(floatval($bmi ?? '0')); ?>;
+            
+            // Initialize weight history if we have a current weight
+            if (phpWeight > 0 || currentWeight > 0) {
+                // Initialize history with PHP
+                <?php
+                    // Initialize weight history if needed
+                    require_once(plugin_dir_path(__FILE__) . '../includes/class-weight-history-initializer.php');
+                    $history = ENNU_Weight_History_Initializer::ensure_weight_history($current_user->ID);
+                ?>
+                
+                // Re-fetch the newly created history
+                weightHistory = <?php 
+                    $weight_history = get_user_meta($current_user->ID, 'weight_history', true);
+                    if (is_array($weight_history) && !empty($weight_history)) {
+                        $clean_history = array();
+                        foreach ($weight_history as $entry) {
+                            if (isset($entry['weight']) && is_numeric($entry['weight'])) {
+                                $clean_history[] = array(
+                                    'weight' => floatval($entry['weight']),
+                                    'bmi' => isset($entry['bmi']) ? floatval($entry['bmi']) : 0,
+                                    'date' => isset($entry['date']) ? $entry['date'] : ''
+                                );
+                            }
+                        }
+                        echo json_encode($clean_history);
+                    } else {
+                        // If still no history, create a single current point
+                        echo json_encode(array(
+                            array(
+                                'weight' => floatval(str_replace(' lbs', '', $weight ?? '0')),
+                                'bmi' => floatval($bmi ?? '0'),
+                                'date' => date('Y-m-d')
+                            )
+                        ));
+                    }
+                ?>;
+            } else {
+                console.log('No weight data available for chart');
+                return;
+            }
+        }
+        
+        // Function to format date labels
+        function formatDateLabel(dateStr) {
+            if (!dateStr || dateStr === 'Unknown' || dateStr === 'Target') {
+                return dateStr;
+            }
+            
+            const date = new Date(dateStr);
+            const today = new Date();
+            const diffTime = today - date;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return 'Today';
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return diffDays + ' days ago';
+            } else if (diffDays < 30) {
+                const weeks = Math.floor(diffDays / 7);
+                return weeks + (weeks === 1 ? ' week ago' : ' weeks ago');
+            } else if (diffDays < 365) {
+                const months = Math.floor(diffDays / 30);
+                return months + (months === 1 ? ' month ago' : ' months ago');
+            } else {
+                // Show actual date for old entries
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+        }
+        
+        // Process and validate history data
+        const historyData = weightHistory.filter(entry => entry && entry.weight > 0).map(entry => ({
+            weight: parseFloat(entry.weight) || 0,
+            bmi: parseFloat(entry.bmi || entry.value || 0) || currentBMI || 0,
+            date: entry.date || 'Unknown',
+            dateLabel: formatDateLabel(entry.date || 'Unknown')
+        }));
+        
+        // Add target as future point if it exists
+        if (targetWeight > 0) {
+            historyData.push({
+                weight: targetWeight, 
+                bmi: targetBMI || (targetWeight / (currentWeight / currentBMI)),
+                date: 'Target',
+                dateLabel: 'Target',
+                isTarget: true
+            });
+        }
+        
+        const width = chartContainer.offsetWidth || 280;
+        const height = 80;
+        const padding = 10;
+        
+        // Create SVG
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        
+        // Calculate scales
+        const weights = historyData.map(d => d.weight);
+        const bmis = historyData.map(d => d.bmi);
+        
+        const minWeight = Math.min(...weights) - 5;
+        const maxWeight = Math.max(...weights) + 5;
+        const minBMI = Math.min(...bmis) - 2;
+        const maxBMI = Math.max(...bmis) + 2;
+        
+        const xStep = (width - padding * 2) / (historyData.length - 1);
+        
+        // Helper functions
+        function getX(index) {
+            return padding + (index * xStep);
+        }
+        
+        function getWeightY(value) {
+            return padding + (height - padding * 2) - ((value - minWeight) / (maxWeight - minWeight)) * (height - padding * 2);
+        }
+        
+        function getBMIY(value) {
+            return padding + (height - padding * 2) - ((value - minBMI) / (maxBMI - minBMI)) * (height - padding * 2);
+        }
+        
+        // Draw weight line
+        let weightPath = "";
+        historyData.forEach((point, i) => {
+            const x = getX(i);
+            const y = getWeightY(point.weight);
+            if (i === 0) {
+                weightPath += `M ${x} ${y}`;
+            } else {
+                weightPath += ` L ${x} ${y}`;
+            }
+        });
+        
+        const weightLine = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        weightLine.setAttribute("d", weightPath);
+        weightLine.setAttribute("class", "chart-line-weight");
+        svg.appendChild(weightLine);
+        
+        // Draw BMI line
+        let bmiPath = "";
+        historyData.forEach((point, i) => {
+            const x = getX(i);
+            const y = getBMIY(point.bmi);
+            if (i === 0) {
+                bmiPath += `M ${x} ${y}`;
+            } else {
+                bmiPath += ` L ${x} ${y}`;
+            }
+        });
+        
+        const bmiLine = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        bmiLine.setAttribute("d", bmiPath);
+        bmiLine.setAttribute("class", "chart-line-bmi");
+        svg.appendChild(bmiLine);
+        
+        // Draw dots for weight
+        historyData.forEach((point, i) => {
+            const x = getX(i);
+            const y = getWeightY(point.weight);
+            
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            
+            // Style differently for target point
+            if (point.isTarget) {
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", "#374151");
+                circle.setAttribute("stroke", "#fff");
+                circle.setAttribute("stroke-width", "1");
+                circle.setAttribute("data-value", `Target Weight: ${point.weight} lbs`);
+                circle.classList.add("target-dot");
+            } else {
+                // Current weight (last non-target) is larger
+                const isCurrentWeight = (i === historyData.length - 2 && targetWeight > 0) || 
+                                       (i === historyData.length - 1 && !targetWeight);
+                circle.setAttribute("r", isCurrentWeight ? "4" : "3");
+                circle.setAttribute("fill", "#4b5563");
+                circle.setAttribute("data-value", `Weight: ${point.weight} lbs (${point.dateLabel || point.date})`);
+            }
+            svg.appendChild(circle);
+        });
+        
+        // Draw dots for BMI
+        historyData.forEach((point, i) => {
+            const x = getX(i);
+            const y = getBMIY(point.bmi);
+            
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            
+            // Style differently for target point
+            if (point.isTarget) {
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", "#6b7280");
+                circle.setAttribute("stroke", "#fff");
+                circle.setAttribute("stroke-width", "1");
+                circle.setAttribute("data-value", `Target BMI: ${point.bmi.toFixed(1)}`);
+                circle.classList.add("target-dot");
+            } else {
+                // Current BMI (last non-target) is larger
+                const isCurrentBMI = (i === historyData.length - 2 && targetWeight > 0) || 
+                                    (i === historyData.length - 1 && !targetWeight);
+                circle.setAttribute("r", isCurrentBMI ? "4" : "3");
+                circle.setAttribute("fill", "#9ca3af");
+                circle.setAttribute("data-value", `BMI: ${point.bmi.toFixed(1)} (${point.dateLabel || point.date})`);
+            }
+            svg.appendChild(circle);
+        });
+        
+        // Clear container and add SVG
+        chartContainer.innerHTML = '';
+        chartContainer.appendChild(svg);
+    }
+});
+</script>
+
 <script type="text/javascript">
 // Enhanced toggle functions with visual feedback and accessibility
 window.togglePanel = function(panelKey) {
@@ -1128,53 +1623,61 @@ if ( empty( $display_name ) ) {
 	$display_name = $current_user->display_name ?? $current_user->user_login ?? 'User';
 }
 ?>
-<div class="ennu-user-dashboard">
 
 
-	<!-- Light/Dark Mode Toggle -->
-	<div class="theme-toggle-container">
-		<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">
-			<div class="toggle-track">
-				<div class="toggle-thumb">
-					<svg class="toggle-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="5"/>
-						<line x1="12" y1="1" x2="12" y2="3"/>
-						<line x1="12" y1="21" x2="12" y2="23"/>
-						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-						<line x1="1" y1="12" x2="3" y2="12"/>
-						<line x1="21" y1="12" x2="23" y2="12"/>
-						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-					</svg>
-					<svg class="toggle-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-					</svg>
-				</div>
-			</div>
-		</button>
-	</div>
-
-
-
-
-
-
-		<main class="dashboard-main-content">
-
-			<!-- Welcome Section -->
-			<div class="dashboard-welcome-section">
-				<!-- Logo above title -->
-				<div class="dashboard-logo-container">
-					<img src="<?php echo esc_url( plugins_url( 'assets/img/ennu-logo-black.png', dirname( __FILE__ ) ) ); ?>" 
-						 alt="ENNU Life Logo" 
-						 class="dashboard-logo light-mode-logo">
-					<img src="<?php echo esc_url( plugins_url( 'assets/img/ennu-logo-white.png', dirname( __FILE__ ) ) ); ?>" 
-						 alt="ENNU Life Logo" 
-						 class="dashboard-logo dark-mode-logo">
-				</div>
-				<h1 class="dashboard-title dashboard-title-large" id="dynamic-greeting"><?php echo esc_html( $display_name ); ?>'s Biometric Canvas</h1>
 				<script>
+				// Pass weight history data to JavaScript for mini charts
+				window.weightHistoryData = <?php 
+					$weight_history = get_user_meta($current_user->ID, 'weight_history', true);
+					if (is_array($weight_history) && !empty($weight_history)) {
+						echo json_encode($weight_history);
+					} else {
+						echo '[]';
+					}
+				?>;
+				
+				// Pass all historical data for charts using existing systems
+				window.ennuHistoricalData = {
+					weight: window.weightHistoryData,
+					<?php
+					// Get historical data for all pillars using existing database methods
+					$database = ENNU_Life_Enhanced_Database::get_instance();
+					$pillars = array('Mind', 'Body', 'Lifestyle', 'Aesthetics', 'EnnuLife');
+					
+					foreach ($pillars as $pillar) {
+						// Get existing global score history
+						$global_history = get_user_meta($current_user->ID, 'ennu_global_score_history', true);
+						$pillar_history = array();
+						
+						if (is_array($global_history)) {
+							// Filter history for relevant scores and format for charts
+							foreach ($global_history as $entry) {
+								if (isset($entry['category_scores'][$pillar])) {
+									$pillar_history[] = array(
+										'value' => floatval($entry['category_scores'][$pillar]),
+										'date' => date('Y-m-d', strtotime($entry['date'])),
+										'timestamp' => isset($entry['timestamp']) ? $entry['timestamp'] : strtotime($entry['date'])
+									);
+								}
+							}
+							
+							// Sort by date (oldest first) and limit to last 90 days
+							usort($pillar_history, function($a, $b) {
+								return strtotime($a['date']) - strtotime($b['date']);
+							});
+							
+							// Filter to last 90 days
+							$cutoff_date = date('Y-m-d', strtotime('-90 days'));
+							$pillar_history = array_filter($pillar_history, function($entry) use ($cutoff_date) {
+								return $entry['date'] >= $cutoff_date;
+							});
+						}
+						
+						echo $pillar . ': ' . json_encode(array_values($pillar_history)) . ',';
+					}
+					?>
+				};
+				
 				// Dynamic greeting system using user's local time
 				(function() {
 					function getLocalTimeGreeting(displayName) {
@@ -1245,205 +1748,715 @@ if ( empty( $display_name ) ) {
 					
 					// Update the greeting when page loads
 					document.addEventListener('DOMContentLoaded', function() {
+						const displayName = '<?php echo esc_js( $display_name ); ?>';
+						
+						// Update main greeting
 						const greetingElement = document.getElementById('dynamic-greeting');
 						if (greetingElement) {
-							const displayName = '<?php echo esc_js( $display_name ); ?>';
 							greetingElement.textContent = getLocalTimeGreeting(displayName);
+						}
+						
+						// Update member card greeting
+						const memberCardGreeting = document.getElementById('member-card-greeting');
+						if (memberCardGreeting) {
+							const h3 = memberCardGreeting.querySelector('h3');
+							if (h3) {
+								h3.textContent = getLocalTimeGreeting(displayName);
+							}
 						}
 					});
 				})();
 				</script>
-				<p class="dashboard-subtitle">Track your progress and discover personalized insights for optimal health.</p>
-				
-				<!-- Vital Statistics Display -->
-				<?php if ( ! empty( $age ) || ! empty( $gender ) || ! empty( $height ) || ! empty( $weight ) || ! empty( $bmi ) ) : ?>
-				<div class="vital-stats-display">
-					<?php if ( ! empty( $age ) ) : ?>
-					<div class="vital-stat-item">
-						<span class="vital-stat-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-								<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-								<circle cx="12" cy="7" r="4"/>
-							</svg>
-						</span>
-						<span class="vital-stat-value"><?php echo esc_html( $age ); ?> years</span>
-					</div>
-					<?php endif; ?>
-					<?php if ( ! empty( $gender ) ) : ?>
-					<div class="vital-stat-item">
-						<span class="vital-stat-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-								<circle cx="12" cy="12" r="10"/>
-								<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-							</svg>
-						</span>
-						<span class="vital-stat-value"><?php echo esc_html( $gender ); ?></span>
-					</div>
-					<?php endif; ?>
-					<?php if ( ! empty( $height ) ) : ?>
-					<div class="vital-stat-item">
-						<span class="vital-stat-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-								<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-								<path d="M3 6h18M3 12h18M3 18h18"/>
-							</svg>
-						</span>
-						<span class="vital-stat-value"><?php echo esc_html( $height ); ?></span>
-					</div>
-					<?php endif; ?>
-					<?php if ( ! empty( $weight ) ) : ?>
-					<div class="vital-stat-item">
-						<span class="vital-stat-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-								<path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-								<path d="M12 6v6M8 12h8"/>
-							</svg>
-						</span>
-						<span class="vital-stat-value"><?php echo esc_html( $weight ); ?></span>
-					</div>
-					<?php endif; ?>
-					<?php if ( ! empty( $bmi ) ) : ?>
-					<div class="vital-stat-item">
-						<span class="vital-stat-icon">
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-								<path d="M3 3h18v18H3z"/>
-								<path d="M9 9h6v6H9z"/>
-								<path d="M12 3v18M3 12h18"/>
-							</svg>
-						</span>
-						<span class="vital-stat-value">BMI: <?php echo esc_html( $bmi ); ?></span>
-					</div>
-					<?php endif; ?>
-				</div>
-				<?php endif; ?>
-			</div>
 
 
 
-			<!-- My Scores Section -->
-			<details class="health-scores-accordion" open>
-				<summary class="scores-title-container">
-					<h2 class="scores-title">MY LIFE SCORES</h2>
-				</summary>
-				<div class="dashboard-scores-row">
-				<!-- Scores Content Grid -->
-				<div class="scores-content-grid">
-					<!-- Left Pillar Scores -->
-					<div class="pillar-scores-left">
-						<?php
-						$all_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
-						$pillar_count = 0;
-						
-						foreach ( $all_pillars as $pillar ) {
-							if ( $pillar_count >= 2 ) {
-								break; // Only show first 2 pillars
-							}
-							
-  							$has_data = isset( $average_pillar_scores[ $pillar ] ) && $average_pillar_scores[ $pillar ] > 0;
-							$score = $has_data ? $average_pillar_scores[ $pillar ] : 0;
-							$pillar_class = esc_attr( strtolower( $pillar ) );
-							$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
-							$style_attr = '--spin-duration: ' . $spin_duration . 's;';
-							$insight_text = $insights['pillars'][ $pillar ] ?? '';
-							
-							// Always show the same visual structure, only change the score text
-							?>
-							<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>" data-pillar="<?php echo esc_attr( $pillar ); ?>" data-has-score="<?php echo $has_data ? 'true' : 'false'; ?>">
-								<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-									<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-									<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
-								</svg>
-								<div class="pillar-orb-content">
-									<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-									<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
-								</div>
-								<div class="floating-particles"></div>
-								<div class="decoration-dots"></div>
+
+
+			<!-- Modern Scoring UI -->
+				<div class="modern-scores-layout">
+					<?php
+					// Define all pillars
+					$all_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
+
+					// Calculate health score percentage for progress animation
+					$health_score_percent = $ennu_life_score ? round($ennu_life_score * 10) : 0;
+
+					// Get health score description
+					$health_score_description = 'Getting started';
+					if ($ennu_life_score >= 9) {
+						$health_score_description = 'Exceptional • Top 5% of users';
+					} elseif ($ennu_life_score >= 8) {
+						$health_score_description = 'Excellent • Top 15% of users';
+					} elseif ($ennu_life_score >= 7) {
+						$health_score_description = 'Very Good • Above average';
+					} elseif ($ennu_life_score >= 6) {
+						$health_score_description = 'Good • Room for improvement';
+					} elseif ($ennu_life_score >= 5) {
+						$health_score_description = 'Fair • Focus on key areas';
+					} elseif ($ennu_life_score > 0) {
+						$health_score_description = 'Needs attention • Start today';
+					}
+					?>
+
+					<!-- Hero Section - Three Columns with pillar card styling -->
+					<div class="hero-row">
+						<!-- Column 1: Member Information -->
+						<div class="pillar-card member-info-card">
+							<div class="pillar-card-header">
+								<img src="<?php echo ENNU_LIFE_PLUGIN_URL; ?>assets/img/ennu-logo-black.png" 
+								     alt="ENNU Life" 
+								     class="member-card-logo"
+								     style="max-height: 35px; width: auto; display: block; margin: 0 auto;">
 							</div>
-							<?php
-							$pillar_count++;
+							
+							<div class="member-info-content">
+								<div class="member-greeting" id="member-card-greeting" style="text-align: center; margin-top: 10px;">
+									<h3 style="margin: 0; font-size: 16px; font-weight: 600;">Welcome, <?php echo esc_html($first_name ?: 'Member'); ?>!</h3>
+								</div>
+								<div class="member-details">
+									<div class="member-detail-item">
+										<span class="detail-label">Member Since:</span>
+										<span class="detail-value"><?php echo esc_html(date('F Y', strtotime($current_user->user_registered))); ?></span>
+									</div>
+									<div class="member-detail-item">
+										<span class="detail-label">Assessments:</span>
+										<span class="detail-value"><?php 
+											$completed_count = count(array_filter($average_pillar_scores, function($score) { return $score > 0; }));
+											echo esc_html($completed_count . '/11'); 
+										?></span>
+									</div>
+									<?php if ( ! empty( $age ) ) : ?>
+									<div class="member-detail-item">
+										<span class="detail-label">Age:</span>
+										<span class="detail-value"><?php echo esc_html( $age ); ?> years</span>
+									</div>
+									<?php endif; ?>
+									<?php if ( ! empty( $gender ) ) : ?>
+									<div class="member-detail-item">
+										<span class="detail-label">Gender:</span>
+										<span class="detail-value"><?php echo esc_html( ucfirst($gender) ); ?></span>
+									</div>
+									<?php endif; ?>
+									<?php if ( ! empty( $height ) ) : ?>
+									<div class="member-detail-item">
+										<span class="detail-label">Height:</span>
+										<span class="detail-value"><?php echo esc_html( $height ); ?></span>
+									</div>
+									<?php endif; ?>
+									<?php if ( ! empty( $weight ) ) : ?>
+									<div class="member-detail-item weight-row">
+										<span class="detail-label">Weight:</span>
+										<span class="detail-value">
+											<span class="editable-weight" 
+												  data-field="current_weight" 
+												  data-user-id="<?php echo esc_attr($current_user->ID); ?>"
+												  data-height="<?php echo esc_attr($height); ?>"
+												  contenteditable="false"><?php echo esc_html( $weight ); ?></span> lbs
+											<span class="weight-divider">|</span>
+											<span class="target-label">Target:</span>
+											<span class="editable-weight" 
+												  data-field="target_weight" 
+												  data-user-id="<?php echo esc_attr($current_user->ID); ?>"
+												  data-height="<?php echo esc_attr($height); ?>"
+												  contenteditable="false"><?php 
+												  $target_weight = get_user_meta($current_user->ID, 'target_weight', true);
+												  echo esc_html( $target_weight ?: '---' ); 
+											?></span> lbs
+										</span>
+									</div>
+									<?php endif; ?>
+									<?php if ( ! empty( $bmi ) ) : ?>
+									<?php 
+										// Calculate target BMI if target weight exists
+										$target_bmi = '';
+										if (!empty($target_weight) && !empty($height)) {
+											// Parse height to inches
+											$height_inches = 0;
+											if (preg_match('/(\d+)[\'ft\s]+(\d+)/', $height, $matches)) {
+												$height_inches = ($matches[1] * 12) + $matches[2];
+											}
+											if ($height_inches > 0) {
+												$target_bmi = ($target_weight / ($height_inches * $height_inches)) * 703;
+												$target_bmi = number_format($target_bmi, 1);
+											}
+										}
+									?>
+									<div class="member-detail-item no-border">
+										<span class="detail-label">BMI:</span>
+										<span class="detail-value">
+											<span><?php echo esc_html( number_format((float)$bmi, 1) ); ?></span>
+											<?php if ($target_bmi) : ?>
+												<span class="weight-divider">|</span>
+												<span class="target-label">Target:</span>
+												<span id="target-bmi"><?php echo esc_html($target_bmi); ?></span>
+											<?php endif; ?>
+										</span>
+									</div>
+									<?php endif; ?>
+								</div>
+								
+								<!-- Divider with tapered fading edges -->
+								<div class="member-divider"></div>
+								
+								<!-- Weight & BMI Chart Container -->
+								<div class="weight-bmi-mini-chart-container" 
+									 data-current-weight="<?php echo esc_attr($weight); ?>"
+									 data-current-bmi="<?php echo esc_attr($bmi); ?>"
+									 data-target-weight="<?php echo esc_attr($target_weight ?: ''); ?>"
+									 data-target-bmi="<?php echo esc_attr($target_bmi ?: ''); ?>">
+									<!-- Chart will be inserted here by JavaScript -->
+								</div>
+							</div>
+						</div>
+
+						<!-- Column 2: EnnuLife Score (styled like pillar cards) -->
+						<?php 
+						// Function to calculate individual target for any score
+						function calculate_individual_target($current_score) {
+							if ($current_score == 0) {
+								return 3.0;
+							} elseif ($current_score < 3.0) {
+								return min(5.0, $current_score + 2.0);
+							} elseif ($current_score < 6.0) {
+								return min(7.5, $current_score + 1.5);
+							} elseif ($current_score < 8.0) {
+								return min(9.0, $current_score + 1.0);
+							} else {
+								return min(10.0, $current_score + 0.5);
+							}
+						}
+						
+						// Progress bar calculation: 0% = score of 0, 100% = reached target
+						// Calculate EnnuLife target score
+						if ($ennu_life_score == 0) {
+							$global_target_score = 3.0;
+							$progress_percentage = 0;
+						} elseif ($ennu_life_score < 3.0) {
+							$global_target_score = min(5.0, $ennu_life_score + 2.0);
+							$progress_percentage = ($ennu_life_score / $global_target_score) * 100;
+						} elseif ($ennu_life_score < 6.0) {
+							$global_target_score = min(7.5, $ennu_life_score + 1.5);
+							$progress_percentage = ($ennu_life_score / $global_target_score) * 100;
+						} elseif ($ennu_life_score < 8.0) {
+							$global_target_score = min(9.0, $ennu_life_score + 1.0);
+							$progress_percentage = ($ennu_life_score / $global_target_score) * 100;
+						} else {
+							$global_target_score = min(10.0, $ennu_life_score + 0.5);
+							$progress_percentage = ($ennu_life_score / $global_target_score) * 100;
 						}
 						?>
-					</div>
-
-					<!-- Center ENNU Life Score -->
-					<div class="ennu-life-score-center">
-						<div class="main-score-orb" data-score="<?php echo esc_attr( $ennu_life_score ?? 0 ); ?>" data-insight="<?php echo esc_attr( $insights['ennu_life_score'] ?? '' ); ?>">
-							<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-								<defs>
-									<linearGradient id="ennu-score-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-										<stop offset="0%" stop-color="rgba(16, 185, 129, 0.6)"/>
-										<stop offset="50%" stop-color="rgba(5, 150, 105, 0.6)"/>
-										<stop offset="100%" stop-color="rgba(4, 120, 87, 0.6)"/>
-									</linearGradient>
-								</defs>
-								<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-								<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( ( $ennu_life_score ?? 0 ) * 10 ); ?>;"></circle>
-							</svg>
-							<div class="main-score-text">
-								<div class="main-score-value"><?php echo esc_html( number_format( $ennu_life_score ?? 0, 1 ) ); ?></div>
-								<div class="main-score-label">ENNU Life Score</div>
+						<div class="pillar-card ennulife" 
+							 style="--progress: <?php echo esc_attr($progress_percentage); ?>"
+							 data-pillar="EnnuLife"
+							 data-current-score="<?php echo esc_attr($ennu_life_score); ?>"
+							 role="button"
+							 tabindex="0"
+							 aria-label="<?php echo esc_attr('EnnuLife score ' . number_format($ennu_life_score, 1) . ' out of 10'); ?>">
+							
+							<!-- Background image layer -->
+							<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('<?php echo ENNU_LIFE_PLUGIN_URL; ?>assets/img/ennulife-score.png'); background-repeat: no-repeat; background-position: center center; background-size: 50%; opacity: 0.06; pointer-events: none; z-index: 0;"></div>
+							
+							<div class="pillar-card-header" style="position: relative; z-index: 1;">
+								<div class="pillar-card-title">EnnuLife Score</div>
 							</div>
-							<div class="decoration-dots"></div>
+							
+							<div class="pillar-card-score" style="position: relative; z-index: 1;">
+								<div style="display: flex; align-items: baseline; gap: 6px;">
+									<div class="pillar-score-value" aria-live="polite">
+										<?php echo esc_html(number_format($ennu_life_score, 1)); ?>
+									</div>
+									<div class="pillar-score-max">/10</div>
+								</div>
+								<div class="pillar-target-value">
+									<?php echo esc_html(number_format($global_target_score, 1)); ?>
+								</div>
+							</div>
+							
+							<div class="pillar-progress-bar" style="position: relative; z-index: 1;"
+								 role="progressbar" 
+								 aria-valuemin="0" 
+								 aria-valuemax="10" 
+								 aria-valuenow="<?php echo esc_attr($ennu_life_score); ?>">
+								<div class="pillar-progress-fill"></div>
+							</div>
+							
+							<div class="pillar-card-footer" style="position: relative; z-index: 1;">
+								<div class="pillar-target-label">
+									Target: <span class="target-value-small"><?php echo esc_html(number_format($global_target_score, 1)); ?></span>
+								</div>
+								<div class="pillar-progress-percent"><?php echo esc_html(round($progress_percentage)); ?>% there</div>
+							</div>
+							
+							<!-- Divider with tapered fading edges -->
+							<div class="biomarker-divider"></div>
+							
+							<!-- Biomarker Progress Bars Section -->
+							<div class="biomarker-bars-section">
+								<div class="biomarker-section-header">
+									<div class="biomarker-section-title">Biomarkers</div>
+									<button class="upload-labs-btn" onclick="openLabCorpUploadTab()">
+										Upload Labs
+									</button>
+								</div>
+								
+								<?php
+								// Get biomarker statistics
+								$biomarker_stats = array(
+									'flagged_count' => 8,
+									'flagged_percentage' => 23,
+									'has_data_count' => 35,
+									'has_data_percentage' => 70,
+									'optimal_count' => 22,
+									'optimal_percentage' => 63,
+									'outside_optimal_count' => 13,
+									'outside_optimal_percentage' => 37,
+									'total_biomarkers' => 50
+								);
+								
+								// Get user's real biomarker data if available
+								$biomarker_data = get_user_meta($user_id, 'ennu_biomarker_data', true);
+								
+								if (!empty($biomarker_data) && is_array($biomarker_data)) {
+									$has_data = 0;
+									$flagged = 0;
+									$optimal = 0;
+									$outside_optimal = 0;
+									
+									foreach ($biomarker_data as $biomarker => $data) {
+										if (isset($data['value']) && $data['value'] !== '') {
+											$has_data++;
+											
+											// Check if flagged
+											if (isset($data['flagged']) && $data['flagged'] === true) {
+												$flagged++;
+											}
+											
+											// Check if in optimal range
+											if (isset($data['status'])) {
+												if ($data['status'] === 'optimal') {
+													$optimal++;
+												} elseif ($data['status'] === 'suboptimal' || $data['status'] === 'poor') {
+													$outside_optimal++;
+												}
+											}
+										}
+									}
+									
+									// Update stats with real data
+									if ($has_data > 0) {
+										$biomarker_stats['has_data_count'] = $has_data;
+										$biomarker_stats['has_data_percentage'] = round(($has_data / $biomarker_stats['total_biomarkers']) * 100);
+										
+										$biomarker_stats['flagged_count'] = $flagged;
+										$biomarker_stats['flagged_percentage'] = round(($flagged / $has_data) * 100);
+										
+										$biomarker_stats['optimal_count'] = $optimal;
+										$biomarker_stats['optimal_percentage'] = round(($optimal / $has_data) * 100);
+										
+										$biomarker_stats['outside_optimal_count'] = $outside_optimal;
+										$biomarker_stats['outside_optimal_percentage'] = round(($outside_optimal / $has_data) * 100);
+									}
+								}
+								?>
+								
+								<!-- Needs Attention -->
+								<div class="biomarker-bar-row">
+									<div class="biomarker-bar-label">Needs Attention</div>
+									<div class="pillar-progress-bar biomarker-progress-bar no-chart" 
+										 role="progressbar" 
+										 aria-valuemin="0" 
+										 aria-valuemax="100" 
+										 aria-valuenow="<?php echo esc_attr($biomarker_stats['flagged_percentage']); ?>"
+										 data-progress="<?php echo esc_attr($biomarker_stats['flagged_percentage']); ?>">
+										<div class="pillar-progress-fill biomarker-flagged-fill"></div>
+									</div>
+									<div class="biomarker-bar-value"><?php echo esc_html($biomarker_stats['flagged_count']); ?></div>
+								</div>
+								
+								<!-- Has Data -->
+								<div class="biomarker-bar-row">
+									<div class="biomarker-bar-label">Has Data</div>
+									<div class="pillar-progress-bar biomarker-progress-bar no-chart" 
+										 role="progressbar" 
+										 aria-valuemin="0" 
+										 aria-valuemax="100" 
+										 aria-valuenow="<?php echo esc_attr($biomarker_stats['has_data_percentage']); ?>"
+										 data-progress="<?php echo esc_attr($biomarker_stats['has_data_percentage']); ?>">
+										<div class="pillar-progress-fill biomarker-data-fill"></div>
+									</div>
+									<div class="biomarker-bar-value"><?php echo esc_html($biomarker_stats['has_data_count']); ?>/<?php echo esc_html($biomarker_stats['total_biomarkers']); ?></div>
+								</div>
+								
+								<!-- Within Optimal Range -->
+								<div class="biomarker-bar-row">
+									<div class="biomarker-bar-label">Within Optimal</div>
+									<div class="pillar-progress-bar biomarker-progress-bar no-chart" 
+										 role="progressbar" 
+										 aria-valuemin="0" 
+										 aria-valuemax="100" 
+										 aria-valuenow="<?php echo esc_attr($biomarker_stats['optimal_percentage']); ?>"
+										 data-progress="<?php echo esc_attr($biomarker_stats['optimal_percentage']); ?>">
+										<div class="pillar-progress-fill biomarker-optimal-fill"></div>
+									</div>
+									<div class="biomarker-bar-value"><?php echo esc_html($biomarker_stats['optimal_count']); ?></div>
+								</div>
+								
+								<!-- Outside Optimal Range -->
+								<div class="biomarker-bar-row">
+									<div class="biomarker-bar-label">Outside Optimal</div>
+									<div class="pillar-progress-bar biomarker-progress-bar no-chart" 
+										 role="progressbar" 
+										 aria-valuemin="0" 
+										 aria-valuemax="100" 
+										 aria-valuenow="<?php echo esc_attr($biomarker_stats['outside_optimal_percentage']); ?>"
+										 data-progress="<?php echo esc_attr($biomarker_stats['outside_optimal_percentage']); ?>">
+										<div class="pillar-progress-fill biomarker-outside-fill"></div>
+									</div>
+									<div class="biomarker-bar-value"><?php echo esc_html($biomarker_stats['outside_optimal_count']); ?></div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Column 3: Clinician & Coach Information -->
+						<div class="pillar-card coach-info-card">
+							<!-- Board Certified Clinician Section -->
+							<div class="clinician-section">
+								<div class="pillar-card-header">
+									<div class="pillar-card-title">Your Board Certified Clinician</div>
+								</div>
+								
+								<div class="coach-info-content">
+									<div class="coach-profile-section">
+										<div class="coach-profile-pic">
+											<img src="<?php echo ENNU_LIFE_PLUGIN_URL; ?>assets/img/pamela.png" 
+											     alt="Dr. Pamela Kinney" 
+											     class="profile-pic-circle">
+										</div>
+										<div class="coach-details">
+											<div class="coach-name">Dr. Pamela Kinney, MD</div>
+											<div class="coach-specialty">Board Certified</div>
+										</div>
+									</div>
+									<div class="coach-actions">
+										<button class="coach-action-btn schedule-btn" onclick="scheduleClinician()">Schedule Consultation</button>
+										<button class="coach-action-btn message-btn" onclick="messageClinician()">Send Message</button>
+									</div>
+									<div class="coach-availability">
+										<span class="availability-dot"></span>
+										Available Today
+									</div>
+								</div>
+							</div>
+							
+							<!-- Divider with tapered fading edges -->
+							<div class="biomarker-divider"></div>
+							
+							<!-- Health Coach Section -->
+							<div class="health-coach-section">
+								<div class="pillar-card-header">
+									<div class="pillar-card-title">Your Health Coach</div>
+								</div>
+								
+								<div class="coach-info-content">
+									<div class="coach-profile-section">
+										<div class="coach-profile-pic">
+											<img src="<?php echo ENNU_LIFE_PLUGIN_URL; ?>assets/img/leesa.png" 
+											     alt="Leesa Ennenbach" 
+											     class="profile-pic-circle">
+										</div>
+										<div class="coach-details">
+											<div class="coach-name">Leesa Ennenbach</div>
+											<div class="coach-specialty">Health & Wellness Coach</div>
+										</div>
+									</div>
+									<div class="coach-actions">
+										<button class="coach-action-btn schedule-btn" onclick="scheduleCoach()">Schedule Session</button>
+										<button class="coach-action-btn message-btn" onclick="messageCoach()">Send Message</button>
+									</div>
+									<div class="coach-availability">
+										<span class="availability-dot available"></span>
+										Available Now
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					<!-- Right Pillar Scores -->
-					<div class="pillar-scores-right">
-						<?php
-						$all_pillars = array( 'Mind', 'Body', 'Lifestyle', 'Aesthetics' );
-						$pillar_count = 0;
+					<!-- Pillars Row - All 4 in one row -->
+					<div class="pillars-row">
+					<?php foreach ($all_pillars as $pillar) : 
+						$has_data = isset($average_pillar_scores[$pillar]) && $average_pillar_scores[$pillar] > 0;
+						$score = $has_data ? $average_pillar_scores[$pillar] : 0;
 						
-						foreach ( $all_pillars as $pillar ) {
-							if ( $pillar_count < 2 ) { // Skip first 2 pillars (Mind, Body)
-								$pillar_count++;
-								continue;
-							}
-							if ( $pillar_count >= 4 ) { // Only show next 2 pillars (Lifestyle, Aesthetics)
-								break;
-							}
-							
-							$has_data = isset( $average_pillar_scores[ $pillar ] ) && $average_pillar_scores[ $pillar ] > 0;
-							$score = $has_data ? $average_pillar_scores[ $pillar ] : 0;
-								$pillar_class  = esc_attr( strtolower( $pillar ) );
-								$spin_duration = $has_data ? max( 2, 11 - $score ) : 10;
-								$style_attr    = '--spin-duration: ' . $spin_duration . 's;';
-								$insight_text  = $insights['pillars'][ $pillar ] ?? '';
-								
-								// Always show the same visual structure, only change the score text
-								?>
-								<div class="pillar-orb <?php echo $pillar_class; ?>" style="<?php echo esc_attr( $style_attr ); ?>" data-insight="<?php echo esc_attr( $insight_text ); ?>" data-pillar="<?php echo esc_attr( $pillar ); ?>" data-has-score="<?php echo $has_data ? 'true' : 'false'; ?>">
-									<svg class="pillar-orb-progress" viewBox="0 0 36 36">
-										<circle class="pillar-orb-progress-bg" cx="18" cy="18" r="15.9155"></circle>
-										<circle class="pillar-orb-progress-bar" cx="18" cy="18" r="15.9155" style="--score-percent: <?php echo esc_attr( $score * 10 ); ?>;"></circle>
-									</svg>
-									<div class="pillar-orb-content">
-										<div class="pillar-orb-label"><?php echo esc_html( $pillar ); ?></div>
-										<div class="pillar-orb-score"><?php echo $has_data ? esc_html( number_format( $score, 1 ) ) : 'Pending'; ?></div>
-									</div>
-									<div class="floating-particles"></div>
-									<div class="decoration-dots"></div>
-								</div>
-								<?php
-								$pillar_count++;
+						// TEMPORARY: Add test data for debugging progress bars
+						if (!$has_data) {
+							$test_scores = array('Mind' => 7.5, 'Body' => 6.8, 'Lifestyle' => 8.2, 'Aesthetics' => 5.9);
+							$score = $test_scores[$pillar] ?? 0;
+							$has_data = true;
 						}
+						
+						$score_percent = $score ? round($score * 10) : 0;
+						
+						// Calculate real trend data
+						$trend_value = 0;
+						$trend_class = 'neutral';
+						$trend_arrow = '→';
+						
+						// Try to get historical scores for trend calculation
+						if (class_exists('ENNU_Scoring_System') && $user_id > 0) {
+							$historical_scores = get_user_meta($user_id, 'ennu_historical_pillar_scores', true);
+							if (is_array($historical_scores) && isset($historical_scores[$pillar])) {
+								$pillar_history = $historical_scores[$pillar];
+								if (count($pillar_history) >= 2) {
+									$current_score = end($pillar_history);
+									$previous_score = prev($pillar_history);
+									$trend_value = $current_score - $previous_score;
+									$trend_class = $trend_value > 0.1 ? 'up' : ($trend_value < -0.1 ? 'down' : 'neutral');
+									$trend_arrow = $trend_value > 0.1 ? '↗' : ($trend_value < -0.1 ? '↘' : '→');
+								}
+							}
+						}
+						
+						// Fallback to showing score improvement potential if no trend data
+						if ($trend_value == 0 && $has_data) {
+							$potential_improvement = (10 - $score) * 0.1; // Show potential for improvement
+							$trend_value = min($potential_improvement, 0.5);
+							$trend_class = 'up';
+							$trend_arrow = '↗';
+						}
+						
+						// Progress bar calculation: 0% = score of 0, 100% = reached target
+						// Calculate individual target for this pillar and use it for progress
+						$pillar_individual_target = calculate_individual_target($score);
+						$pillar_progress = $score > 0 ? ($score / $pillar_individual_target) * 100 : 0;
 						?>
-					</div>
+						
+						<?php 
+						$pillar_image = ENNU_LIFE_PLUGIN_URL . 'assets/img/' . strtolower($pillar) . '-score.png';
+						?>
+						<div class="pillar-card <?php echo esc_attr(strtolower($pillar)); ?>" 
+						     style="--progress: <?php echo esc_attr($pillar_progress); ?>;"
+						     data-pillar="<?php echo esc_attr($pillar); ?>"
+						     data-current-score="<?php echo esc_attr($score); ?>"
+						     role="button"
+						     tabindex="0"
+						     aria-label="<?php echo esc_attr($pillar . ' pillar score ' . number_format($score, 1) . ' out of 10'); ?>">
+							
+							<!-- Background image layer -->
+							<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('<?php echo esc_url($pillar_image); ?>'); background-repeat: no-repeat; background-position: center center; background-size: 50%; opacity: 0.08; pointer-events: none; z-index: 0;"></div>
+							
+							<div class="pillar-card-header" style="position: relative; z-index: 1;">
+								<div class="pillar-card-title">
+									<?php echo esc_html($pillar); ?>
+								</div>
+							</div>
+							
+							<div class="pillar-card-score" style="position: relative; z-index: 1;">
+								<div style="display: flex; align-items: baseline; gap: 6px;">
+									<div class="pillar-score-value" aria-live="polite">
+										<?php echo $has_data ? esc_html(number_format($score, 1)) : '0.0'; ?>
+									</div>
+									<div class="pillar-score-max">/10</div>
+								</div>
+								<div class="pillar-target-value">
+									<?php 
+									// Calculate individual target for this specific pillar based on its own score
+									$pillar_target = calculate_individual_target($score);
+									echo esc_html(number_format($pillar_target, 1)); 
+									?>
+								</div>
+							</div>
+							
+							<div class="pillar-progress-bar" style="position: relative; z-index: 1;"
+							     role="progressbar" 
+							     aria-valuemin="0" 
+							     aria-valuemax="10" 
+							     aria-valuenow="<?php echo esc_attr($score); ?>">
+								<div class="pillar-progress-fill"></div>
+							</div>
+							
+							<div class="pillar-card-footer" style="position: relative; z-index: 1;">
+								<div class="pillar-target-label">
+									Target: <span class="target-value-small"><?php echo esc_html(number_format($pillar_individual_target, 1)); ?></span>
+								</div>
+								<div class="pillar-progress-percent"><?php echo esc_html(round($pillar_progress)); ?>% there</div>
+							</div>
+						</div>
+						
+					<?php endforeach; ?>
+					</div> <!-- End pillars-row -->
 				</div>
 
-				<!-- Contextual Text Container -->
-				<div class="contextual-text-container">
-					<div class="contextual-text" id="contextual-text">
-						<!-- This will be populated by JavaScript -->
-					</div>
-				</div>
+				<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					// Initialize modern scoring UI
+					console.log('🎨 Initializing Modern Scoring UI');
+					
+					// Animate progress bars after page load
+					setTimeout(() => {
+						const cards = document.querySelectorAll('.pillar-card');
+						
+						cards.forEach((card, index) => {
+							const progress = parseInt(card.style.getPropertyValue('--progress') || 0);
+							// Find the FIRST progress fill that's not in a biomarker bar
+							const progressBar = card.querySelector('.pillar-progress-bar:not(.biomarker-progress-bar)');
+							const progressFill = progressBar ? progressBar.querySelector('.pillar-progress-fill') : null;
+							
+							if (progressFill && progress > 0) {
+								// Stagger animation for visual appeal
+								setTimeout(() => {
+									progressFill.style.setProperty('width', `${progress}%`, 'important');
+								}, index * 200);
+							}
+						});
+						
+						// Animate biomarker progress bars
+						const biomarkerBars = document.querySelectorAll('.biomarker-progress-bar');
+						biomarkerBars.forEach((bar, index) => {
+							const progress = parseInt(bar.dataset.progress || 0);
+							const progressFill = bar.querySelector('.pillar-progress-fill');
+							
+							if (progressFill && progress >= 0) {
+								// Stagger animation for biomarker bars
+								setTimeout(() => {
+									progressFill.style.setProperty('width', `${progress}%`, 'important');
+									progressFill.style.setProperty('transition', 'width 1s cubic-bezier(0.4, 0, 0.2, 1)', 'important');
+								}, 1000 + (index * 150));
+							}
+						});
+						
+						// Animate circular progress for health score
+						const circularProgress = document.querySelector('.progress-bar');
+						if (circularProgress) {
+							const progress = parseInt(circularProgress.style.getPropertyValue('--progress') || 0);
+							const circumference = 283; // 2 * π * 45
+							const offset = circumference - (circumference * progress / 100);
+							circularProgress.style.strokeDashoffset = offset;
+						}
+					}, 800);
+					
+					// Add click handlers for pillar cards
+					const cards = document.querySelectorAll('.pillar-card');
+					cards.forEach(card => {
+						card.addEventListener('click', function() {
+							const pillar = this.dataset.pillar;
+							console.log(`Clicked ${pillar} pillar card`);
+							
+							// Add visual feedback
+							this.style.transform = 'translateY(-8px) scale(1.02)';
+							setTimeout(() => {
+								this.style.transform = '';
+							}, 200);
+							
+							// Trigger custom event for other scripts to listen to
+							const event = new CustomEvent('pillarCardClick', {
+								detail: { pillar: pillar, element: this }
+							});
+							document.dispatchEvent(event);
+						});
+						
+						// Add keyboard support
+						card.addEventListener('keydown', function(e) {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								this.click();
+							}
+						});
+					});
+					
+					// Add click handler for hero health score
+					const heroCard = document.querySelector('.health-score-hero');
+					if (heroCard) {
+						heroCard.addEventListener('click', function() {
+							console.log('Clicked health score hero');
+							this.style.transform = 'translateY(-6px) scale(1.01)';
+							setTimeout(() => {
+								this.style.transform = '';
+							}, 200);
+							
+							// Trigger custom event
+							const event = new CustomEvent('healthScoreClick', {
+								detail: { element: this }
+							});
+							document.dispatchEvent(event);
+						});
+					}
+					
+					// Apply data attributes as CSS custom properties
+					document.querySelectorAll('[data-progress]').forEach(element => {
+						const progress = element.getAttribute('data-progress');
+						if (progress) {
+							element.style.setProperty('--progress', progress);
+						}
+					});
+					
+					document.querySelectorAll('[data-width]').forEach(element => {
+						const width = element.getAttribute('data-width');
+						if (width) {
+							element.style.width = width + '%';
+						}
+					});
+					
+					document.querySelectorAll('[data-delay]').forEach(element => {
+						const delay = element.getAttribute('data-delay');
+						if (delay) {
+							element.style.animationDelay = delay + 's';
+						}
+					});
+					
+					// Add dynamic greeting functionality 
+					function getLocalTimeGreeting(displayName) {
+						const hour = new Date().getHours();
+						
+						const morningGreetings = [`Good morning, ${displayName}`, `Morning, ${displayName}`, `Rise and shine, ${displayName}`];
+						const afternoonGreetings = [`Good afternoon, ${displayName}`, `Afternoon, ${displayName}`, `Hope you're having a great day, ${displayName}`];
+						const eveningGreetings = [`Good evening, ${displayName}`, `Evening, ${displayName}`, `Hope you had a great day, ${displayName}`];
+						const nightGreetings = [`Good night, ${displayName}`, `Working late, ${displayName}?`, `Still awake, ${displayName}?`];
+						
+						let greetings;
+						if (hour >= 5 && hour < 12) {
+							greetings = morningGreetings;
+						} else if (hour >= 12 && hour < 17) {
+							greetings = afternoonGreetings;
+						} else if (hour >= 17 && hour < 21) {
+							greetings = eveningGreetings;
+						} else {
+							greetings = nightGreetings;
+						}
+						
+						return greetings[Math.floor(Math.random() * greetings.length)];
+					}
+					
+					// Update the greeting
+					const greetingElement = document.getElementById('dynamic-greeting');
+					if (greetingElement) {
+						const displayName = '<?php echo esc_js( $display_name ); ?>';
+						greetingElement.textContent = getLocalTimeGreeting(displayName);
+					}
+					
+					console.log('✅ Modern Scoring UI initialized successfully');
+				});
+				
+				// Health Coach Button Functions
+				function sendMessage() {
+					// Add your messaging functionality here
+					alert('Messaging feature coming soon!');
+					// You could integrate with a chat system, email, or modal here
+				}
+				
+				function scheduleCall() {
+					// Add your scheduling functionality here  
+					alert('Scheduling feature coming soon!');
+					// You could integrate with Calendly, booking system, or modal here
+				}
+				</script>
 			</div>
-			</details>
 
-
-
-			<!-- My Health Goals Section -->
-			<details class="health-goals-accordion">
+			<!-- Dashboard Secondary Content Container -->
+			<div class="dashboard-secondary-content">
+			
+				<!-- My Health Goals Section -->
+				<details class="health-goals-accordion" style="padding-top: 40px;">
 				<summary class="scores-title-container">
 					<h2 class="scores-title">MY HEALTH GOALS</h2>
 				</summary>
@@ -1482,29 +2495,31 @@ if ( empty( $display_name ) ) {
 						);
 						$total_count    = count( $health_goals_data['all_goals'] );
 						?>
-						<div class="goals-summary">
-							<div class="goals-counter">
+						<div class="goals-summary" style="display: block;">
+							<div class="goals-counter" style="text-align: center; display: block; width: 100%;">
 								<span class="selected-count"><?php echo esc_html( $selected_count ); ?></span> of 
 								<span class="total-count"><?php echo esc_html( $total_count ); ?></span> goals selected
 							</div>
+							
+							<!-- Update Health Goals Button -->
+							<div class="health-goals-actions" style="text-align: center; margin-top: 15px; display: block; width: 100%; clear: both;">
+								<button type="button" class="btn btn-primary update-health-goals-btn" style="display: inline-block; visibility: visible; background-color: #000000; color: white; padding: 8px 24px; border: none; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500;">
+									<span class="btn-text">Update My Health Goals</span>
+									<span class="btn-loading hidden">
+										<div class="loading-spinner"></div>
+										<span>Updating...</span>
+									</span>
+								</button>
+							</div>
+							
 							<?php if ( $selected_count > 0 ) : ?>
-								<div class="goals-boost-indicator">
+								<div class="goals-boost-indicator" style="margin-top: 10px;">
 									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
 										<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
 									</svg>
 									<span>Boost applied to matching assessments</span>
 								</div>
 							<?php endif; ?>
-							<!-- Update Health Goals Button -->
-							<div class="health-goals-actions">
-								<button type="button" class="btn btn-primary update-health-goals-btn" style="display: none;">
-									<span class="btn-text">Update My Health Goals</span>
-									<span class="btn-loading" style="display: none;">
-										<div class="loading-spinner"></div>
-										<span>Updating...</span>
-									</span>
-								</button>
-							</div>
 							
 
 						</div>
@@ -1564,6 +2579,7 @@ if ( empty( $display_name ) ) {
 								array( 'hormone', 'testosterone' ), // Now gender-inclusive
 								array( 'hair', 'skin' ),
 								array( 'sleep', 'ed-treatment' ), // ED treatment remains gender-specific for medical reasons
+								array( 'peptide-therapy' ), // New peptide therapy assessment - available to all genders
 							);
 
 							// Count assessments (gender-inclusive)
@@ -1606,7 +2622,7 @@ if ( empty( $display_name ) ) {
 									</div>
 								</div>
 								<div class="progress-bar">
-									<div class="progress-fill" style="width: <?php echo esc_attr( $total_count > 0 ? ( $completed_count / $total_count ) * 100 : 0 ); ?>%"></div>
+									<div class="progress-fill" data-width="<?php echo esc_attr( $total_count > 0 ? ( $completed_count / $total_count ) * 100 : 0 ); ?>"></div>
 								</div>
 							</div>
 							
@@ -1618,6 +2634,7 @@ if ( empty( $display_name ) ) {
 									array( 'hormone', 'testosterone' ), // Now gender-inclusive
 									array( 'hair', 'skin' ),
 									array( 'sleep', 'ed-treatment' ), // ED treatment remains gender-specific for medical reasons
+									array( 'peptide-therapy' ), // New peptide therapy assessment - available to all genders
 								);
 
 								// Gender-based assessment filtering
@@ -1657,15 +2674,16 @@ if ( empty( $display_name ) ) {
 
 								// Define assessment icons using the same style as "Speak With Expert" button
 								$assessment_icons = array(
-									'hair'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
-									'skin'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-									'health'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-									'weight-loss'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11h4"/><path d="M10 16h4"/></svg>',
-									'hormone'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
-									'testosterone' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
-									'sleep'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
-									'ed-treatment' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-									'menopause'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+									'hair'           => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+									'skin'           => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+									'health'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+									'weight-loss'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11h4"/><path d="M10 16h4"/></svg>',
+									'hormone'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+									'testosterone'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+									'sleep'          => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+									'ed-treatment'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+									'menopause'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+									'peptide-therapy'=> '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 2l2 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z"/></svg>',
 								);
 
 								// Render the ordered assessments
@@ -1674,7 +2692,7 @@ if ( empty( $display_name ) ) {
 									$assessment     = $assessment_item['data'];
 									$card_index     = $assessment_item['index'];
 									?>
-									<div class="assessment-card <?php echo $assessment['completed'] ? 'completed' : 'incomplete'; ?> animate-card" style="animation-delay: <?php echo $card_index * 0.1; ?>s;">
+									<div class="assessment-card <?php echo $assessment['completed'] ? 'completed' : 'incomplete'; ?> animate-card" data-delay="<?php echo $card_index * 0.1; ?>">
 										<div class="assessment-card-header">
 											<?php
 											// Get assessment icon
@@ -1870,7 +2888,7 @@ if ( empty( $display_name ) ) {
 																<div class="category-score-item">
 																	<span class="category-name"><?php echo esc_html( $category ); ?></span>
 																	<div class="category-score-bar">
-																		<div class="category-score-fill" style="width: <?php echo esc_attr( $score * 10 ); ?>%"></div>
+																		<div class="category-score-fill" data-width="<?php echo esc_attr( $score * 10 ); ?>"></div>
 																	</div>
 																	<span class="category-score-value"><?php echo esc_html( number_format( $score, 1 ) ); ?></span>
 																</div>
@@ -3190,87 +4208,9 @@ if ( empty( $display_name ) ) {
 										echo '</div>';
 									}
 									
-									// Goal Suggestions Section
-									if ( ! empty( $actionable_insights['goal_suggestions'] ) && is_array( $actionable_insights['goal_suggestions'] ) ) {
-										echo '<div class="insights-section">';
-										echo '<h3 class="insights-section-title">Goal Suggestions</h3>';
-										echo '<div class="goal-suggestions-grid">';
-										
-										foreach ( $actionable_insights['goal_suggestions'] as $goal ) {
-											if ( ! is_array( $goal ) || ! isset( $goal['pillar'] ) || ! isset( $goal['goal_description'] ) ) {
-												continue; // Skip invalid data
-											}
-											?>
-											<div class="goal-suggestion-card">
-												<div class="goal-header">
-													<h4><?php echo esc_html( $goal['pillar'] ); ?> Improvement</h4>
-													<?php if ( isset( $goal['current_score'] ) && isset( $goal['target_score'] ) ) : ?>
-														<div class="goal-progress">
-															<span class="current-score"><?php echo esc_html( $goal['current_score'] ); ?></span>
-															<span class="progress-arrow">→</span>
-															<span class="target-score"><?php echo esc_html( $goal['target_score'] ); ?></span>
-														</div>
-													<?php endif; ?>
-												</div>
-												<div class="goal-content">
-													<p><?php echo esc_html( $goal['goal_description'] ); ?></p>
-													<?php if ( ! empty( $goal['timeline'] ) ) : ?>
-														<div class="goal-timeline">
-															<small>Timeline: <?php echo esc_html( $goal['timeline'] ); ?></small>
-														</div>
-													<?php endif; ?>
-													<?php if ( ! empty( $goal['specific_actions'] ) && is_array( $goal['specific_actions'] ) ) : ?>
-														<div class="goal-actions">
-															<h5>Specific Actions</h5>
-															<ul>
-																<?php foreach ( $goal['specific_actions'] as $action ) : ?>
-																	<li><?php echo esc_html( $action ); ?></li>
-																<?php endforeach; ?>
-															</ul>
-														</div>
-													<?php endif; ?>
-												</div>
-											</div>
-											<?php
-										}
-										
-										echo '</div>';
-										echo '</div>';
-									}
+									// Goal Suggestions Section - REMOVED
 									
-									// Personalized Recommendations Section
-									if ( ! empty( $actionable_insights['personalized_recommendations'] ) && is_array( $actionable_insights['personalized_recommendations'] ) ) {
-										echo '<div class="insights-section">';
-										echo '<h3 class="insights-section-title">Personalized Recommendations</h3>';
-										echo '<div class="recommendations-grid">';
-										
-										foreach ( $actionable_insights['personalized_recommendations'] as $recommendation ) {
-											if ( ! is_array( $recommendation ) || ! isset( $recommendation['title'] ) || ! isset( $recommendation['description'] ) ) {
-												continue; // Skip invalid data
-											}
-											?>
-											<div class="recommendation-card ennu-priority-<?php echo esc_attr( $recommendation['priority'] ?? 'medium' ); ?>">
-												<div class="recommendation-header">
-													<h4><?php echo esc_html( $recommendation['title'] ); ?></h4>
-													<span class="recommendation-priority"><?php echo esc_html( ucfirst( $recommendation['priority'] ?? 'medium' ) ); ?> Priority</span>
-												</div>
-												<div class="recommendation-content">
-													<p><?php echo esc_html( $recommendation['description'] ); ?></p>
-													<?php if ( ! empty( $recommendation['items'] ) && is_array( $recommendation['items'] ) ) : ?>
-														<ul class="recommendation-items">
-															<?php foreach ( $recommendation['items'] as $item ) : ?>
-																<li><?php echo esc_html( $item ); ?></li>
-															<?php endforeach; ?>
-														</ul>
-													<?php endif; ?>
-												</div>
-											</div>
-											<?php
-										}
-										
-										echo '</div>';
-										echo '</div>';
-									}
+									// Personalized Recommendations Section - REMOVED
 									
 									echo '</div>';
 								} else {
@@ -3384,7 +4324,7 @@ if ( empty( $display_name ) ) {
 										echo '<div class="story-profile-completion">';
 										echo '<div class="story-completion-progress">';
 										echo '<div class="story-progress-bar">';
-										echo '<div class="story-progress-fill" style="width: ' . esc_attr( $completion['percentage'] ) . '%;"></div>';
+										echo '<div class="story-progress-fill" data-width="' . esc_attr( $completion['percentage'] ) . '"></div>';
 										echo '</div>';
 										echo '<div class="story-progress-text">';
 										echo esc_html( $completion['completed_count'] ) . ' of ' . esc_html( $completion['total_count'] ) . ' assessments completed';
@@ -3504,38 +4444,97 @@ if ( empty( $display_name ) ) {
 						</div>
 					</div>
 					
-					<!-- Tab 6: LabCorp PDF Upload -->
+					<!-- Tab 6: LabCorp Upload & Locator -->
 					<div id="tab-pdf-upload" class="my-story-tab-content">
-						<div class="pdf-upload-container">
+						<div class="labcorp-container">
 							<!-- Header Section -->
 							<div class="scores-title-container">
-								<h2 class="scores-title">LABCORP PDF UPLOAD</h2>
+								<h2 class="scores-title">LABCORP SERVICES</h2>
+								<p class="scores-subtitle">Find nearby locations and upload your lab results</p>
 							</div>
 							
-							<div class="pdf-upload-section">
-								<div class="pdf-upload-description">
-									<p>Upload your official LabCorp PDF results to automatically extract and import your biomarker data into your ENNU Life profile.</p>
+							<!-- Two Column Layout -->
+							<div class="labcorp-two-column">
+								<!-- Left Column: LabCorp Locator -->
+								<div class="labcorp-left-column">
+									<?php
+									// Render the LabCorp locator (class already loaded in main plugin)
+									$locator = new ENNU_LabCorp_Locator();
+									echo $locator->render_locator();
+									?>
 								</div>
 								
-								<div class="pdf-upload-form-container">
-									<form id="ennu-pdf-upload-form" enctype="multipart/form-data" method="post">
-										<?php wp_nonce_field( 'ennu_biomarker_admin_nonce', 'nonce' ); ?>
-										<div class="ennu-form-group">
-											<label for="labcorp_pdf">Select LabCorp PDF File:</label>
-											<input type="file" name="labcorp_pdf" id="labcorp_pdf" accept=".pdf" required>
-											<small>Maximum file size: 10MB. Only LabCorp PDF files are supported.</small>
+								<!-- Right Column: PDF Upload -->
+								<div class="labcorp-right-column">
+									<div class="pdf-upload-container">
+										<div class="upload-header">
+											<h3 class="upload-title">
+												<svg class="upload-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" fill="none"/>
+													<polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" fill="none"/>
+													<line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2"/>
+													<line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2"/>
+													<polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2"/>
+												</svg>
+												Upload Lab Results
+											</h3>
+											<p class="upload-subtitle">Upload your LabCorp PDF to automatically extract biomarker data</p>
 										</div>
-										<button type="submit" class="ennu-button ennu-button-primary">Upload and Process</button>
-									</form>
-									
-									<div id="ennu-pdf-feedback" class="ennu-feedback" style="display:none;"></div>
-									<div id="ennu-pdf-progress" class="ennu-progress" style="display:none;">
-										<div class="ennu-spinner"></div>
-										<p>Processing PDF...</p>
-									</div>
-								</div>
-								
-								<div class="pdf-upload-instructions">
+										
+										<div class="pdf-upload-section">
+											<div class="pdf-upload-description">
+												<div class="upload-benefits">
+													<div class="benefit-item">
+														<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<polyline points="20,6 9,17 4,12" stroke="#10b981" stroke-width="2" fill="none"/>
+														</svg>
+														Automatic biomarker extraction
+													</div>
+													<div class="benefit-item">
+														<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<polyline points="20,6 9,17 4,12" stroke="#10b981" stroke-width="2" fill="none"/>
+														</svg>
+														Secure and HIPAA compliant
+													</div>
+													<div class="benefit-item">
+														<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<polyline points="20,6 9,17 4,12" stroke="#10b981" stroke-width="2" fill="none"/>
+														</svg>
+														Instant analysis and insights
+													</div>
+													<div class="benefit-item">
+														<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<polyline points="20,6 9,17 4,12" stroke="#10b981" stroke-width="2" fill="none"/>
+														</svg>
+														Track progress over time
+													</div>
+												</div>
+											</div>
+											
+											<div class="pdf-upload-form-container">
+												<form id="ennu-pdf-upload-form" enctype="multipart/form-data" method="post">
+													<?php wp_nonce_field( 'ennu_dashboard_nonce', 'nonce' ); ?>
+													<div class="ennu-form-group">
+														<label for="labcorp_pdf">Select LabCorp PDF File:</label>
+														<input type="file" name="labcorp_pdf" id="labcorp_pdf" accept=".pdf" required>
+														<small>Maximum file size: 10MB. Only LabCorp PDF files are supported.</small>
+													</div>
+													<button type="submit" class="ennu-button ennu-button-primary">
+														<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" fill="none"/>
+														</svg>
+														Upload and Process
+													</button>
+												</form>
+												
+												<div id="ennu-pdf-feedback" class="ennu-feedback" style="display:none;"></div>
+												<div id="ennu-pdf-progress" class="ennu-progress" style="display:none;">
+													<div class="ennu-spinner"></div>
+													<p>Processing PDF...</p>
+												</div>
+											</div>
+											
+											<div class="pdf-upload-instructions">
 									<h4>Instructions:</h4>
 									<ul>
 										<li>Ensure your PDF is from LabCorp and contains biomarker test results</li>
@@ -3554,11 +4553,27 @@ if ( empty( $display_name ) ) {
 
 
 
-</main>
+			</div> <!-- /.dashboard-secondary-content -->
 	</div>
 </div>
 
 <script>
+	// Function to open LabCorp Upload tab
+	function openLabCorpUploadTab() {
+		// Find the LabCorp Upload tab link
+		const labCorpTabLink = document.querySelector('.my-story-tab-nav a[href="#tab-pdf-upload"]');
+		if (labCorpTabLink) {
+			// Click the tab to open it
+			labCorpTabLink.click();
+			
+			// Scroll to the My Story section
+			const myStorySection = document.querySelector('.my-story-section');
+			if (myStorySection) {
+				myStorySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}
+	}
+
 	document.addEventListener('DOMContentLoaded', function() {
 		
 		// Handle Recommendations and Breakdown button clicks
@@ -3590,7 +4605,7 @@ if ( empty( $display_name ) ) {
 						section.style.maxHeight = '1000px';
 						section.style.visibility = 'visible';
 						this.classList.add('active');
-						console.log('Showing recommendations section');
+						// REMOVED: console.log('Showing recommendations section');
 					} else {
 						// Hide the section
 						section.classList.add('hidden');
@@ -3599,7 +4614,7 @@ if ( empty( $display_name ) ) {
 						section.style.maxHeight = '0';
 						section.style.visibility = 'hidden';
 						this.classList.remove('active');
-						console.log('Hiding recommendations section');
+						// REMOVED: console.log('Hiding recommendations section');
 					}
 				});
 			});
@@ -3631,7 +4646,7 @@ if ( empty( $display_name ) ) {
 						section.style.maxHeight = '1000px';
 						section.style.visibility = 'visible';
 						this.classList.add('active');
-						console.log('Showing breakdown section');
+						// REMOVED: console.log('Showing breakdown section');
 						
 						// Animate progress bars
 						const bars = section.querySelectorAll('.category-score-fill');
@@ -3650,7 +4665,7 @@ if ( empty( $display_name ) ) {
 						section.style.maxHeight = '0';
 						section.style.visibility = 'hidden';
 						this.classList.remove('active');
-						console.log('Hiding breakdown section');
+						// REMOVED: console.log('Hiding breakdown section');
 					}
 				});
 			});
@@ -3669,10 +4684,10 @@ if ( empty( $display_name ) ) {
 			});
 			
 			// Add debug info
-			console.log('Found ' + document.querySelectorAll('.btn-recommendations').length + ' recommendation buttons');
-			console.log('Found ' + document.querySelectorAll('.btn-breakdown').length + ' breakdown buttons');
-			console.log('Found ' + document.querySelectorAll('.recommendations-section').length + ' recommendation sections');
-			console.log('Found ' + document.querySelectorAll('.breakdown-section').length + ' breakdown sections');
+			// REMOVED: console.log('Found ' + document.querySelectorAll('.btn-recommendations').length + ' recommendation buttons');
+			// REMOVED: console.log('Found ' + document.querySelectorAll('.btn-breakdown').length + ' breakdown buttons');
+			// REMOVED: console.log('Found ' + document.querySelectorAll('.recommendations-section').length + ' recommendation sections');
+			// REMOVED: console.log('Found ' + document.querySelectorAll('.breakdown-section').length + ' breakdown sections');
 		}, 500);
 		
 		// Theme system is now handled by the centralized ENNUThemeManager
@@ -3747,8 +4762,8 @@ if ( empty( $display_name ) ) {
 				tabNav.style.zIndex = '9999';
 			}
 			
-			// Show default tab (My Biomarkers)
-			const defaultTab = document.querySelector('a[href="#tab-my-biomarkers"]');
+			// Show default tab (My Assessments) - changed from biomarkers
+			const defaultTab = document.querySelector('a[href="#tab-my-assessments"]');
 			if (defaultTab) {
 				defaultTab.click();
 			} else if (freshTabLinks.length > 0) {
@@ -3757,12 +4772,12 @@ if ( empty( $display_name ) ) {
 			
 		}, 100);
 		
-		// Show My Biomarkers tab by default
-		const biomarkersTabLink = document.querySelector('a[href="#tab-my-biomarkers"]');
-		if (biomarkersTabLink) {
-			biomarkersTabLink.click();
+		// Show My Assessments tab by default - changed from biomarkers
+		const assessmentsTabLink = document.querySelector('a[href="#tab-my-assessments"]');
+		if (assessmentsTabLink) {
+			assessmentsTabLink.click();
 		} else if (tabLinks.length > 0) {
-			// Fallback to first tab if biomarkers tab not found
+			// Fallback to first tab if assessments tab not found
 			tabLinks[0].click();
 		}
 		
@@ -3820,124 +4835,8 @@ if ( empty( $display_name ) ) {
 			});
 		});
 		
-		// Enhanced PDF Upload Form Handler with Detailed Notifications
-		const pdfUploadForm = document.getElementById('ennu-pdf-upload-form');
-		if (pdfUploadForm) {
-			pdfUploadForm.addEventListener('submit', function(e) {
-				e.preventDefault();
-				
-				const formData = new FormData(this);
-				formData.append('action', 'ennu_upload_pdf');
-				formData.append('nonce', '<?php echo wp_create_nonce( 'ennu_ajax_nonce' ); ?>');
-				
-				const progressDiv = document.getElementById('ennu-pdf-progress');
-				const feedbackDiv = document.getElementById('ennu-pdf-feedback');
-				
-				// Show progress
-				progressDiv.style.display = 'block';
-				feedbackDiv.style.display = 'none';
-				
-				// Simulate progress animation
-				let progress = 0;
-				const progressInterval = setInterval(() => {
-					progress += Math.random() * 15;
-					if (progress > 90) progress = 90;
-					const progressBar = progressDiv.querySelector('.ennu-spinner');
-					if (progressBar) {
-						progressBar.style.width = progress + '%';
-					}
-				}, 200);
-				
-				// Use a more reliable AJAX approach with better error handling
-				const uploadURL = window.location.origin + '/wp-content/plugins/ennulifeassessments/direct-ajax-handler.php';
-				
-				fetch(uploadURL, {
-					method: 'POST',
-					body: formData
-				})
-				.then(response => {
-					
-					if (!response.ok) {
-						throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-					}
-					
-					return response.text();
-				})
-				.then(data => {
-					
-					clearInterval(progressInterval);
-					progressDiv.style.display = 'none';
-					feedbackDiv.style.display = 'block';
-					
-					try {
-						const result = JSON.parse(data);
-						
-						// Display detailed notification
-						showDetailedNotification(result);
-						
-						if (result.success) {
-							feedbackDiv.innerHTML = `
-								<div class="ennu-feedback-success">
-									<strong>✅ Success!</strong> ${result.message}
-									<br><small>Biomarkers imported: ${result.biomarkers_imported || 0}</small>
-								</div>
-							`;
-							feedbackDiv.className = 'ennu-feedback ennu-feedback-success';
-							
-							// Refresh dashboard after successful upload
-							setTimeout(() => {
-								location.reload();
-							}, 3000);
-						} else {
-							feedbackDiv.innerHTML = `
-								<div class="ennu-feedback-error">
-									<strong>❌ Error:</strong> ${result.message}
-								</div>
-							`;
-							feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
-						}
-					} catch (parseError) {
-						
-						feedbackDiv.innerHTML = `
-							<div class="ennu-feedback-error">
-								<strong>❌ Server Error:</strong> Invalid response from server
-							</div>
-						`;
-						feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
-						
-						showDetailedNotification({
-							success: false,
-							notification: {
-								type: 'error',
-								title: 'Server Error',
-								message: 'The server returned an invalid response. Please try again.'
-							}
-						});
-					}
-				})
-				.catch(error => {
-					
-					clearInterval(progressInterval);
-					progressDiv.style.display = 'none';
-					feedbackDiv.style.display = 'block';
-					feedbackDiv.innerHTML = `
-						<div class="ennu-feedback-error">
-							<strong>❌ Network Error:</strong> Failed to process PDF. Please try again.
-						</div>
-					`;
-					feedbackDiv.className = 'ennu-feedback ennu-feedback-error';
-					
-					showDetailedNotification({
-						success: false,
-						notification: {
-							type: 'error',
-							title: 'Network Error',
-							message: 'Failed to connect to server. Please check your internet connection and try again.'
-						}
-					});
-				});
-			});
-		}
+		// PDF Upload is handled by dashboard-functions.js
+		// Removed duplicate handler to prevent conflicts
 		
 		// Enhanced notification system with detailed biomarker information
 		function showDetailedNotification(data) {
@@ -4747,3 +5646,7 @@ if ( empty( $display_name ) ) {
 	});
 </script>
 
+<!-- Load Score Mini Charts JS -->
+<script src="<?php echo ENNU_LIFE_PLUGIN_URL; ?>assets/js/score-mini-charts.js?v=<?php echo time(); ?>"></script>
+
+</div> <!-- /.ennu-user-dashboard -->

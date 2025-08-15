@@ -37,20 +37,13 @@ class ENNU_Scoring_System {
 
 		if ( is_dir( $config_dir ) ) {
 			$files = glob( $config_dir . '*.php' );
-			error_log( 'ENNU Scoring System: Found ' . count( $files ) . ' config files in ' . $config_dir );
 			foreach ( $files as $file ) {
 				$assessment_type = basename( $file, '.php' );
-				error_log( 'ENNU Scoring System: Loading config for ' . $assessment_type . ' from ' . $file );
-				$definition      = require $file;
+				$definition      = include $file;
 				if ( is_array( $definition ) ) {
 					$definitions[ $assessment_type ] = $definition;
-					error_log( 'ENNU Scoring System: Successfully loaded ' . $assessment_type . ' with ' . count( $definition['questions'] ?? [] ) . ' questions' );
-				} else {
-					error_log( 'ENNU Scoring System: ERROR - Failed to load ' . $assessment_type . ' from ' . $file . ' - not an array' );
 				}
 			}
-		} else {
-			error_log( 'ENNU Scoring System: ERROR - Config directory not found: ' . $config_dir );
 		}
 
 		self::$all_definitions = $definitions;
@@ -218,7 +211,6 @@ class ENNU_Scoring_System {
 					'user_explanation' => $qualitative_engine->get_user_explanation(),
 				);
 
-				error_log( 'ENNU Scoring: Applied Qualitative Engine penalties for user ' . $user_id );
 			}
 		}
 
@@ -237,7 +229,6 @@ class ENNU_Scoring_System {
 					'user_explanation'   => $objective_engine->get_user_explanation(),
 				);
 
-				error_log( 'ENNU Scoring: Applied Objective Engine adjustments for user ' . $user_id );
 			}
 		}
 
@@ -253,9 +244,6 @@ class ENNU_Scoring_System {
 				'user_explanation' => $intentionality_engine->get_user_explanation(),
 			);
 
-			error_log( 'ENNU Scoring: Applied Intentionality Engine boosts for user ' . $user_id );
-		} else {
-			error_log( 'ENNU Scoring: Skipped Intentionality Engine - missing goals, definitions, or class' );
 		}
 
 		// 6. Calculate Final ENNU Life Score with all engine adjustments
@@ -289,14 +277,7 @@ class ENNU_Scoring_System {
 		if ( $performance_monitor ) {
 			$metrics = $performance_monitor->end_timer( 'scoring_calculation' );
 			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
-			if ( $metrics && is_array( $metrics ) ) {
-				error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
-			} else {
-				error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (performance monitoring returned invalid data)' );
-			}
 		} else {
-			$final_score = is_array( $ennu_life_score_data ) && isset( $ennu_life_score_data['ennu_life_score'] ) ? $ennu_life_score_data['ennu_life_score'] : 'ERROR';
-			error_log( 'ENNU Scoring: Complete scoring calculation finished for user ' . $user_id . ' with final score: ' . $final_score . ' (performance monitoring not available)' );
 		}
 
 		return $ennu_life_score_data;
@@ -369,8 +350,15 @@ class ENNU_Scoring_System {
 		// Calculate averages from all collected scores
 		$final_pillar_scores = array();
 		foreach ( $all_pillar_scores as $pillar => $scores ) {
-			if ( ! empty( $scores ) ) {
-				$final_pillar_scores[ $pillar ] = round( array_sum( $scores ) / count( $scores ), 1 );
+			if ( ! empty( $scores ) && is_array( $scores ) ) {
+				$score_sum = array_sum( $scores );
+				$score_count = count( $scores );
+				if ( $score_count > 0 && is_numeric( $score_sum ) && $score_sum >= 0 ) {
+					$average = $score_sum / $score_count;
+					$final_pillar_scores[ $pillar ] = round( max( 0, min( 10, $average ) ), 1 );
+				} else {
+					$final_pillar_scores[ $pillar ] = 0;
+				}
 			} else {
 				$final_pillar_scores[ $pillar ] = 0;
 			}
@@ -384,13 +372,6 @@ class ENNU_Scoring_System {
 		// End performance monitoring if available
 		if ( $performance_monitor ) {
 			$metrics = $performance_monitor->end_timer( 'pillar_calculation' );
-			if ( $metrics && is_array( $metrics ) ) {
-				error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (execution time: ' . round( $metrics['execution_time'] * 1000, 2 ) . 'ms, memory: ' . round( $metrics['memory_usage'] / 1024, 2 ) . 'KB)' );
-			} else {
-				error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (performance monitoring returned invalid data)' );
-			}
-		} else {
-			error_log( 'ENNU Scoring: Average pillar scores calculated for user ' . $user_id . ' (performance monitoring not available)' );
 		}
 
 		// Save for future use
@@ -566,7 +547,7 @@ class ENNU_Scoring_System {
 		delete_transient( 'ennu_field_mappings_cache' );
 		delete_transient( 'ennu_global_fields_cache' );
 		
-		error_log( 'ENNU Caching: All configuration caches cleared' );
+		// REMOVED: error_log( 'ENNU Caching: All configuration caches cleared' );
 		
 		return array(
 			'success'        => true,
@@ -604,6 +585,7 @@ class ENNU_Scoring_System {
 			'testosterone_assessment' => 'testosterone',
 			'welcome_assessment' => 'welcome',
 			'health_optimization_assessment' => 'health-optimization',
+			'peptide_therapy_assessment' => 'peptide-therapy',
 			// Direct mappings for backward compatibility
 			'hair' => 'hair',
 			'weight_loss' => 'weight-loss',
@@ -617,13 +599,15 @@ class ENNU_Scoring_System {
 			'testosterone' => 'testosterone',
 			'welcome' => 'welcome',
 			'health-optimization' => 'health-optimization',
+			'peptide-therapy' => 'peptide-therapy',
+			'peptide_therapy' => 'peptide-therapy',
 		);
 		
 		$config_type = $mapping[ $assessment_type ] ?? null;
 		
 		if ( $config_type === null ) {
 			// Log error for missing mapping
-			error_log( "ENNU Scoring System: Missing assessment type mapping for: {$assessment_type}" );
+			// REMOVED: error_log( "ENNU Scoring System: Missing assessment type mapping for: {$assessment_type}" );
 			// Return default mapping to prevent fatal errors
 			return 'health';
 		}
@@ -650,7 +634,7 @@ class ENNU_Scoring_System {
 		$assessment_config = $all_definitions[ $config_assessment_type ] ?? null;
 		
 		if ( ! $assessment_config ) {
-			error_log( "ENNU Scoring: Assessment config not found for {$assessment_type} (mapped to {$config_assessment_type})" );
+			// REMOVED: error_log( "ENNU Scoring: Assessment config not found for {$assessment_type} (mapped to {$config_assessment_type})" );
 			return null;
 		}
 		
@@ -692,8 +676,16 @@ class ENNU_Scoring_System {
 				}
 				
 				// If we have valid scores, process them
-				if ( ! empty( $answer_scores ) ) {
-					$average_score = array_sum( $answer_scores ) / count( $answer_scores );
+				if ( ! empty( $answer_scores ) && is_array( $answer_scores ) ) {
+					$answer_sum = array_sum( $answer_scores );
+					$answer_count = count( $answer_scores );
+					if ( $answer_count > 0 && is_numeric( $answer_sum ) ) {
+						$average_score = $answer_sum / $answer_count;
+						// Ensure score is within valid range
+						$average_score = max( 0, min( 10, $average_score ) );
+					} else {
+						continue; // Skip invalid data
+					}
 					
 					// Initialize category if not exists
 					if ( ! isset( $category_scores[ $category ] ) ) {
@@ -733,8 +725,8 @@ class ENNU_Scoring_System {
 		$pillar_scores = self::map_categories_to_pillars( $assessment_type, $final_category_scores );
 		
 		// Log the scoring calculation for debugging
-		error_log( "ENNU Scoring: Calculated scores for {$assessment_type} - Overall: {$overall_score}, Categories: " . print_r( $final_category_scores, true ) );
-		error_log( "ENNU Scoring: Pillar scores for {$assessment_type}: " . print_r( $pillar_scores, true ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Scoring: Calculated scores for {$assessment_type} - Overall: {$overall_score}, Categories: " . print_r( $final_category_scores, true ) );
+		// REMOVED: error_log( "ENNU Scoring: Pillar scores for {$assessment_type}: " . print_r( $pillar_scores, true ) );
 		
 		return array(
 			'overall_score'   => $overall_score,
@@ -893,6 +885,13 @@ class ENNU_Scoring_System {
 				'Symptom Severity' => 'Body',
 				'Symptom Frequency' => 'Body',
 				'Age Factors' => 'Body',
+			),
+			'peptide-therapy' => array(
+				'Weight Management & Metabolism' => 'Body',
+				'Recovery & Performance' => 'Body',
+				'Hormonal Optimization' => 'Body',
+				'Cognitive Enhancement' => 'Mind',
+				'Anti-Aging & Longevity' => 'Aesthetics',
 			),
 		);
 		

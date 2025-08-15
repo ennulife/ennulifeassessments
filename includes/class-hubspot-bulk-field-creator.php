@@ -92,9 +92,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		
 		// Test API connection on load (for debugging) with retry mechanism
 		if ( isset( $_GET['test_hubspot_api'] ) && current_user_can( 'manage_options' ) ) {
-			error_log( "ENNU HubSpot: Testing API connection on load..." );
+			// REMOVED: error_log( "ENNU HubSpot: Testing API connection on load..." );
 			$result = $this->test_api_connection_with_retry();
-			error_log( "ENNU HubSpot: Test result: " . json_encode( $result ) );
+			// REMOVED: error_log( "ENNU HubSpot: Test result: " . json_encode( $result ) );
 		}
 		
 		// Add public test endpoint for debugging
@@ -142,7 +142,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			if ( method_exists( $this, $method ) ) {
 				add_action( 'wp_ajax_' . $action, array( $this, $method ) );
 			} else {
-				error_log( "ENNU HubSpot: Method {$method} not found for action {$action}" );
+				// REMOVED: error_log( "ENNU HubSpot: Method {$method} not found for action {$action}" );
 			}
 		}
 	}
@@ -171,7 +171,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 					// Handle potential ad-blocker issues
 					window.addEventListener('error', function(e) {
 						if (e.message.includes('hubspot') || e.message.includes('hubapi')) {
-							console.warn('ENNU HubSpot: Potential ad-blocker or security issue detected');
+							// REMOVED: console.warn('ENNU HubSpot: Potential ad-blocker or security issue detected');
 							$('#hubspot-compatibility-warning').show();
 						}
 					});
@@ -184,7 +184,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 								attempts++;
 								return fn.apply(this, args).catch(error => {
 									if (attempts < maxAttempts) {
-										console.log(`ENNU HubSpot: Retry attempt ${attempts} for API call`);
+										// REMOVED: console.log(`ENNU HubSpot: Retry attempt ${attempts} for API call`);
 										return new Promise(resolve => setTimeout(resolve, 1000 * attempts)).then(attempt);
 									}
 									throw error;
@@ -248,7 +248,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		);
 		
 		// Log the API configuration for debugging
-		error_log( 'ENNU HubSpot: API initialized with access token: ' . substr( $access_token, 0, 20 ) . '...' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU HubSpot: API initialized with access token: ' . substr( $access_token, 0, 20 ) . '...' );
 	}
 
 	/**
@@ -284,7 +284,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 */
 	public function add_admin_menu() {
 		// ENABLED: Original HubSpot Bulk Field Creator
-		error_log( 'ENNU HubSpot: Registering admin menu for HubSpot Bulk Field Creator' );
+		// REMOVED: error_log( 'ENNU HubSpot: Registering admin menu for HubSpot Bulk Field Creator' );
 		add_submenu_page(
 			'ennu-life',
 			__( 'HubSpot Bulk Field Creator (Original)', 'ennulifeassessments' ),
@@ -293,7 +293,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'ennu-hubspot-bulk-field-creator',
 			array( $this, 'admin_page' )
 		);
-		error_log( 'ENNU HubSpot: Admin menu registered successfully' );
+		// REMOVED: error_log( 'ENNU HubSpot: Admin menu registered successfully' );
 	}
 
 	/**
@@ -1164,7 +1164,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 					nonce: nonce
 				})
 				.done(function(response) {
-					console.log('Test response:', response);
+					// REMOVED: console.log('Test response:', response);
 					if (response.success) {
 						alert('✅ Test successful! Found ' + response.data.assessments_count + ' assessments.');
 					} else {
@@ -2835,12 +2835,12 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @since 64.2.1
 	 */
 	public function ajax_get_objects() {
-		error_log( 'ENNU Life: ajax_get_objects called' );
+		// REMOVED: error_log( 'ENNU Life: ajax_get_objects called' );
 		
 		check_ajax_referer( 'ennu_hubspot_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			error_log( 'ENNU Life: ajax_get_objects - unauthorized user' );
+			// REMOVED: error_log( 'ENNU Life: ajax_get_objects - unauthorized user' );
 			wp_die( 'Unauthorized' );
 		}
 
@@ -2851,7 +2851,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( $objects->get_error_message() );
 		}
 
-		error_log( 'ENNU Life: ajax_get_objects - success, returning ' . count( $objects ) . ' objects' );
+		// REMOVED: error_log( 'ENNU Life: ajax_get_objects - success, returning ' . count( $objects ) . ' objects' );
 		wp_send_json_success( $objects );
 	}
 
@@ -2861,19 +2861,19 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @since 64.2.1
 	 */
 	public function ajax_validate_schema() {
-		error_log( 'ENNU Life: ajax_validate_schema called' );
+		// REMOVED: error_log( 'ENNU Life: ajax_validate_schema called' );
 		
 		check_ajax_referer( 'ennu_hubspot_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			error_log( 'ENNU Life: ajax_validate_schema - unauthorized user' );
+			// REMOVED: error_log( 'ENNU Life: ajax_validate_schema - unauthorized user' );
 			wp_die( 'Unauthorized' );
 		}
 
 		$fields = isset( $_POST['fields'] ) ? $this->sanitize_fields( $_POST['fields'] ) : array();
 
 		if ( empty( $fields ) ) {
-			error_log( 'ENNU Life: ajax_validate_schema - no fields provided' );
+			// REMOVED: error_log( 'ENNU Life: ajax_validate_schema - no fields provided' );
 			wp_send_json_error( 'No fields provided' );
 		}
 
@@ -2884,7 +2884,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( $validation_result->get_error_message() );
 		}
 
-		error_log( 'ENNU Life: ajax_validate_schema - validation successful' );
+		// REMOVED: error_log( 'ENNU Life: ajax_validate_schema - validation successful' );
 		wp_send_json_success( 'Schema validation successful' );
 	}
 
@@ -2894,12 +2894,12 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @since 64.2.1
 	 */
 	public function ajax_bulk_create_fields() {
-		error_log( 'ENNU Life: ajax_bulk_create_fields called' );
+		// REMOVED: error_log( 'ENNU Life: ajax_bulk_create_fields called' );
 		
 		check_ajax_referer( 'ennu_hubspot_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			error_log( 'ENNU Life: ajax_bulk_create_fields - unauthorized user' );
+			// REMOVED: error_log( 'ENNU Life: ajax_bulk_create_fields - unauthorized user' );
 			wp_die( 'Unauthorized' );
 		}
 
@@ -2907,7 +2907,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$fields      = isset( $_POST['fields'] ) ? $this->sanitize_fields( $_POST['fields'] ) : array();
 
 		if ( empty( $object_type ) || empty( $fields ) ) {
-			error_log( 'ENNU Life: ajax_bulk_create_fields - missing parameters' );
+			// REMOVED: error_log( 'ENNU Life: ajax_bulk_create_fields - missing parameters' );
 			wp_send_json_error( 'Missing required parameters' );
 		}
 
@@ -2918,7 +2918,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( $results->get_error_message() );
 		}
 
-		error_log( 'ENNU Life: ajax_bulk_create_fields - success' );
+		// REMOVED: error_log( 'ENNU Life: ajax_bulk_create_fields - success' );
 		wp_send_json_success( $this->format_results( $results ) );
 	}
 
@@ -2928,12 +2928,12 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @since 64.2.1
 	 */
 	public function ajax_test_api() {
-		error_log( 'ENNU Life: ajax_test_api called' );
+		// REMOVED: error_log( 'ENNU Life: ajax_test_api called' );
 		
 		check_ajax_referer( 'ennu_hubspot_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			error_log( 'ENNU Life: ajax_test_api - unauthorized user' );
+			// REMOVED: error_log( 'ENNU Life: ajax_test_api - unauthorized user' );
 			wp_die( 'Unauthorized' );
 		}
 
@@ -2946,7 +2946,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( $test_result->get_error_message() );
 		}
 
-		error_log( 'ENNU Life: ajax_test_api - success' );
+		// REMOVED: error_log( 'ENNU Life: ajax_test_api - success' );
 		wp_send_json_success( 'HubSpot API connection test successful!' );
 	}
 
@@ -2985,7 +2985,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Assessment name is required.' );
 		}
 		
-		error_log( 'ENNU HubSpot: Previewing assessment fields for: ' . $assessment_name );
+		// REMOVED: error_log( 'ENNU HubSpot: Previewing assessment fields for: ' . $assessment_name );
 		
 		$fields = $this->extract_assessment_fields_by_name( $assessment_name );
 		
@@ -3012,7 +3012,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			$custom_object_exists = true;
 			$existing_custom_object_properties = $this->get_existing_properties( $this->get_custom_object_name() );
 		} else {
-			error_log( "ENNU HubSpot: Custom object {$custom_object_name} does not exist yet. Skipping custom object field creation." );
+			// REMOVED: error_log( "ENNU HubSpot: Custom object {$custom_object_name} does not exist yet. Skipping custom object field creation." );
 		}
 		
 		// Add HubSpot field IDs to contact fields
@@ -3098,14 +3098,14 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Assessment name is required.' );
 		}
 
-		error_log( 'ENNU HubSpot: Creating assessment fields for: ' . $assessment_name );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating assessment fields for: ' . $assessment_name );
 
 		try {
 			$result = $this->create_assessment_fields( $assessment_name );
 			
 			// Add a delay to allow HubSpot to process the changes
 			if ( $result['success'] ) {
-				error_log( 'ENNU HubSpot: Waiting 3 seconds for HubSpot to process field creation...' );
+				// REMOVED: error_log( 'ENNU HubSpot: Waiting 3 seconds for HubSpot to process field creation...' );
 				sleep( 3 );
 			}
 			
@@ -3168,7 +3168,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$attempt = 1;
 		
 		while ( $attempt <= $max_attempts ) {
-			error_log( "ENNU HubSpot: API connection attempt {$attempt} of {$max_attempts}" );
+			// REMOVED: error_log( "ENNU HubSpot: API connection attempt {$attempt} of {$max_attempts}" );
 			
 			$result = $this->test_api_connection();
 			
@@ -3178,7 +3178,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			
 			if ( $attempt < $max_attempts ) {
 				$delay = $attempt * 2; // Exponential backoff
-				error_log( "ENNU HubSpot: API connection failed, retrying in {$delay} seconds..." );
+				// REMOVED: error_log( "ENNU HubSpot: API connection failed, retrying in {$delay} seconds..." );
 				sleep( $delay );
 			}
 			
@@ -3357,7 +3357,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$user_id = get_current_user_id();
 		$user = get_user_by( 'ID', $user_id );
 		
-		error_log( "ENNU HubSpot: Testing API connection for user {$user_id}" );
+		// REMOVED: error_log( "ENNU HubSpot: Testing API connection for user {$user_id}" );
 		
 		// Test basic API call
 		$url = $this->api_base_url . '/crm/v3/objects/contacts/search';
@@ -3376,9 +3376,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'limit' => 1
 		);
 		
-		error_log( "ENNU HubSpot: Testing URL: {$url}" );
-		error_log( "ENNU HubSpot: Testing data: " . json_encode( $data ) );
-		error_log( "ENNU HubSpot: API headers: " . json_encode( $this->api_params['headers'] ) );
+		// REMOVED: error_log( "ENNU HubSpot: Testing URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Testing data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: API headers: " . json_encode( $this->api_params['headers'] ) );
 		
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -3394,14 +3394,14 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = wp_remote_retrieve_body( $response );
 		
-		error_log( "ENNU HubSpot: Response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Response body: " . $body );
+		// REMOVED: error_log( "ENNU HubSpot: Response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Response body: " . $body );
 		
 		if ( $status_code === 200 ) {
-			error_log( "ENNU HubSpot: API connection successful!" );
+			// REMOVED: error_log( "ENNU HubSpot: API connection successful!" );
 			return array( 'success' => true, 'status_code' => $status_code, 'body' => $body );
 		} else {
-			error_log( "ENNU HubSpot: API connection failed with status {$status_code}" );
+			// REMOVED: error_log( "ENNU HubSpot: API connection failed with status {$status_code}" );
 			return array( 'success' => false, 'status_code' => $status_code, 'body' => $body );
 		}
 	}
@@ -3422,14 +3422,14 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( $status_code !== 200 ) {
-			error_log( 'ENNU Life: HubSpot API returned status code ' . $status_code );
+			// REMOVED: error_log( 'ENNU Life: HubSpot API returned status code ' . $status_code );
 			return new WP_Error( 'api_error', 'HubSpot API returned status code ' . $status_code );
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
-		error_log( 'ENNU Life: HubSpot API Response - ' . print_r( $data, true ) );
+		// REMOVED: error_log( 'ENNU Life: HubSpot API Response - ' . print_r( $data, true ) );
 
 		if ( ! $data ) {
 			return new WP_Error( 'api_error', 'Invalid JSON response from HubSpot API' );
@@ -3480,7 +3480,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 								'id'   => $object_id,
 								'name' => $object_name,
 							);
-							error_log( 'ENNU Life: Found custom object - ID: ' . $object_id . ', Name: ' . $object_name );
+							// REMOVED: error_log( 'ENNU Life: Found custom object - ID: ' . $object_id . ', Name: ' . $object_name );
 						}
 					}
 				}
@@ -3489,7 +3489,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 
 		// If no custom objects found, try alternative API endpoints
 		if ( count( $objects ) <= 4 ) { // Only standard objects (including tickets)
-			error_log( 'ENNU Life: No custom objects found in primary response, trying alternative endpoints' );
+			// REMOVED: error_log( 'ENNU Life: No custom objects found in primary response, trying alternative endpoints' );
 			
 			// Try the custom objects endpoint
 			$custom_response = wp_remote_get( $this->api_base_url . '/crm/v3/objects', $this->api_params );
@@ -3498,7 +3498,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				$custom_body = wp_remote_retrieve_body( $custom_response );
 				$custom_data = json_decode( $custom_body, true );
 				
-				error_log( 'ENNU Life: HubSpot Custom Objects Response - ' . print_r( $custom_data, true ) );
+				// REMOVED: error_log( 'ENNU Life: HubSpot Custom Objects Response - ' . print_r( $custom_data, true ) );
 				
 				if ( $custom_data && isset( $custom_data['results'] ) ) {
 					foreach ( $custom_data['results'] as $custom_object ) {
@@ -3515,7 +3515,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 									'id'   => $object_id,
 									'name' => $object_name,
 								);
-								error_log( 'ENNU Life: Found custom object via alternative endpoint - ID: ' . $object_id . ', Name: ' . $object_name );
+								// REMOVED: error_log( 'ENNU Life: Found custom object via alternative endpoint - ID: ' . $object_id . ', Name: ' . $object_name );
 							}
 						}
 					}
@@ -3538,7 +3538,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 					}
 					
 					$found_object_types = array_unique( $found_object_types );
-					error_log( 'ENNU Life: Found object types from properties - ' . print_r( $found_object_types, true ) );
+					// REMOVED: error_log( 'ENNU Life: Found object types from properties - ' . print_r( $found_object_types, true ) );
 					
 					// Add any custom object types found
 					foreach ( $found_object_types as $object_type ) {
@@ -3547,14 +3547,14 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 								'id'   => $object_type,
 								'name' => ucfirst( str_replace( array( 'p_', 'custom_' ), '', $object_type ) ),
 							);
-							error_log( 'ENNU Life: Added custom object from properties - ID: ' . $object_type );
+							// REMOVED: error_log( 'ENNU Life: Added custom object from properties - ID: ' . $object_type );
 						}
 					}
 				}
 			}
 		}
 
-		error_log( 'ENNU Life: Final objects list - ' . print_r( $objects, true ) );
+		// REMOVED: error_log( 'ENNU Life: Final objects list - ' . print_r( $objects, true ) );
 
 		return $objects;
 	}
@@ -3646,13 +3646,13 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @return string Property group name
 	 */
 	private function create_or_get_assessment_property_group( $object_type, $assessment_name ) {
-		error_log( "ENNU HubSpot: create_or_get_assessment_property_group called for object_type: {$object_type}, assessment_name: {$assessment_name}" );
+		// REMOVED: error_log( "ENNU HubSpot: create_or_get_assessment_property_group called for object_type: {$object_type}, assessment_name: {$assessment_name}" );
 		
 		if ( empty( $assessment_name ) ) {
 			// Fallback to existing property groups
 			$property_groups = $this->get_property_groups( $object_type );
 			$fallback_group = ( ! is_wp_error( $property_groups ) && ! empty( $property_groups ) ) ? $property_groups[0]['name'] : 'core';
-			error_log( "ENNU HubSpot: Using fallback property group: {$fallback_group}" );
+			// REMOVED: error_log( "ENNU HubSpot: Using fallback property group: {$fallback_group}" );
 			return $fallback_group;
 		}
 
@@ -3661,38 +3661,38 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$assessment_label = str_replace( array( '-', '_' ), ' ', $assessment_name );
 		$property_group_name = strtolower( $assessment_prefix . ' ' . $assessment_label . ' assessment' );
 		
-		error_log( "ENNU HubSpot: Generated property group name: {$property_group_name}" );
+		// REMOVED: error_log( "ENNU HubSpot: Generated property group name: {$property_group_name}" );
 
 		// Check if property group already exists
 		$existing_groups = $this->get_property_groups( $object_type );
 		if ( ! is_wp_error( $existing_groups ) ) {
-			error_log( "ENNU HubSpot: Found " . count( $existing_groups ) . " existing property groups" );
-			error_log( "ENNU HubSpot: Looking for property group: {$property_group_name}" );
+			// REMOVED: error_log( "ENNU HubSpot: Found " . count( $existing_groups ) . " existing property groups" );
+			// REMOVED: error_log( "ENNU HubSpot: Looking for property group: {$property_group_name}" );
 			foreach ( $existing_groups as $group ) {
-				error_log( "ENNU HubSpot: Checking existing group: " . $group['name'] );
+				// REMOVED: error_log( "ENNU HubSpot: Checking existing group: " . $group['name'] );
 				if ( $group['name'] === $property_group_name ) {
-					error_log( "ENNU HubSpot: Property group already exists: {$property_group_name}" );
+					// REMOVED: error_log( "ENNU HubSpot: Property group already exists: {$property_group_name}" );
 					return $property_group_name;
 				}
 			}
-			error_log( "ENNU HubSpot: Property group not found in existing groups, will create new one" );
+			// REMOVED: error_log( "ENNU HubSpot: Property group not found in existing groups, will create new one" );
 		} else {
 			error_log( "ENNU HubSpot: Error getting existing property groups: " . $existing_groups->get_error_message() );
 		}
 
 		// Create new property group
-		error_log( "ENNU HubSpot: Creating new property group: {$property_group_name}" );
+		// REMOVED: error_log( "ENNU HubSpot: Creating new property group: {$property_group_name}" );
 		$result = $this->create_property_group( $object_type, $property_group_name );
 		if ( is_wp_error( $result ) ) {
-			error_log( "ENNU HubSpot: Failed to create property group: " . $result->get_error_message() );
+			// REMOVED: error_log( "ENNU HubSpot: Failed to create property group: " . $result->get_error_message() );
 			// Fallback to existing groups if creation fails
 			$property_groups = $this->get_property_groups( $object_type );
 			$fallback_group = ( ! is_wp_error( $property_groups ) && ! empty( $property_groups ) ) ? $property_groups[0]['name'] : 'core';
-			error_log( "ENNU HubSpot: Using fallback property group after creation failure: {$fallback_group}" );
+			// REMOVED: error_log( "ENNU HubSpot: Using fallback property group after creation failure: {$fallback_group}" );
 			return $fallback_group;
 		}
 
-		error_log( "ENNU HubSpot: Successfully created property group: {$property_group_name}" );
+		// REMOVED: error_log( "ENNU HubSpot: Successfully created property group: {$property_group_name}" );
 		return $property_group_name;
 	}
 
@@ -3704,7 +3704,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @return bool|WP_Error Success or error
 	 */
 	private function create_property_group( $object_type, $group_name ) {
-		error_log( "ENNU HubSpot: create_property_group called for object_type: {$object_type}, group_name: {$group_name}" );
+		// REMOVED: error_log( "ENNU HubSpot: create_property_group called for object_type: {$object_type}, group_name: {$group_name}" );
 		
 		$this->init_api_params();
 		
@@ -3714,7 +3714,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		} else {
 			$url = $this->api_base_url . "/crm/v3/properties/{$object_type}/groups";
 		}
-		error_log( "ENNU HubSpot: Property group creation URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Property group creation URL: {$url}" );
 		
 		$body = array(
 			'name' => $group_name,
@@ -3722,7 +3722,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'displayOrder' => 1,
 		);
 		
-		error_log( "ENNU HubSpot: Property group creation body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Property group creation body: " . json_encode( $body ) );
 
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -3731,24 +3731,24 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		) );
 
 		if ( is_wp_error( $response ) ) {
-			error_log( "ENNU HubSpot: Property group creation WP_Error: " . $response->get_error_message() );
+			// REMOVED: error_log( "ENNU HubSpot: Property group creation WP_Error: " . $response->get_error_message() );
 			return $response;
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = wp_remote_retrieve_body( $response );
 		
-		error_log( "ENNU HubSpot: Property group creation response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Property group creation response body: {$body}" );
+		// REMOVED: error_log( "ENNU HubSpot: Property group creation response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Property group creation response body: {$body}" );
 
 		if ( $status_code === 201 ) {
-			error_log( "ENNU HubSpot: Property group created successfully" );
+			// REMOVED: error_log( "ENNU HubSpot: Property group created successfully" );
 			return true;
 		}
 
 		$data = json_decode( $body, true );
 		$error_message = isset( $data['message'] ) ? $data['message'] : 'Unknown error';
-		error_log( "ENNU HubSpot: Property group creation failed: {$error_message}" );
+		// REMOVED: error_log( "ENNU HubSpot: Property group creation failed: {$error_message}" );
 		return new WP_Error( 'api_error', 'Failed to create property group: ' . $error_message );
 	}
 
@@ -3854,7 +3854,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	private function get_custom_object_name() {
 		// TEMPORARY HARDCODED RETURN TO PREVENT INFINITE LOOPS
 		// This bypasses all caching and API calls to prevent database performance issues
-		error_log( 'ENNU HubSpot: Using hardcoded custom object name to prevent infinite loops' );
+		// REMOVED: error_log( 'ENNU HubSpot: Using hardcoded custom object name to prevent infinite loops' );
 		return '2-47128703';
 	}
 
@@ -3865,7 +3865,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 */
 	private function clear_custom_object_cache() {
 		delete_transient( 'ennu_hubspot_custom_object_name' );
-		error_log( 'ENNU HubSpot: Cleared custom object name cache' );
+		// REMOVED: error_log( 'ENNU HubSpot: Cleared custom object name cache' );
 	}
 
 	/**
@@ -3875,12 +3875,12 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 */
 	public function clear_all_hubspot_caches() {
 		delete_transient( 'ennu_hubspot_custom_object_name' );
-		error_log( 'ENNU HubSpot: Cleared API caches' );
+		// REMOVED: error_log( 'ENNU HubSpot: Cleared API caches' );
 		// Force clear any cached object names
 		wp_cache_delete( 'ennu_hubspot_custom_object_name', 'options' );
 		// Clear object cache as well
 		wp_cache_delete( 'ennu_hubspot_custom_object_name', 'transient' );
-		error_log( 'ENNU HubSpot: Force cleared all caches for custom object name' );
+		// REMOVED: error_log( 'ENNU HubSpot: Force cleared all caches for custom object name' );
 	}
 
 	/**
@@ -3941,7 +3941,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	private function create_single_field( $object_type, $field, $assessment_name = null ) {
 		// Validate required field data
 		if ( empty( $field['name'] ) ) {
-			error_log( 'ENNU HubSpot: Field name is required' );
+			// REMOVED: error_log( 'ENNU HubSpot: Field name is required' );
 			return array(
 				'success' => false,
 				'message' => 'Field name is required',
@@ -3951,7 +3951,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		}
 		
 		if ( empty( $field['type'] ) ) {
-			error_log( 'ENNU HubSpot: Field type is required for field: ' . $field['name'] );
+			// REMOVED: error_log( 'ENNU HubSpot: Field type is required for field: ' . $field['name'] );
 			return array(
 				'success' => false,
 				'message' => 'Field type is required for field: ' . $field['name'],
@@ -4069,7 +4069,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$data = json_decode( $body, true );
 		$hubspot_id = isset( $data['name'] ) ? $data['name'] : null;
 		
-		error_log( 'ENNU HubSpot: Successfully created field ' . $field['name'] . ' - HubSpot ID: ' . $hubspot_id );
+		// REMOVED: error_log( 'ENNU HubSpot: Successfully created field ' . $field['name'] . ' - HubSpot ID: ' . $hubspot_id );
 		
 		return array(
 			'success' => true,
@@ -5005,32 +5005,32 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$assessment_files = glob( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/config/assessments/*.php' );
 		
 		// Debug: Log the path being used
-		error_log( 'ENNU Life: Assessment files path: ' . plugin_dir_path( dirname( __FILE__ ) ) . 'includes/config/assessments/*.php' );
+		// REMOVED: error_log( 'ENNU Life: Assessment files path: ' . plugin_dir_path( dirname( __FILE__ ) ) . 'includes/config/assessments/*.php' );
 		
-		error_log( 'ENNU Life: extract_assessment_fields - Found ' . count( $assessment_files ) . ' assessment files' );
+		// REMOVED: error_log( 'ENNU Life: extract_assessment_fields - Found ' . count( $assessment_files ) . ' assessment files' );
 		
 		// Debug: Log the actual files found
 		foreach ( $assessment_files as $file ) {
-			error_log( 'ENNU Life: Found assessment file: ' . basename( $file ) );
+			// REMOVED: error_log( 'ENNU Life: Found assessment file: ' . basename( $file ) );
 		}
 		
 		foreach ( $assessment_files as $file ) {
-			error_log( 'ENNU Life: Processing assessment file: ' . basename( $file ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Life: Processing assessment file: ' . basename( $file ) );
 			
 			$assessment_config = include $file;
 			$assessment_name = basename( $file, '.php' );
 			
 			if ( ! isset( $assessment_config['questions'] ) ) {
-				error_log( 'ENNU Life: No questions found in ' . basename( $file ) );
+				// REMOVED: error_log( 'ENNU Life: No questions found in ' . basename( $file ) );
 				continue;
 			}
 			
-			error_log( 'ENNU Life: Found ' . count( $assessment_config['questions'] ) . ' questions in ' . basename( $file ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Life: Found ' . count( $assessment_config['questions'] ) . ' questions in ' . basename( $file ) );
 			
 			foreach ( $assessment_config['questions'] as $question_key => $question ) {
 				// Skip global fields that are already handled
 				if ( isset( $question['global_key'] ) ) {
-					error_log( 'ENNU Life: Skipping global field: ' . $question_key );
+					// REMOVED: error_log( 'ENNU Life: Skipping global field: ' . $question_key );
 					continue;
 				}
 				
@@ -5053,11 +5053,11 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				}
 				
 				$assessment_fields[] = $field_data;
-				error_log( 'ENNU Life: Added field: ' . $question_key . ' (' . $field_data['type'] . ')' );
+				// REMOVED: error_log( 'ENNU Life: Added field: ' . $question_key . ' (' . $field_data['type'] . ')' );
 			}
 		}
 		
-		error_log( 'ENNU Life: extract_assessment_fields - Total fields extracted: ' . count( $assessment_fields ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Life: extract_assessment_fields - Total fields extracted: ' . count( $assessment_fields ) );
 		return $assessment_fields;
 	}
 	
@@ -5534,8 +5534,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		// Check existence status
 		$existence_status = $this->check_weight_loss_field_existence();
 		
-		error_log( 'ENNU HubSpot: Creating Weight Loss contact fields: ' . count( $contact_fields ) . ' fields' );
-		error_log( 'ENNU HubSpot: Creating Weight Loss custom object fields: ' . count( $custom_object_fields ) . ' fields' );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating Weight Loss contact fields: ' . count( $contact_fields ) . ' fields' );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating Weight Loss custom object fields: ' . count( $custom_object_fields ) . ' fields' );
 		
 		// Filter out existing fields
 		$new_contact_fields = array();
@@ -5558,8 +5558,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			}
 		}
 		
-		error_log( 'ENNU HubSpot: Skipping ' . count( $skipped_contact_fields ) . ' existing contact fields' );
-		error_log( 'ENNU HubSpot: Skipping ' . count( $skipped_custom_object_fields ) . ' existing custom object fields' );
+		// REMOVED: error_log( 'ENNU HubSpot: Skipping ' . count( $skipped_contact_fields ) . ' existing contact fields' );
+		// REMOVED: error_log( 'ENNU HubSpot: Skipping ' . count( $skipped_custom_object_fields ) . ' existing custom object fields' );
 		
 		// Create contact properties (only new ones)
 		$contact_results = $this->bulk_create_fields( 'contacts', $new_contact_fields );
@@ -5576,7 +5576,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$results['custom_object']['new_fields_count'] = count( $new_custom_object_fields );
 		$results['custom_object']['skipped_fields_count'] = count( $skipped_custom_object_fields );
 		
-		error_log( 'ENNU HubSpot: Weight Loss field creation results: ' . json_encode( $results ) );
+		// REMOVED: error_log( 'ENNU HubSpot: Weight Loss field creation results: ' . json_encode( $results ) );
 		
 		return $results;
 	}
@@ -5744,7 +5744,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			$url = "https://api.hubapi.com/crm/v3/properties/{$custom_object_name}";
 		}
 		
-		error_log( "ENNU HubSpot: Fetching existing properties for object type: {$object_type} using URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Fetching existing properties for object type: {$object_type} using URL: {$url}" );
 		
 		// Try up to 5 times with increasing delays to handle potential caching issues
 		for ( $attempt = 1; $attempt <= 5; $attempt++ ) {
@@ -5773,7 +5773,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			if ( in_array( $object_type, array( 'contacts', 'companies', 'deals' ) ) ) {
 				// Standard objects return results array
 				if ( ! isset( $data['results'] ) ) {
-					error_log( "ENNU HubSpot: No results found in API response for {$object_type} (attempt {$attempt})" );
+					// REMOVED: error_log( "ENNU HubSpot: No results found in API response for {$object_type} (attempt {$attempt})" );
 					if ( $attempt === 5 ) {
 						return array();
 					}
@@ -5784,14 +5784,14 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			} else {
 				// Custom objects return properties directly
 				if ( ! isset( $data['properties'] ) ) {
-					error_log( "ENNU HubSpot: No properties found in API response for {$object_type} (attempt {$attempt})" );
-					error_log( "ENNU HubSpot: API response data: " . wp_json_encode( $data ) );
+					// REMOVED: error_log( "ENNU HubSpot: No properties found in API response for {$object_type} (attempt {$attempt})" );
+					// REMOVED: error_log( "ENNU HubSpot: API response data: " . wp_json_encode( $data ) );
 					// If custom object doesn't exist, log error and return empty array
 					if ( $attempt === 1 ) {
-						error_log( "ENNU HubSpot: Custom object {$object_type} does not exist. Please create it manually in HubSpot." );
+						// REMOVED: error_log( "ENNU HubSpot: Custom object {$object_type} does not exist. Please create it manually in HubSpot." );
 					}
 					if ( $attempt === 5 ) {
-						error_log( "ENNU HubSpot: All attempts failed for custom object {$object_type}" );
+						// REMOVED: error_log( "ENNU HubSpot: All attempts failed for custom object {$object_type}" );
 						return array();
 					}
 					sleep( 1 ); // Wait 1 second before retry
@@ -5800,7 +5800,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				$properties = $data['properties'];
 			}
 			
-			error_log( "ENNU HubSpot: Found " . count( $properties ) . " properties for {$object_type} (attempt {$attempt})" );
+			// REMOVED: error_log( "ENNU HubSpot: Found " . count( $properties ) . " properties for {$object_type} (attempt {$attempt})" );
 			
 			$existing_properties = array();
 			foreach ( $properties as $property ) {
@@ -5812,7 +5812,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				}
 			}
 			
-			error_log( "ENNU HubSpot: Returning " . count( $existing_properties ) . " existing properties for {$object_type}" );
+			// REMOVED: error_log( "ENNU HubSpot: Returning " . count( $existing_properties ) . " existing properties for {$object_type}" );
 			return $existing_properties;
 		}
 		
@@ -5851,7 +5851,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 	 * @return array Sync result with status and details
 	 */
 	public function sync_assessment_to_hubspot( $user_id, $assessment_type, $form_data ) {
-		error_log( "ENNU HubSpot Sync: Starting real-time sync for user {$user_id}, assessment {$assessment_type}" );
+		// REMOVED: error_log( "ENNU HubSpot Sync: Starting real-time sync for user {$user_id}, assessment {$assessment_type}" );
 		
 		// Ensure API parameters are initialized
 		$this->init_api_params();
@@ -5868,7 +5868,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			
 			$overall_success = $contact_result['success'] && $custom_object_result['success'];
 			
-			error_log( "ENNU HubSpot Sync: Completed for user {$user_id}, assessment {$assessment_type}. Success: " . ( $overall_success ? 'true' : 'false' ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU HubSpot Sync: Completed for user {$user_id}, assessment {$assessment_type}. Success: " . ( $overall_success ? 'true' : 'false' ) );
 			
 			return array(
 				'success' => $overall_success,
@@ -5981,13 +5981,13 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		
 		if ( $status_code === 201 ) {
 			$record_id = isset( $body['id'] ) ? $body['id'] : null;
-			error_log( "ENNU HubSpot: Successfully created custom object record: " . $record_id );
+			// REMOVED: error_log( "ENNU HubSpot: Successfully created custom object record: " . $record_id );
 			
 			// Automatically associate the custom object record with the contact
 			if ( $record_id ) {
 				$association_result = $this->associate_custom_object_with_contact( $record_id, $user_id, $user->user_email, $assessment_type );
 				if ( $association_result['success'] ) {
-					error_log( "ENNU HubSpot: Successfully associated custom object record {$record_id} with contact" );
+					// REMOVED: error_log( "ENNU HubSpot: Successfully associated custom object record {$record_id} with contact" );
 				} else {
 					error_log( "ENNU HubSpot: Failed to associate custom object record: " . $association_result['error'] );
 				}
@@ -6021,24 +6021,30 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		// Get the custom object name
 		$custom_object_name = $this->get_custom_object_name();
 		
-		// Create association using HubSpot's Same Object Associations API
-		$url = $this->api_base_url . '/crm/v4/objects/' . $custom_object_name . '/' . $custom_object_id . '/associations/contacts/' . $contact_id . '/assessment_record';
+		// Create association using HubSpot's standard association API
+		// Use the batch associations endpoint for better reliability
+		$url = $this->api_base_url . '/crm/v4/associations/' . $custom_object_name . '/contacts/batch/create';
 		
 		$data = array(
-			'types' => array(
+			'inputs' => array(
 				array(
-					'associationCategory' => 'HUBSPOT_DEFINED',
-					'associationTypeId' => 1
+					'from' => array( 'id' => $custom_object_id ),
+					'to' => array( 'id' => $contact_id ),
+					'types' => array(
+						array(
+							'associationCategory' => 'HUBSPOT_DEFINED',
+							'associationTypeId' => 1
+						)
+					)
 				)
 			)
 		);
 
-		error_log( "ENNU HubSpot: Creating association between custom object {$custom_object_id} and contact {$contact_id}" );
-		error_log( "ENNU HubSpot: Association URL: {$url}" );
-		error_log( "ENNU HubSpot: Association data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Creating association between custom object {$custom_object_id} and contact {$contact_id}" );
+		// REMOVED: error_log( "ENNU HubSpot: Association URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Association data: " . json_encode( $data ) );
 
-		$response = wp_remote_request( $url, array(
-			'method' => 'PUT',
+		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
 			'body' => json_encode( $data ),
 			'timeout' => 30
@@ -6052,16 +6058,16 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: Association response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Association response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Association response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Association response body: " . json_encode( $body ) );
 		
 		if ( $status_code === 200 || $status_code === 201 ) {
-			error_log( "ENNU HubSpot: Successfully created association between custom object {$custom_object_id} and contact {$contact_id}" );
+			// REMOVED: error_log( "ENNU HubSpot: Successfully created association between custom object {$custom_object_id} and contact {$contact_id}" );
 			
 			// Log activity on the contact record
 			$activity_result = $this->log_assessment_activity( $contact_id, $user_id, $assessment_type );
 			if ( $activity_result['success'] ) {
-				error_log( "ENNU HubSpot: Successfully logged assessment activity on contact {$contact_id}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU HubSpot: Successfully logged assessment activity on contact {$contact_id}" );
 			} else {
 				error_log( "ENNU HubSpot: Failed to log assessment activity: " . $activity_result['error'] );
 			}
@@ -6069,7 +6075,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			// Add contact to assessment-specific lists
 			$list_result = $this->add_contact_to_assessment_lists( $contact_id, $assessment_type );
 			if ( $list_result['success'] ) {
-				error_log( "ENNU HubSpot: Successfully added contact {$contact_id} to assessment lists" );
+				// REMOVED: error_log( "ENNU HubSpot: Successfully added contact {$contact_id} to assessment lists" );
 			} else {
 				error_log( "ENNU HubSpot: Failed to add contact to assessment lists: " . $list_result['error'] );
 			}
@@ -6124,9 +6130,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			)
 		);
 
-		error_log( "ENNU HubSpot: Logging assessment activity on contact {$contact_id}" );
-		error_log( "ENNU HubSpot: Activity URL: {$url}" );
-		error_log( "ENNU HubSpot: Activity data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Logging assessment activity on contact {$contact_id}" );
+		// REMOVED: error_log( "ENNU HubSpot: Activity URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Activity data: " . json_encode( $data ) );
 
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -6142,12 +6148,12 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: Activity response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Activity response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Activity response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Activity response body: " . json_encode( $body ) );
 		
 		if ( $status_code === 201 ) {
 			$note_id = isset( $body['id'] ) ? $body['id'] : null;
-			error_log( "ENNU HubSpot: Successfully logged assessment activity. Note ID: {$note_id}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU HubSpot: Successfully logged assessment activity. Note ID: {$note_id}" );
 			return array( 'success' => true, 'note_id' => $note_id );
 		} else {
 			$error_message = isset( $body['message'] ) ? $body['message'] : 'Unknown error';
@@ -6212,9 +6218,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'vids' => array( intval( $contact_id ) )
 		);
 		
-		error_log( "ENNU HubSpot: Adding contact {$contact_id} to list {$list_name} (ID: {$list_id})" );
-		error_log( "ENNU HubSpot: List URL: {$url}" );
-		error_log( "ENNU HubSpot: List data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Adding contact {$contact_id} to list {$list_name} (ID: {$list_id})" );
+		// REMOVED: error_log( "ENNU HubSpot: List URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: List data: " . json_encode( $data ) );
 		
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -6230,11 +6236,11 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: List response status: {$status_code}" );
-		error_log( "ENNU HubSpot: List response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: List response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: List response body: " . json_encode( $body ) );
 		
 		if ( $status_code === 200 || $status_code === 201 ) {
-			error_log( "ENNU HubSpot: Successfully added contact {$contact_id} to list {$list_name}" );
+			// REMOVED: error_log( "ENNU HubSpot: Successfully added contact {$contact_id} to list {$list_name}" );
 			return array( 'success' => true, 'list_id' => $list_id, 'list_name' => $list_name );
 		} else {
 			$error_message = isset( $body['message'] ) ? $body['message'] : 'Unknown error';
@@ -6255,7 +6261,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$list_id = $this->find_list_by_name( $list_name );
 		
 		if ( $list_id ) {
-			error_log( "ENNU HubSpot: Found existing list '{$list_name}' with ID: {$list_id}" );
+			// REMOVED: error_log( "ENNU HubSpot: Found existing list '{$list_name}' with ID: {$list_id}" );
 			return $list_id;
 		}
 		
@@ -6263,7 +6269,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$list_id = $this->create_assessment_list( $list_name, $assessment_type );
 		
 		if ( $list_id ) {
-			error_log( "ENNU HubSpot: Created new list '{$list_name}' with ID: {$list_id}" );
+			// REMOVED: error_log( "ENNU HubSpot: Created new list '{$list_name}' with ID: {$list_id}" );
 			return $list_id;
 		}
 		
@@ -6322,9 +6328,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'processingType' => 'MANUAL' // Manual processing type
 		);
 		
-		error_log( "ENNU HubSpot: Creating new list '{$list_name}'" );
-		error_log( "ENNU HubSpot: Create list URL: {$url}" );
-		error_log( "ENNU HubSpot: Create list data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Creating new list '{$list_name}'" );
+		// REMOVED: error_log( "ENNU HubSpot: Create list URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Create list data: " . json_encode( $data ) );
 		
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -6340,11 +6346,11 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: Create list response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Create list response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Create list response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Create list response body: " . json_encode( $body ) );
 		
 		if ( $status_code === 201 && isset( $body['id'] ) ) {
-			error_log( "ENNU HubSpot: Successfully created list '{$list_name}' with ID: {$body['id']}" );
+			// REMOVED: error_log( "ENNU HubSpot: Successfully created list '{$list_name}' with ID: {$body['id']}" );
 			return $body['id'];
 		} else {
 			$error_message = isset( $body['message'] ) ? $body['message'] : 'Unknown error';
@@ -6369,7 +6375,10 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$contact_properties['email'] = $form_data['email'] ?? $user->user_email;
 		$contact_properties['firstname'] = $form_data['first_name'] ?? get_user_meta( $user_id, 'first_name', true ) ?: '';
 		$contact_properties['lastname'] = $form_data['last_name'] ?? get_user_meta( $user_id, 'last_name', true ) ?: '';
-		$contact_properties['phone'] = $form_data['billing_phone'] ?? get_user_meta( $user_id, 'billing_phone', true ) ?: '';
+		
+		// Phone number with proper validation and formatting
+		$raw_phone = $form_data['billing_phone'] ?? get_user_meta( $user_id, 'billing_phone', true ) ?: '';
+		$contact_properties['phone'] = $this->sanitize_phone_number( $raw_phone );
 
 		// Global fields - prioritize form data for real-time sync
 		$contact_properties['ennu_global_gender'] = $form_data['gender'] ?? get_user_meta( $user_id, 'ennu_global_gender', true ) ?: '';
@@ -6411,7 +6420,53 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$contact_properties['ennu_pillar_aesthetics_score'] = get_user_meta( $user_id, 'ennu_pillar_aesthetics_score', true ) ?: 0;
 		$contact_properties['total_assessments_completed'] = get_user_meta( $user_id, 'ennu_total_assessments_completed', true ) ?: 0;
 
+		// Add biomarker data via filter (allows biomarker sync class to add data)
+		$contact_properties = apply_filters( 'ennu_hubspot_contact_data', $contact_properties, $user_id, $assessment_type );
+
 		return $contact_properties;
+	}
+
+	/**
+	 * Sanitize phone number for HubSpot compatibility
+	 *
+	 * @param string $phone Raw phone number
+	 * @return string Sanitized phone number or empty string
+	 */
+	private function sanitize_phone_number( $phone ) {
+		// If empty or null, return empty string
+		if ( empty( $phone ) ) {
+			return '';
+		}
+		
+		// Remove all non-numeric characters except + and -
+		$cleaned = preg_replace( '/[^0-9+\-]/', '', trim( $phone ) );
+		
+		// If still empty after cleaning, return empty string
+		if ( empty( $cleaned ) ) {
+			return '';
+		}
+		
+		// Handle US numbers - add +1 if it looks like a 10-digit US number
+		if ( preg_match( '/^\d{10}$/', $cleaned ) ) {
+			return '+1' . $cleaned;
+		}
+		
+		// Handle numbers that start with 1 (assume US)
+		if ( preg_match( '/^1\d{10}$/', $cleaned ) ) {
+			return '+' . $cleaned;
+		}
+		
+		// If it already has country code (+), validate format
+		if ( strpos( $cleaned, '+' ) === 0 ) {
+			// Must be + followed by 7-15 digits
+			if ( preg_match( '/^\+\d{7,15}$/', $cleaned ) ) {
+				return $cleaned;
+			}
+		}
+		
+		// If none of the above patterns match, return empty to avoid validation errors
+		// REMOVED: error_log( "ENNU HubSpot: Invalid phone number format rejected: " . $phone );
+		return '';
 	}
 
 	/**
@@ -6708,9 +6763,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			'properties' => array('email')
 		);
 		
-		error_log( "ENNU HubSpot: Searching for contact with email: {$email}" );
-		error_log( "ENNU HubSpot: Search URL: {$url}" );
-		error_log( "ENNU HubSpot: Search data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Searching for contact with email: {$email}" );
+		// REMOVED: error_log( "ENNU HubSpot: Search URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Search data: " . json_encode( $data ) );
 
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -6726,8 +6781,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: Search response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Search response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Search response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Search response body: " . json_encode( $body ) );
 		
 		if ( $status_code !== 200 ) {
 			error_log( "ENNU HubSpot: Error searching for contact. Status: {$status_code}, Response: " . json_encode( $body ) );
@@ -6736,11 +6791,11 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		
 		if ( isset( $body['results'] ) && ! empty( $body['results'] ) ) {
 			$contact_id = $body['results'][0]['id'];
-			error_log( "ENNU HubSpot: Found existing contact with ID: {$contact_id}" );
+			// REMOVED: error_log( "ENNU HubSpot: Found existing contact with ID: {$contact_id}" );
 			return $contact_id;
 		}
 
-		error_log( "ENNU HubSpot: No existing contact found for email: {$email}" );
+		// REMOVED: error_log( "ENNU HubSpot: No existing contact found for email: {$email}" );
 		return false;
 	}
 
@@ -6762,9 +6817,9 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			)
 		);
 
-		error_log( "ENNU HubSpot: Creating new contact with email: {$email}" );
-		error_log( "ENNU HubSpot: Create URL: {$url}" );
-		error_log( "ENNU HubSpot: Create data: " . json_encode( $data ) );
+		// REMOVED: error_log( "ENNU HubSpot: Creating new contact with email: {$email}" );
+		// REMOVED: error_log( "ENNU HubSpot: Create URL: {$url}" );
+		// REMOVED: error_log( "ENNU HubSpot: Create data: " . json_encode( $data ) );
 
 		$response = wp_remote_post( $url, array(
 			'headers' => $this->api_params['headers'],
@@ -6780,16 +6835,16 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 		
-		error_log( "ENNU HubSpot: Create response status: {$status_code}" );
-		error_log( "ENNU HubSpot: Create response body: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Create response status: {$status_code}" );
+		// REMOVED: error_log( "ENNU HubSpot: Create response body: " . json_encode( $body ) );
 		
 		if ( $status_code === 201 && isset( $body['id'] ) ) {
 			$contact_id = $body['id'];
-			error_log( "ENNU HubSpot: Successfully created contact with ID: {$contact_id}" );
+			// REMOVED: error_log( "ENNU HubSpot: Successfully created contact with ID: {$contact_id}" );
 			return $contact_id;
 		}
 
-		error_log( "ENNU HubSpot: Failed to create contact. Status: {$status_code}, Response: " . json_encode( $body ) );
+		// REMOVED: error_log( "ENNU HubSpot: Failed to create contact. Status: {$status_code}, Response: " . json_encode( $body ) );
 		return false;
 	}
 
@@ -6835,7 +6890,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		update_user_meta( $user_id, 'ennu_hubspot_sync_log_' . $assessment_type, $sync_log );
 		
 		// Log to error log
-		error_log( "ENNU HubSpot Sync Log: " . json_encode( $sync_log ) );
+		// REMOVED: error_log( "ENNU HubSpot Sync Log: " . json_encode( $sync_log ) );
 	}
 
 	/**
@@ -7026,7 +7081,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Previewing Weight Loss fields via AJAX...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Previewing Weight Loss fields via AJAX...' );
 
 		try {
 			$contact_fields = $this->get_weight_loss_contact_fields();
@@ -7035,7 +7090,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			
 			// Get existing field details from HubSpot to include IDs
 			// Add a small delay to ensure we get the latest data
-			error_log( 'ENNU HubSpot: Waiting 1 second before fetching existing properties...' );
+			// REMOVED: error_log( 'ENNU HubSpot: Waiting 1 second before fetching existing properties...' );
 			sleep( 1 );
 			
 			$existing_contact_properties = $this->get_existing_properties( 'contacts' );
@@ -7043,23 +7098,23 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			$existing_custom_object_properties = $this->get_existing_properties( $custom_object_name );
 			
 			// Debug logging
-			error_log( 'ENNU HubSpot: Found ' . count( $existing_contact_properties ) . ' existing contact properties' );
-			error_log( 'ENNU HubSpot: Found ' . count( $existing_custom_object_properties ) . ' existing custom object properties' );
+			// REMOVED: error_log( 'ENNU HubSpot: Found ' . count( $existing_contact_properties ) . ' existing contact properties' );
+			// REMOVED: error_log( 'ENNU HubSpot: Found ' . count( $existing_custom_object_properties ) . ' existing custom object properties' );
 			
 			// Log all existing contact properties for debugging
-			error_log( 'ENNU HubSpot: All existing contact properties: ' . implode( ', ', array_keys( $existing_contact_properties ) ) );
-			error_log( 'ENNU HubSpot: All existing custom object properties: ' . implode( ', ', array_keys( $existing_custom_object_properties ) ) );
+			// REMOVED: error_log( 'ENNU HubSpot: All existing contact properties: ' . implode( ', ', array_keys( $existing_contact_properties ) ) );
+			// REMOVED: error_log( 'ENNU HubSpot: All existing custom object properties: ' . implode( ', ', array_keys( $existing_custom_object_properties ) ) );
 			
 			// Add HubSpot field IDs to contact fields
 			foreach ( $contact_fields as &$field ) {
 				if ( isset( $existing_contact_properties[$field['name']] ) ) {
 					$field['hubspot_id'] = $existing_contact_properties[$field['name']]['id'];
 					$field['hubspot_name'] = $existing_contact_properties[$field['name']]['name'];
-					error_log( 'ENNU HubSpot: Field ' . $field['name'] . ' exists in HubSpot with ID: ' . $field['hubspot_id'] );
+					// REMOVED: error_log( 'ENNU HubSpot: Field ' . $field['name'] . ' exists in HubSpot with ID: ' . $field['hubspot_id'] );
 				} else {
 					$field['hubspot_id'] = null;
 					$field['hubspot_name'] = $field['name'];
-					error_log( 'ENNU HubSpot: Field ' . $field['name'] . ' does NOT exist in HubSpot - will be created' );
+					// REMOVED: error_log( 'ENNU HubSpot: Field ' . $field['name'] . ' does NOT exist in HubSpot - will be created' );
 				}
 			}
 			
@@ -7068,11 +7123,11 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				if ( isset( $existing_custom_object_properties[$field['name']] ) ) {
 					$field['hubspot_id'] = $existing_custom_object_properties[$field['name']]['id'];
 					$field['hubspot_name'] = $existing_custom_object_properties[$field['name']]['name'];
-					error_log( 'ENNU HubSpot: Custom Object Field ' . $field['name'] . ' exists in HubSpot with ID: ' . $field['hubspot_id'] );
+					// REMOVED: error_log( 'ENNU HubSpot: Custom Object Field ' . $field['name'] . ' exists in HubSpot with ID: ' . $field['hubspot_id'] );
 				} else {
 					$field['hubspot_id'] = null;
 					$field['hubspot_name'] = $field['name'];
-					error_log( 'ENNU HubSpot: Custom Object Field ' . $field['name'] . ' does NOT exist in HubSpot - will be created' );
+					// REMOVED: error_log( 'ENNU HubSpot: Custom Object Field ' . $field['name'] . ' does NOT exist in HubSpot - will be created' );
 				}
 			}
 			
@@ -7111,7 +7166,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Creating Weight Loss fields via AJAX...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating Weight Loss fields via AJAX...' );
 
 		// Custom object should already exist in HubSpot
 
@@ -7119,7 +7174,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		
 		// Add a delay to allow HubSpot to process the changes
 		if ( $result['success'] ) {
-			error_log( 'ENNU HubSpot: Waiting 3 seconds for HubSpot to process field creation...' );
+			// REMOVED: error_log( 'ENNU HubSpot: Waiting 3 seconds for HubSpot to process field creation...' );
 			sleep( 3 );
 		}
 		
@@ -7220,7 +7275,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 		echo "<p class='info'>Starting field creation process with full logging...</p>";
 		
 		// Enable detailed logging
-		error_log( 'ENNU HubSpot: Starting comprehensive Weight Loss field creation test' );
+		// REMOVED: error_log( 'ENNU HubSpot: Starting comprehensive Weight Loss field creation test' );
 		
 		// Create fields with full response logging
 		$creation_result = $this->create_weight_loss_fields();
@@ -7352,7 +7407,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Previewing Global fields via AJAX...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Previewing Global fields via AJAX...' );
 
 		try {
 			// Get global fields
@@ -7558,7 +7613,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Debugging HubSpot fields via AJAX...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Debugging HubSpot fields via AJAX...' );
 
 		try {
 			// Test contact properties
@@ -7601,10 +7656,10 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Test field statistics called' );
+		// REMOVED: error_log( 'ENNU HubSpot: Test field statistics called' );
 		
 		$assessments = $this->get_available_assessments();
-		error_log( 'ENNU HubSpot: Test - Found ' . count( $assessments ) . ' assessments' );
+		// REMOVED: error_log( 'ENNU HubSpot: Test - Found ' . count( $assessments ) . ' assessments' );
 		
 		wp_send_json_success( array(
 			'message' => 'Test successful',
@@ -7625,7 +7680,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Starting comprehensive preview...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Starting comprehensive preview...' );
 
 		try {
 			$preview_data = array(
@@ -7677,7 +7732,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				error_log( 'ENNU HubSpot: Failed to get custom objects: ' . $response->get_error_message() );
+				// REMOVED: error_log( 'ENNU HubSpot: Failed to get custom objects: ' . $response->get_error_message() );
 				return $custom_objects;
 			}
 
@@ -7983,7 +8038,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Creating field groups for custom objects...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating field groups for custom objects...' );
 
 		try {
 			$custom_object_name = $this->get_custom_object_name();
@@ -8049,7 +8104,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Creating field groups for contacts...' );
+		// REMOVED: error_log( 'ENNU HubSpot: Creating field groups for contacts...' );
 
 		try {
 			$assessments = $this->get_available_assessments();
@@ -8114,8 +8169,8 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		error_log( 'ENNU HubSpot: Getting field statistics...' );
-		error_log( 'ENNU HubSpot: AJAX call received for field statistics' );
+		// REMOVED: error_log( 'ENNU HubSpot: Getting field statistics...' );
+		// REMOVED: error_log( 'ENNU HubSpot: AJAX call received for field statistics' );
 
 		try {
 			// Get existing properties from HubSpot
@@ -8125,13 +8180,13 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			
 			// Handle custom object API failures gracefully
 			if ( empty( $custom_object_properties ) ) {
-				error_log( 'ENNU HubSpot: Custom object properties API failed, using empty array' );
+				// REMOVED: error_log( 'ENNU HubSpot: Custom object properties API failed, using empty array' );
 				$custom_object_properties = array();
 			}
 
 					// Get all available assessments
 		$assessments = $this->get_available_assessments();
-		error_log( 'ENNU HubSpot: Found ' . count( $assessments ) . ' assessments' );
+		// REMOVED: error_log( 'ENNU HubSpot: Found ' . count( $assessments ) . ' assessments' );
 			
 					// Get global fields for statistics
 		$global_fields = $this->get_global_shared_fields();
@@ -8183,7 +8238,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 			foreach ( $assessments as $assessment ) {
 				$assessment_name = $assessment['id'];
 				$assessment_title = $assessment['title'];
-				error_log( 'ENNU HubSpot: Processing assessment: ' . $assessment_name );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU HubSpot: Processing assessment: ' . $assessment_name );
 				
 				// Get expected fields for this assessment
 				$expected_fields = $this->extract_assessment_fields_by_name( $assessment_name );
@@ -8196,7 +8251,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 				$contact_fields = $expected_fields['contact_fields'];
 				$custom_object_fields = $expected_fields['custom_object_fields'];
 				
-				error_log( 'ENNU HubSpot: Extracted ' . count( $contact_fields ) . ' contact fields and ' . count( $custom_object_fields ) . ' custom object fields for ' . $assessment_name );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU HubSpot: Extracted ' . count( $contact_fields ) . ' contact fields and ' . count( $custom_object_fields ) . ' custom object fields for ' . $assessment_name );
 				
 				// Count existing fields
 				$existing_contact_fields = 0;
@@ -8261,7 +8316,7 @@ class ENNU_HubSpot_Bulk_Field_Creator {
 
 		} catch ( Exception $e ) {
 			error_log( 'ENNU HubSpot: Error in field statistics: ' . $e->getMessage() );
-			error_log( 'ENNU HubSpot: Stack trace: ' . $e->getTraceAsString() );
+			// REMOVED: error_log( 'ENNU HubSpot: Stack trace: ' . $e->getTraceAsString() );
 			
 			wp_send_json_error( array(
 				'message' => 'Error getting field statistics: ' . $e->getMessage(),

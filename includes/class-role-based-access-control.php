@@ -368,7 +368,7 @@ class ENNU_Role_Based_Access_Control {
 		update_option( 'ennu_access_log', $access_log );
 
 		if ( $result === 'denied' ) {
-			error_log( "ENNU Access Denied: User {$user_id} attempted {$action} on target {$target_id}. Reason: {$reason}" );
+			// REMOVED: error_log( "ENNU Access Denied: User {$user_id} attempted {$action} on target {$target_id}. Reason: {$reason}" );
 		}
 	}
 

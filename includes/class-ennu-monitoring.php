@@ -132,7 +132,7 @@ class ENNU_Monitoring {
 			$this->format_bytes( $peak_memory )
 		);
 
-		error_log( $log_message );
+		// REMOVED: error_log( $log_message );
 
 		// Store metrics for admin dashboard
 		$this->store_metric( 'performance', array(
@@ -171,7 +171,7 @@ class ENNU_Monitoring {
 			$error['url']
 		);
 
-		error_log( $log_message );
+		// REMOVED: error_log( $log_message );
 
 		// Store error for admin dashboard
 		$this->store_error( $error );
@@ -198,7 +198,7 @@ class ENNU_Monitoring {
 
 			// Log slow queries (if we had execution time)
 			if ( isset( $query_data['execution_time'] ) && $query_data['execution_time'] > 1.0 ) {
-				error_log( sprintf( 'ENNU Slow Query: %s (%.4f seconds)', $query, $query_data['execution_time'] ) );
+				// REMOVED: error_log( sprintf( 'ENNU Slow Query: %s (%.4f seconds)', $query, $query_data['execution_time'] ) );
 			}
 		}
 
@@ -217,7 +217,7 @@ class ENNU_Monitoring {
 			'timestamp' => current_time( 'mysql' ),
 		) );
 
-		error_log( sprintf( 'ENNU Assessment Completed: ID %d by User %d', $assessment_id, get_current_user_id() ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( sprintf( 'ENNU Assessment Completed: ID %d by User %d', $assessment_id, get_current_user_id() ) );
 	}
 
 	/**
@@ -232,7 +232,7 @@ class ENNU_Monitoring {
 			'timestamp' => current_time( 'mysql' ),
 		) );
 
-		error_log( sprintf( 'ENNU Biomarker Updated: ID %d by User %d', $biomarker_id, get_current_user_id() ) );
+		// REMOVED: error_log( sprintf( 'ENNU Biomarker Updated: ID %d by User %d', $biomarker_id, get_current_user_id() ) );
 	}
 
 	/**
@@ -248,11 +248,7 @@ class ENNU_Monitoring {
 			'timestamp' => current_time( 'mysql' ),
 		) );
 
-		error_log( sprintf( 'ENNU Score Calculated: Type %s, Score %.1f by User %d', 
-			$score_data['type'] ?? 'unknown', 
-			$score_data['score'] ?? 0, 
-			get_current_user_id() 
-		) );
+		// REMOVED: error_log( sprintf( 'ENNU Score Calculated: Type %s, Score %.1f by User %d', $score_data['type'] ?? 'unknown', $score_data['score'] ?? 0, get_current_user_id() ) );
 	}
 
 	/**

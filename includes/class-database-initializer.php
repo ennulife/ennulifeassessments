@@ -47,7 +47,7 @@ class ENNU_Database_Initializer {
 		foreach ($this->required_options as $option_name => $default_value) {
 			if (get_option($option_name) === false) {
 				add_option($option_name, $default_value);
-				error_log("ENNU Database Initializer: Created option '{$option_name}' with default value");
+				// REMOVED: error_log("ENNU Database Initializer: Created option '{$option_name}' with default value");
 			}
 		}
 	}
@@ -86,7 +86,7 @@ class ENNU_Database_Initializer {
 			update_option($option_name, $default_value);
 		}
 		
-		error_log('ENNU Database Initializer: Reset all options to default values');
+		// REMOVED: error_log('ENNU Database Initializer: Reset all options to default values');
 	}
 	
 	/**

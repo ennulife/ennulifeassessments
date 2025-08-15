@@ -48,7 +48,7 @@ function ennu_apply_php_config_overrides() {
 	
 	// Log the configuration application
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( 'ENNU PHP Config: Applied configuration overrides for complex forms' );
+		// REMOVED: error_log( 'ENNU PHP Config: Applied configuration overrides for complex forms' );
 	}
 }
 

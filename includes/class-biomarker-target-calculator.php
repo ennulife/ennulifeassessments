@@ -91,7 +91,7 @@ class ENNU_Biomarker_Target_Calculator {
 			$optimal_min = $reference_range['optimal_min'];
 			$optimal_max = $reference_range['optimal_max'];
 		} else {
-			error_log("ENNU DEBUG: Invalid reference range structure for target calculation");
+		// REMOVED: // REMOVED DEBUG LOG: error_log("ENNU DEBUG: Invalid reference range structure for target calculation");
 			return array(
 				'optimal_min' => 0,
 				'optimal_max' => 1
@@ -153,7 +153,7 @@ class ENNU_Biomarker_Target_Calculator {
 		
 		// Safety check for valid range values
 		if ( $optimal_min === null || $optimal_max === null || $optimal_min === $optimal_max ) {
-			error_log("ENNU DEBUG: Invalid range values for $biomarker_key - optimal_min: $optimal_min, optimal_max: $optimal_max");
+		// REMOVED: // REMOVED DEBUG LOG: error_log("ENNU DEBUG: Invalid range values for $biomarker_key - optimal_min: $optimal_min, optimal_max: $optimal_max");
 			return array(
 				'target_value' => $current_value,
 				'calculation_method' => 'fallback_invalid_range',

@@ -57,7 +57,7 @@ class ENNU_Biomarker_Flag_Manager {
 	 * @return bool Success status
 	 */
 	public function flag_biomarker( $user_id, $biomarker_name, $flag_type = 'manual', $reason = '', $flagged_by = null, $assessment_source = '', $symptom_trigger = '', $symptom_key = '' ) {
-		error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		
 		$flag_data = array(
 			'user_id'            => $user_id,
@@ -80,18 +80,18 @@ class ENNU_Biomarker_Flag_Manager {
 		$flag_id                    = $biomarker_name . '_' . time();
 		$existing_flags[ $flag_id ] = $flag_data;
 
-		error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
 
 		$success = update_user_meta( $user_id, 'ennu_biomarker_flags', $existing_flags );
 
-		error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
 
 		if ( $success ) {
 			$this->log_flag_action( $user_id, $biomarker_name, 'flagged', $flag_data );
 			do_action( 'ennu_biomarker_flagged', $user_id, $biomarker_name, $flag_data );
-			error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
 		} else {
-			error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		}
 
 		return $success;
@@ -529,7 +529,7 @@ class ENNU_Biomarker_Flag_Manager {
 		}
 		
 		// Existing logic for logged-in users
-		error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: Attempting to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		
 		$flag_data = array(
 			'user_id'            => $user_id,
@@ -552,18 +552,18 @@ class ENNU_Biomarker_Flag_Manager {
 		$flag_id                    = $biomarker_name . '_' . time();
 		$existing_flags[ $flag_id ] = $flag_data;
 
-		error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: Saving flags for user {$user_id}: " . print_r($existing_flags, true) );
 
 		$success = update_user_meta( $user_id, 'ennu_biomarker_flags', $existing_flags );
 
-		error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
+		// REMOVED: error_log( "ENNU Biomarker Flag Manager: update_user_meta result for user {$user_id}: " . ($success ? 'SUCCESS' : 'FAILED') );
 
 		if ( $success ) {
 			$this->log_flag_action( $user_id, $biomarker_name, 'flagged', $flag_data );
 			do_action( 'ennu_biomarker_flagged', $user_id, $biomarker_name, $flag_data );
-			error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Flag Manager: Successfully flagged biomarker '{$biomarker_name}' for user {$user_id}" );
 		} else {
-			error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Flag Manager: Failed to flag biomarker '{$biomarker_name}' for user {$user_id}" );
 		}
 
 		return $success;

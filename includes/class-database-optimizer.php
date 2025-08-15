@@ -161,7 +161,7 @@ class ENNU_Database_Optimizer {
 		
 		// Log slow queries
 		if ( $execution_time > 1.0 ) {
-			error_log( "ENNU Slow Query: {$operation} took {$execution_time} seconds for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Slow Query: {$operation} took {$execution_time} seconds for user {$user_id}" );
 		}
 	}
 	

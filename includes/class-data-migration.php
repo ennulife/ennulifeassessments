@@ -59,7 +59,7 @@ class ENNU_Data_Migration {
      * Run necessary migrations based on version
      */
     private function run_migrations($from_version) {
-        error_log('ENNU Data Migration: Starting migration from version ' . $from_version);
+        // REMOVED: error_log('ENNU Data Migration: Starting migration from version ' . $from_version);
         
         // Migration 1.0.0: Fix assessment data formats
         if (version_compare($from_version, '1.0.0', '<')) {
@@ -81,7 +81,7 @@ class ENNU_Data_Migration {
             $this->consolidate_data_structures();
         }
         
-        error_log('ENNU Data Migration: Completed migration to version ' . self::CURRENT_VERSION);
+        // REMOVED: error_log('ENNU Data Migration: Completed migration to version ' . self::CURRENT_VERSION);
     }
     
     /**

@@ -181,7 +181,7 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 		// Initialize default reference ranges if none exist
 		$this->initialize_default_reference_ranges();
 		
-		error_log( 'ENNU AI Medical Team Reference Ranges: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU AI Medical Team Reference Ranges: Initialized' );
 	}
 
 	/**
@@ -248,7 +248,7 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 		foreach ( $indexes_to_add as $index_name => $column_name ) {
 			if ( ! in_array( $index_name, $index_names ) ) {
 				$wpdb->query( "ALTER TABLE $table_name ADD INDEX $index_name ($column_name)" );
-				error_log( "ENNU AI Medical Team: Added database index: $index_name" );
+				// REMOVED: error_log( "ENNU AI Medical Team: Added database index: $index_name" );
 			}
 		}
 	}
@@ -291,7 +291,7 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 			);
 		}
 
-		error_log( 'ENNU AI Medical Team: Initialized ' . count( $default_ranges ) . ' default reference ranges' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU AI Medical Team: Initialized ' . count( $default_ranges ) . ' default reference ranges' );
 	}
 
 	/**
@@ -514,7 +514,7 @@ class ENNU_AI_Medical_Team_Reference_Ranges {
 	public function clear_reference_ranges_cache() {
 		self::$cached_reference_ranges = null;
 		self::$cache_expiry = null;
-		error_log( 'ENNU AI Medical Team Reference Ranges: Cache cleared' );
+		// REMOVED: error_log( 'ENNU AI Medical Team Reference Ranges: Cache cleared' );
 	}
 
 	/**

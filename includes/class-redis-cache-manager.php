@@ -93,7 +93,7 @@ class ENNU_Redis_Cache_Manager {
 				$this->redis_client->ping();
 
 			} catch ( Exception $e ) {
-				error_log( 'ENNU Redis connection failed: ' . $e->getMessage() );
+				// REMOVED: error_log( 'ENNU Redis connection failed: ' . $e->getMessage() );
 				$this->redis_client = null;
 			}
 		}
@@ -109,7 +109,7 @@ class ENNU_Redis_Cache_Manager {
 				$this->memcached_client->getVersion();
 
 			} catch ( Exception $e ) {
-				error_log( 'ENNU Memcached connection failed: ' . $e->getMessage() );
+				// REMOVED: error_log( 'ENNU Memcached connection failed: ' . $e->getMessage() );
 				$this->memcached_client = null;
 			}
 		}
@@ -420,6 +420,7 @@ class ENNU_Redis_Cache_Manager {
 			'testosterone',
 			'ed_treatment',
 			'health_optimization',
+			'peptide_therapy',
 		);
 
 		foreach ( $assessment_types as $type ) {

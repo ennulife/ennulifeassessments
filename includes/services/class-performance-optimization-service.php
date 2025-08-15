@@ -154,12 +154,12 @@ class ENNU_Performance_Optimization_Service {
 	 */
 	public function set_strategy( $strategy_name ) {
 		if ( ! isset( $this->strategies[ $strategy_name ] ) ) {
-			error_log( "ENNU Performance Optimization Service: Unknown strategy '{$strategy_name}'" );
+			// REMOVED: error_log( "ENNU Performance Optimization Service: Unknown strategy '{$strategy_name}'" );
 			return false;
 		}
 		
 		$this->current_strategy = $this->strategies[ $strategy_name ];
-		error_log( "ENNU Performance Optimization Service: Strategy set to '{$strategy_name}'" );
+		// REMOVED: error_log( "ENNU Performance Optimization Service: Strategy set to '{$strategy_name}'" );
 		return true;
 	}
 	
@@ -321,7 +321,7 @@ class ENNU_Performance_Optimization_Service {
 			ob_start( 'ob_gzhandler' );
 		}
 		
-		error_log( 'ENNU Performance Optimization Service: Performance monitoring initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Performance Optimization Service: Performance monitoring initialized' );
 	}
 	
 	/**
@@ -334,7 +334,7 @@ class ENNU_Performance_Optimization_Service {
 		$this->performance_data['execution_times'][] = $metric_data['execution_time'];
 		$this->performance_data['memory_usage'][] = $metric_data['memory_usage'];
 		
-		error_log( "ENNU Performance Metric: {$metric_type} - Execution Time: {$metric_data['execution_time']}s, Memory: {$metric_data['memory_usage']} bytes" );
+		// REMOVED: error_log( "ENNU Performance Metric: {$metric_type} - Execution Time: {$metric_data['execution_time']}s, Memory: {$metric_data['memory_usage']} bytes" );
 	}
 	
 	/**
@@ -395,7 +395,7 @@ class ENNU_Performance_Optimization_Service {
 	 */
 	public function update_performance_config( $config ) {
 		$this->performance_config = array_merge( $this->performance_config, $config );
-		error_log( 'ENNU Performance Optimization Service: Performance configuration updated' );
+		// REMOVED: error_log( 'ENNU Performance Optimization Service: Performance configuration updated' );
 	}
 	
 	/**
@@ -408,7 +408,7 @@ class ENNU_Performance_Optimization_Service {
 		add_action( 'wp_head', array( $this, 'add_performance_headers' ) );
 		add_action( 'wp_footer', array( $this, 'log_performance_summary' ) );
 		
-		error_log( 'ENNU Performance Optimization Service: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Performance Optimization Service: Initialized successfully' );
 	}
 	
 	/**
@@ -468,6 +468,6 @@ class ENNU_Performance_Optimization_Service {
 	public function log_performance_summary() {
 		$metrics = $this->get_performance_metrics();
 		
-		error_log( 'ENNU Performance Summary: ' . json_encode( $metrics ) );
+		// REMOVED: error_log( 'ENNU Performance Summary: ' . json_encode( $metrics ) );
 	}
 } 

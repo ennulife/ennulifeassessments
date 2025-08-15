@@ -77,7 +77,7 @@ class ENNU_Lazy_Loader {
         
         $load_time = microtime(true) - $start_time;
         if ($load_time > 0.5) {
-            error_log(sprintf('ENNU Lazy Loader: Core loading took %.4fs', $load_time));
+            // REMOVED: error_log(sprintf('ENNU Lazy Loader: Core loading took %.4fs', $load_time));
         }
     }
     
@@ -100,7 +100,7 @@ class ENNU_Lazy_Loader {
         
         $load_time = microtime(true) - $start_time;
         if ($load_time > 1.0) {
-            error_log(sprintf('ENNU Lazy Loader: Services loading took %.4fs', $load_time));
+            // REMOVED: error_log(sprintf('ENNU Lazy Loader: Services loading took %.4fs', $load_time));
         }
     }
     
@@ -185,7 +185,7 @@ class ENNU_Lazy_Loader {
             require_once $full_path;
             self::$loaded_classes[$file] = true;
         } else {
-            error_log('ENNU Lazy Loader: File not found - ' . $file);
+            // REMOVED: error_log('ENNU Lazy Loader: File not found - ' . $file);
         }
     }
     

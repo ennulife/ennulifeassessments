@@ -82,7 +82,7 @@ class ENNU_Advanced_Asset_Optimizer {
 		// Add admin menu
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		
-		error_log( 'ENNU Advanced Asset Optimizer: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Advanced Asset Optimizer: Initialized successfully' );
 	}
 	
 	/**

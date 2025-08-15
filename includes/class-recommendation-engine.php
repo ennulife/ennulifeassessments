@@ -23,11 +23,11 @@ class ENNU_Recommendation_Engine {
 		$this->user_id                    = $user_id;
 		$this->assessment_data            = $assessment_data;
 		$this->recommendation_definitions = $recommendation_definitions;
-		error_log( "RecommendationEngine: Instantiated for user ID {$user_id}." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "RecommendationEngine: Instantiated for user ID {$user_id}." );
 	}
 
 	public function generate() {
-		error_log( 'RecommendationEngine: Starting recommendation generation.' );
+		// REMOVED: error_log( 'RecommendationEngine: Starting recommendation generation.' );
 		$recommendations = array(
 			'low_scores'        => array(),
 			'health_goals'      => array(),
@@ -42,7 +42,7 @@ class ENNU_Recommendation_Engine {
 				if ( $score < $low_score_threshold ) {
 					$recommendation_text             = str_replace( '{category}', $category, $this->recommendation_definitions['recommendations']['default_low_score'] );
 					$recommendations['low_scores'][] = $recommendation_text;
-					error_log( "RecommendationEngine: Added low score recommendation for category '{$category}'." );
+					// REMOVED: error_log( "RecommendationEngine: Added low score recommendation for category '{$category}'." );
 				}
 			}
 		}
@@ -53,7 +53,7 @@ class ENNU_Recommendation_Engine {
 			foreach ( $health_goals as $goal ) {
 				if ( isset( $this->recommendation_definitions['recommendations']['health_goals'][ $goal ] ) ) {
 					$recommendations['health_goals'][] = $this->recommendation_definitions['recommendations']['health_goals'][ $goal ];
-					error_log( "RecommendationEngine: Added health goal recommendation for goal '{$goal}'." );
+					// REMOVED: error_log( "RecommendationEngine: Added health goal recommendation for goal '{$goal}'." );
 				}
 			}
 		}
@@ -66,12 +66,12 @@ class ENNU_Recommendation_Engine {
 			foreach ( $triggered_vectors as $vector ) {
 				if ( isset( $this->recommendation_definitions['recommendations']['triggered_vectors'][ $vector ] ) ) {
 					$recommendations['triggered_vectors'][] = $this->recommendation_definitions['recommendations']['triggered_vectors'][ $vector ];
-					error_log( "RecommendationEngine: Added triggered vector recommendation for vector '{$vector}'." );
+					// REMOVED: error_log( "RecommendationEngine: Added triggered vector recommendation for vector '{$vector}'." );
 				}
 			}
 		}
 
-		error_log( 'RecommendationEngine: Final recommendations generated: ' . print_r( $recommendations, true ) );
+		// REMOVED: error_log( 'RecommendationEngine: Final recommendations generated: ' . print_r( $recommendations, true ) );
 		return $recommendations;
 	}
 }

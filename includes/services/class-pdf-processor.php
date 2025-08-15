@@ -59,7 +59,7 @@ class ENNU_PDF_Processor {
 			$this->scoring_system = new ENNU_Scoring_System();
 		}
 		
-		error_log( 'ENNU PDF Processor: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU PDF Processor: Initialized' );
 	}
 	
 	/**

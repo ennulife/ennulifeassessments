@@ -10,10 +10,28 @@
 
 jQuery(document).ready(function($) {
 
+    // Enhanced debug logging
+    console.log('Health Goals Manager: Starting initialization...');
+    console.log('Health Goals Manager: Looking for .health-goals-grid elements...');
+    
     // Check if the health goals container exists on the page
-    if ($('.health-goals-grid').length === 0) {
+    const healthGoalsGrids = $('.health-goals-grid');
+    console.log('Health Goals Manager: Found', healthGoalsGrids.length, 'health-goals-grid elements');
+    
+    if (healthGoalsGrids.length === 0) {
+        console.warn('Health Goals Manager: No .health-goals-grid found, exiting...');
         return;
     }
+    
+    console.log('Health Goals Manager: Initializing with', healthGoalsGrids.length, 'grid(s)');
+    
+    // Check if ennuHealthGoalsAjax is defined
+    if (typeof ennuHealthGoalsAjax === 'undefined') {
+        console.error('Health Goals Manager: ennuHealthGoalsAjax object not found - AJAX will not work!');
+        return;
+    }
+    
+    console.log('Health Goals Manager: ennuHealthGoalsAjax object found:', ennuHealthGoalsAjax);
 
 
     // --- State Management ---
@@ -30,9 +48,13 @@ jQuery(document).ready(function($) {
 
     // --- UI Elements ---
     const updateButton = $('.update-health-goals-btn');
+    console.log('Health Goals Manager: Found update button:', updateButton.length);
     if (updateButton.length === 0) {
+        console.error('Health Goals Manager: Update button not found!');
         return;
     }
+    
+    console.log('Health Goals Manager: Update button initial state - visible:', updateButton.is(':visible'), 'hidden class:', updateButton.hasClass('hidden'));
 
 
     const notificationArea = $('<div>', {
@@ -49,6 +71,7 @@ jQuery(document).ready(function($) {
         const pill = $(this);
         const goalId = pill.data('goal-id');
 
+        console.log('Health Goals Manager: Goal pill clicked:', goalId);
 
         // Toggle visual state immediately
         pill.toggleClass('selected');
@@ -58,13 +81,14 @@ jQuery(document).ready(function($) {
         const isSelected = pill.hasClass('selected');
         pill.attr('aria-pressed', isSelected ? 'true' : 'false');
 
+        console.log('Health Goals Manager: Goal', goalId, 'is now:', isSelected ? 'selected' : 'unselected');
+
         // Update the current set of selected goals
         if (currentGoals.has(goalId)) {
             currentGoals.delete(goalId);
         } else {
             currentGoals.add(goalId);
         }
-
 
         // Check if the current selection is different from the original
         checkForChanges();
@@ -96,11 +120,28 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    showNotification(ennuHealthGoalsAjax.messages.success, 'success');
-                    // Reload the page after a short delay to show the updated scores
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500);
+                    // Hide the loading state
+                    $btn.prop('disabled', false);
+                    $btnText.show();
+                    $btnLoading.hide();
+                    
+                    // Show progress modal if available
+                    if (window.ENNUModalManager) {
+                        window.ENNUModalManager.showModal('health_goals', function() {
+                            // Show success notification
+                            showNotification(ennuHealthGoalsAjax.messages.success, 'success');
+                            // Reload page after modal completes
+                            setTimeout(function() {
+                                location.reload();
+                            }, 500);
+                        });
+                    } else {
+                        // Fallback: show notification and reload
+                        showNotification(ennuHealthGoalsAjax.messages.success, 'success');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }
                 } else {
                     showNotification(response.data.message || ennuHealthGoalsAjax.messages.error, 'error');
                     $btn.prop('disabled', false);
@@ -126,9 +167,16 @@ jQuery(document).ready(function($) {
     function checkForChanges() {
         const hasChanges = !setsAreEqual(originalGoals, currentGoals);
         
+        console.log('Health Goals Manager: Checking for changes...');
+        console.log('  - Original goals:', Array.from(originalGoals));
+        console.log('  - Current goals:', Array.from(currentGoals));
+        console.log('  - Has changes:', hasChanges);
+        
         if (hasChanges) {
+            console.log('Health Goals Manager: Changes detected, showing update button');
             updateButton.fadeIn();
         } else {
+            console.log('Health Goals Manager: No changes, hiding update button');
             updateButton.fadeOut();
             $('.goal-pill.changed').removeClass('changed');
         }

@@ -31,7 +31,7 @@ class ENNU_Immediate_Score_Calculator {
 			ENNU_Profile_Completeness_Tracker::calculate_completeness( $user_id );
 		}
 
-		error_log( "ENNU: Immediate scores generated for user {$user_id} after {$assessment_type} assessment" );
+		// REMOVED: error_log( "ENNU: Immediate scores generated for user {$user_id} after {$assessment_type} assessment" );
 	}
 
 	/**

@@ -138,7 +138,7 @@ class ENNU_Security_Audit_Logger {
 		}
 
 		if ( in_array( $level, array( 'CRITICAL', 'HIGH' ) ) ) {
-			error_log( "ENNU Security Audit [{$level}] {$event_type}: {$message}" );
+			// REMOVED: error_log( "ENNU Security Audit [{$level}] {$event_type}: {$message}" );
 		}
 	}
 
@@ -168,7 +168,7 @@ class ENNU_Security_Audit_Logger {
 		);
 
 		if ( $result === false ) {
-			error_log( 'Failed to store audit log entry: ' . $wpdb->last_error );
+			// REMOVED: error_log( 'Failed to store audit log entry: ' . $wpdb->last_error );
 		}
 	}
 

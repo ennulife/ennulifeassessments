@@ -33,7 +33,7 @@ class ENNU_Database_Configuration_Strategy implements ENNU_Configuration_Strateg
 		$config = get_option( $option_name, array() );
 		
 		if ( empty( $config ) ) {
-			error_log( "ENNU Database Configuration Strategy: Configuration not found in database: {$config_key}" );
+			// REMOVED: error_log( "ENNU Database Configuration Strategy: Configuration not found in database: {$config_key}" );
 			return array();
 		}
 		
@@ -52,7 +52,7 @@ class ENNU_Database_Configuration_Strategy implements ENNU_Configuration_Strateg
 		$result = update_option( $option_name, $data );
 		
 		if ( ! $result ) {
-			error_log( "ENNU Database Configuration Strategy: Failed to save configuration to database: {$config_key}" );
+			// REMOVED: error_log( "ENNU Database Configuration Strategy: Failed to save configuration to database: {$config_key}" );
 			return false;
 		}
 		

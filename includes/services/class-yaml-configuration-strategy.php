@@ -30,7 +30,7 @@ class ENNU_YAML_Configuration_Strategy implements ENNU_Configuration_Strategy_In
 		$file_path = $this->get_config_file_path( $config_key );
 		
 		if ( ! file_exists( $file_path ) ) {
-			error_log( "ENNU YAML Configuration Strategy: Configuration file not found: {$file_path}" );
+			// REMOVED: error_log( "ENNU YAML Configuration Strategy: Configuration file not found: {$file_path}" );
 			return array();
 		}
 		
@@ -72,7 +72,7 @@ class ENNU_YAML_Configuration_Strategy implements ENNU_Configuration_Strategy_In
 		$result = file_put_contents( $file_path, $yaml_content );
 		
 		if ( $result === false ) {
-			error_log( "ENNU YAML Configuration Strategy: Failed to write configuration file: {$file_path}" );
+			// REMOVED: error_log( "ENNU YAML Configuration Strategy: Failed to write configuration file: {$file_path}" );
 			return false;
 		}
 		

@@ -3,7 +3,7 @@
  * Plugin Name: ENNU Life Assessments
  * Plugin URI: https://enulife.com
  * Description: Comprehensive health assessment and biomarker management system
- * Version: 64.70.1
+ * Version: 79.0.0
  * Author: ENNU Life
  * Author URI: https://ennulife.com
  * License: GPL v2 or later
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @var string
  */
-const ENNU_LIFE_VERSION = '64.70.1';
+const ENNU_LIFE_VERSION = '79.0.0';
 
 // Plugin paths - with safety checks
 if ( function_exists( 'plugin_dir_path' ) ) {
@@ -137,7 +137,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		 * Constructor
 		 */
 		private function __construct() {
-			error_log( 'ENNU Life Plugin: Constructor called' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Constructor called' );
 			// Register activation/deactivation hooks
 			register_activation_hook( __FILE__, array( $this, 'activate' ) );
 			register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
@@ -157,13 +157,13 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			
 			// Prevent multiple initializations
 			if ( self::$initialized ) {
-				error_log( 'ENNU Life Plugin: init() called again - skipping to prevent duplicate hook registration.' );
+				// REMOVED: error_log( 'ENNU Life Plugin: init() called again - skipping to prevent duplicate hook registration.' );
 				return;
 			}
 			self::$initialized = true;
 			
 			// Load dependencies and textdomain first
-			error_log( 'ENNU Life Plugin: Initializing...' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initializing...' );
 			$this->load_dependencies();
 			// $this->load_textdomain(); // This is called too early. It will be moved to the init hook.
 
@@ -178,12 +178,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			$memory_used = memory_get_usage() - $start_memory;
 			$peak_memory = memory_get_peak_usage();
 			
-			error_log( sprintf( 'ENNU Life Plugin: Initialization Complete. Time: %.4fs, Memory: %.2f MB, Peak: %.2f MB', 
-				$execution_time, $memory_used / 1024 / 1024, $peak_memory / 1024 / 1024 ) );
+			// REMOVED: error_log( sprintf( 'ENNU Life Plugin: Initialization Complete. Time: %.4fs, Memory: %.2f MB, Peak: %.2f MB', $execution_time, $memory_used / 1024 / 1024, $peak_memory / 1024 / 1024 ) );
 			
 			// Log warning if performance is poor
 			if ( $execution_time > 5.0 ) {
-				error_log( 'ENNU Life Plugin: WARNING - Slow initialization detected. Consider optimizing.' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - Slow initialization detected. Consider optimizing.' );
 			}
 		}
 
@@ -227,9 +226,10 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-intentionality-engine.php';
 			
 			// Load core classes
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-scoring-system.php'; // Must load before assessment-shortcodes
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-assessment-shortcodes.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-weight-ajax-handler.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-monitoring.php';
-			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-scoring-system.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-life-score-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-flag-manager.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-biomarker-manager.php';
@@ -265,6 +265,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-pdf-processor.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hipaa-compliance.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-shortcode-manager.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-labcorp-upload-shortcode.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-labcorp-upload-admin.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-labcorp-locator.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-contact-form-shortcode.php';
+		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-peptide-therapy-shortcode.php';
 		
 				// Load Phase 5 UX Improvement Systems - temporarily disabled to fix translation loading
 		// require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-onboarding-system.php';
@@ -287,25 +292,34 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-field-type-mapper.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-database-initializer.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-property-group-manager.php';
-			error_log( 'ENNU Life Plugin: Including HubSpot OAuth handler' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Including HubSpot OAuth handler' );
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-oauth-handler.php';
-			error_log( 'ENNU Life Plugin: HubSpot OAuth handler included successfully' );
+			// REMOVED: error_log( 'ENNU Life Plugin: HubSpot OAuth handler included successfully' );
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-goal-progression-tracker.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-csrf-protection.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-target-weight-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-admin-page.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-biomarker-sync.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-biomarker-snapshot.php';
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-hubspot-activity-logger.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ennu-rest-api.php';
 			
 			// Load Slack notifications manager
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-slack-notifications.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-slack-admin.php';
+			
+			// Load Teams notifications manager
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-teams-notifications.php';
+			
+			// Load Direct Teams Integration (replaces n8n)
+			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-n8n-integration.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-form-handler.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-database.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-database-optimizer.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/dashboard/class-dashboard-helpers.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/services/class-dashboard-data-service.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-enhanced-admin.php';
-			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-performance-monitor.php';
+			// REMOVED: Performance monitor class (deleted as requested)
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-pillar-score-calculator.php';
 			require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-assessment-constants.php';
 		require_once ENNU_LIFE_PLUGIN_PATH . 'includes/class-ui-constants.php';
@@ -318,158 +332,164 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			$this->monitoring = ENNU_Monitoring::get_instance();
 		}
 			
+			// Initialize Teams Integration (using N8N class name for compatibility)
+			if ( class_exists( 'ENNU_N8N_Integration' ) ) {
+				$this->teams_integration = ENNU_N8N_Integration::get_instance();
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized Teams Integration' );
+			}
+			
 			// Initialize new service classes
 			if ( class_exists( 'ENNU_Biomarker_Service' ) ) {
 				$this->biomarker_service = new ENNU_Biomarker_Service();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Biomarker_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Biomarker_Service' );
 			}
 			
 			if ( class_exists( 'ENNU_Assessment_Service' ) ) {
 				$this->assessment_service = new ENNU_Assessment_Service();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Service' );
 			}
 			
 			if ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
 				$this->ajax_handler = new ENNU_AJAX_Service_Handler();
 				$this->ajax_handler->init(); // Initialize AJAX handlers
-				error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
 			}
 			
 			// Initialize unified scoring service
 			if ( class_exists( 'ENNU_Unified_Scoring_Service' ) ) {
 				$this->unified_scoring_service = ENNU_Unified_Scoring_Service::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Scoring_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Scoring_Service' );
 			}
 			
 			// Initialize assessment rendering service
 			if ( class_exists( 'ENNU_Assessment_Rendering_Service' ) ) {
 				$this->assessment_rendering_service = ENNU_Assessment_Rendering_Service::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Rendering_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Assessment_Rendering_Service' );
 			}
 			
 			// Initialize data validation service
 			if ( class_exists( 'ENNU_Data_Validation_Service' ) ) {
 				$this->data_validation_service = ENNU_Data_Validation_Service::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Data_Validation_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Data_Validation_Service' );
 			}
 			
 			// Initialize progressive data collector service
 			if ( class_exists( 'ENNU_Progressive_Data_Collector' ) ) {
 				$this->progressive_data_collector = ENNU_Progressive_Data_Collector::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Progressive_Data_Collector' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Progressive_Data_Collector' );
 			}
 			
 			// Initialize unified API service
 			if ( class_exists( 'ENNU_Unified_API_Service' ) ) {
 				$this->unified_api_service = ENNU_Unified_API_Service::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_API_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_API_Service' );
 			}
 			
 			// UNIFIED IMPORT SERVICE DISABLED - User requested removal
 			// if ( class_exists( 'ENNU_Unified_Import_Service' ) ) {
 			// 	$this->unified_import_service = new ENNU_Unified_Import_Service();
 			// 	$this->unified_import_service->init(); // Initialize unified import service
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Import_Service' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Import_Service' );
 			// }
 			
 					if ( class_exists( 'ENNU_Configuration_Manager' ) ) {
 			$this->configuration_manager = new ENNU_Configuration_Manager();
 			$this->configuration_manager->init_config_directory(); // Initialize configuration directory
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Configuration_Manager' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Configuration_Manager' );
 		}
 		
 		if ( class_exists( 'ENNU_Unified_Security_Service' ) ) {
 			$this->unified_security_service = new ENNU_Unified_Security_Service();
 			$this->unified_security_service->init(); // Initialize unified security service
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Security_Service' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Security_Service' );
 		}
 		
 					if ( class_exists( 'ENNU_Performance_Optimization_Service' ) ) {
 				$this->performance_optimization_service = new ENNU_Performance_Optimization_Service();
 				$this->performance_optimization_service->init(); // Initialize performance optimization service
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Performance_Optimization_Service' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Performance_Optimization_Service' );
 			}
 			
 			// Initialize Smart Defaults Generator
 			if ( class_exists( 'ENNU_Smart_Defaults_Generator' ) ) {
 				$this->smart_defaults_generator = new ENNU_Smart_Defaults_Generator();
 				$this->smart_defaults_generator->init(); // Initialize smart defaults generator
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Smart_Defaults_Generator' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Smart_Defaults_Generator' );
 			}
 			
 			// Initialize Goal Progression Tracker
 			if ( class_exists( 'ENNU_Goal_Progression_Tracker' ) ) {
 				$this->goal_progression_tracker = new ENNU_Goal_Progression_Tracker();
 				$this->goal_progression_tracker->init(); // Initialize goal progression tracker
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Goal_Progression_Tracker' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Goal_Progression_Tracker' );
 			}
 			
 			// Initialize Advanced Database Optimizer
 			if ( class_exists( 'ENNU_Advanced_Database_Optimizer' ) ) {
 				$this->advanced_database_optimizer = new ENNU_Advanced_Database_Optimizer();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Advanced_Database_Optimizer' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Advanced_Database_Optimizer' );
 			}
 			
 			// Initialize Advanced Asset Optimizer
 			if ( class_exists( 'ENNU_Advanced_Asset_Optimizer' ) ) {
 				$this->advanced_asset_optimizer = new ENNU_Advanced_Asset_Optimizer();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Advanced_Asset_Optimizer' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Advanced_Asset_Optimizer' );
 			}
 			
 			// Initialize Code Quality Manager
 			if ( class_exists( 'ENNU_Code_Quality_Manager' ) ) {
 				$this->code_quality_manager = new ENNU_Code_Quality_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Code_Quality_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Code_Quality_Manager' );
 			}
 			
 			// Initialize Documentation Manager
 			if ( class_exists( 'ENNU_Documentation_Manager' ) ) {
 				$this->documentation_manager = new ENNU_Documentation_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Documentation_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Documentation_Manager' );
 			}
 			
 			// Initialize Comprehensive Testing Framework
 			if ( class_exists( 'ENNU_Comprehensive_Testing_Framework' ) ) {
 				$this->comprehensive_testing_framework = new ENNU_Comprehensive_Testing_Framework();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Comprehensive_Testing_Framework' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Comprehensive_Testing_Framework' );
 			}
 			
 			// Initialize Deployment Manager
 			if ( class_exists( 'ENNU_Deployment_Manager' ) ) {
 				$this->deployment_manager = new ENNU_Deployment_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Deployment_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Deployment_Manager' );
 			}
 
 			// Initialize HubSpot OAuth Handler
 			if ( class_exists( 'ENNU_HubSpot_OAuth_Handler' ) ) {
 				$this->hubspot_oauth = new ENNU_HubSpot_OAuth_Handler();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_OAuth_Handler' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_OAuth_Handler' );
 			}
 
 			// Initialize Phase 5 UX Improvement Systems - temporarily disabled to fix translation loading
 			// if ( class_exists( 'ENNU_Onboarding_System' ) ) {
 			// 	$this->onboarding_system = new ENNU_Onboarding_System();
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Onboarding_System' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Onboarding_System' );
 			// }
 			
 			// if ( class_exists( 'ENNU_Help_System' ) ) {
 			// 	$this->help_system = new ENNU_Help_System();
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Help_System' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Help_System' );
 			// }
 			
 			// if ( class_exists( 'ENNU_Smart_Defaults' ) ) {
 			// 	$this->smart_defaults = new ENNU_Smart_Defaults();
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Smart_Defaults' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Smart_Defaults' );
 			// }
 			
 			// if ( class_exists( 'ENNU_Keyboard_Shortcuts' ) ) {
 			// 	$this->keyboard_shortcuts = new ENNU_Keyboard_Shortcuts();
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Keyboard_Shortcuts' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Keyboard_Shortcuts' );
 			// }
 			
 			// if ( class_exists( 'ENNU_Auto_Save' ) ) {
 			// 	$this->auto_save = new ENNU_Auto_Save();
-			// 	error_log( 'ENNU Life Plugin: Initialized ENNU_Auto_Save' );
+			// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized ENNU_Auto_Save' );
 			// }
 
 			// HubSpot OAuth Handler is already initialized above
@@ -485,21 +505,21 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		}
 
 					// Initialize admin - with class existence check
-		error_log( 'ENNU Life Plugin: Checking for ENNU_Enhanced_Admin class...' );
+		// REMOVED: error_log( 'ENNU Life Plugin: Checking for ENNU_Enhanced_Admin class...' );
 		if ( class_exists( 'ENNU_Enhanced_Admin' ) ) {
-			error_log( 'ENNU Life Plugin: ENNU_Enhanced_Admin class found, initializing...' );
+			// REMOVED: error_log( 'ENNU Life Plugin: ENNU_Enhanced_Admin class found, initializing...' );
 			$this->admin = new ENNU_Enhanced_Admin();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Admin' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Admin' );
 		} else {
 			error_log( 'ENNU Life Plugin: ERROR - ENNU_Enhanced_Admin class not found' );
 		}
 
 		// Initialize Unified Assessment Admin - CRITICAL FIX
-		error_log( 'ENNU Life Plugin: Checking for ENNU_Unified_Assessment_Admin class...' );
+		// REMOVED: error_log( 'ENNU Life Plugin: Checking for ENNU_Unified_Assessment_Admin class...' );
 		if ( class_exists( 'ENNU_Unified_Assessment_Admin' ) ) {
-			error_log( 'ENNU Life Plugin: ENNU_Unified_Assessment_Admin class found, initializing...' );
+			// REMOVED: error_log( 'ENNU Life Plugin: ENNU_Unified_Assessment_Admin class found, initializing...' );
 			$this->unified_admin = new ENNU_Unified_Assessment_Admin();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Assessment_Admin' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Unified_Assessment_Admin' );
 		} else {
 			error_log( 'ENNU Life Plugin: ERROR - ENNU_Unified_Assessment_Admin class not found' );
 		}
@@ -507,20 +527,20 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize Health Goals AJAX handlers - NEW
 			if ( class_exists( 'ENNU_Health_Goals_Ajax' ) ) {
 				$this->health_goals_ajax = new ENNU_Health_Goals_Ajax();
-				error_log( 'ENNU Life Plugin: Initialized Health Goals AJAX handlers' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized Health Goals AJAX handlers' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Health_Goals_Ajax class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Health_Goals_Ajax class not found' );
 			}
 
 			// Initialize modern ENNU_AJAX_Service_Handler - CRITICAL FIX
 			if ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
 				$this->ajax_handler = new ENNU_AJAX_Service_Handler();
 				$this->ajax_handler->init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
 			} elseif ( class_exists( 'ENNU_AJAX_Service_Handler' ) ) {
 				$this->ajax_handler = new ENNU_AJAX_Service_Handler();
 				$this->ajax_handler->init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_AJAX_Service_Handler' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - No AJAX handler class found!' );
 			}
@@ -528,173 +548,175 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize Medical Role Manager - PHASE 10
 			if ( class_exists( 'ENNU_Medical_Role_Manager' ) ) {
 				ENNU_Medical_Role_Manager::init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Medical_Role_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Medical_Role_Manager' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Medical_Role_Manager class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Medical_Role_Manager class not found' );
 			}
 
 			// Initialize Role-Based Access Control - PHASE 11
 			if ( class_exists( 'ENNU_Role_Based_Access_Control' ) ) {
 				new ENNU_Role_Based_Access_Control();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Role_Based_Access_Control' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Role_Based_Access_Control' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Role_Based_Access_Control class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Role_Based_Access_Control class not found' );
 			}
 
 			// Initialize Biomarker Flag Manager - PHASE 5
 			if ( class_exists( 'ENNU_Biomarker_Flag_Manager' ) ) {
 				new ENNU_Biomarker_Flag_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Biomarker_Flag_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Biomarker_Flag_Manager' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Biomarker_Flag_Manager class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Biomarker_Flag_Manager class not found' );
 			}
 
 			// Initialize Lab Data Landing System - PHASE 6
 			if ( class_exists( 'ENNU_Lab_Data_Landing_System' ) ) {
 				ENNU_Lab_Data_Landing_System::init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Lab_Data_Landing_System' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Lab_Data_Landing_System' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Lab_Data_Landing_System class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Lab_Data_Landing_System class not found' );
 			}
 
 			// Initialize Trends Visualization System - PHASE 8
 			if ( class_exists( 'ENNU_Trends_Visualization_System' ) ) {
 				ENNU_Trends_Visualization_System::init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Trends_Visualization_System' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Trends_Visualization_System' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Trends_Visualization_System class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Trends_Visualization_System class not found' );
 			}
 
 			// Initialize Enhanced Dashboard Manager - PHASE 13
 			if ( class_exists( 'ENNU_Enhanced_Dashboard_Manager' ) ) {
 				new ENNU_Enhanced_Dashboard_Manager();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Dashboard_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Enhanced_Dashboard_Manager' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Enhanced_Dashboard_Manager class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Enhanced_Dashboard_Manager class not found' );
 			}
 
 					// Initialize Global Fields Processor - PHASE 14
 		if ( class_exists( 'ENNU_Global_Fields_Processor' ) ) {
 			ENNU_Global_Fields_Processor::init();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Global_Fields_Processor' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Global_Fields_Processor' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Global_Fields_Processor class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Global_Fields_Processor class not found' );
 		}
 
 		// Initialize HubSpot Admin Page - NEW
 		if ( class_exists( 'ENNU_HubSpot_Admin_Page' ) ) {
 			new ENNU_HubSpot_Admin_Page();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_Admin_Page' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_Admin_Page' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_Admin_Page class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_Admin_Page class not found' );
 		}
 
 		// Initialize Slack Notifications Manager
 		if ( class_exists( 'ENNU_Slack_Notifications_Manager' ) ) {
 			ENNU_Slack_Notifications_Manager::get_instance();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Notifications_Manager' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Notifications_Manager' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Notifications_Manager class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Notifications_Manager class not found' );
 		}
 
 		// Initialize Slack Admin Page
 		if ( class_exists( 'ENNU_Slack_Admin' ) ) {
 			new ENNU_Slack_Admin();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Admin' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Slack_Admin' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Admin class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Slack_Admin class not found' );
 		}
 
 		// Initialize AI Medical Team Reference Ranges - PHASE 15
 		if ( class_exists( 'ENNU_AI_Medical_Team_Reference_Ranges' ) ) {
 			new ENNU_AI_Medical_Team_Reference_Ranges();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_AI_Medical_Team_Reference_Ranges' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_AI_Medical_Team_Reference_Ranges' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_AI_Medical_Team_Reference_Ranges class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_AI_Medical_Team_Reference_Ranges class not found' );
 		}
 
-		// Initialize CSV Biomarker Importer
-		if ( class_exists( 'ENNU_CSV_Biomarker_Importer' ) ) {
-			new ENNU_CSV_Biomarker_Importer();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_CSV_Biomarker_Importer' );
-		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_CSV_Biomarker_Importer class not found' );
+		// Initialize LabCorp Upload Shortcode (replaces CSV importers)
+		if ( class_exists( 'ENNU_LabCorp_Upload_Shortcode' ) ) {
+			new ENNU_LabCorp_Upload_Shortcode();
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_LabCorp_Upload_Shortcode' );
 		}
 
-		// Initialize User CSV Import Shortcode
-		if ( class_exists( 'ENNU_User_CSV_Import_Shortcode' ) ) {
-			new ENNU_User_CSV_Import_Shortcode();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_User_CSV_Import_Shortcode' );
-		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_User_CSV_Import_Shortcode class not found' );
+		// Initialize LabCorp Upload Admin (for admin to upload for any user)
+		if ( class_exists( 'ENNU_LabCorp_Upload_Admin' ) ) {
+			new ENNU_LabCorp_Upload_Admin();
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_LabCorp_Upload_Admin' );
+		}
+
+		// Initialize Contact Form Shortcode
+		if ( class_exists( 'ENNU_Contact_Form_Shortcode' ) ) {
+			new ENNU_Contact_Form_Shortcode();
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Contact_Form_Shortcode' );
 		}
 
 		// --- REFACTORING STEP: Activate the modern AJAX Handler ---
 		// NOTE: ENNU_AJAX_Handler is already initialized above, so we skip duplicate initialization
 		// if ( class_exists( 'ENNU_AJAX_Handler' ) ) {
 		// 	new ENNU_AJAX_Handler();
-		// 	error_log( 'ENNU Life Plugin: Initialized modern ENNU_AJAX_Handler.' );
+		// REMOVED: // 	error_log( 'ENNU Life Plugin: Initialized modern ENNU_AJAX_Handler.' );
 		// } else {
-		// 	error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_AJAX_Handler class not found.' );
+		// REMOVED: // 	error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_AJAX_Handler class not found.' );
 		// }
 		// --- END REFACTORING STEP ---
 
 		// --- REFACTORING STEP: Activate the modern Shortcode Manager ---
 		if ( class_exists( 'ENNU_Shortcode_Manager' ) ) {
 			new ENNU_Shortcode_Manager();
-			error_log( 'ENNU Life Plugin: Initialized modern ENNU_Shortcode_Manager.' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized modern ENNU_Shortcode_Manager.' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Shortcode_Manager class not found.' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Shortcode_Manager class not found.' );
 		}
 		// --- END REFACTORING STEP ---
 
 		// --- REFACTORING STEP: Activate the modern Data Manager ---
 		if ( class_exists( 'ENNU_Data_Manager' ) ) {
 			new ENNU_Data_Manager();
-			error_log( 'ENNU Life Plugin: Initialized modern ENNU_Data_Manager.' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized modern ENNU_Data_Manager.' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Data_Manager class not found.' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - Modern ENNU_Data_Manager class not found.' );
 		}
 		// --- END REFACTORING STEP ---
 
 		// Initialize HubSpot Bulk Field Creator
 		if ( class_exists( 'ENNU_HubSpot_Bulk_Field_Creator' ) ) {
 			new ENNU_HubSpot_Bulk_Field_Creator();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_Bulk_Field_Creator' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_Bulk_Field_Creator' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_Bulk_Field_Creator class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_Bulk_Field_Creator class not found' );
 		}
 		
 		// Initialize HubSpot API Manager
 		if ( class_exists( 'ENNU_HubSpot_API_Manager' ) ) {
 			new ENNU_HubSpot_API_Manager();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_API_Manager' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_API_Manager' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_API_Manager class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_API_Manager class not found' );
 		}
 		
 		// Initialize Database Initializer
 		if ( class_exists( 'ENNU_Database_Initializer' ) ) {
 			new ENNU_Database_Initializer();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Database_Initializer' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Database_Initializer' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Database_Initializer class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Database_Initializer class not found' );
 		}
 		
 		// Initialize Property Group Manager
 		if ( class_exists( 'ENNU_Property_Group_Manager' ) ) {
 			new ENNU_Property_Group_Manager();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_Property_Group_Manager' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Property_Group_Manager' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Property_Group_Manager class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Property_Group_Manager class not found' );
 		}
 
 		// Initialize HubSpot CLI Commands
 		if ( class_exists( 'ENNU_HubSpot_CLI_Commands' ) ) {
 			new ENNU_HubSpot_CLI_Commands();
-			error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_CLI_Commands' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HubSpot_CLI_Commands' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_CLI_Commands class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_HubSpot_CLI_Commands class not found' );
 		}
 
 		// Remove orchestrator loading and initialization
@@ -702,34 +724,34 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize Goal Progression Tracker - PHASE 12
 			if ( class_exists( 'ENNU_Goal_Progression_Tracker' ) ) {
 				new ENNU_Goal_Progression_Tracker();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_Goal_Progression_Tracker' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_Goal_Progression_Tracker' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_Goal_Progression_Tracker class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Goal_Progression_Tracker class not found' );
 			}
 
 			// Initialize PDF Processor - LabCorp Integration
 			if ( class_exists( 'ENNU_PDF_Processor' ) ) {
 				$this->pdf_processor = new ENNU_PDF_Processor();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_PDF_Processor' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_PDF_Processor' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_PDF_Processor class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_PDF_Processor class not found' );
 			}
 
 			// Initialize HIPAA Compliance
 			if ( class_exists( 'ENNU_HIPAA_Compliance' ) ) {
 				$this->hipaa_compliance = new ENNU_HIPAA_Compliance();
 				$this->hipaa_compliance->init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_HIPAA_Compliance' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_HIPAA_Compliance' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_HIPAA_Compliance class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_HIPAA_Compliance class not found' );
 			}
 
 			// Initialize CSRF Protection - PHASE 0
 			if ( class_exists( 'ENNU_CSRF_Protection' ) ) {
 				ENNU_CSRF_Protection::get_instance();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_CSRF_Protection' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_CSRF_Protection' );
 			} else {
-				error_log( 'ENNU Life Plugin: WARNING - ENNU_CSRF_Protection class not found' );
+				// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_CSRF_Protection class not found' );
 			}
 
 			// Initialize shortcodes on init hook to ensure proper timing
@@ -743,7 +765,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize the modern Shortcode Manager
 			if ( class_exists( 'ENNU_Shortcode_Manager' ) ) {
 				$this->shortcodes = new ENNU_Shortcode_Manager();
-				error_log( 'ENNU Life Plugin: Initialized modern ENNU_Shortcode_Manager' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized modern ENNU_Shortcode_Manager' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - ENNU_Shortcode_Manager class not found!' );
 			}
@@ -751,7 +773,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			// Initialize REST API
 			if ( class_exists( 'ENNU_REST_API' ) ) {
 				ENNU_REST_API::init();
-				error_log( 'ENNU Life Plugin: Initialized ENNU_REST_API.' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Initialized ENNU_REST_API.' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - ENNU_REST_API class not found!' );
 			}
@@ -763,7 +785,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		public function setup_shortcode_hooks() {
 			// This method is now deprecated as the new Shortcode Manager and AJAX Handler
 			// register their own hooks internally.
-			error_log( 'ENNU Life Plugin: setup_shortcode_hooks() is deprecated and no longer registers hooks.' );
+			// REMOVED: error_log( 'ENNU Life Plugin: setup_shortcode_hooks() is deprecated and no longer registers hooks.' );
 		}
 
 		/**
@@ -772,7 +794,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 		private function setup_hooks() {
 			// Prevent multiple hook registrations
 			if ( self::$hooks_setup ) {
-				error_log( 'ENNU Life Plugin: setup_hooks() called again - skipping to prevent duplicate hook registration.' );
+				// REMOVED: error_log( 'ENNU Life Plugin: setup_hooks() called again - skipping to prevent duplicate hook registration.' );
 				return;
 			}
 			self::$hooks_setup = true;
@@ -790,7 +812,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 
 			// Admin Hooks - ALWAYS register these hooks
 			if ( $this->admin ) {
-				error_log( 'ENNU Life Plugin: Setting up admin hooks...' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Setting up admin hooks...' );
 
 				add_action( 'admin_menu', array( $this->admin, 'add_admin_menu' ) );
 				add_action( 'admin_enqueue_scripts', array( $this->admin, 'enqueue_admin_assets' ) );
@@ -824,7 +846,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				add_action( 'wp_ajax_ennu_get_user_data', array( $this, 'ajax_get_user_data' ) );
 				add_action( 'wp_ajax_nopriv_ennu_get_user_data', array( $this, 'ajax_get_user_data' ) );
 
-				error_log( 'ENNU Life Plugin: Admin hooks registered successfully' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Admin hooks registered successfully' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - Admin instance is null, cannot register admin hooks!' );
 			}
@@ -837,7 +859,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			if ( isset( $this->shortcodes ) ) {
 				add_action( 'wp_ajax_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
 				add_action( 'wp_ajax_nopriv_ennu_submit_assessment', array( $this->shortcodes, 'handle_assessment_submission' ) );
-				error_log( 'ENNU Life Plugin: Assessment submission AJAX handlers registered' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Assessment submission AJAX handlers registered' );
 			} else {
 				error_log( 'ENNU Life Plugin: ERROR - Shortcodes instance is null, cannot register AJAX handlers!' );
 			}
@@ -845,9 +867,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 					// Target Weight Calculator Hook
 		if ( class_exists( 'ENNU_Target_Weight_Calculator' ) ) {
 			add_action( 'ennu_assessment_completed', array( 'ENNU_Target_Weight_Calculator', 'trigger_calculation_on_assessment_completion' ), 20, 2 );
-			error_log( 'ENNU Life Plugin: Target Weight Calculator hook registered' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Target Weight Calculator hook registered' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Target_Weight_Calculator class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Target_Weight_Calculator class not found' );
 		}
 
 		// Database Optimizer Initialization
@@ -855,9 +877,9 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			$db_optimizer = ENNU_Life_Enhanced_Database::get_instance();
 			// Initialize database constraints and rate limiting
 			$db_optimizer->create_database_constraints();
-			error_log( 'ENNU Life Plugin: Database optimizer initialized' );
+			// REMOVED: error_log( 'ENNU Life Plugin: Database optimizer initialized' );
 		} else {
-			error_log( 'ENNU Life Plugin: WARNING - ENNU_Life_Enhanced_Database class not found' );
+			// REMOVED: error_log( 'ENNU Life Plugin: WARNING - ENNU_Life_Enhanced_Database class not found' );
 		}
 
 		// Database Cleanup Schedule
@@ -969,8 +991,11 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 					// Enqueue theme manager script
 					wp_enqueue_script( 'ennu-theme-manager', ENNU_LIFE_PLUGIN_URL . 'assets/js/theme-manager.js', array(), ENNU_LIFE_VERSION . '.' . time(), true );
 					
+					// Enqueue score mini charts script for dashboard visualizations
+					wp_enqueue_script( 'ennu-score-mini-charts', ENNU_LIFE_PLUGIN_URL . 'assets/js/score-mini-charts.js', array( 'jquery' ), ENNU_LIFE_VERSION . '.' . time(), true );
+					
 					// Enqueue user dashboard script ONLY on dashboard pages
-					wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns', 'ennu-theme-manager' ), ENNU_LIFE_VERSION . '.' . time(), true );
+					wp_enqueue_script( 'ennu-user-dashboard', ENNU_LIFE_PLUGIN_URL . 'assets/js/user-dashboard.js', array( 'jquery', 'chartjs', 'chartjs-adapter-date-fns', 'ennu-theme-manager', 'ennu-score-mini-charts' ), ENNU_LIFE_VERSION . '.' . time(), true );
 				}
 
 				// --- FIX: Add nonce localization for user dashboard ---
@@ -1162,7 +1187,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 			);
 			
 			// Get all assessment data
-			$assessment_types = array( 'hair', 'weight_loss', 'health', 'skin', 'hormone', 'sleep', 'testosterone', 'menopause', 'ed_treatment', 'health_optimization', 'welcome' );
+			$assessment_types = array( 'hair', 'weight_loss', 'health', 'skin', 'hormone', 'sleep', 'testosterone', 'menopause', 'ed_treatment', 'health_optimization', 'welcome', 'peptide-therapy' );
 			foreach ( $assessment_types as $type ) {
 				$meta_key = 'ennu_assessment_responses_' . str_replace( '_', '-', $type );
 				$data = get_user_meta( $user_id, $meta_key, true );
@@ -1202,7 +1227,7 @@ if ( ! class_exists( 'ENNU_Life_Enhanced_Plugin' ) ) {
 				$db_optimizer = ENNU_Database_Optimizer::get_instance();
 				$db_optimizer->cleanup_expired_transients();
 				$db_optimizer->optimize_database_tables();
-				error_log( 'ENNU Life Plugin: Scheduled database cleanup completed' );
+				// REMOVED: error_log( 'ENNU Life Plugin: Scheduled database cleanup completed' );
 			}
 		}
 	}
@@ -1295,11 +1320,11 @@ function ennu_load_template( $template_name, $data = array() ) {
 	$template_path = ENNU_LIFE_PLUGIN_PATH . 'templates/' . $template_name;
 
 	// Debug: Log template loading attempt
-	error_log( 'ENNU Template Loader: Attempting to load template: ' . $template_path );
+	// REMOVED: error_log( 'ENNU Template Loader: Attempting to load template: ' . $template_path );
 
 	if ( file_exists( $template_path ) ) {
 		// Debug: Log successful template found
-		error_log( 'ENNU Template Loader: Template found, including: ' . $template_path );
+		// REMOVED: error_log( 'ENNU Template Loader: Template found, including: ' . $template_path );
 		
 		// This is a safe, controlled use of extract for templating purposes.
 		// It turns the keys of the $data array into variables for the template.
@@ -1307,10 +1332,10 @@ function ennu_load_template( $template_name, $data = array() ) {
 		include $template_path;
 		
 		// Debug: Log template inclusion completed
-		error_log( 'ENNU Template Loader: Template inclusion completed: ' . $template_path );
+		// REMOVED: error_log( 'ENNU Template Loader: Template inclusion completed: ' . $template_path );
 	} else {
 		// Debug output if template not found
-		error_log( 'ENNU Template Loader: Template not found at: ' . $template_path );
+		// REMOVED: error_log( 'ENNU Template Loader: Template not found at: ' . $template_path );
 	}
 }
 

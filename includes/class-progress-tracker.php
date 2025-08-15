@@ -307,15 +307,17 @@ class ENNU_Progress_Tracker {
 	 * @return array All available assessments
 	 */
 	private function get_all_available_assessments() {
+		// These match the assessments shown in user-dashboard.php
 		return array(
-			'stress',
-			'cognitive',
-			'mental_health',
+			'health',
+			'weight-loss',  // Note: dashboard uses hyphen
+			'hormone',
+			'testosterone',
+			'hair',
+			'skin',
 			'sleep',
-			'nutrition',
-			'physical_activity',
-			'aesthetics',
-			'biomarkers'
+			'ed-treatment',  // Note: dashboard uses hyphen
+			'peptide-therapy'  // Note: dashboard uses hyphen
 		);
 	}
 

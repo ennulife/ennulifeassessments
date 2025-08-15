@@ -223,10 +223,7 @@ class ENNU_Target_Weight_Calculator {
 			self::store_target_weight( $user_id, $target_data );
 			
 			// Log the calculation
-			error_log( "ENNU Target Weight: Calculated target weight for user {$user_id}: " . 
-				"Current: {$target_data['current_weight']} lbs, " .
-				"Target: {$target_data['target_weight']} lbs, " .
-				"Goal: {$target_data['goal_type']}" );
+			// REMOVED: error_log( "ENNU Target Weight: Calculated target weight for user {$user_id}: Current: {$target_data['current_weight']} lbs, Target: {$target_data['target_weight']} lbs, Goal: {$target_data['goal_type']}" );
 		}
 	}
 } 

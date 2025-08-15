@@ -26,7 +26,6 @@ class ENNU_Intentionality_Engine {
 		$this->base_pillar_scores = $base_pillar_scores;
 		$this->boost_log          = array();
 
-		error_log( 'ENNU Intentionality Engine: Initialized with ' . count( $this->user_health_goals ) . ' user goals' );
 	}
 
 	/**
@@ -35,7 +34,6 @@ class ENNU_Intentionality_Engine {
 	 */
 	public function apply_goal_alignment_boost() {
 		if ( empty( $this->user_health_goals ) || empty( $this->goal_definitions ) ) {
-			error_log( 'ENNU Intentionality Engine: No goals or definitions available, returning original scores' );
 			return $this->base_pillar_scores;
 		}
 
@@ -49,7 +47,6 @@ class ENNU_Intentionality_Engine {
 		$max_boost_per_pillar = $boost_rules['max_boost_per_pillar'] ?? 0.05;
 		$cumulative_boost     = $boost_rules['cumulative_boost'] ?? false;
 
-		error_log( 'ENNU Intentionality Engine: Processing ' . count( $this->user_health_goals ) . ' goals' );
 
 		foreach ( $this->user_health_goals as $goal ) {
 			if ( isset( $goal_map[ $goal ] ) ) {
@@ -60,8 +57,7 @@ class ENNU_Intentionality_Engine {
 				// Convert pillar name to proper case for matching
 				$pillar_name = $this->normalize_pillar_name( $primary_pillar );
 
-				error_log( "ENNU Intentionality Engine: Processing goal '{$goal}' for pillar '{$pillar_name}'" );
-
+	
 				// Apply boost only if pillar exists in scores
 				if ( isset( $boosted_scores[ $pillar_name ] ) ) {
 
@@ -89,7 +85,7 @@ class ENNU_Intentionality_Engine {
 
 						$applied_boosts[ $pillar_name ] = true;
 
-						error_log( "ENNU Intentionality Engine: Applied {$boost_amount}% boost to {$pillar_name} pillar ({$current_score} -> {$new_score})" );
+						// REMOVED: error_log( "ENNU Intentionality Engine: Applied {$boost_amount}% boost to {$pillar_name} pillar ({$current_score} -> {$new_score})" );
 
 					} else {
 						// Boost not applied due to non-cumulative rule
@@ -103,17 +99,17 @@ class ENNU_Intentionality_Engine {
 							'reason'         => 'non_cumulative_rule',
 						);
 
-						error_log( "ENNU Intentionality Engine: Skipped boost for {$pillar_name} pillar (non-cumulative rule)" );
+						// REMOVED: error_log( "ENNU Intentionality Engine: Skipped boost for {$pillar_name} pillar (non-cumulative rule)" );
 					}
 				} else {
-					error_log( "ENNU Intentionality Engine: Pillar '{$pillar_name}' not found in scores" );
+					// REMOVED: error_log( "ENNU Intentionality Engine: Pillar '{$pillar_name}' not found in scores" );
 				}
 			} else {
-				error_log( "ENNU Intentionality Engine: Goal '{$goal}' not found in goal definitions" );
+				// REMOVED: error_log( "ENNU Intentionality Engine: Goal '{$goal}' not found in goal definitions" );
 			}
 		}
 
-		error_log( 'ENNU Intentionality Engine: Applied boosts to ' . count( $applied_boosts ) . ' pillars' );
+		// REMOVED: error_log( 'ENNU Intentionality Engine: Applied boosts to ' . count( $applied_boosts ) . ' pillars' );
 
 		return $boosted_scores;
 	}

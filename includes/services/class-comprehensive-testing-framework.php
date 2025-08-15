@@ -63,7 +63,7 @@ class ENNU_Comprehensive_Testing_Framework {
 		// Add automated testing
 		add_action( 'admin_init', array( $this, 'run_automated_tests' ) );
 		
-		error_log( 'ENNU Comprehensive Testing Framework: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Comprehensive Testing Framework: Initialized successfully' );
 	}
 	
 	/**
@@ -143,8 +143,8 @@ class ENNU_Comprehensive_Testing_Framework {
 		// Save results
 		update_option( 'ennu_test_results', $results );
 		
-		error_log( 'ENNU Testing Framework: Comprehensive tests completed' );
-		error_log( 'ENNU Testing Framework: Results: ' . json_encode( $results ) );
+		// REMOVED: error_log( 'ENNU Testing Framework: Comprehensive tests completed' );
+		// REMOVED: error_log( 'ENNU Testing Framework: Results: ' . json_encode( $results ) );
 		
 		return $results;
 	}

@@ -11,7 +11,7 @@
 // Enhanced user meta saving with better error handling
 add_action( "ennu_assessment_completed", function( $user_id, $assessment_data ) {
     if ( ! $user_id || ! is_array( $assessment_data ) ) {
-        error_log( "ENNU Assessment Fix: Invalid user_id or assessment_data" );
+        // REMOVED: error_log( "ENNU Assessment Fix: Invalid user_id or assessment_data" );
         return;
     }
     
@@ -26,12 +26,12 @@ add_action( "ennu_assessment_completed", function( $user_id, $assessment_data ) 
                 $result = update_user_meta( $user_id, $meta_key, $value );
                 
                 if ( ! $result ) {
-                    error_log( "ENNU Assessment Fix: Failed to save meta key: " . $meta_key );
+                    // REMOVED: error_log( "ENNU Assessment Fix: Failed to save meta key: " . $meta_key );
                 }
             }
         }
         
-        error_log( "ENNU Assessment Fix: Completed saving user meta for user " . $user_id );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Assessment Fix: Completed saving user meta for user " . $user_id );
     }
 }, 10, 2 );
 

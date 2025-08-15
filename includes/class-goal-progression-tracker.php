@@ -95,7 +95,7 @@ class ENNU_Goal_Progression_Tracker {
 			$this->send_improvement_notification( $user_id, $level_improvement );
 		}
 		
-		error_log( "ENNU Goal Progression Tracker: Tracked progression for user {$user_id}" );
+		// REMOVED: error_log( "ENNU Goal Progression Tracker: Tracked progression for user {$user_id}" );
 		
 		return $progression_data;
 	}
@@ -415,7 +415,7 @@ class ENNU_Goal_Progression_Tracker {
 		
 		wp_mail( $user->user_email, $subject, $message );
 		
-		error_log( "ENNU Goal Progression Tracker: Sent improvement notification to user {$user_id}" );
+		// REMOVED: error_log( "ENNU Goal Progression Tracker: Sent improvement notification to user {$user_id}" );
 	}
 	
 	/**
@@ -477,7 +477,7 @@ class ENNU_Goal_Progression_Tracker {
 		// Add shortcode for goal progression
 		add_shortcode( 'ennu_goal_progression', array( $this, 'render_goal_progression' ) );
 		
-		error_log( 'ENNU Goal Progression Tracker: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Goal Progression Tracker: Initialized successfully' );
 	}
 	
 	/**

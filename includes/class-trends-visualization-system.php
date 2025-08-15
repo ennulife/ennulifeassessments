@@ -37,7 +37,7 @@ class ENNU_Trends_Visualization_System {
 		add_filter( 'ennu_dashboard_tabs', array( __CLASS__, 'add_trends_tab' ) );
 		add_action( 'ennu_render_dashboard_tab_content', array( __CLASS__, 'render_trends_tab_content' ), 10, 2 );
 
-		error_log( 'ENNU Trends Visualization System: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Trends Visualization System: Initialized' );
 	}
 
 	/**
@@ -588,7 +588,8 @@ class ENNU_Trends_Visualization_System {
 	 * @return array Life score trend data
 	 */
 	private static function get_life_score_trends( $user_id, $time_range ) {
-		$score_history = get_user_meta( $user_id, 'ennu_life_score_history', true );
+		// Use the new global score history from enhanced database
+		$score_history = get_user_meta( $user_id, 'ennu_global_score_history', true );
 		if ( ! is_array( $score_history ) ) {
 			return array(
 				'labels' => array(),
@@ -711,7 +712,18 @@ class ENNU_Trends_Visualization_System {
 	 * @return array Assessment score trend data
 	 */
 	private static function get_assessment_score_trends( $user_id, $time_range ) {
-		$assessment_types = array( 'testosterone', 'health', 'weight_loss', 'sleep', 'menopause' );
+		// Use the actual assessment types from the plugin
+		$assessment_types = array( 
+			'hair_assessment', 
+			'weight_loss_assessment', 
+			'health_assessment', 
+			'ed_treatment_assessment', 
+			'skin_assessment', 
+			'sleep_assessment',
+			'hormone_assessment',
+			'menopause_assessment',
+			'testosterone_assessment'
+		);
 		$trend_data       = array();
 
 		foreach ( $assessment_types as $type ) {

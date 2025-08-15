@@ -23,8 +23,9 @@ class ENNU_Lab_Data_Landing_System {
 		add_action( 'wp_ajax_ennu_validate_lab_data', array( __CLASS__, 'handle_lab_data_validation' ) );
 		add_action( 'wp_ajax_ennu_get_csv_template', array( __CLASS__, 'handle_get_csv_template' ) );
 		add_action( 'wp_ajax_ennu_upload_pdf', array( __CLASS__, 'handle_pdf_upload' ) );
+		add_action( 'wp_ajax_nopriv_ennu_upload_pdf', array( __CLASS__, 'handle_pdf_upload' ) );
 
-		error_log( 'ENNU Lab Data Landing System: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Lab Data Landing System: Initialized' );
 	}
 
 	/**
@@ -426,34 +427,38 @@ class ENNU_Lab_Data_Landing_System {
 	 */
 	public static function handle_pdf_upload() {
 		// Debug logging
-		error_log( 'ENNU PDF Upload: AJAX request received' );
-		error_log( 'ENNU PDF Upload: POST data: ' . print_r( $_POST, true ) );
-		error_log( 'ENNU PDF Upload: FILES data: ' . print_r( $_FILES, true ) );
+		// REMOVED: error_log( 'ENNU PDF Upload: AJAX request received' );
+		// REMOVED: error_log( 'ENNU PDF Upload: POST data: ' . print_r( $_POST, true ) );
+		// REMOVED: error_log( 'ENNU PDF Upload: FILES data: ' . print_r( $_FILES, true ) );
 		
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' ) ) {
-			wp_die( json_encode( array(
-				'success' => false,
+		// Verify nonce - accept both dashboard nonce and ajax nonce for compatibility
+		$nonce_valid = false;
+		if ( isset( $_POST['nonce'] ) ) {
+			$nonce_valid = wp_verify_nonce( $_POST['nonce'], 'ennu_dashboard_nonce' ) || 
+			               wp_verify_nonce( $_POST['nonce'], 'ennu_ajax_nonce' );
+		}
+		
+		if ( ! $nonce_valid ) {
+			wp_send_json_error( array(
 				'message' => 'Security check failed.',
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'Security Error',
 					'message' => 'Invalid security token. Please refresh the page and try again.',
 				),
-			) ) );
+			) );
 		}
 		
 		// Check user permissions
 		if ( ! is_user_logged_in() ) {
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => 'User not logged in.',
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'Authentication Required',
 					'message' => 'Please log in to upload LabCorp results.',
 				),
-			) ) );
+			) );
 		}
 		
 		$user_id = get_current_user_id();
@@ -477,15 +482,14 @@ class ENNU_Lab_Data_Landing_System {
 				}
 			}
 			
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => $error_message,
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'Upload Failed',
 					'message' => $error_message,
 				),
-			) ) );
+			) );
 		}
 		
 		$file = $_FILES['labcorp_pdf'];
@@ -495,28 +499,26 @@ class ENNU_Lab_Data_Landing_System {
 		$file_type = mime_content_type( $file['tmp_name'] );
 		
 		if ( ! in_array( $file_type, $allowed_types ) ) {
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => 'Invalid file type. Only PDF files are allowed.',
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'Invalid File Type',
 					'message' => 'Please upload a valid PDF file from LabCorp.',
 				),
-			) ) );
+			) );
 		}
 		
 		// Validate file size (10MB max)
 		if ( $file['size'] > 10 * 1024 * 1024 ) {
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => 'File too large. Maximum size is 10MB.',
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'File Too Large',
 					'message' => 'Please upload a PDF file smaller than 10MB.',
 				),
-			) ) );
+			) );
 		}
 		
 		// Create upload directory if it doesn't exist
@@ -533,15 +535,14 @@ class ENNU_Lab_Data_Landing_System {
 		
 		// Move uploaded file
 		if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => 'Failed to save uploaded file.',
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'File Save Failed',
 					'message' => 'Unable to process the uploaded file. Please try again.',
 				),
-			) ) );
+			) );
 		}
 		
 		// Process PDF
@@ -553,10 +554,14 @@ class ENNU_Lab_Data_Landing_System {
 			unlink( $file_path );
 			
 			// Log success
-			error_log( 'ENNU PDF Upload: Success - ' . print_r( $result, true ) );
+			// REMOVED: error_log( 'ENNU PDF Upload: Success - ' . print_r( $result, true ) );
 			
 			// Return detailed result with notification
-			wp_die( json_encode( $result ) );
+			if ( isset( $result['success'] ) && $result['success'] ) {
+				wp_send_json_success( $result );
+			} else {
+				wp_send_json_error( $result );
+			}
 			
 		} catch ( Exception $e ) {
 			// Clean up uploaded file
@@ -564,15 +569,14 @@ class ENNU_Lab_Data_Landing_System {
 				unlink( $file_path );
 			}
 			
-			wp_die( json_encode( array(
-				'success' => false,
+			wp_send_json_error( array(
 				'message' => 'PDF processing failed: ' . $e->getMessage(),
 				'notification' => array(
 					'type' => 'error',
 					'title' => 'Processing Failed',
 					'message' => 'Unable to process the LabCorp PDF. Please ensure it contains valid biomarker data.',
 				),
-			) ) );
+			) );
 		}
 	}
 

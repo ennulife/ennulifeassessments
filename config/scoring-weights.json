@@ -202,6 +202,26 @@
                 "lifestyle": 0.25,
                 "aesthetics": 0.15
             }
+        },
+        "peptide-therapy": {
+            "pillar_mapping": {
+                "mind": 0.20,
+                "body": 0.45,
+                "lifestyle": 0.25,
+                "aesthetics": 0.10
+            },
+            "category_weights": {
+                "Weight Management": 0.15,
+                "Recovery & Healing": 0.15,
+                "Hormonal Balance": 0.20,
+                "Cognitive Enhancement": 0.10,
+                "Sexual Health": 0.10,
+                "Anti-Aging": 0.10,
+                "Energy & Vitality": 0.10,
+                "Sleep Quality": 0.05,
+                "Athletic Performance": 0.05,
+                "Metabolic Health": 0.10
+            }
         }
     },
     

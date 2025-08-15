@@ -79,42 +79,45 @@ $helpers = 'ENNU_Dashboard_Helpers';
         </div>
     </div>
     
-    <!-- Main Score Display -->
-    <div class="score-display-section">
-        <div class="main-score-container">
-            <div class="main-score-orb" data-score="<?php echo esc_attr($scores['ennu_life_score']); ?>">
-                <svg class="score-progress" viewBox="0 0 200 200">
-                    <circle class="score-bg" cx="100" cy="100" r="90"></circle>
-                    <circle class="score-fill" cx="100" cy="100" r="90" 
-                            stroke-dasharray="<?php echo esc_attr($scores['ennu_life_score'] * 56.5); ?> 565"></circle>
-                </svg>
-                <div class="score-content">
-                    <div class="main-score-value"><?php echo esc_html(number_format($scores['ennu_life_score'], 1)); ?></div>
-                    <div class="main-score-label">ENNU Life Score</div>
-                </div>
-            </div>
-            
-            <div id="contextual-text" class="contextual-insights">
-                <!-- Populated by JavaScript based on score -->
-            </div>
-        </div>
-        
-        <!-- Pillar Scores -->
-        <div class="pillar-scores-container">
-            <?php foreach ($scores['pillar_scores'] as $pillar => $score): ?>
-                <div class="pillar-orb" 
-                     data-pillar="<?php echo esc_attr($pillar); ?>" 
-                     data-score="<?php echo esc_attr($score); ?>"
-                     data-has-score="<?php echo $score > 0 ? 'true' : 'false'; ?>">
-                    <div class="pillar-icon">
-                        <?php echo $helpers::get_category_icon($pillar); ?>
-                    </div>
-                    <div class="pillar-name"><?php echo esc_html($pillar); ?></div>
-                    <div class="pillar-score"><?php echo esc_html(number_format($score, 1)); ?></div>
-                </div>
+    <!-- Main Score Display - Modern UI -->
+    <?php 
+    // Prepare data for modern scoring section
+    $ennu_life_score = $scores['ennu_life_score'] ?? 0;
+    $average_pillar_scores = $scores['pillar_scores'] ?? array();
+    $dashboard_data = $dashboard_data ?? array();
+    
+    // Calculate global target score that will be used across all templates
+    if ($ennu_life_score == 0) {
+        $global_target_score = 3.0;
+    } elseif ($ennu_life_score < 3.0) {
+        $global_target_score = min(5.0, $ennu_life_score + 2.0);
+    } elseif ($ennu_life_score < 6.0) {
+        $global_target_score = min(7.5, $ennu_life_score + 1.5);
+    } elseif ($ennu_life_score < 8.0) {
+        $global_target_score = min(9.0, $ennu_life_score + 1.0);
+    } else {
+        $global_target_score = min(10.0, $ennu_life_score + 0.5);
+    }
+    
+    // Debug - check if file exists
+    $template_path = ENNU_LIFE_PLUGIN_PATH . 'templates/modern-scoring-section.php';
+    if (file_exists($template_path)) {
+        // Include modern scoring section template
+        include $template_path;
+    } else {
+        echo '<!-- Modern scoring template not found at: ' . esc_html($template_path) . ' -->';
+        // Fallback to show basic scores
+        ?>
+        <div class="score-display-section">
+            <h2>Health Scores</h2>
+            <p>EnnuLife Score: <?php echo esc_html(number_format($ennu_life_score, 1)); ?></p>
+            <?php foreach ($average_pillar_scores as $pillar => $score): ?>
+                <p><?php echo esc_html($pillar); ?>: <?php echo esc_html(number_format($score, 1)); ?></p>
             <?php endforeach; ?>
         </div>
-    </div>
+        <?php
+    }
+    ?>
     
     <!-- Profile Completeness Widget -->
     <?php if (class_exists('ENNU_Enhanced_Dashboard_Manager')): ?>

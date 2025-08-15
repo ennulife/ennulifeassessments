@@ -492,7 +492,7 @@ class ENNU_AJAX_Security {
 		// Log critical events to error log
 		$critical_events = array( 'blocked_ip_attempt', 'invalid_nonce', 'rate_limit_exceeded' );
 		if ( in_array( $event_type, $critical_events, true ) ) {
-			error_log( 'ENNU Security Alert: ' . $event_type . ' - ' . wp_json_encode( $data ) );
+			// REMOVED: error_log( 'ENNU Security Alert: ' . $event_type . ' - ' . wp_json_encode( $data ) );
 		}
 	}
 

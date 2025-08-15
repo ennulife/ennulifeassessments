@@ -39,11 +39,11 @@ class ENNU_Shortcode_Loader {
 				require_once $file_path;
 				$this->loaded_shortcodes[] = $file;
 			} else {
-				error_log( 'ENNU Shortcode Loader: File not found - ' . $file );
+				// REMOVED: error_log( 'ENNU Shortcode Loader: File not found - ' . $file );
 			}
 		}
 
-		error_log( 'ENNU Shortcode Loader: Loaded ' . count( $this->loaded_shortcodes ) . ' shortcode files' );
+		// REMOVED: error_log( 'ENNU Shortcode Loader: Loaded ' . count( $this->loaded_shortcodes ) . ' shortcode files' );
 	}
 
 	public function get_loaded_shortcodes() {

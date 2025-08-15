@@ -126,7 +126,7 @@ class ENNU_Smart_Defaults_Generator {
 			// Save honest status to user meta
 			update_user_meta( $user_id, 'ennu_smart_defaults', $smart_defaults );
 			
-			error_log( "ENNU Smart Defaults Generator: No real data available for user {$user_id} - returning missing data notice" );
+			// REMOVED: error_log( "ENNU Smart Defaults Generator: No real data available for user {$user_id} - returning missing data notice" );
 			
 			return $smart_defaults;
 		}
@@ -184,7 +184,7 @@ class ENNU_Smart_Defaults_Generator {
 		// Save smart defaults to user meta
 		update_user_meta( $user_id, 'ennu_smart_defaults', $smart_defaults );
 		
-		error_log( "ENNU Smart Defaults Generator: Generated smart defaults for user {$user_id} based on real data" );
+		// REMOVED: error_log( "ENNU Smart Defaults Generator: Generated smart defaults for user {$user_id} based on real data" );
 		
 		return $smart_defaults;
 	}
@@ -196,7 +196,7 @@ class ENNU_Smart_Defaults_Generator {
 	 * @return array Health goals
 	 */
 	private function get_user_health_goals( $user_id ) {
-		$goals = get_user_meta( $user_id, 'ennu_health_goals', true );
+		$goals = get_user_meta( $user_id, 'ennu_global_health_goals', true );
 		
 		if ( empty( $goals ) ) {
 			// Default goals based on current health status
@@ -386,7 +386,7 @@ class ENNU_Smart_Defaults_Generator {
 		// Add shortcode for smart defaults
 		add_shortcode( 'ennu_smart_defaults', array( $this, 'render_smart_defaults' ) );
 		
-		error_log( 'ENNU Smart Defaults Generator: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Smart Defaults Generator: Initialized successfully' );
 	}
 	
 	/**

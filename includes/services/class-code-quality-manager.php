@@ -62,7 +62,7 @@ class ENNU_Code_Quality_Manager {
 		// Only evaluate code quality in the admin UI on the Code Quality page, never during AJAX/front-end
 		add_action( 'admin_init', array( $this, 'maybe_run_code_quality_checks' ) );
 		
-		error_log( 'ENNU Code Quality Manager: Initialized successfully' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Code Quality Manager: Initialized successfully' );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class ENNU_Code_Quality_Manager {
 		$this->quality_metrics = $metrics;
 		
 		// Log summary only to avoid excessive debug log growth
-		error_log( 'ENNU Code Quality Manager: Code quality analysis completed (files: ' . (int) $metrics['total_files'] . ', lines: ' . (int) $metrics['total_lines'] . ', psr12_violations: ' . (int) $metrics['psr12_violations'] . ')' );
+		// REMOVED: error_log( 'ENNU Code Quality Manager: Code quality analysis completed (files: ' . (int) $metrics['total_files'] . ', lines: ' . (int) $metrics['total_lines'] . ', psr12_violations: ' . (int) $metrics['psr12_violations'] . ')' );
 	}
 	
 	/**

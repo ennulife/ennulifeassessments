@@ -5,7 +5,25 @@
  */
 
 
+ .ennu-header-container {
+    display: none !important;
+}
+@media (max-width: 768px) {
 
+
+.dob-dropdowns {
+    display: flex;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+    flex-direction: column;
+}
+}
+
+.privacy-notice p small {
+    color: #000;
+}
 
  .dob-dropdowns label {
     display: none;
@@ -135,7 +153,7 @@
 
 /* Force light mode for assessments - ensures consistent appearance */
 .ennu-assessment-form {
-    background-color: #ffffff !important;
+    background-color: transparent!important;
     color: #333333 !important;
 }
 
@@ -253,7 +271,7 @@
 .question-title {
     font-size: 1.5em;
     font-weight: 300;
-    color: #ffffff;
+    color: #212121;
     margin-bottom: 15px;
     text-align: center;
     line-height: 1.3;
@@ -269,8 +287,8 @@
 }
 
 .question-description {
-    font-size: 20px;
-    color: #d1d1d1;
+    font-size: 14px;
+    color: #515151;
     margin-bottom: 30px;
     text-align: center;
     line-height: 1.5;
@@ -413,7 +431,7 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
-    border-radius: 50px;
+    border-radius: 9px;
     pointer-events: none;
 }
 
@@ -483,6 +501,7 @@
     justify-content: center;
     max-width: 450px;
     margin: 1rem auto 0;
+    align-content: center;
 }
 
 .hw-field {
@@ -583,7 +602,7 @@ input:required:invalid {
     align-items: center;
     margin-top: 30px;
     gap: 24px;
-    padding-bottom: 30px;
+    padding: 0 30px;
 }
 
 .nav-button {
@@ -773,6 +792,8 @@ input:required:invalid {
     .question-navigation {
         margin-top: 25px;
         gap: 16px;
+        display: flex !important;
+        flex-direction: row !important;
     }
 }
 
@@ -1951,4 +1972,236 @@ input[data-auto-submit="true"] {
     }
 }
 */
+
+/* Progress Modal Styles */
+.ennu-progress-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out; /* Slowed from 0.3s */
+}
+
+.ennu-progress-modal.active {
+    opacity: 1;
+}
+
+.ennu-progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4); /* Lighter overlay for light theme */
+    backdrop-filter: blur(8px); /* Increased blur for softer effect */
+}
+
+.ennu-progress-content {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); /* Light gradient */
+    border-radius: 24px; /* Slightly more rounded */
+    padding: 48px 40px; /* More vertical padding */
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.05); /* Softer, layered shadows */
+    border: 1px solid rgba(0, 0, 0, 0.08); /* Light border */
+    transform: scale(0.95);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* Smooth bounce effect, slowed */
+}
+
+.ennu-progress-modal.active .ennu-progress-content {
+    transform: scale(1);
+}
+
+.progress-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.progress-logo img {
+    height: 35px; /* Slightly larger */
+    width: auto;
+    opacity: 0.9;
+    /* Removed filter: invert(1) - black logo stays black on light background */
+}
+
+.progress-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.progress-header h2 {
+    color: #1a1a1a; /* Dark text on light background */
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+}
+
+.progress-subtitle {
+    color: #6c757d; /* Gray text for subtitle */
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.progress-steps {
+    margin-bottom: 45px;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 28px;
+    opacity: 0.3; /* Lighter opacity for inactive */
+    transition: opacity 0.8s ease; /* Slowed from 0.3s */
+}
+
+.progress-step.active,
+.progress-step.completed {
+    opacity: 1;
+}
+
+.step-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f8f9fa; /* Light gray background */
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.8s ease; /* Slowed transitions */
+}
+
+.progress-step.active .step-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%); /* Green gradient */
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.progress-step.completed .step-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: transparent;
+}
+
+.step-spinner {
+    width: 24px;
+    height: 24px;
+    animation: spin 2s linear infinite; /* Slowed from 1s to 2s */
+}
+
+.step-spinner .path {
+    stroke: #dee2e6; /* Light gray for inactive spinner */
+    stroke-linecap: round;
+    animation: dash 2.5s ease-in-out infinite; /* Slowed from 1.5s */
+}
+
+.progress-step.active .step-spinner .path {
+    stroke: #ffffff; /* White spinner on green background */
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+.step-check {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
+}
+
+.step-text h3 {
+    color: #212529; /* Dark text for light theme */
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+}
+
+.step-text p {
+    color: #6c757d; /* Gray text for descriptions */
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.progress-footer {
+    text-align: center;
+}
+
+.progress-bar {
+    height: 8px; /* Slightly thicker */
+    background: #e9ecef; /* Light gray background */
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%); /* Green gradient */
+    border-radius: 4px;
+    transition: width 1s ease; /* Slowed from 0.5s */
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.15);
+}
+
+.progress-message {
+    color: #6c757d; /* Gray text */
+    font-size: 14px;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+    .ennu-progress-content {
+        padding: 30px 20px;
+    }
+    
+    .progress-header h2 {
+        font-size: 22px;
+    }
+    
+    .progress-subtitle {
+        font-size: 14px;
+    }
+    
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+    }
+    
+    .step-text h3 {
+        font-size: 16px;
+    }
+    
+    .step-text p {
+        font-size: 12px;
+    }
+}
 

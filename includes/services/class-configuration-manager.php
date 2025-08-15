@@ -160,12 +160,12 @@ class ENNU_Configuration_Manager {
 	 */
 	public function set_strategy( $strategy_name ) {
 		if ( ! isset( $this->strategies[ $strategy_name ] ) ) {
-			error_log( "ENNU Configuration Manager: Unknown strategy '{$strategy_name}'" );
+			// REMOVED: error_log( "ENNU Configuration Manager: Unknown strategy '{$strategy_name}'" );
 			return false;
 		}
 		
 		$this->current_strategy = $this->strategies[ $strategy_name ];
-		error_log( "ENNU Configuration Manager: Strategy set to '{$strategy_name}'" );
+		// REMOVED: error_log( "ENNU Configuration Manager: Strategy set to '{$strategy_name}'" );
 		return true;
 	}
 	
@@ -188,7 +188,7 @@ class ENNU_Configuration_Manager {
 		// Validate configuration
 		$validation = $this->validate_configuration( $config_key, $config );
 		if ( ! $validation['valid'] ) {
-			error_log( "ENNU Configuration Manager: Configuration validation failed for '{$config_key}': " . implode( ', ', $validation['errors'] ) );
+			// REMOVED: error_log( "ENNU Configuration Manager: Configuration validation failed for '{$config_key}': " . implode( ', ', $validation['errors'] ) );
 			return $this->get_default_configuration( $config_key );
 		}
 		
@@ -209,7 +209,7 @@ class ENNU_Configuration_Manager {
 		// Validate configuration
 		$validation = $this->validate_configuration( $config_key, $data );
 		if ( ! $validation['valid'] ) {
-			error_log( "ENNU Configuration Manager: Configuration validation failed for '{$config_key}': " . implode( ', ', $validation['errors'] ) );
+			// REMOVED: error_log( "ENNU Configuration Manager: Configuration validation failed for '{$config_key}': " . implode( ', ', $validation['errors'] ) );
 			return false;
 		}
 		
@@ -219,7 +219,7 @@ class ENNU_Configuration_Manager {
 		if ( $result ) {
 			// Update cache
 			$this->cache[ $config_key ] = $data;
-			error_log( "ENNU Configuration Manager: Configuration saved for '{$config_key}'" );
+			// REMOVED: error_log( "ENNU Configuration Manager: Configuration saved for '{$config_key}'" );
 		}
 		
 		return $result;
@@ -426,7 +426,7 @@ class ENNU_Configuration_Manager {
 			$this->cache = array();
 		}
 		
-		error_log( "ENNU Configuration Manager: Cache cleared" . ( $config_key ? " for '{$config_key}'" : '' ) );
+		// REMOVED: error_log( "ENNU Configuration Manager: Cache cleared" . ( $config_key ? " for '{$config_key}'" : '' ) );
 	}
 	
 	/**
@@ -462,6 +462,6 @@ class ENNU_Configuration_Manager {
 			}
 		}
 		
-		error_log( "ENNU Configuration Manager: Configuration directory initialized" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Configuration Manager: Configuration directory initialized" );
 	}
 } 

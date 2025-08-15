@@ -33,10 +33,24 @@ class ENNUAssessmentForm {
             this.form.innerHTML = '<p class="ennu-error">No questions found for this assessment.</p>';
             return;
         }
+        
+        // Check for preset gender from shortcode attribute
+        this.presetGender = this.form.dataset.presetGender || null;
+        if (this.presetGender) {
+            console.log('🎯 Gender preset detected:', this.presetGender);
+            
+            // Ensure the hidden gender input has the correct value
+            const hiddenGenderInput = this.form.querySelector('input[type="hidden"][name="ennu_global_gender"]');
+            if (hiddenGenderInput) {
+                hiddenGenderInput.value = this.presetGender;
+            }
+        }
 
-        // Update total steps display
+        // Update total steps display - account for hidden gender question
         if (this.totalStepsText) {
-            this.totalStepsText.textContent = this.totalSteps;
+            // If gender is preset, reduce total count by 1 (since gender question is hidden)
+            const displayTotal = this.presetGender ? this.totalSteps : this.totalSteps;
+            this.totalStepsText.textContent = displayTotal;
         }
         
         // Pre-fill global fields with existing data
@@ -44,16 +58,123 @@ class ENNUAssessmentForm {
         
         // Add a small delay to ensure DOM is fully ready before showing first question
         setTimeout(() => {
+            // ULTRA FIX: Force DOM state synchronization BEFORE any detection
+            this.synchronizeDOMWithHTMLAttributes();
+            
             this.showQuestion(0);
             this.bindEvents();
             
             // Check for auto-submission flag
             this.checkAutoSubmissionReady();
-        }, 100);
+
+            // ULTRA FIX: Multiple attempts at skipping with increasing delays
+            setTimeout(() => this.skipPrefilledGlobalSlides(), 100);
+            setTimeout(() => this.skipPrefilledGlobalSlides(), 300);
+            setTimeout(() => this.skipPrefilledGlobalSlides(), 500);
+        }, 150);
+    }
+
+    // ULTRA FIX: Force DOM state to match HTML attributes
+    synchronizeDOMWithHTMLAttributes() {
+        console.log('🔧 ULTRA FIX: Synchronizing DOM with HTML attributes...');
+        
+        // Find all radio buttons and checkboxes, especially gender fields
+        const allInputs = this.form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+        let syncedCount = 0;
+        
+        allInputs.forEach(input => {
+            // Force DOM checked property to match HTML checked attribute
+            if (input.hasAttribute('checked')) {
+                const isGender = input.name === 'ennu_global_gender';
+                if (!input.checked) {
+                    input.checked = true;
+                    syncedCount++;
+                    console.log(`🔧 Synced ${isGender ? 'GENDER' : 'input'}: ${input.name}=${input.value} -> checked=true`);
+                }
+            } else {
+                if (input.checked) {
+                    // If DOM says checked but HTML doesn't have attribute, trust the DOM
+                    console.log(`⚠️ DOM checked but no HTML attribute: ${input.name}=${input.value}`);
+                }
+            }
+        });
+        
+        console.log(`🔧 Synchronized ${syncedCount} inputs`);
+    }
+
+    // Skip over consecutive global slides that already have saved data (no user interaction required)
+    skipPrefilledGlobalSlides() {
+        console.log('ENNU Debug: skipPrefilledGlobalSlides called');
+        
+        // Do not auto-skip on contact slide
+        const isContact = (slide) => slide && slide.hasAttribute('data-is-contact-form');
+        // Only skip when logged-in or when inputs are already pre-selected
+        const canSkip = () => true;
+
+        let advanced = false;
+        let skippedSlides = [];
+        
+        while (this.currentStep < this.totalSteps) {
+            const slide = this.questions[this.currentStep];
+            if (!slide) break;
+
+            // Only consider global slides, never contact form
+            const isGlobal = slide.hasAttribute('data-is-global');
+            const isGenderField = slide.querySelector('input[name="ennu_global_gender"]') !== null;
+            
+            console.log(`ENNU Debug: Checking slide ${this.currentStep}, isGlobal: ${isGlobal}, isContact: ${isContact(slide)}, isGenderField: ${isGenderField}`);
+            
+            if (!isGlobal || isContact(slide)) {
+                console.log(`ENNU Debug: Breaking - not global (${!isGlobal}) or is contact (${isContact(slide)})`);
+                break;
+            }
+
+            // If this global slide already has a value (e.g., gender), skip it
+            const hasData = this.globalFieldHasData(slide);
+            console.log(`ENNU Debug: Slide ${this.currentStep} hasData: ${hasData}`);
+            
+            if (hasData && canSkip()) {
+                const nextIndex = this.currentStep + 1;
+                if (nextIndex < this.totalSteps) {
+                    skippedSlides.push(`Slide ${this.currentStep}${isGenderField ? ' (Gender)' : ''}`);
+                    this.showQuestion(nextIndex);
+                    advanced = true;
+                    continue;
+                }
+            }
+            console.log('ENNU Debug: Breaking - no data or cannot skip');
+            break;
+        }
+
+        if (advanced) {
+            console.log(`ENNU Debug: Advanced through slides, skipped: ${skippedSlides.join(', ')}`);
+            this.updateProgress();
+        } else {
+            console.log('ENNU Debug: No slides were skipped');
+        }
     }
 
     // Pre-fill global fields with existing data
     prefillGlobalFields() {
+        // CRITICAL: Only prefill for logged-in users
+        // Check if user is logged in by looking for user_id input or checking auth state
+        const userIdInput = this.form.querySelector('input[name="user_id"]');
+        const isLoggedIn = userIdInput && userIdInput.value && userIdInput.value !== '0';
+        
+        if (!isLoggedIn) {
+            console.log('🚫 User not logged in - skipping prefill to prevent data contamination');
+            // Clear any localStorage data for logged-out users
+            try {
+                localStorage.removeItem('ennu_assessment_data');
+                localStorage.removeItem('ennu_contact_info_saved');
+                localStorage.removeItem('ennu_global_fields_saved');
+            } catch (e) {
+                console.error('Failed to clear localStorage:', e);
+            }
+            return;
+        }
+        
+        // Only prefill for logged-in users
         this.questions.forEach((question, index) => {
             if (question.hasAttribute('data-is-global')) {
                 this.prefillGlobalField(question);
@@ -74,6 +195,11 @@ class ENNUAssessmentForm {
     // Pre-fill a specific global field with existing data
     prefillGlobalField(questionElement) {
         const inputs = questionElement.querySelectorAll('input, select, textarea');
+        
+        // Enhanced global field detection - use correct field name
+        const isGenderField = questionElement.querySelector('input[name="ennu_global_gender"]') !== null;
+        const isDOBField = questionElement.querySelector('input[name*="date_of_birth"]') !== null;
+        
         // Try to get saved values for this field from a data attribute or JS state
         let savedValues = [];
         if (questionElement.dataset && questionElement.dataset.savedValues) {
@@ -83,6 +209,7 @@ class ENNUAssessmentForm {
                 savedValues = [];
             }
         }
+        
         inputs.forEach(input => {
             // For checkboxes: only check if value is in savedValues
             if (input.type === 'checkbox') {
@@ -92,6 +219,14 @@ class ENNUAssessmentForm {
             // For radio: only check if value matches saved value
             if (input.type === 'radio') {
                 input.checked = savedValues === input.value;
+                
+                // Enhanced gender field prefilling - check if this radio is already checked server-side
+                if (input.name === 'ennu_global_gender') {
+                    if (input.hasAttribute('checked') && input.getAttribute('checked') === 'checked') {
+                        input.checked = true;
+                        console.log(`ENNU Gender Debug: Prefilled gender from server-side checked attribute: ${input.value}`);
+                    }
+                }
                 return;
             }
             // For other types, prefill if value exists
@@ -106,13 +241,29 @@ class ENNUAssessmentForm {
                 }
             }
             // For gender fields, try to get from user meta
-            if (input.name && input.name.includes('gender')) {
+            if (input.name === 'ennu_global_gender') {
                 const genderValue = this.getUserGender();
                 if (genderValue && input.value === genderValue) {
                     input.checked = true;
+                    console.log(`ENNU Gender Debug: Prefilled gender from getUserGender(): ${genderValue}`);
                 }
             }
         });
+        
+        // Additional debugging for gender fields
+        if (isGenderField) {
+            const checkedInput = questionElement.querySelector('input[name="ennu_global_gender"]:checked');
+            if (checkedInput) {
+                console.log(`ENNU Gender Debug: After prefill, found checked gender input: ${checkedInput.value}`);
+            } else {
+                console.log('ENNU Gender Debug: After prefill, no checked gender input found');
+                // List all gender inputs and their states
+                const genderInputs = questionElement.querySelectorAll('input[name="ennu_global_gender"]');
+                genderInputs.forEach(input => {
+                    console.log(`ENNU Gender Debug: Gender input ${input.value} - checked: ${input.checked}, hasAttribute('checked'): ${input.hasAttribute('checked')}`);
+                });
+            }
+        }
     }
 
     // Get user's date of birth from meta (if available)
@@ -141,6 +292,9 @@ class ENNUAssessmentForm {
 
     bindEvents() {
         
+        // Track the last email to detect changes
+        this.lastKnownEmail = null;
+        
         // Next/Previous buttons
         this.form.addEventListener('click', (e) => {
             
@@ -168,6 +322,39 @@ class ENNUAssessmentForm {
                 if (!isContactForm && !isWelcomeAssessment) {
                     setTimeout(() => this.nextQuestion(), 300);
                 }
+            }
+        });
+
+        // Email change detection - Clear storage if email changes
+        this.form.addEventListener('change', (e) => {
+            if (e.target.name === 'email' || e.target.name === 'ennu_global_email') {
+                const newEmail = e.target.value.toLowerCase().trim();
+                
+                // Check if email has changed from what we had before
+                if (this.lastKnownEmail && this.lastKnownEmail !== newEmail) {
+                    console.log('⚠️ Email changed - clearing stored data to prevent contamination');
+                    
+                    // Clear all localStorage data when email changes
+                    try {
+                        Object.keys(localStorage).forEach(key => {
+                            if (key.startsWith('ennu_') && !key.includes('theme')) {
+                                localStorage.removeItem(key);
+                            }
+                        });
+                        
+                        // Also clear any form-specific storage
+                        localStorage.removeItem('ennu_assessment_data');
+                        localStorage.removeItem('ennu_contact_info_saved');
+                        localStorage.removeItem('ennu_global_fields_saved');
+                        
+                        console.log('✅ Cleared stored data for previous email');
+                    } catch (err) {
+                        console.error('Failed to clear localStorage:', err);
+                    }
+                }
+                
+                // Update the last known email
+                this.lastKnownEmail = newEmail;
             }
         });
 
@@ -253,38 +440,62 @@ class ENNUAssessmentForm {
         }
     }
 
-    // Check if a global field already has data
+    // ULTRA FIX: Completely rewritten global field detection
     globalFieldHasData(questionElement) {
+        console.log('🔍 ULTRA FIX: Checking if global field has data...');
+        
         const inputs = questionElement.querySelectorAll('input, select, textarea');
         let hasData = false;
         
+        // Enhanced field type detection with debugging
+        const isGenderField = questionElement.querySelector('input[name="ennu_global_gender"]') !== null;
+        const isDOBField = questionElement.querySelector('input[name*="date_of_birth"]') !== null || 
+                          questionElement.querySelector('.dob-dropdowns') !== null;
+        const isHeightWeightField = questionElement.querySelector('input[name*="height_ft"]') !== null ||
+                                   questionElement.querySelector('input[name*="weight"]') !== null;
         
-        // Special debugging for gender fields
-        if (questionElement.querySelector('.question-title')?.textContent?.includes('gender')) {
+        // Debug logging removed for production
+        
+        // SPECIAL HANDLING FOR GENDER FIELDS (most critical)
+        if (isGenderField) {
+            const genderInputs = questionElement.querySelectorAll('input[name="ennu_global_gender"]');
+            console.log(`🎯 GENDER FIELD: Found ${genderInputs.length} gender inputs`);
+            
+            let genderHasData = false;
+            genderInputs.forEach((input, index) => {
+                const domChecked = input.checked;
+                const htmlChecked = input.hasAttribute('checked');
+                const checkedValue = input.getAttribute('checked');
+                
+                console.log(`  Gender input ${index}: value=${input.value}, DOM.checked=${domChecked}, hasAttribute('checked')=${htmlChecked}, getAttribute('checked')=${checkedValue}`);
+                
+                // Multiple ways to detect if this is the selected gender
+                if (domChecked || htmlChecked || checkedValue === 'checked') {
+                    console.log(`✅ GENDER DETECTED: ${input.value} (DOM:${domChecked}, HTML:${htmlChecked}, attr:${checkedValue})`);
+                    genderHasData = true;
+                }
+            });
+            
+            if (genderHasData) {
+                console.log('✅ GENDER FIELD HAS DATA - will be skipped');
+                return true;
+            } else {
+                console.log('❌ GENDER FIELD NO DATA - will be shown');
+                return false;
+            }
         }
         
-        // Special debugging for DOB fields
-        if (questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('date') || 
-            questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('birth') ||
-            questionElement.querySelector('.question-title')?.textContent?.toLowerCase().includes('dob')) {
-        }
-        
+        // ENHANCED GENERAL DETECTION for non-gender fields
         for (let input of inputs) {
             // Skip hidden inputs
-            if (input.type === 'hidden') {
-                continue;
-            }
-            
+            if (input.type === 'hidden') continue;
             
             if (input.type === 'radio' || input.type === 'checkbox') {
-                
-                // Special debugging for gender fields
-                if (input.name && input.name.includes('gender')) {
-                }
-                
-                if (input.checked) {
+                // Check both DOM property and HTML attribute
+                if (input.checked || (input.hasAttribute('checked') && input.getAttribute('checked') === 'checked')) {
+                    console.log(`✅ Found checked radio/checkbox: ${input.name} = ${input.value}`);
                     hasData = true;
-                } else {
+                    break;
                 }
             } else if (input.type === 'select-one' || input.type === 'select-multiple') {
                 
@@ -378,6 +589,8 @@ class ENNUAssessmentForm {
     }
 
     showQuestion(stepIndex) {
+        console.log(`🎬 ULTRA FIX: Showing question ${stepIndex}`);
+        
         // Hide all questions
         this.questions.forEach(q => q.classList.remove('active'));
         
@@ -389,7 +602,45 @@ class ENNUAssessmentForm {
             // Update progress
             this.updateProgress();
             
-            // Focus first input in the question
+            // ULTRA FIX: Enhanced skip detection with multiple checks
+            const currentSlide = this.questions[this.currentStep];
+            const isGlobal = currentSlide && currentSlide.hasAttribute('data-is-global');
+            const isContact = currentSlide && currentSlide.hasAttribute('data-is-contact-form');
+            const isGenderField = currentSlide && currentSlide.querySelector('input[name="ennu_global_gender"]') !== null;
+            
+            console.log(`🎬 Question ${stepIndex}: isGlobal=${isGlobal}, isContact=${isContact}, isGenderField=${isGenderField}`);
+            
+            if (isGlobal && !isContact) {
+                // Force sync before checking (critical for gender fields)
+                if (isGenderField) {
+                    const genderInputs = currentSlide.querySelectorAll('input[name="ennu_global_gender"]');
+                    genderInputs.forEach(input => {
+                        if (input.hasAttribute('checked') && !input.checked) {
+                            input.checked = true;
+                            console.log(`🔧 CRITICAL SYNC: Fixed gender input ${input.value}`);
+                        }
+                    });
+                }
+                
+                // Check if field has data
+                const hasData = this.globalFieldHasData(currentSlide);
+                console.log(`🎬 Global field hasData: ${hasData}`);
+                
+                if (hasData) {
+                    console.log(`⏭️ ULTRA FIX: Auto-skipping question ${stepIndex} (${isGenderField ? 'GENDER' : 'global'})`);
+                    // Multiple skip attempts with different delays for reliability
+                    setTimeout(() => this.nextQuestion(), 50);
+                    setTimeout(() => {
+                        if (this.currentStep === stepIndex) {
+                            console.log(`⏭️ ULTRA FIX: Secondary skip attempt for question ${stepIndex}`);
+                            this.nextQuestion();
+                        }
+                    }, 200);
+                    return;
+                }
+            }
+
+            // Focus first input in the question (only if not skipped)
             const firstInput = this.questions[stepIndex].querySelector('input, select, textarea');
             if (firstInput && !firstInput.readOnly && !firstInput.disabled) {
                 setTimeout(() => firstInput.focus(), 100);
@@ -513,6 +764,165 @@ class ENNUAssessmentForm {
         }
     }
     
+    createProgressModal(isLoggedIn = false) {
+        // Create modal container
+        const modal = document.createElement('div');
+        modal.className = 'ennu-progress-modal';
+        
+        // Different content based on user login status
+        const headerTitle = isLoggedIn 
+            ? "Processing Your Assessment" 
+            : "Creating Your Personalized Health Profile";
+        
+        const step1Title = isLoggedIn 
+            ? "Validating Your Responses" 
+            : "Creating Your Account";
+        
+        const step1Subtitle = isLoggedIn 
+            ? "Reviewing your assessment data" 
+            : "Setting up your secure health profile";
+        
+        modal.innerHTML = `
+            <div class="ennu-progress-overlay"></div>
+            <div class="ennu-progress-content">
+                <div class="progress-logo">
+                    <img src="${ennu_ajax.plugin_url}/assets/img/ennu-logo-black.png" alt="ENNU Life" />
+                </div>
+                <div class="progress-header">
+                    <h2>${headerTitle}</h2>
+                    <p class="progress-subtitle">Please wait while we prepare your results...</p>
+                </div>
+                
+                <div class="progress-steps">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-icon">
+                            <svg class="step-spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                            <svg class="step-check" style="display:none;" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="step-text">
+                            <h3>${step1Title}</h3>
+                            <p>${step1Subtitle}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="2">
+                        <div class="step-icon">
+                            <svg class="step-spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                            <svg class="step-check" style="display:none;" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="step-text">
+                            <h3>Saving Your Responses</h3>
+                            <p>Securely storing your assessment data</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="3">
+                        <div class="step-icon">
+                            <svg class="step-spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                            <svg class="step-check" style="display:none;" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="step-text">
+                            <h3>Calculating Your Scores</h3>
+                            <p>Analyzing your health metrics</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-step" data-step="4">
+                        <div class="step-icon">
+                            <svg class="step-spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                            <svg class="step-check" style="display:none;" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="step-text">
+                            <h3>Preparing Your Results</h3>
+                            <p>Generating personalized recommendations</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="progress-footer">
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="progress-message">This usually takes 5-10 seconds...</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Force layout and add active class for animation
+        modal.offsetHeight;
+        modal.classList.add('active');
+        
+        return modal;
+    }
+    
+    updateProgressModal(modal, step) {
+        const steps = modal.querySelectorAll('.progress-step');
+        const progressBar = modal.querySelector('.progress-bar-fill');
+        const progressMessage = modal.querySelector('.progress-message');
+        
+        // Update step states
+        steps.forEach((stepEl, index) => {
+            const stepNum = index + 1;
+            
+            if (stepNum < step) {
+                // Completed step
+                stepEl.classList.remove('active');
+                stepEl.classList.add('completed');
+                stepEl.querySelector('.step-spinner').style.display = 'none';
+                stepEl.querySelector('.step-check').style.display = 'block';
+            } else if (stepNum === step) {
+                // Current step
+                stepEl.classList.add('active');
+                stepEl.classList.remove('completed');
+                stepEl.querySelector('.step-spinner').style.display = 'block';
+                stepEl.querySelector('.step-check').style.display = 'none';
+            } else {
+                // Future step
+                stepEl.classList.remove('active', 'completed');
+                stepEl.querySelector('.step-spinner').style.display = 'block';
+                stepEl.querySelector('.step-check').style.display = 'none';
+            }
+        });
+        
+        // Update progress bar
+        const progressPercent = ((step - 1) / 4) * 100;
+        progressBar.style.width = progressPercent + '%';
+        
+        // Update message based on step
+        const messages = {
+            1: 'Creating your secure account...',
+            2: 'Saving your assessment responses...',
+            3: 'Analyzing your health data...',
+            4: 'Almost there! Preparing your personalized results...'
+        };
+        progressMessage.textContent = messages[step] || 'Processing...';
+    }
+    
+    removeProgressModal(modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.remove();
+        }, 800); // Increased from 300ms for smoother fade out
+    }
+
     submitForm() {
         
         if (this.isSubmitting || !this.validateCurrentQuestion()) {
@@ -537,6 +947,40 @@ class ENNUAssessmentForm {
         }
         formData.append('nonce', nonce);
 
+        // Check user status for modal display
+        const email = formData.get('email');
+        const userId = formData.get('user_id');
+        const isLoggedIn = Boolean(userId);
+        let progressModal = null;
+        let modalStep = 1;
+        
+        // Show progress modal for all users with appropriate messaging
+        // Always show modal to provide feedback during processing
+        if (email) {
+            progressModal = this.createProgressModal(isLoggedIn);
+            
+            // Simulate progress steps - EXTENDED TIMING for better user experience
+            setTimeout(() => {
+                if (progressModal && modalStep === 1) {
+                    modalStep = 2;
+                    this.updateProgressModal(progressModal, 2);
+                }
+            }, 3000); // Increased from 1500ms to 3000ms (3 seconds)
+            
+            setTimeout(() => {
+                if (progressModal && modalStep === 2) {
+                    modalStep = 3;
+                    this.updateProgressModal(progressModal, 3);
+                }
+            }, 6000); // Increased from 3000ms to 6000ms (6 seconds)
+            
+            setTimeout(() => {
+                if (progressModal && modalStep === 3) {
+                    modalStep = 4;
+                    this.updateProgressModal(progressModal, 4);
+                }
+            }, 9000); // Increased from 4500ms to 9000ms (9 seconds)
+        }
         
         fetch(ennu_ajax.ajax_url, {
             method: 'POST',
@@ -557,30 +1001,116 @@ class ENNUAssessmentForm {
 			if (data && data.success === true) {
                 			if (data.data && data.data.redirect_url && data.data.redirect_url !== false) {
 				
+				// CRITICAL: Clear all localStorage data after successful submission
+				// This prevents data from persisting for the next user on the same device
+				try {
+					// Clear all assessment-related localStorage keys
+					localStorage.removeItem('ennu_assessment_data');
+					localStorage.removeItem('ennu_assessment_progress');
+					localStorage.removeItem('ennu_contact_info_saved');
+					localStorage.removeItem('ennu_global_fields_saved');
+					
+					// Clear any auto-save data with assessment type prefix
+					const assessmentType = this.form.querySelector('input[name="assessment_type"]')?.value;
+					if (assessmentType) {
+						localStorage.removeItem(`ennu_${assessmentType}_progress`);
+						localStorage.removeItem(`ennu_${assessmentType}_data`);
+					}
+					
+					// Clear all keys that start with 'ennu_' to be thorough
+					Object.keys(localStorage).forEach(key => {
+						if (key.startsWith('ennu_') && !key.includes('theme')) {
+							localStorage.removeItem(key);
+						}
+					});
+					
+					console.log('✅ Successfully cleared all assessment data from localStorage');
+				} catch (e) {
+					console.error('Failed to clear localStorage:', e);
+				}
+				
 				// Update auth state if provided
 				if (data.data.auth_state) {
 					this.updateAllFormsAuthState(data.data.auth_state);
 				}
 				
+				// Check if we need to force a hard refresh (for newly registered users)
+				const requiresRefresh = data.data.requires_refresh || data.data.newly_registered;
+				
 				// Single redirect method - no fallbacks
 				const redirectUrl = data.data.redirect_url;
 				
-				if (redirectUrl && redirectUrl !== 'false' && redirectUrl !== false) {
-					window.location.href = redirectUrl;
+				// Complete the progress modal if it exists, then redirect
+				if (progressModal) {
+					// Mark all steps as complete
+					this.updateProgressModal(progressModal, 5); // Beyond last step to show all complete
+					const steps = progressModal.querySelectorAll('.progress-step');
+					steps.forEach(step => {
+						step.classList.add('completed');
+						step.classList.remove('active');
+						step.querySelector('.step-spinner').style.display = 'none';
+						step.querySelector('.step-check').style.display = 'block';
+					});
+					progressModal.querySelector('.progress-bar-fill').style.width = '100%';
+					progressModal.querySelector('.progress-message').textContent = 'Success! Redirecting to your results...';
+					
+					// Wait for user to see success message, then redirect
+					setTimeout(() => {
+						this.removeProgressModal(progressModal);
+						
+						// Perform redirect after modal is closed
+						if (redirectUrl && redirectUrl !== 'false' && redirectUrl !== false) {
+							if (requiresRefresh) {
+								// Force hard refresh to ensure session is recognized
+								window.location.replace(redirectUrl);
+								// Also reload to ensure cache is cleared
+								setTimeout(() => {
+									window.location.reload(true);
+								}, 100);
+							} else {
+								window.location.href = redirectUrl;
+							}
+						} else {
+							this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
+						}
+					}, 1500); // Increased from 1000ms to 1500ms to give user time to see success
 				} else {
-					this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
+					// No modal, redirect immediately
+					if (redirectUrl && redirectUrl !== 'false' && redirectUrl !== false) {
+						if (requiresRefresh) {
+							// Force hard refresh to ensure session is recognized
+							window.location.replace(redirectUrl);
+							// Also reload to ensure cache is cleared
+							setTimeout(() => {
+								window.location.reload(true);
+							}, 100);
+						} else {
+							window.location.href = redirectUrl;
+						}
+					} else {
+						this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
+					}
 				}
 			} else {
+				// Remove modal on error
+				if (progressModal) {
+					this.removeProgressModal(progressModal);
+				}
 				this.showError(this.form, 'Assessment submitted successfully, but no results page is configured. Please contact support.');
 			}
             } else {
+                // Remove progress modal on error
+                if (progressModal) {
+                    this.removeProgressModal(progressModal);
+                }
                 
                 // Handle specific error types
                 if (data && data.data && data.data.action === 'login_required') {
                     const message = data.data.message || 'An account with this email already exists. Please log in to continue.';
+                    const loginUrl = data.data.login_url || '/wp-login.php';
                     
                     // Show login required message with link
-                    this.showLoginRequiredMessage(message);
+                    this.showLoginRequiredMessage(message, loginUrl);
                 } else {
                     const message = data && data.data && data.data.message ? data.data.message : 'An unknown error occurred.';
                     this.showError(this.form, message);
@@ -588,6 +1118,10 @@ class ENNUAssessmentForm {
             }
         })
                         .catch(error => {
+                    // Remove progress modal on error
+                    if (progressModal) {
+                        this.removeProgressModal(progressModal);
+                    }
                     this.showError(this.form, 'Assessment submission failed. Please try again or contact support if the problem persists.');
                 })
         .finally(() => {
@@ -596,7 +1130,7 @@ class ENNUAssessmentForm {
         });
     }
 
-    showLoginRequiredMessage(message) {
+    showLoginRequiredMessage(message, loginUrl = '/wp-login.php') {
         // Remove form and show login required message
         this.form.style.display = 'none';
         let loginDiv = document.createElement('div');
@@ -607,10 +1141,9 @@ class ENNUAssessmentForm {
             <h2>Account Already Exists</h2>
             <div class="login-message">${message}</div>
             <div class="login-actions">
-                <a href="/wp-login.php" class="btn btn-primary">Log In</a>
-                <a href="/wp-login.php?action=register" class="btn btn-secondary">Create New Account</a>
+                <a href="${loginUrl}" class="btn btn-primary">Log In</a>
             </div>
-            <p><small>If you don't remember your password, you can <a href="/wp-login.php?action=lostpassword">reset it here</a>.</small></p>
+            <p><small>If you don't remember your password, you can <a href="${loginUrl}?action=lostpassword">reset it here</a>.</small></p>
         `;
         this.form.parentNode.insertBefore(loginDiv, this.form.nextSibling);
     }

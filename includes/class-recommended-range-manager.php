@@ -222,7 +222,7 @@ class ENNU_Recommended_Range_Manager {
 		foreach ( $all_ranges as $biomarker_name => $ai_data ) {
 			// Enhanced safety check for ai_data structure
 			if ( ! is_array( $ai_data ) ) {
-				error_log( "ENNU Recommended Range Manager: Invalid ai_data for {$biomarker_name}: not an array" );
+				// REMOVED: error_log( "ENNU Recommended Range Manager: Invalid ai_data for {$biomarker_name}: not an array" );
 				continue;
 			}
 
@@ -231,7 +231,7 @@ class ENNU_Recommended_Range_Manager {
 				 ! array_key_exists( 'unit', $ai_data ) || 
 				 ! array_key_exists( 'description', $ai_data ) || 
 				 ! array_key_exists( 'ranges', $ai_data ) ) {
-				error_log( "ENNU Recommended Range Manager: Missing required fields for {$biomarker_name}" );
+				// REMOVED: error_log( "ENNU Recommended Range Manager: Missing required fields for {$biomarker_name}" );
 				continue;
 			}
 
@@ -266,7 +266,7 @@ class ENNU_Recommended_Range_Manager {
 		$full_path = plugin_dir_path( __FILE__ ) . $file_path;
 		
 		if ( ! file_exists( $full_path ) ) {
-			error_log( "ENNU Recommended Range Manager: File not found: {$full_path}" );
+			// REMOVED: error_log( "ENNU Recommended Range Manager: File not found: {$full_path}" );
 			return array();
 		}
 
@@ -274,13 +274,13 @@ class ENNU_Recommended_Range_Manager {
 			$data = include( $full_path );
 			
 			if ( ! is_array( $data ) ) {
-				error_log( "ENNU Recommended Range Manager: File does not return array: {$full_path}" );
+				// REMOVED: error_log( "ENNU Recommended Range Manager: File does not return array: {$full_path}" );
 				return array();
 			}
 			
 			return $data;
 		} catch ( Exception $e ) {
-			error_log( "ENNU Recommended Range Manager: Error including file {$full_path}: " . $e->getMessage() );
+			// REMOVED: error_log( "ENNU Recommended Range Manager: Error including file {$full_path}: " . $e->getMessage() );
 			return array();
 		}
 	}
@@ -553,7 +553,7 @@ class ENNU_Recommended_Range_Manager {
 		}
 		
 		$biomarker_text = !empty($biomarker) ? "biomarker '{$biomarker}'" : 'all biomarkers';
-		error_log("ENNU Recommended Range Manager: Synchronized {$biomarker_text} data for " . count($users) . " users");
+		// REMOVED: error_log("ENNU Recommended Range Manager: Synchronized {$biomarker_text} data for " . count($users) . " users");
 	}
 	
 	/**

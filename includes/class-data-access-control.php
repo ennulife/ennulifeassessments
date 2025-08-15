@@ -135,7 +135,7 @@ class ENNU_Data_Access_Control {
 			'ip_address'       => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
 		);
 
-		error_log( 'ENNU Data Access: ' . wp_json_encode( $log_entry ) );
+		// REMOVED: error_log( 'ENNU Data Access: ' . wp_json_encode( $log_entry ) );
 
 		do_action( 'ennu_data_access_logged', $log_entry );
 	}

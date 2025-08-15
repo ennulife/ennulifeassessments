@@ -23,11 +23,11 @@ class ENNU_Health_Optimization_Calculator {
 		$this->user_id         = $user_id;
 		$this->all_definitions = $all_definitions;
 		$this->mappings        = $this->get_health_optimization_mappings();
-		error_log( "HealthOptimizationCalculator: Instantiated for user ID {$user_id}." );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "HealthOptimizationCalculator: Instantiated for user ID {$user_id}." );
 	}
 
 	public function calculate_pillar_penalties() {
-		error_log( 'HealthOptimizationCalculator: Starting pillar penalty calculation.' );
+		// REMOVED: error_log( 'HealthOptimizationCalculator: Starting pillar penalty calculation.' );
 		$triggered_vectors = $this->get_triggered_vectors();
 		$penalty_matrix    = $this->mappings['pillar_integrity_penalty_matrix'] ?? array();
 
@@ -39,7 +39,7 @@ class ENNU_Health_Optimization_Calculator {
 		);
 
 		foreach ( $triggered_vectors as $vector => $vector_data ) {
-			error_log( "HealthOptimizationCalculator: Processing triggered vector '{$vector}'." );
+			// REMOVED: error_log( "HealthOptimizationCalculator: Processing triggered vector '{$vector}'." );
 			if ( isset( $penalty_matrix[ $vector ] ) ) {
 				$vector_config = $penalty_matrix[ $vector ];
 				$pillar_impact = $vector_config['pillar_impact'];
@@ -75,21 +75,21 @@ class ENNU_Health_Optimization_Calculator {
 
 					$trigger_score_multiplier = min( 1.5, 1 + ( $vector_data['score'] - 1 ) * 0.1 );
 					$final_penalty            = $base_penalty * $trigger_score_multiplier;
-					error_log( "HealthOptimizationCalculator: Vector '{$vector}' produced a final penalty of {$final_penalty} for pillar '{$pillar_impact}'." );
+					// REMOVED: error_log( "HealthOptimizationCalculator: Vector '{$vector}' produced a final penalty of {$final_penalty} for pillar '{$pillar_impact}'." );
 
 					if ( $final_penalty > $pillar_penalties[ $pillar_impact ] ) {
 						$pillar_penalties[ $pillar_impact ] = $final_penalty;
-						error_log( "HealthOptimizationCalculator: New max penalty for pillar '{$pillar_impact}' is {$final_penalty}." );
+						// REMOVED: error_log( "HealthOptimizationCalculator: New max penalty for pillar '{$pillar_impact}' is {$final_penalty}." );
 					}
 				}
 			}
 		}
-		error_log( 'HealthOptimizationCalculator: Final pillar penalties: ' . print_r( $pillar_penalties, true ) );
+		// REMOVED: error_log( 'HealthOptimizationCalculator: Final pillar penalties: ' . print_r( $pillar_penalties, true ) );
 		return $pillar_penalties;
 	}
 
 	public function get_biomarker_recommendations() {
-		error_log( 'HealthOptimizationCalculator: Starting biomarker recommendation.' );
+		// REMOVED: error_log( 'HealthOptimizationCalculator: Starting biomarker recommendation.' );
 		$triggered_vectors = $this->get_triggered_vectors();
 		$biomarker_map     = $this->mappings['vector_to_biomarker_map'] ?? array();
 
@@ -97,12 +97,12 @@ class ENNU_Health_Optimization_Calculator {
 		foreach ( $triggered_vectors as $vector => $data ) {
 			if ( isset( $biomarker_map[ $vector ] ) ) {
 				$recommended_biomarkers = array_merge( $recommended_biomarkers, $biomarker_map[ $vector ] );
-				error_log( "HealthOptimizationCalculator: Vector '{$vector}' recommends biomarkers: " . implode( ', ', $biomarker_map[ $vector ] ) );
+				// REMOVED: error_log( "HealthOptimizationCalculator: Vector '{$vector}' recommends biomarkers: " . implode( ', ', $biomarker_map[ $vector ] ) );
 			}
 		}
 
 		$final_recommendations = array_unique( $recommended_biomarkers );
-		error_log( 'HealthOptimizationCalculator: Final unique biomarker recommendations: ' . print_r( $final_recommendations, true ) );
+		// REMOVED: error_log( 'HealthOptimizationCalculator: Final unique biomarker recommendations: ' . print_r( $final_recommendations, true ) );
 		return $final_recommendations;
 	}
 

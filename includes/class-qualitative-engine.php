@@ -24,7 +24,6 @@ class ENNU_Qualitative_Engine {
 		$this->load_configuration();
 		$this->penalty_log = array();
 
-		error_log( 'ENNU Qualitative Engine: Initialized with ' . count( $this->user_symptoms ) . ' symptoms' );
 	}
 
 	private function load_configuration() {
@@ -37,7 +36,6 @@ class ENNU_Qualitative_Engine {
 
 	public function apply_pillar_integrity_penalties( $base_pillar_scores ) {
 		if ( empty( $this->user_symptoms ) || empty( $this->symptom_map ) || empty( $this->penalty_matrix ) ) {
-			error_log( 'ENNU Qualitative Engine: No symptoms, symptom map, or penalty matrix available' );
 			return $base_pillar_scores;
 		}
 
@@ -58,7 +56,6 @@ class ENNU_Qualitative_Engine {
 					'triggered_categories' => $triggered_categories[ $pillar ] ?? array(),
 				);
 
-				error_log( "ENNU Qualitative Engine: Applied {$penalty_multiplier}% penalty to {$pillar} pillar ({$original_score} -> {$penalized_scores[$pillar]})" );
 			}
 		}
 

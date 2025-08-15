@@ -64,7 +64,7 @@ class ENNU_Template_Security {
 		}
 
 		if ( ! empty( $missing_vars ) ) {
-			error_log( 'ENNU Template Security: Missing required variables: ' . implode( ', ', $missing_vars ) );
+			// REMOVED: error_log( 'ENNU Template Security: Missing required variables: ' . implode( ', ', $missing_vars ) );
 			return false;
 		}
 

@@ -61,11 +61,23 @@ class ENNU_Score_Presentation_Shortcode extends ENNU_Base_Shortcode {
 			true
 		);
 
-		wp_enqueue_style(
-			'ennu-score-presentation',
-			ENNU_LIFE_PLUGIN_URL . 'assets/css/score-presentation.css',
+		// Enqueue LiquidGlass orb animations JavaScript with cache busting
+		wp_enqueue_script(
+			'ennu-liquidglass-orbs',
+			ENNU_LIFE_PLUGIN_URL . 'assets/js/liquidglass-orbs.js',
 			array(),
-			'62.2.8'
+			'64.55.0.' . time(),
+			true
+		);
+
+		// DISABLED OLD CSS: wp_enqueue_style('ennu-score-presentation', ...)
+		
+		// Enqueue ONLY LiquidGlass orb design CSS with cache busting
+		wp_enqueue_style(
+			'ennu-liquidglass-orbs',
+			ENNU_LIFE_PLUGIN_URL . 'assets/css/liquidglass-orbs.css',
+			array(),
+			'64.55.0.' . time()
 		);
 
 		// Localize script with AJAX data

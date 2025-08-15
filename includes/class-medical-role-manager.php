@@ -22,7 +22,7 @@ class ENNU_Medical_Role_Manager {
 		add_action( 'wp_ajax_ennu_remove_medical_role', array( __CLASS__, 'handle_remove_medical_role' ) );
 		add_action( 'wp_ajax_ennu_get_medical_staff', array( __CLASS__, 'handle_get_medical_staff' ) );
 
-		error_log( 'ENNU Medical Role Manager: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Medical Role Manager: Initialized' );
 	}
 
 	/**

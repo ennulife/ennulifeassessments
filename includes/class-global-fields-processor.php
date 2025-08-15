@@ -98,7 +98,7 @@ class ENNU_Global_Fields_Processor {
                     $global_fields_updated = true;
                     
                     // Log the update
-                    error_log( "ENNU Global Fields: Updated {$global_field_key} for user {$user_id} with value: " . print_r( $processed_value, true ) );
+                    // REMOVED: error_log( "ENNU Global Fields: Updated {$global_field_key} for user {$user_id} with value: " . print_r( $processed_value, true ) );
                 }
             }
         }
@@ -171,7 +171,7 @@ class ENNU_Global_Fields_Processor {
                             $global_fields_updated = true;
                             
                             // Log the update
-                            error_log( "ENNU Global Fields: Updated {$meta_key} for user {$user_id} from assessment {$assessment_type} with value: " . print_r( $value_to_save, true ) );
+                            // REMOVED: error_log( "ENNU Global Fields: Updated {$meta_key} for user {$user_id} from assessment {$assessment_type} with value: " . print_r( $value_to_save, true ) );
                         }
                     }
                 }
@@ -189,7 +189,7 @@ class ENNU_Global_Fields_Processor {
             $global_fields_updated = true;
             
             // Log the update
-            error_log( "ENNU Global Fields: Updated ennu_global_height_weight for user {$user_id} with value: " . print_r( $height_weight, true ) );
+            // REMOVED: error_log( "ENNU Global Fields: Updated ennu_global_height_weight for user {$user_id} with value: " . print_r( $height_weight, true ) );
         }
         
         return $global_fields_updated;
@@ -418,7 +418,7 @@ class ENNU_Global_Fields_Processor {
         update_user_meta( $user_id, 'ennu_user_dashboard_data', $dashboard_data );
         
         // Log the dashboard refresh
-        error_log( "ENNU Global Fields: Refreshed dashboard data for user {$user_id}" );
+        // REMOVED: error_log( "ENNU Global Fields: Refreshed dashboard data for user {$user_id}" );
         
         // Trigger action for other systems
         do_action( 'ennu_global_fields_updated', $user_id, $dashboard_data );

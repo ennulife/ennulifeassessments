@@ -1,0 +1,310 @@
+<?php
+/**
+ * Template for Peptide Therapy Assessment
+ * 
+ * This template follows the standard ENNU assessment format
+ * 
+ * @package ENNU_Life_Assessments
+ * @version 1.0.0
+ */
+
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Available variables from parent context:
+// $assessment_type, $config, $atts, $current_user_data
+
+$questions = $config['questions'] ?? array();
+$assessment_title = $config['title'] ?? 'Peptide Therapy Assessment';
+$assessment_description = $config['description'] ?? 'Discover your personalized peptide therapy recommendations';
+?>
+
+<div class="ennu-assessment-wrapper peptide-therapy-assessment" data-assessment-type="peptide-therapy">
+	<div class="assessment-container">
+		
+		<!-- Assessment Header -->
+		<div class="assessment-header">
+			<h1 class="assessment-title"><?php echo esc_html( $assessment_title ); ?></h1>
+			<p class="assessment-description"><?php echo esc_html( $assessment_description ); ?></p>
+		</div>
+
+		<!-- Progress Bar -->
+		<div class="assessment-progress-wrapper">
+			<div class="progress-bar">
+				<div class="progress-fill" style="width: 0%;"></div>
+			</div>
+			<div class="progress-text">
+				<span class="current-question">0</span> of <span class="total-questions"><?php echo count( $questions ); ?></span> questions
+			</div>
+		</div>
+
+		<!-- Assessment Form -->
+		<form id="ennu-assessment-form" class="assessment-form" method="post">
+			<?php wp_nonce_field( 'ennu_assessment_nonce', 'assessment_nonce' ); ?>
+			<input type="hidden" name="assessment_type" value="peptide-therapy">
+			<input type="hidden" name="action" value="ennu_submit_assessment">
+			
+			<!-- Questions Container -->
+			<div class="questions-container">
+				<?php 
+				$question_index = 0;
+				foreach ( $questions as $question_id => $question ) : 
+					$question_index++;
+				?>
+				<div class="question-wrapper" data-question="<?php echo $question_index; ?>" style="display: <?php echo $question_index === 1 ? 'block' : 'none'; ?>;">
+					
+					<div class="question-header">
+						<span class="question-number">Question <?php echo $question_index; ?></span>
+						<?php if ( isset( $question['category'] ) ) : ?>
+							<span class="question-category"><?php echo esc_html( $question['category'] ); ?></span>
+						<?php endif; ?>
+					</div>
+					
+					<h3 class="question-title"><?php echo esc_html( $question['title'] ); ?></h3>
+					
+					<?php if ( isset( $question['description'] ) ) : ?>
+						<p class="question-description"><?php echo esc_html( $question['description'] ); ?></p>
+					<?php endif; ?>
+					
+					<div class="question-options">
+						<?php if ( $question['type'] === 'radio' ) : ?>
+							<?php foreach ( $question['options'] as $value => $label ) : ?>
+							<label class="option-label radio-option">
+								<input type="radio" 
+									   name="<?php echo esc_attr( $question_id ); ?>" 
+									   value="<?php echo esc_attr( $value ); ?>"
+									   class="assessment-input"
+									   data-question-type="radio">
+								<span class="option-text"><?php echo esc_html( $label ); ?></span>
+							</label>
+							<?php endforeach; ?>
+							
+						<?php elseif ( $question['type'] === 'checkbox' ) : ?>
+							<?php foreach ( $question['options'] as $value => $label ) : ?>
+							<label class="option-label checkbox-option">
+								<input type="checkbox" 
+									   name="<?php echo esc_attr( $question_id ); ?>[]" 
+									   value="<?php echo esc_attr( $value ); ?>"
+									   class="assessment-input"
+									   data-question-type="checkbox">
+								<span class="option-text"><?php echo esc_html( $label ); ?></span>
+							</label>
+							<?php endforeach; ?>
+							
+						<?php elseif ( $question['type'] === 'select' ) : ?>
+							<select name="<?php echo esc_attr( $question_id ); ?>" class="assessment-input assessment-select">
+								<option value="">Select an option</option>
+								<?php foreach ( $question['options'] as $value => $label ) : ?>
+								<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							
+						<?php elseif ( $question['type'] === 'text' ) : ?>
+							<input type="text" 
+								   name="<?php echo esc_attr( $question_id ); ?>" 
+								   class="assessment-input assessment-text"
+								   placeholder="<?php echo esc_attr( $question['placeholder'] ?? 'Enter your answer' ); ?>">
+								   
+						<?php elseif ( $question['type'] === 'textarea' ) : ?>
+							<textarea name="<?php echo esc_attr( $question_id ); ?>" 
+									  class="assessment-input assessment-textarea"
+									  rows="4"
+									  placeholder="<?php echo esc_attr( $question['placeholder'] ?? 'Enter your answer' ); ?>"></textarea>
+						<?php endif; ?>
+					</div>
+				</div>
+				<?php endforeach; ?>
+			</div>
+			
+			<!-- Navigation Buttons -->
+			<div class="assessment-navigation">
+				<button type="button" class="btn-previous" style="display: none;">
+					<span>Previous</span>
+				</button>
+				<button type="button" class="btn-next">
+					<span>Next</span>
+				</button>
+				<button type="submit" class="btn-submit" style="display: none;">
+					<span>Complete Assessment</span>
+				</button>
+			</div>
+		</form>
+		
+		<!-- Loading State -->
+		<div class="assessment-loading" style="display: none;">
+			<div class="loading-spinner"></div>
+			<p>Processing your assessment...</p>
+		</div>
+		
+		<!-- Error Message -->
+		<div class="assessment-error" style="display: none;">
+			<p class="error-message"></p>
+		</div>
+	</div>
+</div>
+
+<style>
+/* Use existing ENNU assessment styles */
+.peptide-therapy-assessment {
+	/* Custom styles specific to peptide therapy if needed */
+}
+
+.peptide-therapy-assessment .assessment-header {
+	background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+	color: white;
+	padding: 2rem;
+	border-radius: 10px 10px 0 0;
+	margin-bottom: 2rem;
+}
+
+.peptide-therapy-assessment .progress-fill {
+	background: linear-gradient(90deg, #3498db, #2ecc71);
+}
+
+.peptide-therapy-assessment .question-category {
+	background: #3498db;
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 15px;
+	font-size: 0.85rem;
+	margin-left: 1rem;
+}
+
+.peptide-therapy-assessment .radio-option:hover,
+.peptide-therapy-assessment .checkbox-option:hover {
+	border-color: #3498db;
+	background-color: rgba(52, 152, 219, 0.05);
+}
+
+.peptide-therapy-assessment input[type="radio"]:checked + .option-text,
+.peptide-therapy-assessment input[type="checkbox"]:checked + .option-text {
+	color: #3498db;
+	font-weight: 600;
+}
+
+.peptide-therapy-assessment .btn-next,
+.peptide-therapy-assessment .btn-submit {
+	background: #3498db;
+}
+
+.peptide-therapy-assessment .btn-next:hover,
+.peptide-therapy-assessment .btn-submit:hover {
+	background: #2980b9;
+}
+</style>
+
+<script>
+jQuery(document).ready(function($) {
+	// Use the standard ENNU assessment JavaScript
+	var currentQuestion = 1;
+	var totalQuestions = <?php echo count( $questions ); ?>;
+	var assessmentForm = $('#ennu-assessment-form');
+	
+	// Update progress
+	function updateProgress() {
+		var progress = (currentQuestion / totalQuestions) * 100;
+		$('.progress-fill').css('width', progress + '%');
+		$('.current-question').text(currentQuestion);
+	}
+	
+	// Show question
+	function showQuestion(num) {
+		$('.question-wrapper').hide();
+		$('.question-wrapper[data-question="' + num + '"]').fadeIn();
+		
+		// Update navigation buttons
+		if (num === 1) {
+			$('.btn-previous').hide();
+		} else {
+			$('.btn-previous').show();
+		}
+		
+		if (num === totalQuestions) {
+			$('.btn-next').hide();
+			$('.btn-submit').show();
+		} else {
+			$('.btn-next').show();
+			$('.btn-submit').hide();
+		}
+		
+		updateProgress();
+	}
+	
+	// Next button
+	$('.btn-next').click(function() {
+		var currentWrapper = $('.question-wrapper[data-question="' + currentQuestion + '"]');
+		var hasAnswer = false;
+		
+		// Check if question is answered
+		currentWrapper.find('input[type="radio"], input[type="checkbox"]').each(function() {
+			if ($(this).is(':checked')) {
+				hasAnswer = true;
+			}
+		});
+		
+		currentWrapper.find('input[type="text"], textarea, select').each(function() {
+			if ($(this).val()) {
+				hasAnswer = true;
+			}
+		});
+		
+		if (!hasAnswer) {
+			alert('Please answer the current question before proceeding.');
+			return;
+		}
+		
+		if (currentQuestion < totalQuestions) {
+			currentQuestion++;
+			showQuestion(currentQuestion);
+		}
+	});
+	
+	// Previous button
+	$('.btn-previous').click(function() {
+		if (currentQuestion > 1) {
+			currentQuestion--;
+			showQuestion(currentQuestion);
+		}
+	});
+	
+	// Form submission
+	assessmentForm.submit(function(e) {
+		e.preventDefault();
+		
+		// Show loading state
+		$('.assessment-form').hide();
+		$('.assessment-loading').show();
+		
+		// Submit via AJAX
+		$.ajax({
+			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+			type: 'POST',
+			data: assessmentForm.serialize(),
+			success: function(response) {
+				if (response.success) {
+					// Redirect to results page
+					if (response.data.redirect_url) {
+						window.location.href = response.data.redirect_url;
+					} else {
+						window.location.href = '/dashboard#peptide-therapy';
+					}
+				} else {
+					$('.assessment-loading').hide();
+					$('.assessment-error').show();
+					$('.error-message').text(response.data.message || 'An error occurred. Please try again.');
+				}
+			},
+			error: function() {
+				$('.assessment-loading').hide();
+				$('.assessment-error').show();
+				$('.error-message').text('An error occurred. Please try again.');
+			}
+		});
+	});
+	
+	// Initialize
+	showQuestion(1);
+});
+</script>

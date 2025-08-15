@@ -29,6 +29,43 @@
                 "depression",
                 "insomnia"
             ]
+        },
+        "peptide_therapy": {
+            "name": "Peptide Therapy Assessment",
+            "description": "Comprehensive evaluation for personalized peptide therapy recommendations",
+            "biomarkers": [
+                "testosterone",
+                "growth_hormone",
+                "igf1",
+                "cortisol",
+                "tsh",
+                "lh",
+                "fsh",
+                "glucose",
+                "hba1c",
+                "crp"
+            ],
+            "symptoms": [
+                "fatigue",
+                "muscle_soreness",
+                "joint_pain",
+                "low_libido",
+                "brain_fog",
+                "poor_recovery",
+                "weight_gain"
+            ],
+            "peptide_recommendations": {
+                "weight_management": ["AOD-9604", "Tirzepatide"],
+                "recovery_healing": ["BPC-157", "TB-500"],
+                "hormonal_balance": ["CJC-1295", "Gonadorelin", "HCG"],
+                "cognitive_enhancement": ["NAD+", "Semax", "Selank"],
+                "sexual_health": ["PT-141", "Kisspeptin"],
+                "anti_aging": ["NAD+", "Epithalon", "GHK-Cu"],
+                "energy_vitality": ["NAD+", "MOTS-c"],
+                "sleep_quality": ["CJC-1295", "Ipamorelin", "DSIP"],
+                "athletic_performance": ["BPC-157", "Ipamorelin", "CJC-1295"],
+                "metabolic_health": ["Tesamorelin", "AOD-9604", "Tirzepatide"]
+            }
         }
     },
     "types": {

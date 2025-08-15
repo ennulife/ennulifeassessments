@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Charts Debug Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { padding: 20px; font-family: Arial; }
+        .test-container { 
+            width: 300px; 
+            height: 60px; 
+            border: 1px solid #ccc; 
+            margin: 20px;
+            background: white;
+        }
+        .pillar-mini-chart {
+            width: 100%;
+            height: 100%;
+        }
+        h2 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Testing Mini Chart Rendering</h1>
+    
+    <h2>Test Container</h2>
+    <div class="test-container">
+        <div class="pillar-mini-chart" id="test-chart"></div>
+    </div>
+    
+    <h2>Console Output:</h2>
+    <pre id="output"></pre>
+
+<script>
+$(document).ready(function() {
+    const output = [];
+    
+    // Mock the renderMiniChart function
+    function renderMiniChart($container, scores, targetScore, type) {
+        output.push(`renderMiniChart called for type: ${type}`);
+        output.push(`Container exists: ${$container.length > 0}`);
+        output.push(`Container width: ${$container.width()}`);
+        output.push(`Scores: ${JSON.stringify(scores)}`);
+        
+        const width = $container.width() || 280;
+        const height = $container.height() || 50;
+        const padding = 5;
+        
+        output.push(`Chart dimensions: ${width}x${height}`);
+        
+        // Create SVG
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", width);
+        svg.setAttribute("height", height);
+        
+        // Create simple path
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 10 30 L 100 20 L 200 25 L 280 15");
+        path.setAttribute("stroke", "#6b7280");
+        path.setAttribute("stroke-width", "2");
+        path.setAttribute("fill", "none");
+        svg.appendChild(path);
+        
+        output.push(`Path added to SVG`);
+        
+        // Add dots
+        const points = [[10, 30], [100, 20], [200, 25], [280, 15]];
+        points.forEach(([x, y]) => {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", "3");
+            circle.setAttribute("fill", "#6b7280");
+            svg.appendChild(circle);
+        });
+        
+        output.push(`${points.length} dots added`);
+        
+        // Clear and append
+        $container.empty().append(svg);
+        output.push(`SVG appended to container`);
+        output.push(`Container now has ${$container.children().length} children`);
+    }
+    
+    // Test the function
+    const $testChart = $('#test-chart');
+    const testScores = [
+        {value: 7.2, date: 'Jan 1'},
+        {value: 7.5, date: 'Jan 15'},
+        {value: 7.8, date: 'Feb 1'}
+    ];
+    
+    renderMiniChart($testChart, testScores, 8.5, 'test');
+    
+    // Display output
+    $('#output').text(output.join('\n'));
+});
+</script>
+
+</body>
+</html>

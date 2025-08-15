@@ -61,6 +61,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone' => array('title' => 'Testosterone Assessment'),
 			'menopause' => array('title' => 'Menopause Assessment'),
 			'sleep' => array('title' => 'Sleep Quality Assessment'),
+			'peptide-therapy' => array('title' => 'Peptide Therapy Assessment'),
 		);
 		$assessment_keys = array_keys( $all_definitions );
 
@@ -190,6 +191,13 @@ class ENNU_Enhanced_Admin {
 				'details'    => 'Weight Loss Solutions | Medical Weight Management Options | ENNU Life',
 				'booking'    => 'Weight Loss Consultation | Medical Weight Management | ENNU Life',
 			),
+			'peptide-therapy'     => array(
+				'main'       => 'Peptide Therapy Assessment | Personalized Peptide Treatment Evaluation | ENNU Life',
+				'menu_label' => 'Peptide Therapy',
+				'results'    => 'Peptide Therapy Assessment Results | Custom Peptide Protocol Analysis | ENNU Life',
+				'details'    => 'Peptide Therapy Solutions | Advanced Peptide Treatment Options | ENNU Life',
+				'booking'    => 'Peptide Therapy Consultation | Peptide Medicine Specialists | ENNU Life',
+			),
 		);
 
 		// Assessment Form Pages (children of /assessments/)
@@ -277,12 +285,12 @@ class ENNU_Enhanced_Admin {
 		foreach ( $sorted_pages as $slug => $page_data ) {
 			// Validate page data before creation
 			if ( empty( $page_data['title'] ) ) {
-				error_log( 'ENNU Page Creation: Missing title for slug: ' . $slug );
+				// REMOVED: error_log( 'ENNU Page Creation: Missing title for slug: ' . $slug );
 				continue;
 			}
 
 			if ( empty( $page_data['content'] ) ) {
-				error_log( 'ENNU Page Creation: Missing content for slug: ' . $slug );
+				// REMOVED: error_log( 'ENNU Page Creation: Missing content for slug: ' . $slug );
 				continue;
 			}
 
@@ -339,9 +347,9 @@ class ENNU_Enhanced_Admin {
 							update_post_meta( $page_id, '_ennu_menu_label', $page_data['menu_label'] );
 						}
 
-						error_log( 'ENNU Page Creation: Successfully created page "' . $page_data['title'] . '" with ID ' . $page_id );
+						// REMOVED: error_log( 'ENNU Page Creation: Successfully created page "' . $page_data['title'] . '" with ID ' . $page_id );
 					} else {
-						error_log( 'ENNU Page Creation: Failed to create page "' . $page_data['title'] . '" for slug: ' . $slug );
+						// REMOVED: error_log( 'ENNU Page Creation: Failed to create page "' . $page_data['title'] . '" for slug: ' . $slug );
 					}
 				}
 			} else {
@@ -498,12 +506,12 @@ class ENNU_Enhanced_Admin {
 					if ( empty( $page_mappings[ $mapping_key ] ) ) {
 						$page_mappings[ $mapping_key ] = $page->ID;
 						$updated = true;
-						error_log( "ENNU Auto-Detect: Found page '{$page->post_title}' (ID: {$page->ID}) with shortcode '{$shortcode}' - mapped to '{$mapping_key}'" );
+						// REMOVED: error_log( "ENNU Auto-Detect: Found page '{$page->post_title}' (ID: {$page->ID}) with shortcode '{$shortcode}' - mapped to '{$mapping_key}'" );
 					} else {
 						// Already mapped, but log if it's a different page
 						$existing_page_id = $page_mappings[ $mapping_key ];
 						if ( $existing_page_id != $page->ID ) {
-							error_log( "ENNU Auto-Detect: Warning - shortcode '{$shortcode}' found on page '{$page->post_title}' (ID: {$page->ID}) but '{$mapping_key}' is already mapped to page ID {$existing_page_id}" );
+							// REMOVED: error_log( "ENNU Auto-Detect: Warning - shortcode '{$shortcode}' found on page '{$page->post_title}' (ID: {$page->ID}) but '{$mapping_key}' is already mapped to page ID {$existing_page_id}" );
 						}
 					}
 				}
@@ -528,6 +536,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone_assessment_page_id' => array( 'title' => 'Testosterone Assessment', 'shortcode' => '[ennu-testosterone]' ),
 			'menopause_assessment_page_id' => array( 'title' => 'Menopause Assessment', 'shortcode' => '[ennu-menopause]' ),
 			'sleep_assessment_page_id' => array( 'title' => 'Sleep Assessment', 'shortcode' => '[ennu-sleep]' ),
+			'peptide-therapy_assessment_page_id' => array( 'title' => 'Peptide Therapy Assessment', 'shortcode' => '[ennu-peptide-therapy]' ),
 			// Results pages - SIMPLE FORMAT
 			'hair_results_page_id' => array( 'title' => 'Hair Loss Assessment Results', 'shortcode' => '[ennu-hair-results]' ),
 			'ed-treatment_results_page_id' => array( 'title' => 'ED Treatment Assessment Results', 'shortcode' => '[ennu-ed-treatment-results]' ),
@@ -539,6 +548,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone_results_page_id' => array( 'title' => 'Testosterone Assessment Results', 'shortcode' => '[ennu-testosterone-results]' ),
 			'menopause_results_page_id' => array( 'title' => 'Menopause Assessment Results', 'shortcode' => '[ennu-menopause-results]' ),
 			'sleep_results_page_id' => array( 'title' => 'Sleep Assessment Results', 'shortcode' => '[ennu-sleep-results]' ),
+			'peptide-therapy_results_page_id' => array( 'title' => 'Peptide Therapy Assessment Results', 'shortcode' => '[ennu-peptide-therapy-results]' ),
 			// Details pages - SIMPLE FORMAT
 			'hair_details_page_id' => array( 'title' => 'Hair Loss Treatment Details', 'shortcode' => '[ennu-hair-assessment-details]' ),
 			'ed-treatment_details_page_id' => array( 'title' => 'ED Treatment Details', 'shortcode' => '[ennu-ed-treatment-assessment-details]' ),
@@ -550,6 +560,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone_details_page_id' => array( 'title' => 'Testosterone Treatment Details', 'shortcode' => '[ennu-testosterone-assessment-details]' ),
 			'menopause_details_page_id' => array( 'title' => 'Menopause Treatment Details', 'shortcode' => '[ennu-menopause-assessment-details]' ),
 			'sleep_details_page_id' => array( 'title' => 'Sleep Treatment Details', 'shortcode' => '[ennu-sleep-assessment-details]' ),
+			'peptide-therapy_details_page_id' => array( 'title' => 'Peptide Therapy Details', 'shortcode' => '[ennu-peptide-therapy-assessment-details]' ),
 			// Consultation pages - SIMPLE FORMAT
 			'hair_consultation_page_id' => array( 'title' => 'Hair Loss Consultation', 'shortcode' => '[ennu-hair-consultation]' ),
 			'ed-treatment_consultation_page_id' => array( 'title' => 'ED Treatment Consultation', 'shortcode' => '[ennu-ed-treatment-consultation]' ),
@@ -561,6 +572,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone_consultation_page_id' => array( 'title' => 'Testosterone Consultation', 'shortcode' => '[ennu-testosterone-consultation]' ),
 			'menopause_consultation_page_id' => array( 'title' => 'Menopause Consultation', 'shortcode' => '[ennu-menopause-consultation]' ),
 			'sleep_consultation_page_id' => array( 'title' => 'Sleep Consultation', 'shortcode' => '[ennu-sleep-consultation]' ),
+			'peptide-therapy_consultation_page_id' => array( 'title' => 'Peptide Therapy Consultation', 'shortcode' => '[ennu-peptide-therapy-consultation]' ),
 		);
 		
 		$created_pages = array();
@@ -571,7 +583,7 @@ class ENNU_Enhanced_Admin {
 					$page_mappings[ $path ] = $page_id;
 					$created_pages[ $path ] = $page_id;
 					$updated = true;
-					error_log( "ENNU Auto-Detect: Created missing page for '{$path}' with ID {$page_id}" );
+					// REMOVED: error_log( "ENNU Auto-Detect: Created missing page for '{$path}' with ID {$page_id}" );
 				}
 			}
 		}
@@ -584,7 +596,7 @@ class ENNU_Enhanced_Admin {
 			// CRITICAL FIX: Store created pages for JavaScript to auto-select
 			if ( ! empty( $created_pages ) ) {
 				update_option( 'ennu_auto_select_pages', $created_pages );
-				error_log( "ENNU Auto-Detect: Stored auto-select pages: " . json_encode( $created_pages ) );
+				// REMOVED: error_log( "ENNU Auto-Detect: Stored auto-select pages: " . json_encode( $created_pages ) );
 			}
 			
 			// CRITICAL FIX: Force refresh of page options cache
@@ -595,7 +607,7 @@ class ENNU_Enhanced_Admin {
 		$mapped_count = count( array_filter( $page_mappings ) );
 		$total_count = count( $missing_pages );
 		$created_count = count( $created_pages );
-		error_log( "ENNU Auto-Detect: Complete - {$mapped_count}/{$total_count} pages mapped, {$created_count} pages created" );
+		// REMOVED: error_log( "ENNU Auto-Detect: Complete - {$mapped_count}/{$total_count} pages mapped, {$created_count} pages created" );
 		
 		return array(
 			'updated' => $updated,
@@ -837,7 +849,7 @@ class ENNU_Enhanced_Admin {
 		if ( ! empty( $auto_select_pages ) ) {
 			echo '<script>
 			jQuery(document).ready(function($) {
-				console.log("ENNU Auto-Select: Starting auto-selection for pages:", ' . json_encode( $auto_select_pages ) . ');
+				// REMOVED: console.log("ENNU Auto-Select: Starting auto-selection for pages:", ' . json_encode( $auto_select_pages ) . ');
 				
 				// Auto-select newly created pages
 				var autoSelectPages = ' . json_encode( $auto_select_pages ) . ';
@@ -853,11 +865,11 @@ class ENNU_Enhanced_Admin {
 							dropdown.val(pageId);
 							dropdown.trigger("change");
 							selectedCount++;
-							console.log("ENNU Auto-Select: Selected page " + pageId + " for key " + key);
+							// REMOVED: console.log("ENNU Auto-Select: Selected page " + pageId + " for key " + key);
 						}
 					});
 					
-					console.log("ENNU Auto-Select: Successfully selected " + selectedCount + " pages");
+					// REMOVED: console.log("ENNU Auto-Select: Successfully selected " + selectedCount + " pages");
 					return selectedCount;
 				}
 				
@@ -867,7 +879,7 @@ class ENNU_Enhanced_Admin {
 				// Also try after a short delay to ensure dropdowns are loaded
 				setTimeout(function() {
 					var delayedCount = autoSelectPages();
-					console.log("ENNU Auto-Select: Delayed selection completed - " + delayedCount + " pages selected");
+					// REMOVED: console.log("ENNU Auto-Select: Delayed selection completed - " + delayedCount + " pages selected");
 					
 					// Show success message
 					if (delayedCount > 0) {
@@ -1045,19 +1057,19 @@ class ENNU_Enhanced_Admin {
 			// Assessment pages - SIMPLE FORMAT
 			'hair_assessment_page_id', 'ed-treatment_assessment_page_id', 'weight-loss_assessment_page_id',
 			'health_assessment_page_id', 'health-optimization_assessment_page_id', 'skin_assessment_page_id',
-			'hormone_assessment_page_id', 'testosterone_assessment_page_id', 'menopause_assessment_page_id', 'sleep_assessment_page_id',
+			'hormone_assessment_page_id', 'testosterone_assessment_page_id', 'menopause_assessment_page_id', 'sleep_assessment_page_id', 'peptide-therapy_assessment_page_id',
 			// Results pages - SIMPLE FORMAT
 			'hair_results_page_id', 'ed-treatment_results_page_id', 'weight-loss_results_page_id',
 			'health_results_page_id', 'health-optimization_results_page_id', 'skin_results_page_id',
-			'hormone_results_page_id', 'testosterone_results_page_id', 'menopause_results_page_id', 'sleep_results_page_id',
+			'hormone_results_page_id', 'testosterone_results_page_id', 'menopause_results_page_id', 'sleep_results_page_id', 'peptide-therapy_results_page_id',
 			// Details pages - SIMPLE FORMAT
 			'hair_details_page_id', 'ed-treatment_details_page_id', 'weight-loss_details_page_id',
 			'health_details_page_id', 'health-optimization_details_page_id', 'skin_details_page_id',
-			'hormone_details_page_id', 'testosterone_details_page_id', 'menopause_details_page_id', 'sleep_details_page_id',
+			'hormone_details_page_id', 'testosterone_details_page_id', 'menopause_details_page_id', 'sleep_details_page_id', 'peptide-therapy_details_page_id',
 			// Consultation pages - SIMPLE FORMAT
 			'hair_consultation_page_id', 'ed-treatment_consultation_page_id', 'weight-loss_consultation_page_id',
 			'health_consultation_page_id', 'health-optimization_consultation_page_id', 'skin_consultation_page_id',
-			'hormone_consultation_page_id', 'testosterone_consultation_page_id', 'menopause_consultation_page_id', 'sleep_consultation_page_id'
+			'hormone_consultation_page_id', 'testosterone_consultation_page_id', 'menopause_consultation_page_id', 'sleep_consultation_page_id', 'peptide-therapy_consultation_page_id'
 		);
 		
 		foreach ( $expected_pages as $page_key ) {
@@ -1155,6 +1167,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone' => 'Testosterone Assessment',
 			'menopause' => 'Menopause Assessment',
 			'sleep' => 'Sleep Assessment',
+			'peptide-therapy' => 'Peptide Therapy Assessment',
 		);
 
 		// Assessment Form Pages - SIMPLE PAGE ID APPROACH
@@ -1439,18 +1452,31 @@ class ENNU_Enhanced_Admin {
 		$all_meta = get_user_meta( $user_id );
 		$completed_assessments = array();
 		
-		// Get ALL available assessment types from config files
-		$assessment_dir = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessments/';
-		$assessment_files = glob( $assessment_dir . '*.php' );
+		// Define assessment types in preferred display order (Weight Loss should be last)
+		$ordered_assessment_types = array(
+			'hair' => 'Hair Assessment',
+			'ed-treatment' => 'ED Treatment Assessment', 
+			'health' => 'Health Assessment',
+			'health-optimization' => 'Health Optimization Assessment',
+			'peptide-therapy' => 'Peptide Therapy Assessment',
+			'skin' => 'Skin Assessment',
+			'hormone' => 'Hormone Assessment',
+			'testosterone' => 'Testosterone Assessment',
+			'menopause' => 'Menopause Assessment',
+			'sleep' => 'Sleep Assessment',
+			'weight-loss' => 'Weight Loss Assessment' // Moved to last position as requested
+		);
+		
 		$available_assessments = array();
 		
-		foreach ( $assessment_files as $file ) {
-			$assessment_type = basename( $file, '.php' );
-			// Skip welcome assessment as it's not a real assessment
-			if ( $assessment_type !== 'welcome' ) {
+		// Create assessments array in the defined order
+		foreach ( $ordered_assessment_types as $assessment_type => $assessment_title ) {
+			// Verify the config file exists before adding
+			$config_file = ENNU_LIFE_PLUGIN_PATH . 'includes/config/assessments/' . $assessment_type . '.php';
+			if ( file_exists( $config_file ) ) {
 				$available_assessments[ $assessment_type ] = array(
 					'type' => $assessment_type,
-					'title' => ucwords( str_replace( '-', ' ', $assessment_type ) ) . ' Assessment',
+					'title' => $assessment_title,
 					'status' => 'Available'
 				);
 			}
@@ -1458,9 +1484,17 @@ class ENNU_Enhanced_Admin {
 		
 		// Check which assessments have user data and update status
 		foreach ( $available_assessments as $assessment_type => &$assessment_info ) {
-			$calculated_score = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', true );
+			// Try new format first, then fall back to old format
+			$canonical_assessment_type = ENNU_Assessment_Constants::get_canonical_key( $assessment_type );
+			$calculated_score = get_user_meta( $user_id, ENNU_Assessment_Constants::get_full_meta_key( $canonical_assessment_type, 'calculated_score' ), true );
+			
+			// Fallback to old format if new format is empty
+			if ( empty( $calculated_score ) || ! is_numeric( $calculated_score ) ) {
+				$calculated_score = get_user_meta( $user_id, 'ennu_' . $assessment_type . '_calculated_score', true );
+			}
+			
 			if ( ! empty( $calculated_score ) && is_numeric( $calculated_score ) ) {
-				$assessment_info['status'] = "Completed (Score: $calculated_score)";
+				$assessment_info['status'] = "Completed (Score: " . number_format($calculated_score, 1) . ")";
 			} else {
 				// Check for partial data - look for ANY question field with content
 				$question_count = 0;
@@ -1482,7 +1516,15 @@ class ENNU_Enhanced_Admin {
 			}
 		}
 		
-		$completed_assessments = $available_assessments;
+		// Create a clean copy to avoid reference issues
+		$completed_assessments = array();
+		foreach ( $available_assessments as $assessment_type => $assessment_info ) {
+			$completed_assessments[ $assessment_type ] = array(
+				'type' => $assessment_info['type'],
+				'title' => $assessment_info['title'],
+				'status' => $assessment_info['status']
+			);
+		}
 		
 		// Display comprehensive user health overview
 		echo '<div class="ennu-comprehensive-overview" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">';
@@ -1866,16 +1908,16 @@ class ENNU_Enhanced_Admin {
 			// Wait for jQuery to be available
 			function initENNUTabs() {
 				if (typeof jQuery === 'undefined') {
-					console.log('ENNU Admin: Waiting for jQuery...');
+					// REMOVED: console.log('ENNU Admin: Waiting for jQuery...');
 					setTimeout(initENNUTabs, 100);
 					return;
 				}
 				
 				jQuery(document).ready(function($) {
 					// Debug log
-					console.log('ENNU Admin: Initializing tabs');
-					console.log('Tab links found:', $('.ennu-tab-link').length);
-					console.log('Tab content found:', $('.ennu-tab-content').length);
+					// REMOVED: console.log('ENNU Admin: Initializing tabs');
+					// REMOVED: console.log('Tab links found:', $('.ennu-tab-link').length);
+					// REMOVED: console.log('Tab content found:', $('.ennu-tab-content').length);
 					
 					// Make first tab active by default
 					$('.ennu-tab-link').first().addClass('active');
@@ -1889,7 +1931,7 @@ class ENNU_Enhanced_Admin {
 						var $this = $(this);
 						var tab_id = $this.attr('data-tab');
 						
-						console.log('ENNU Admin: Switching to tab:', tab_id);
+						// REMOVED: console.log('ENNU Admin: Switching to tab:', tab_id);
 						
 						// Don't do anything if already active
 						if ($this.hasClass('active')) {
@@ -2008,6 +2050,7 @@ class ENNU_Enhanced_Admin {
 			'testosterone',
 			'health',
 			'hormone',
+			'peptide-therapy',
 			'skin',
 			'sleep',
 			'menopause'
@@ -2102,7 +2145,7 @@ class ENNU_Enhanced_Admin {
 			ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id );
 		}
 		
-		error_log( 'ENNU Enhanced Admin: Saved assessment fields for user ID: ' . $user_id );
+		// REMOVED: error_log( 'ENNU Enhanced Admin: Saved assessment fields for user ID: ' . $user_id );
 	}
 	
 	/**
@@ -2820,7 +2863,7 @@ class ENNU_Enhanced_Admin {
 		}
 
 		try {
-			error_log( "ENNU Enhanced Admin: Starting ajax_populate_symptoms for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Enhanced Admin: Starting ajax_populate_symptoms for user {$user_id}" );
 
 			// Check if centralized symptoms manager exists
 			if ( ! class_exists( 'ENNU_Centralized_Symptoms_Manager' ) ) {
@@ -2842,10 +2885,10 @@ class ENNU_Enhanced_Admin {
 					'timestamp' => current_time( 'mysql' )
 				);
 
-				error_log( "ENNU Enhanced Admin: ajax_populate_symptoms completed successfully for user {$user_id}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Enhanced Admin: ajax_populate_symptoms completed successfully for user {$user_id}" );
 				wp_send_json_success( $response_data );
 			} else {
-				error_log( "ENNU Enhanced Admin: ajax_populate_symptoms failed for user {$user_id}" );
+				// REMOVED: error_log( "ENNU Enhanced Admin: ajax_populate_symptoms failed for user {$user_id}" );
 				wp_send_json_error( array( 'message' => 'Failed to update symptoms' ) );
 			}
 
@@ -2868,15 +2911,15 @@ class ENNU_Enhanced_Admin {
 			return;
 		}
 
-		error_log( "ENNU Enhanced Admin: Auto-populating symptoms for user {$user_id} after {$assessment_type} assessment completion" );
+		// REMOVED: error_log( "ENNU Enhanced Admin: Auto-populating symptoms for user {$user_id} after {$assessment_type} assessment completion" );
 		
 		// Trigger the centralized symptoms update automatically
 		$success = ENNU_Centralized_Symptoms_Manager::update_centralized_symptoms( $user_id, $assessment_type );
 		
 		if ( $success ) {
-			error_log( "ENNU Enhanced Admin: Auto-population completed successfully for user {$user_id}" );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Enhanced Admin: Auto-population completed successfully for user {$user_id}" );
 		} else {
-			error_log( "ENNU Enhanced Admin: Auto-population failed for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Enhanced Admin: Auto-population failed for user {$user_id}" );
 		}
 	}
 
@@ -2911,7 +2954,7 @@ class ENNU_Enhanced_Admin {
 		}
 
 		try {
-			error_log( "ENNU Enhanced Admin: Starting ajax_delete_ennu_user_data for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Enhanced Admin: Starting ajax_delete_ennu_user_data for user {$user_id}" );
 
 			$deleted_count = 0;
 			$errors = array();
@@ -3082,7 +3125,7 @@ class ENNU_Enhanced_Admin {
 			// 5. Clear any cached data
 			wp_cache_delete( $user_id, 'user_meta' );
 
-			error_log( "ENNU Enhanced Admin: ajax_delete_ennu_user_data completed for user {$user_id}. Deleted: {$deleted_count} items. Errors: " . count( $errors ) );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( "ENNU Enhanced Admin: ajax_delete_ennu_user_data completed for user {$user_id}. Deleted: {$deleted_count} items. Errors: " . count( $errors ) );
 
 			$response_data = array(
 				'success' => true,
@@ -3954,7 +3997,7 @@ class ENNU_Enhanced_Admin {
 		}
 		
 		// Log the action
-		error_log("ENNU Admin: Cleared all data for user $user_id - Deleted $deleted_count meta entries, $cleared_transients transients, $cleared_cache cache entries");
+		// REMOVED: error_log("ENNU Admin: Cleared all data for user $user_id - Deleted $deleted_count meta entries, $cleared_transients transients, $cleared_cache cache entries");
 		
 		wp_send_json_success(array(
 			'message' => "Successfully cleared all ENNU data. Deleted $deleted_count database entries, $cleared_transients transients, and $cleared_cache cache entries."

@@ -339,7 +339,7 @@ class ENNU_Biomarker_Auto_Sync {
 
 		// Log to error log if there are errors
 		if ( ! empty( $results['errors'] ) ) {
-			error_log( 'ENNU Biomarker Auto-Sync Errors for user ' . $user_id . ': ' . implode( ', ', $results['errors'] ) );
+			// REMOVED: error_log( 'ENNU Biomarker Auto-Sync Errors for user ' . $user_id . ': ' . implode( ', ', $results['errors'] ) );
 		}
 	}
 

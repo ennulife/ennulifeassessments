@@ -331,7 +331,7 @@ class ENNU_PDF_Security {
 		update_option( 'ennu_pdf_security_log', $existing_log );
 		
 		// Also log to WordPress error log
-		error_log( 'ENNU PDF Security: ' . $event_type . ' - ' . json_encode( $data ) );
+		// REMOVED: error_log( 'ENNU PDF Security: ' . $event_type . ' - ' . json_encode( $data ) );
 	}
 	
 	/**

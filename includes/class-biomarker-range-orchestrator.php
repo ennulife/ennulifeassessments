@@ -62,7 +62,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 	 */
 	public function init() {
 		// Log initialization
-		error_log( 'ENNU Biomarker Range Orchestrator: Initialized' );
+		// REMOVED: // REMOVED DEBUG LOG: error_log( 'ENNU Biomarker Range Orchestrator: Initialized' );
 	}
 
 	/**
@@ -356,7 +356,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 	 * @return array Default ranges configuration
 	 */
 	public function get_default_ranges_config() {
-		error_log( "ENNU Biomarker Range Orchestrator: get_default_ranges_config() called" );
+		// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: get_default_ranges_config() called" );
 		
 		// Phase 2: Load ranges from database with fallback to hardcoded defaults
 		$database_ranges = array();
@@ -365,18 +365,18 @@ class ENNU_Biomarker_Range_Orchestrator {
 		$stored_ranges = get_option( 'ennu_biomarker_ranges', array() );
 		if ( ! empty( $stored_ranges ) ) {
 			$database_ranges = $stored_ranges;
-			error_log( "ENNU Biomarker Range Orchestrator: Loaded " . count( $database_ranges ) . " ranges from database" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Loaded " . count( $database_ranges ) . " ranges from database" );
 		} else {
-			error_log( "ENNU Biomarker Range Orchestrator: No database ranges found, using hardcoded defaults" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: No database ranges found, using hardcoded defaults" );
 		}
 		
 		// Get hardcoded default ranges
 		$hardcoded_ranges = $this->get_hardcoded_default_ranges();
-		error_log( "ENNU Biomarker Range Orchestrator: Hardcoded ranges contain " . count( $hardcoded_ranges ) . " biomarkers" );
+		// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Hardcoded ranges contain " . count( $hardcoded_ranges ) . " biomarkers" );
 		
 		// Merge database ranges with hardcoded defaults
 		$merged_ranges = array_merge( $hardcoded_ranges, $database_ranges );
-		error_log( "ENNU Biomarker Range Orchestrator: Returning " . count( $merged_ranges ) . " total biomarker configurations" );
+		// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Returning " . count( $merged_ranges ) . " total biomarker configurations" );
 		
 		return $merged_ranges;
 	}
@@ -6249,7 +6249,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 		$result = update_user_meta( $user_id, $override_key, $override_data );
 		
 		if ( $result ) {
-			error_log( "ENNU Biomarker Range Orchestrator: Saved user override for biomarker '{$biomarker}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Saved user override for biomarker '{$biomarker}' for user {$user_id}" );
 		}
 		
 		return $result;
@@ -6268,7 +6268,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 		$result = delete_user_meta( $user_id, $override_key );
 		
 		if ( $result ) {
-			error_log( "ENNU Biomarker Range Orchestrator: Cleared user override for biomarker '{$biomarker}' for user {$user_id}" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Cleared user override for biomarker '{$biomarker}' for user {$user_id}" );
 		}
 		
 		return $result;
@@ -6391,7 +6391,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 			// Synchronize all user biomarker data with new default values
 			$this->synchronize_user_biomarker_data($biomarker, $range_data);
 			
-			error_log( "ENNU Biomarker Range Orchestrator: Saved range for biomarker '{$biomarker}' via AJAX and synchronized user data" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Saved range for biomarker '{$biomarker}' via AJAX and synchronized user data" );
 			wp_send_json_success( 'Range saved successfully and user data synchronized' );
 		} else {
 			wp_send_json_error( 'Failed to save range' );
@@ -6449,7 +6449,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 			}
 		}
 		
-		error_log("ENNU Biomarker Range Orchestrator: Synchronized biomarker '{$biomarker}' data for " . count($users) . " users");
+		// REMOVED: error_log("ENNU Biomarker Range Orchestrator: Synchronized biomarker '{$biomarker}' data for " . count($users) . " users");
 	}
 
 	// ========================================
@@ -6518,7 +6518,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 		$result = update_option( "ennu_biomarker_panel_{$panel_id}", $panel_data );
 		
 		if ( $result ) {
-			error_log( "ENNU Biomarker Range Orchestrator: Saved panel '{$panel_id}' via AJAX" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Saved panel '{$panel_id}' via AJAX" );
 			wp_send_json_success( 'Panel saved successfully' );
 		} else {
 			wp_send_json_error( 'Failed to save panel' );
@@ -6545,7 +6545,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 		$result = delete_option( "ennu_biomarker_panel_{$panel_id}" );
 		
 		if ( $result ) {
-			error_log( "ENNU Biomarker Range Orchestrator: Deleted panel '{$panel_id}' via AJAX" );
+			// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Deleted panel '{$panel_id}' via AJAX" );
 			wp_send_json_success( 'Panel deleted successfully' );
 		} else {
 			wp_send_json_error( 'Failed to delete panel' );
@@ -6584,7 +6584,7 @@ class ENNU_Biomarker_Range_Orchestrator {
 			$result = update_option( "ennu_biomarker_panel_{$new_panel_id}", $original_panel );
 			
 			if ( $result ) {
-				error_log( "ENNU Biomarker Range Orchestrator: Duplicated panel '{$original_panel_id}' to '{$new_panel_id}' via AJAX" );
+				// REMOVED: error_log( "ENNU Biomarker Range Orchestrator: Duplicated panel '{$original_panel_id}' to '{$new_panel_id}' via AJAX" );
 				wp_send_json_success( 'Panel duplicated successfully' );
 			} else {
 				wp_send_json_error( 'Failed to duplicate panel' );

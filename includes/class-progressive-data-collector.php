@@ -350,6 +350,7 @@ class ENNU_Progressive_Data_Collector extends ENNU_Smart_Recommendation_Engine {
 			'menopause'    => array( 'age', 'gender', 'height', 'weight', 'stress_level', 'sleep_hours', 'medical_conditions' ),
 			'weight_loss'  => array( 'age', 'gender', 'height', 'weight', 'activity_level', 'diet_type', 'exercise_frequency' ),
 			'longevity'    => array( 'age', 'gender', 'activity_level', 'stress_level', 'sleep_hours', 'medical_conditions', 'family_history' ),
+			'peptide_therapy' => array( 'age', 'gender', 'height', 'weight', 'activity_level', 'exercise_frequency', 'medical_conditions', 'medications', 'supplements', 'health_goals' ),
 		);
 
 		if ( ! isset( $relevance_map[ $assessment_type ] ) ) {
